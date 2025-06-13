@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 14/06/2025 às 01:15
+-- Tempo de geração: 14/06/2025 às 01:33
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -247,7 +247,9 @@ CREATE TABLE `indicacao_usuario` (
 
 CREATE TABLE `lista_desejo` (
   `id` int(11) NOT NULL,
-  `lista_desejo` varchar(255) DEFAULT NULL
+  `FK_usuario_id` int(11) NOT NULL,
+  `FK_livro_isbn` varchar(13) NOT NULL,
+  `data_adicao` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -257,8 +259,7 @@ CREATE TABLE `lista_desejo` (
 --
 
 CREATE TABLE `lista_livro` (
-  `FK_livro_isbn` varchar(20) DEFAULT NULL,
-  `FK_lista_desejo_id` int(11) DEFAULT NULL
+  `FK_livro_isbn` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -434,7 +435,6 @@ CREATE TABLE `usuario` (
   `nome` varchar(200) DEFAULT NULL,
   `senha` varchar(10) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL,
-  `FK_lista_desejo_id` int(11) DEFAULT NULL,
   `FK_tipo_usuario_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -624,14 +624,15 @@ ALTER TABLE `indicacao_usuario`
 -- Índices de tabela `lista_desejo`
 --
 ALTER TABLE `lista_desejo`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_usuario_id` (`FK_usuario_id`),
+  ADD KEY `FK_livro_isbn` (`FK_livro_isbn`);
 
 --
 -- Índices de tabela `lista_livro`
 --
 ALTER TABLE `lista_livro`
-  ADD KEY `FK_lista_livro_0` (`FK_livro_isbn`),
-  ADD KEY `FK_lista_livro_1` (`FK_lista_desejo_id`);
+  ADD KEY `FK_lista_livro_0` (`FK_livro_isbn`);
 
 --
 -- Índices de tabela `livro`
@@ -720,7 +721,6 @@ ALTER TABLE `tipo_usuario`
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_usuario_1` (`FK_funcionario_id`),
-  ADD KEY `FK_usuario_2` (`FK_lista_desejo_id`),
   ADD KEY `fk_usuario_tipo_usuario` (`FK_tipo_usuario_id`);
 
 --
@@ -895,11 +895,17 @@ ALTER TABLE `indicacao_usuario`
   ADD CONSTRAINT `FK_indicacao_usuario_1` FOREIGN KEY (`FK_indicacao_id`) REFERENCES `indicacao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
+-- Restrições para tabelas `lista_desejo`
+--
+ALTER TABLE `lista_desejo`
+  ADD CONSTRAINT `lista_desejo_ibfk_1` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`),
+  ADD CONSTRAINT `lista_desejo_ibfk_2` FOREIGN KEY (`FK_livro_isbn`) REFERENCES `livro` (`isbn`);
+
+--
 -- Restrições para tabelas `lista_livro`
 --
 ALTER TABLE `lista_livro`
-  ADD CONSTRAINT `FK_lista_livro_0` FOREIGN KEY (`FK_livro_isbn`) REFERENCES `livro` (`isbn`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_lista_livro_1` FOREIGN KEY (`FK_lista_desejo_id`) REFERENCES `lista_desejo` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `FK_lista_livro_0` FOREIGN KEY (`FK_livro_isbn`) REFERENCES `livro` (`isbn`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `livro`
@@ -956,7 +962,6 @@ ALTER TABLE `reserva_livro`
 --
 ALTER TABLE `usuario`
   ADD CONSTRAINT `FK_usuario_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_usuario_2` FOREIGN KEY (`FK_lista_desejo_id`) REFERENCES `lista_desejo` (`id`),
   ADD CONSTRAINT `fk_usuario_tipo_usuario` FOREIGN KEY (`FK_tipo_usuario_id`) REFERENCES `tipo_usuario` (`id`);
 
 --
