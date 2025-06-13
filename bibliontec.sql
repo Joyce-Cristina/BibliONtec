@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 03/06/2025 às 21:36
+-- Tempo de geração: 14/06/2025 às 01:15
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -404,6 +404,25 @@ CREATE TABLE `status` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `tipo_usuario`
+--
+
+CREATE TABLE `tipo_usuario` (
+  `id` int(11) NOT NULL,
+  `tipo` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tipo_usuario`
+--
+
+INSERT INTO `tipo_usuario` (`id`, `tipo`) VALUES
+(1, 'Aluno'),
+(2, 'Professor');
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `usuario`
 --
 
@@ -414,9 +433,9 @@ CREATE TABLE `usuario` (
   `foto` varchar(255) DEFAULT NULL,
   `nome` varchar(200) DEFAULT NULL,
   `senha` varchar(10) DEFAULT NULL,
-  `tipo` varchar(20) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL,
-  `FK_lista_desejo_id` int(11) DEFAULT NULL
+  `FK_lista_desejo_id` int(11) DEFAULT NULL,
+  `FK_tipo_usuario_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -690,12 +709,19 @@ ALTER TABLE `status`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tipo_usuario`
+--
+ALTER TABLE `tipo_usuario`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `usuario`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_usuario_1` (`FK_funcionario_id`),
-  ADD KEY `FK_usuario_2` (`FK_lista_desejo_id`);
+  ADD KEY `FK_usuario_2` (`FK_lista_desejo_id`),
+  ADD KEY `fk_usuario_tipo_usuario` (`FK_tipo_usuario_id`);
 
 --
 -- Índices de tabela `usuario_acessibilidade`
@@ -731,6 +757,76 @@ ALTER TABLE `usuario_emprestimo`
 ALTER TABLE `usuario_notificacao`
   ADD KEY `FK_usuario_notificacao_0` (`FK_usuario_id`),
   ADD KEY `FK_usuario_notificacao_1` (`FK_notificacao_id`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `comentario`
+--
+ALTER TABLE `comentario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `curso`
+--
+ALTER TABLE `curso`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `funcao`
+--
+ALTER TABLE `funcao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `funcionario`
+--
+ALTER TABLE `funcionario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `historico`
+--
+ALTER TABLE `historico`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `indicacao`
+--
+ALTER TABLE `indicacao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `lista_desejo`
+--
+ALTER TABLE `lista_desejo`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `notificacao`
+--
+ALTER TABLE `notificacao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `permissao`
+--
+ALTER TABLE `permissao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `tipo_usuario`
+--
+ALTER TABLE `tipo_usuario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de tabela `usuario`
+--
+ALTER TABLE `usuario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restrições para tabelas despejadas
@@ -860,7 +956,8 @@ ALTER TABLE `reserva_livro`
 --
 ALTER TABLE `usuario`
   ADD CONSTRAINT `FK_usuario_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_usuario_2` FOREIGN KEY (`FK_lista_desejo_id`) REFERENCES `lista_desejo` (`id`);
+  ADD CONSTRAINT `FK_usuario_2` FOREIGN KEY (`FK_lista_desejo_id`) REFERENCES `lista_desejo` (`id`),
+  ADD CONSTRAINT `fk_usuario_tipo_usuario` FOREIGN KEY (`FK_tipo_usuario_id`) REFERENCES `tipo_usuario` (`id`);
 
 --
 -- Restrições para tabelas `usuario_acessibilidade`
