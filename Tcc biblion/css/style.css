@@ -1,39 +1,41 @@
+   @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Calibri:wght@400&display=swap');
+
 .login-box {
-    width: 600px;
-    height: 700px;
-    background-color: #dcb97a;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 25px;
-  }
 
-
-.content-box{
-    background-color: #dcb97a;
-    width: 1200px;
-    height: 800px;
-    margin: auto;
-    align-self: center;
-}
-
-.content-small{
+  box-sizing: border-box;
   background-color: #dcb97a;
-    width: 1200px;
-    height: 200px;
-    margin: auto;
-    align-self: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 25px;
 }
 
-.content-title{
+
+.content-box {
+  background-color: #dcb97a;
+  width: 1200px;
+  height: 800px;
+  margin: auto;
+  align-self: center;
+}
+
+.content-small {
+  background-color: #dcb97a;
+  width: 1200px;
+  height: 200px;
+  margin: auto;
+  align-self: center;
+}
+
+.content-title {
   font-size: 40px;
   text-align: center;
   margin-top: 20px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.content-textMain{
+.content-textMain {
   font-size: 25px;
   text-align: center;
   margin-top: 20px;
@@ -44,7 +46,7 @@
   margin-right: 20px;
 }
 
-.content-text{
+.content-text {
   font-size: 22px;
   font-family: Arial, Helvetica, sans-serif;
   margin-left: 20px;
@@ -53,43 +55,43 @@
 .row {
   display: flex;
   align-items: center;
-  gap: 10px; 
+  gap: 10px;
 }
 
-.emprestimo-button{
+.emprestimo-button {
   margin-left: 200px;
   margin-top: 100%;
   background-color: #7a1600;
 }
 
-  .adm-box {
-    position: fixed;
-    top: 80px;
-    left: 0;
-    width: 300px;
-    height: calc(100% - 80px);
-    overflow-y: auto;
-    background-color: #7a1600;
-    padding: 10px;
-    border-right: 1px solid #ddd;
-    z-index: 1;
-  }
+.adm-box {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 300px;
+  height: calc(100% - 80px);
+  overflow-y: auto;
+  background-color: #7a1600;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+  z-index: 1;
+}
 
-  .display-box {
-    margin-left: 320px; 
-    padding: 20px;
-  }
+.display-box {
+  margin-left: 320px;
+  padding: 20px;
+}
 
 
-  .navbar {
-    z-index: 10;
-    background-color: #7a1600;
- }
+.navbar {
+  z-index: 10;
+  background-color: #7a1600;
+}
 
- .row-custom {
+.row-custom {
   display: flex;
   align-items: center;
-  gap: 10px; 
+  gap: 10px;
 }
 
 #about {
@@ -113,4 +115,107 @@
   #about img {
     margin-bottom: 1.5rem;
   }
+}
+
+.body {
+  background-color: #7A1600;
+  font-family: 'Open Sans', 'Calibri', sans-serif;
+  color: #ffffff;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-box {
+  background-color: #DCB97A;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.login-box label {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: bold;
+  font-size: 22px;
+  display: block;
+  margin-top: 15px;
+  text-align: left;
+  
+}
+
+.login-box input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+  
+  border: none;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+.login-box input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+ 
+  border: none;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.login-box button {
+  background-color: #7A1600;
+  color: white;
+  padding: 12px 20px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-family: 'Open Sans', sans-serif;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+  transition: background-color 0.3s ease;
+}
+
+.login-box button:hover {
+  background-color: #7A1600;
+}
+
+.login-box a.nav-link {
+  display: block;
+  font-family: 'Open Sans', sans-serif;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #000000;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.login-box a.nav-link:hover {
+  text-decoration: underline;
+}
+
+
+.logo-box {
+  padding: 10px;
+  border: 2px;
+  width: 200px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.logo-box img {
+  max-width: 100%;
+  background-color: #581000;
+  height: auto;
 }
