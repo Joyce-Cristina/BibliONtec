@@ -219,3 +219,325 @@
   background-color: #581000;
   height: auto;
 }
+
+/* Navbar */
+.navbar {
+  background-color: #7a1600;
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: #fff !important;
+  font-weight: 600;
+}
+
+/* Sobre a Biblioteca */
+#about {
+  background-color: #dcc7a1;
+  padding: 60px 0;
+}
+
+#about .card {
+  background-color: #fff;
+  border-radius: 20px;
+  border: none;
+  font-size: 1.1rem;
+  padding: 30px;
+}
+
+#about img {
+  border-radius: 20px;
+  max-height: 300px;
+  object-fit: cover;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Formulário estilo moderno */
+
+
+form label {
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+form input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+form input[type="submit"] {
+  background-color: #7a1600;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  margin-top: 15px;
+}
+
+form input[type="submit"]:hover {
+  background-color: #5e1000;
+}
+
+/* Notificações */
+.overflow-auto {
+  background-color: #f3e3c8;
+  padding: 40px;
+  border-radius: 20px;
+}
+
+.overflow-auto h2 {
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.card.mb-3 {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.card .card-body {
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Footer */
+footer {
+  background-color: #ae2000;
+  color: #fff;
+  padding: 20px 0;
+  font-size: 0.9rem;
+}
+
+.navbar {
+  background-color: #7A1600;
+  padding: 15px 40px;
+  box-shadow: none;
+  border: none;
+}
+
+.navbar-brand {
+  color: #ffffff !important;
+  font-weight: bold;
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+
+.navbar-nav .nav-link {
+  color: #ffffff !important;
+  font-weight: 500;
+  margin-left: 20px;
+  transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #f3e3c8 !important;
+  text-decoration: underline;
+}
+
+.navbar-toggler {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+form.d-flex input {
+  border-radius: 10px;
+  border: none;
+}
+
+form.d-flex .btn-outline-success {
+  background-color: #dcc7a1;
+  color: #000;
+  border: none;
+  font-weight: 600;
+  margin-left: 10px;
+  transition: 0.3s ease;
+}
+
+form.d-flex .btn-outline-success:hover {
+  background-color: #fff3da;
+  color: #000;
+}
+
+.form-limpo {
+   display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  align-items: flex-start;
+}
+
+.form-limpo label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #ffffff;
+}
+
+.form-limpo input[type="text"] {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 16px;
+  background-color: white !important; /* fundo branco nos inputs */
+  box-shadow: none !important;
+  color: #000;
+}
+.form-limpo input[type="submit"] {
+  background-color: #b57a4b;
+  color: black;
+  border: none;
+  border-radius: 15px;
+  padding: 10px;
+  box-sizing: border-box;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  width: auto;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+
+.form-limpo input[type="submit"]:hover {
+  background-color: #9c6640; 
+  box-sizing: border-box;
+}
+
+
+.form-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+/* grupo input + botão */
+.input-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.input-btn-group input[type="text"] {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 16px;
+  background-color: white !important;
+  color: black;
+  box-sizing: border-box;
+}
+
+.input-btn-group input[type="submit"] {
+  background-color: #C2A878;
+  color: black;
+  border: none;
+  border-radius: 15px;
+  padding: 10px 15px;
+  cursor: pointer;
+  white-space: nowrap;
+  width: auto;
+  box-sizing: border-box;
+  font-weight: bold;
+}
+
+.input-btn-group input[type="submit"]:hover {
+  background-color: #C2A878;
+}
+
+/* Container para colocar Curso e Série lado a lado */
+.double-group {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 820px; /* ou ajuste conforme desejar */
+}
+
+/* Cada input+label dentro do double-group */
+.input-with-label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1; /* para dividir igualmente o espaço */
+}
+
+.centraliza-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #ffffff;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.notifications-container {
+  max-width: 900px; /* aumentada */
+  width: 100%;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  background-color: #C2A878;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.notification-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  
+}
+
+.notification-card img.card-img {
+  width: 100%;
+  height: 100%;
+  max-height: 160px; /* controla só a imagem */
+  object-fit: cover;
+  border-radius: 0;
+}
+
+footer h5 {
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+footer ul li,
+footer p {
+  font-size: 15px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+form.form-limpo label {
+  font-weight: bold;
+  font-size: 20px;
+}
