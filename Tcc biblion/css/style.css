@@ -87,12 +87,27 @@
   z-index: 10;
   background-color: #7a1600;
 }
-
-.row-custom {
+.row {
   display: flex;
+  flex-wrap: nowrap; /* evita quebrar linha */
   align-items: center;
-  gap: 10px;
 }
+
+.col-7, .col-5 {
+  flex: 0 0 auto;
+}
+
+.col-7 {
+  width: 58.3333%; /* 7/12 */
+  padding-right: 1rem;
+}
+
+.col-5 {
+  width: 41.6667%; /* 5/12 */
+  display: flex;
+  justify-content: flex-end;
+}
+
 
 #about {
   background-color: #dcc7a1;
@@ -206,18 +221,20 @@
 .logo-box {
   padding: 10px;
   border: 2px;
-  width: 200px;
-  height: 150px;
+  width: 320px;
+  height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 30px;
+  
 }
 
 .logo-box img {
   max-width: 100%;
   background-color: #581000;
   height: auto;
+  border-radius: 13%;
 }
 
 /* Navbar */
@@ -540,4 +557,12 @@ html {
 form.form-limpo label {
   font-weight: bold;
   font-size: 20px;
+}
+
+
+.card img {
+  width: auto;
+  object-fit: cover;
+  height: auto;
+  display: block;
 }
