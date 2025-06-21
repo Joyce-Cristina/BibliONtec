@@ -3,128 +3,262 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=, initial-scale=1.0">
-  <title>BibliOnTec - Página inicial</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BibliOnTec - Página Inicial</title>
+
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <!-- Ícones -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f0e6d2;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background-color: #7a1505;
+      z-index: 1050;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      width: 220px;
+      height: calc(100vh - 56px);
+      background-color: #7a1505;
+      padding: 20px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 1040;
+    }
+
+    .sidebar a,
+    .sidebar button.dropdown-toggle {
+      display: block;
+      background-color: #7a1505;
+      color: white;
+      margin-bottom: 10px;
+      text-align: left;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .sidebar a:hover,
+    .sidebar button.dropdown-toggle:hover {
+      background-color: #a82010;
+      color: white;
+    }
+
+    .sidebar>a.active {
+      background-color: #4d0f03 !important;
+      color: white !important;
+      box-shadow: none !important;
+    }
+
+    .sidebar>button.dropdown-toggle.active {
+      background-color: #7a1505 !important;
+      color: white !important;
+      box-shadow: none !important;
+    }
+
+    /* Conteúdo Central */
+    .main-container {
+      flex: 1;
+      padding-left: 270px;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      overflow-y: auto;
+      min-height: calc(100vh - 56px);
+    }
+
+    .content {
+    background-color: #dab57e;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 900px;
+    margin: 0 auto;
+    height: 500px;
+    overflow-y: auto;
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+
+  .content h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .content p {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: justify;
+  }
+
+
+    h1 {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .btn-dark {
+      background-color: #7a1600;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-dark:hover {
+      background-color: #5c0e00;
+    }
+
+    /* Responsivo */
+    @media (max-width: 800px) {
+      .sidebar {
+        position: relative;
+        height: auto;
+        width: 100%;
+        border-radius: 0;
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .sidebar a,
+      .sidebar button.dropdown-toggle {
+        margin-bottom: 0;
+        flex: 1 1 auto;
+        text-align: center;
+        padding: 8px 5px;
+      }
+
+      .main-container {
+        padding-left: 0;
+      }
+
+      .content {
+        width: 100%;
+        max-width: 100%;
+        margin-top: 10px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-  <!--Navbar-->
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="./index.html">BiblionTec</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid d-flex align-items-center" style="gap: 0;">
+      <a class="navbar-brand" href="./index.html">
+        <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <form class="d-flex" role="search">
-          <button class="btn " type="submit">Home</button>
-        </form>
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        </ul>
-        <form class="d-flex" role="search">
-          <button class="btn " type="submit">Notificação</button>
-          <button class="btn " type="submit">Atualizações</button>
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+        <form class="d-flex">
+          <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+            <li class="nav-item">
+              <a class="nav-link" href="./areaAdm.html" style="color: white;">
+                <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+              </a>
+            </li>
+          </ul>
+          <button class="btn text-white" type="submit">
+            <i class="bi bi-arrow-repeat"></i> Atualizações
+          </button>
         </form>
       </div>
     </div>
   </nav>
 
-  <div class="col-lg-4">
-    <div class="text-center adm-box">
-      <div class="row">
-
-        <div class="dropdown show">
-          <a class="btn btn-danger dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false" style="margin-bottom: 20px; margin-top: 20px;">
-              Cadastro
-            </a>
-  
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-              <a class="dropdown-item" href="./cadAluno.html">Aluno</a>
-              <a class="dropdown-item" href="./cadLivro.html">Livros</a>
-              <a class="dropdown-item" href="./cadFunc.html">Funcionários</a>
-            </div>
-          </div>
 
 
-      </div>
-      <div class="row">
-        <a class="nav-link" href="./emprestimo.html" style="margin-bottom: 20px;">
-          <button class="btn btn-danger" type="submit">Empréstimo</button>
-        </a>
-      </div>
-      <div class="row">
-        <a class="nav-link" href="./etiqueta.html" style="margin-bottom: 20px;">
-          <button class="btn btn-danger" type="submit">Etiqueta</button>
-        </a>
-      </div>
-      <div class="row">
-        <a class="nav-link" href="./areaAdm.html" style="margin-bottom: 20px;">
-          <button class="btn btn-danger" type="submit">Administrador</button>
-        </a>
-      </div>
-      <div class="row">
-        <a class="nav-link" href="./acervo.html" style="margin-bottom: 20px;">
-          <button class="btn btn-danger" type="submit">Acervo</button>
-        </a>
-      </div>
-      <div class="row">
-        <a class="nav-link" href="./usuarios.html" style="margin-bottom: 20px;">
-          <button class="btn btn-danger" type="submit">Usuários</button>
-        </a>
-      </div>
-      <div class="row">
-        <a class="nav-link" href="./funcionarios.html" style="margin-bottom: 20px;">
-          <button class="btn btn-danger" type="submit">Funcionários</button>
-        </a>
-      </div>
-      <div class="row">
-        <a class="nav-link" href="./backup.html" style="margin-bottom: 20px;">
-          <button class="btn btn-danger" type="submit">Backup</button>
-        </a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Sidebar -->
+  <div class="sidebar d-flex flex-column">
+    <div class="dropdown">
+      <button class="btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+        Cadastro
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="./cadAluno.html">Aluno</a></li>
+        <li><a class="dropdown-item" href="./cadLivro.html">Livros</a></li>
+        <li><a class="dropdown-item" href="./cadFunc.html">Funcionários</a></li>
+      </ul>
+    </div>
+
+    <a class="btn w-100" href="./emprestimo.html">Empréstimo</a>
+    <a class="btn w-100" href="./etiqueta.html">Etiqueta</a>
+    <a class="btn w-100" href="./areaAdm.html">Administrador</a>
+    <a class="btn w-100" href="./acervo.html">Acervo</a>
+    <a class="btn w-100" href="./usuarios.html">Usuários</a>
+    <a class="btn w-100" href="./funcionarios.html">Funcionários</a>
+    <a class="btn w-100" href="./backup.html">Backup</a>
+  </div>
+
+  <!-- Conteúdo -->
+  <div class="main-container">
+    <div class="content">
+      <h1>Bem-vindo!</h1>
+      <p style="font-size: 20px; text-align: justify;">
+        Neste site você irá exercer suas funções diárias que costumava fazer manualmente (escrita à mão e etc), agora
+        de forma tecnológica, mais rápida e prática. Aqui você pode realizar cadastros de livros, alunos, empréstimos,
+        entre outros. Além disso, o sistema te ajuda com notificações rápidas de devoluções, atrasos e fila de espera.
+      </p>
+      <br>
+      <p><strong>Contatos:</strong></p>
+      <p>E-mail: tcc@gmail.com</p>
+      <p>Instagram: @BibliONtec</p>
+      <div class="text-end">
+        <a href="./index.html" class="btn btn-dark rounded-pill px-4 py-2">Entrar em outra conta</a>
       </div>
     </div>
   </div>
 
-  <div class="display-box">
-    <div class="content-box">
-      <h3 class="content-title">Conteúdo Central</h3>
-      <p class="content-textMain">Neste site você irá exercer suas funções diárias que costumava fazer manualmente
-        (escrita a mão e etc), agora
-        tecnologicamente mais rápido e prático como, cadastro dos livros, alunos, empréstimos, entre outros, além de
-        também
-        te ajudar com notificações rápidas que avisam devoluções de livros, quem está com a devolução atrasada,
-        incluindo um mecanismo de fila de espera.</p>
-      <p class="content-text" style="font-size: 20px;">Contatos:</p>
-      <p class="content-text" style="font-size: 20px;" >E-Mail:</p>
-      <div class="d-flex align-items-center">
-        <p class="content-text mb-0" style="margin-bottom: 0;" style="font-size: 20px;" >Instagram:</p>
-        <a href="./index.html" class="btn btn-danger btn-xl" style="margin-left: 60%; height: 70px; width: 150px; align-content: center;">Sair da sua conta</a>
-      </div>
-    </div>
-  </div>
-  </div>
 
-
-
-
-
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
 </body>
 
 </html>

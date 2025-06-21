@@ -65,17 +65,18 @@
 }
 
 .adm-box {
-  position: fixed;
-  top: 80px;
-  left: 0;
-  width: 300px;
-  height: calc(100% - 80px);
-  overflow-y: auto;
-  background-color: #7a1600;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-  z-index: 1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #7a1600;
+    padding: 10px;
+    border-right: 1px solid #ddd;
+    z-index: 1;
 }
+
 
 .display-box {
   margin-left: 320px;
@@ -565,4 +566,53 @@ form.form-limpo label {
   object-fit: cover;
   height: auto;
   display: block;
+}
+
+.sidebar {
+  position: fixed;
+  top: 56px; /* altura da navbar */
+  left: 0;
+  width: 220px;
+  height: calc(100vh - 56px);
+  background-color: #7a1505;
+  padding: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 1040;
+}
+
+.sidebar a,
+.sidebar button.dropdown-toggle {
+  display: block;
+  background-color: #7a1505;
+  color: white;
+  margin-bottom: 10px;
+  text-align: left;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar a:hover,
+.sidebar button.dropdown-toggle:hover {
+  background-color: #a82010;
+  color: white;
+}
+
+.sidebar > a.active {
+  background-color: #4d0f03 !important;
+  color: white !important;
+  box-shadow: none !important;
+}
+
+.sidebar > button.dropdown-toggle.active {
+  background-color: #7a1505 !important;
+  color: white !important;
+  box-shadow: none !important;
 }
