@@ -17,49 +17,39 @@
 <body>
 
   <!--Navbar-->
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="./index.html" style="color: white;">
-  <img src="../img/logoreta.png" alt="Logo BibliONtec" style="height: 50px; width: auto;">
-</a>
+  <nav class="navbar-custom">
+  <div class="navbar-left">
+    <a href="./index.html">
+      <img src="../img/logoreta.png" alt="Logo" class="logo-navbar">
+    </a>
+  </div>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="./indicacoes.html" style="color: white;">Indicações</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./lista.html" style="color: white;">Lista de Desejo</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./areaAluno.html" style="color: white;">Área do Aluno</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./homepageAluno.html" style="color: white;">Homepage</a>
-          </li>
-        </ul>
-
-        <!-- Ícone de notificações -->
-        <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-          <li class="nav-item">
-            <a class="nav-link" href="#notificacoes" style="color: white; position: relative;">
-              <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
-            </a>
-          </li>
-        </ul>
-
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
+  <div class="navbar-center">
+    <div class="search-box">
+      <input type="text" placeholder="Pesquisar...">
+      <i class="bi bi-search"></i>
     </div>
-  </nav>
+
+    <ul class="menu-navbar">
+      <li><a href="./homepageAluno.html">Página inicial</a></li>
+      <li><a href="./indicacoes.html">Indicações</a></li>
+      <li><a href="./lista.html">Lista de desejo</a></li>
+      <li><a href="./areaAluno.html" class="active">Área do aluno</a></li>
+      <li><a href="./meusLivros.html">Meus livros</a></li>
+      <li><a href="./eventos.html">Eventos</a></li>
+      <li><a href="./biblioteca.html">Biblioteca</a></li>
+    </ul>
+  </div>
+
+  <div class="navbar-right">
+    <a href="./areaAluno.html#notificacoes" class="icon-btn">
+      <i class="bi bi-bell"></i>
+    </a>
+    <a href="./perfil.html">
+      <img src="../img/avatar.jpg" alt="Perfil" class="avatar-navbar">
+    </a>
+  </div>
+</nav>
 
 
   <!--Header-->
