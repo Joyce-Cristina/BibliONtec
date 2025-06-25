@@ -14,54 +14,40 @@
 <body>
 
   <!--Navbar-->
-  <nav class="navbar navbar-expand-lg" style="background-color: #7a1505; position: relative; height: 56px;">
-  <div class="container-fluid d-flex align-items-center justify-content-between position-relative">
-
-    <!-- Logo -->
-    <a class="navbar-brand" href="./index.html" style="color: white; z-index: 2;">
-      <img src="../img/logoreta.png" alt="Logo BibliONtec" style="height: 50px; width: auto;">
+  <nav class="navbar-custom">
+  <div class="navbar-left">
+    <a href="./index.html">
+      <img src="../img/logoreta.png" alt="Logo" class="logo-navbar">
     </a>
+  </div>
 
-    <!-- Menu esquerdo -->
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex flex-row" style="gap: 1rem; z-index: 2; min-width: 300px;">
-      <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="./indicacoes.html" style="color: white;">Indicações</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="./lista.html" style="color: white;">Lista de Desejo</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="./areaAluno.html" style="color: white;">Área do Aluno</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="./homepageAluno.html" style="color: white;">Homepage</a>
-      </li>
+  <div class="navbar-center">
+    <div class="search-box">
+      <input type="text" placeholder="Pesquisar...">
+      <i class="bi bi-search"></i>
+    </div>
+
+    <ul class="menu-navbar">
+      <li><a href="./homepageAluno.html" class="active">Página inicial</a></li>
+      <li><a href="./indicacoes.html">Indicações</a></li>
+      <li><a href="./lista.html">Lista de desejo</a></li>
+      <li><a href="./areaAluno.html">Área do aluno</a></li>
+      <li><a href="./meusLivros.html">Meus livros</a></li>
+      <li><a href="./eventos.html">Eventos</a></li>
+      <li><a href="./biblioteca.html">Biblioteca</a></li>
     </ul>
+  </div>
 
-    <!-- Barra de pesquisa centralizada -->
-    <div style="position: absolute; left: 65%; top: 50%; transform: translate(-50%, -50%); width: 280px; z-index: 3;">
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Search" style="font-size: 0.9rem;">
-        <button class="btn btn-outline-light btn-sm" type="submit" style="font-size: 0.9rem;">Buscar</button>
-      </form>
-    </div>
-
-    <!-- Ícone notificações e botão direita -->
-    <div class="d-flex align-items-center" style="gap: 1rem; z-index: 2; min-width: 150px; justify-content: flex-end;">
-      <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-        <li class="nav-item">
-          <a class="nav-link" href="./areaAluno.html#notificacoes" style="color: white; position: relative;">
-            <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
-          </a>
-        </li>
-      </ul>
-
-      <button class="btn text-white btn-sm" type="submit" style="font-size: 0.9rem;">
-        <i class="bi bi-arrow-repeat"></i> Atualizações
-      </button>
-    </div>
+  <div class="navbar-right">
+    <a href="./areaAluno.html#notificacoes" class="icon-btn">
+      <i class="bi bi-bell"></i>
+    </a>
+    <a href="./perfil.html">
+      <img src="../img/avatar.jpg" alt="Perfil" class="avatar-navbar">
+    </a>
   </div>
 </nav>
+
 
 
   <!--Header-->

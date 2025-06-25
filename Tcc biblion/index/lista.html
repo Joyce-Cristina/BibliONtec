@@ -14,43 +14,41 @@
 <body>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="./index.html" style="color: white;">BiblionTec</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="./indicacoes.html" style="color: white;">Indicações</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./lista.html" style="color: white;">Lista de Desejo</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./areaAluno.html" style="color: white;">Área do Aluno</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="./homepageAluno.html" style="color: white;">Homepage</a>
-          </li>
-        </ul>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Carousel -->
-  <div id="demo" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <img src="../img/biba.png" class="d-block w-100" height="400" alt="Banner" />
-      </div>
-    </div>
+  <nav class="navbar-custom">
+  <div class="navbar-left">
+    <a href="./index.html">
+      <img src="../img/logoreta.png" alt="Logo" class="logo-navbar">
+    </a>
   </div>
+
+  <div class="navbar-center">
+    <div class="search-box">
+      <input type="text" placeholder="Pesquisar...">
+      <i class="bi bi-search"></i>
+    </div>
+
+    <ul class="menu-navbar">
+      <li><a href="./homepageAluno.html" >Página inicial</a></li>
+      <li><a href="./indicacoes.html">Indicações</a></li>
+      <li><a href="./lista.html" class="active">Lista de desejo</a></li>
+      <li><a href="./areaAluno.html">Área do aluno</a></li>
+      <li><a href="./meusLivros.html">Meus livros</a></li>
+      <li><a href="./eventos.html">Eventos</a></li>
+      <li><a href="./biblioteca.html">Biblioteca</a></li>
+    </ul>
+  </div>
+
+  <div class="navbar-right">
+    <a href="./areaAluno.html#notificacoes" class="icon-btn">
+      <i class="bi bi-bell"></i>
+    </a>
+    <a href="./perfil.html">
+      <img src="../img/avatar.jpg" alt="Perfil" class="avatar-navbar">
+    </a>
+  </div>
+</nav>
+
+<br><br><br><br>
 
   <!-- Seção About -->
   <section class="page-section text-white mb-0" id="about" style="background-color: #8a7564;">
@@ -150,12 +148,38 @@
   </section>
 
   <!-- Footer -->
-  <footer class="text-center text-white py-4 mt-4" style="background-color:#ae2000">
-    <div class="container">
-      © 2021 Copyright:
-      <a class="text-reset fw-bold" href="https://mdbootstrap.com/">MDBootstrap.com</a>
-    </div>
-  </footer>
+  <footer class="bg-dark text-light py-4 mt-5">
+      <div class="container d-flex justify-content-between align-items-start">
+
+        <div>
+          <h5>Desenvolvedores</h5>
+          <ul class="list-unstyled">
+            <li><strong>Ana Laura</strong> – pesquisadora</li>
+            <li><strong>Camila</strong> – designer</li>
+            <li><strong>Guilherme P.</strong> – pesquisador</li>
+            <li><strong>Joyce</strong> – líder do projeto</li>
+            <li><strong>Juan</strong> – designer</li>
+            <li><strong>Venicius</strong> – programador</li>
+            <li><strong>Vinicius R.</strong> – programador</li>
+          </ul>
+        </div>
+
+        <div>
+          <h5>Contatos</h5>
+          <ul class="list-unstyled">
+            <li><strong>E-mail:</strong> tcc@gmail.com</li>
+            <li><strong>Instagram:</strong> @BibliONtec</li>
+          </ul>
+        </div>
+
+        <div class="text-start" style="max-width: 200px;">
+          <h5>Sobre</h5>
+          <p class="mb-0">Site para gestão de biblioteca e interação com usuários.</p>
+        </div>
+
+
+      </div>
+    </footer>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
