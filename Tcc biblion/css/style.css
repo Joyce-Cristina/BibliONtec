@@ -828,3 +828,16 @@ form.form-limpo label {
 .espaco-disponivel {
   flex-grow: 1;
 }
+
+.menu-navbar a.active {
+  background-color: rgba(0, 0, 0, 0.3); /* Fundo escuro */
+  color: white !important;              /* Texto branco */
+  padding: 5px 10px;                    /* Espaço interno */
+  border-radius: 5px;                   /* Cantos arredondados */
+  transition: background-color 0.3s ease;
+  text-decoration: none !important;
+}
+
+.menu-navbar a {
+  text-decoration: none; /* Remove sublinhado de todos os links */
+}
