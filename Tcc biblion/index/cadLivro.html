@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,6 +22,14 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      font-size: 17px;
+    }
+
+    .navbar,
+    .sidebar,
+    .sidebar a,
+    .sidebar button.dropdown-toggle {
+      font-size: 17px;
     }
 
     .navbar {
@@ -41,6 +50,25 @@
       flex-direction: column;
       overflow-y: auto;
       z-index: 1040;
+    }
+
+    .dropdown-item.active {
+      background-color: #4d0f03 !important;
+      color: white !important;
+    }
+
+    .dropdown-item:hover {
+      background-color: #a82010;
+      color: white;
+    }
+
+
+    .dropdown-menu {
+      background-color: #691400;
+    }
+
+    .dropdown-item {
+      background-color: #691400;
     }
 
     .sidebar a,
@@ -81,15 +109,16 @@
       overflow-y: auto;
     }
 
-   .form-card {
-  background-color: #c2a062;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  max-width: 960px;
-  width: 100%;
-  min-height: 950px; /* você pode aumentar esse valor */
-}
+    .form-card {
+      background-color: #c2a062;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      max-width: 960px;
+      width: 100%;
+      min-height: 950px;
+      /* você pode aumentar esse valor */
+    }
 
 
     .form-card h1 {
@@ -143,6 +172,35 @@
         margin: 0 15px;
       }
     }
+    .notificacao-dropdown {
+      background-color: #ffffff;
+      min-width: 250px;
+      max-width: 100%;
+      max-height: 300px;
+      overflow-y: auto;
+      border-radius: 0px;
+      padding: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-left: -20px;
+    }
+
+    .notificacao-dropdown .dropdown-item {
+      background-color: #ffffff;
+      color: #333333;
+      padding: 15px 20px;
+      border: none;
+      border-bottom: 1px solid #ddd;
+      font-size: 16px;
+    }
+
+    .notificacao-dropdown .dropdown-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .notificacao-dropdown .dropdown-item.active {
+      background-color: #a82010;
+      color: white;
+    }
   </style>
 </head>
 
@@ -150,7 +208,7 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid d-flex align-items-center">
-      <a class="navbar-brand" href="./index.html">
+      <a class="navbar-brand" href="./homepageAdm.html">
         <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto" />
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
@@ -161,14 +219,33 @@
         <form class="d-flex">
           <ul class="navbar-nav mb-2 mb-lg-0 me-3">
             <li class="nav-item">
-              <a class="nav-link" href="./areaAdm.html" style="color: white">
+              <a class="nav-link" href="./areaAdm.html#notificacoes2" style="color: white">
                 <i class="bi bi-bell" style="font-size: 1.4rem"></i>
               </a>
             </li>
           </ul>
-          <button class="btn text-white" type="submit">
-            <i class="bi bi-arrow-repeat"></i> Atualizações
-          </button>
+          <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false" style="color: white;">
+                Atualizações
+              </a>
+              <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">Foi adicionado um 
+                  <br>elemento novo  <br> no sistema</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Foi excluído um 
+                 <br> elemento antigo <br> no sistema</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Foi alterado um
+                  <br> elemento no sistema</a></li>
+              </ul>
+            </li>
+          </ul>
         </form>
       </div>
     </div>
@@ -273,7 +350,6 @@
           <input type="text" class="form-control" />
         </div>
 
-        <!-- Parte corrigida -->
         <div class="row mb-3" style="margin: 0">
           <div class="col-md-4">
             <label class="form-label">Quantidade <span class="required">*</span></label>
@@ -304,5 +380,20 @@
       </form>
     </div>
   </div>
+
+   <!-- Botão de acessibilidade -->
+  <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
+    <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
+      <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
+    </button>
+  </div>
+
+        <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1051;">
+        <div class="d-flex align-items-end gap-2">
+          <img src="../img/avatar.jpg" alt="User"
+            style="width: 50px; height: 50px; border-radius: 10px; box-shadow: 2px 2px 6px rgba(0,0,0,0.3);" />
+        </div>
+      </div>
 </body>
+
 </html>
