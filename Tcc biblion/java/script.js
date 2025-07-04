@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // ----------- LÓGICA DE CADASTRO ------------
   const formCadastro = document.getElementById('formCadastro');
   if (formCadastro) {
     formCadastro.addEventListener('submit', async function (event) {
@@ -57,4 +58,36 @@ document.addEventListener('DOMContentLoaded', () => {
       if (professorCheckbox.checked) alunoCheckbox.checked = false;
     });
   }
+
+  // ----------- ANIMAÇÃO AO CARREGAR O SITE ------------
+const frameImg = document.getElementById("frame");
+  const animDiv = document.getElementById("animacao-logo");
+  const loginBox = document.querySelector(".login-box");
+
+  const totalFrames = 11;
+  const delay = 200; // ms entre os frames
+  let atual = 1;
+
+  const preloadImages = () => {
+    for (let i = 1; i <= totalFrames; i++) {
+      const img = new Image();
+      img.src = `../img/animacao/${i}.png`;
+    }
+  };
+
+  const animar = () => {
+    if (atual > totalFrames) {
+      animDiv.style.display = "none";
+      loginBox.style.display = "block";
+      document.body.style.overflow = "auto";
+      return;
+    }
+
+    frameImg.src = `../img/animacao/${atual}.png`;
+    atual++;
+    setTimeout(animar, delay);
+  };
+
+  preloadImages();
+  setTimeout(animar, 300); // aguarda o carregamento e inicia após 300ms
 });
