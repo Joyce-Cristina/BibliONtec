@@ -78,6 +78,42 @@ app.post('/login', (req, res) => {
   });
 });
 
+// Cadastro de Funcionário
+app.post('/cadastrarFuncionario', upload.single('foto'), (req, res) => {
+  const { nome, senha, email, funcao_id, permissoes } = req.body;
+  const foto = req.file ? req.file.filename : null;
+
+  if (!nome || !senha || !email) {
+    return res.status(400).json({ error: 'Campos obrigatórios não preenchidos.' });
+  }
+
+  const sql = `INSERT INTO funcionario (nome, senha, email, foto, FK_funcao_id)
+               VALUES (?, ?, ?, ?, ?)`;
+  connection.query(sql, [nome, senha, email, foto, funcao_id || null], (err, result) => {
+    if (err) {
+      console.error('Erro ao cadastrar funcionário:', err);
+      return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
+    }
+
+    const funcionarioId = result.insertId;
+
+    // Inserir permissões (caso enviadas)
+    if (permissoes && Array.isArray(permissoes)) {
+      const values = permissoes.map(p => [p, funcionarioId]);
+      const permSql = `INSERT INTO funcionario_permissao (FK_permissao_id, FK_funcionario_id) VALUES ?`;
+      connection.query(permSql, [values], (err) => {
+        if (err) {
+          console.error('Erro ao cadastrar permissões:', err);
+          return res.status(500).json({ error: 'Funcionário criado, mas erro nas permissões.' });
+        }
+        return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!' });
+      });
+    } else {
+      return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!' });
+    }
+  });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
