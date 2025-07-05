@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // ----------- LÓGICA DE CADASTRO ------------
+  console.log("Script JS carregado!");
+
+  // ----------- LÓGICA DE CADASTRO DE ALUNO ------------
   const formCadastro = document.getElementById('formCadastro');
   if (formCadastro) {
     formCadastro.addEventListener('submit', async function (event) {
@@ -45,7 +47,96 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-// Checar checkbox
+
+  // ----------- LÓGICA DE LOGIN ------------
+  const formLogin = document.getElementById('formLogin');
+  if (formLogin) {
+    formLogin.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+
+      try {
+        const response = await fetch('http://localhost:3000/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha }),
+        });
+
+        const data = await response.json();
+        console.log('Resposta do login:', data);
+
+        if (response.ok) {
+          const usuario = data.usuario;
+          console.log('Tipo do usuário:', usuario.tipo);
+
+          const tipoUsuario = Number(usuario.tipo);
+
+          if (tipoUsuario === 1) {
+            window.location.href = './areaAluno.html';
+          } else if (tipoUsuario === 2) {
+            window.location.href = './areaProfessor.html';
+          } else {
+            console.log('Tipo de usuário não reconhecido:', usuario.tipo);
+          }
+        } else {
+          alert("Erro ao fazer login: " + data.error);
+        }
+      } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        alert("Erro de rede ou servidor!");
+      }
+    });
+  }
+
+  // ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
+  const formFunc = document.getElementById('formFuncionario');
+  if (formFunc) {
+    formFunc.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      console.log("Formulário de funcionário enviado!"); // DEBUG
+
+      const nome = document.getElementById('nome').value;
+      const senha = document.getElementById('senha').value;
+      const email = document.getElementById('email').value;
+      const foto = document.getElementById('foto').files[0];
+      const permissoesSelecionadas = [...document.querySelectorAll('input[name="permissao"]:checked')]
+        .map(el => el.value);
+      const funcao_id_el = document.getElementById('funcao');
+      const funcao_id = funcao_id_el ? funcao_id_el.value : null;
+
+      if (!nome || !senha || !email) {
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('nome', nome);
+      formData.append('senha', senha);
+      formData.append('email', email);
+      if (foto) formData.append('foto', foto);
+      if (funcao_id) formData.append('funcao_id', funcao_id);
+      permissoesSelecionadas.forEach(p => formData.append('permissoes[]', p));
+
+      try {
+        const response = await fetch('http://localhost:3000/cadastrarFuncionario', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        alert(data.message || "Cadastro realizado.");
+        if (response.ok) formFunc.reset();
+      } catch (error) {
+        console.error("Erro:", error);
+        alert("Erro de rede ou servidor!");
+      }
+    });
+  }
+
+  // ----------- LÓGICA DE CHECKBOX EXCLUSIVO (Aluno/Professor) ------------
   const alunoCheckbox = document.getElementById('aluno');
   const professorCheckbox = document.getElementById('professor');
 
@@ -58,52 +149,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (professorCheckbox.checked) alunoCheckbox.checked = false;
     });
   }
-// ----------- LÓGICA DE LOGIN ------------
-const formLogin = document.getElementById('formLogin');
-if (formLogin) {
-  formLogin.addEventListener('submit', async (event) => {
-  event.preventDefault();
 
-  const email = document.getElementById('email').value;
-  const senha = document.getElementById('senha').value;
-
-  try {
-    const response = await fetch('http://localhost:3000/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, senha }),
-    });
-
-    const data = await response.json();
-    console.log('Resposta do login:', data);
-
-    if (response.ok) {
-      // Declarando a variável aqui dentro para estar no escopo correto
-      const usuario = data.usuario;
-      console.log('Tipo do usuário:', usuario.tipo);
-
-      const tipoUsuario = Number(usuario.tipo);
-
-      if (tipoUsuario === 1) {
-        window.location.href = './areaAluno.html';
-      } else if (tipoUsuario === 2) {
-        window.location.href = './areaProfessor.html';
-      } else {
-        console.log('Tipo de usuário não reconhecido:', usuario.tipo);
-      }
-
-    } else {
-      alert("Erro ao fazer login: " + data.error);
-    }
-
-  } catch (error) {
-    console.error('Erro ao fazer login:', error);
-    alert("Erro de rede ou servidor!");
-  }
-});
-}
   // ----------- ANIMAÇÃO AO CARREGAR O SITE ------------
-const frameImg = document.getElementById("frame");
+  const frameImg = document.getElementById("frame");
   const animDiv = document.getElementById("animacao-logo");
   const loginBox = document.querySelector(".login-box");
 
@@ -132,5 +180,5 @@ const frameImg = document.getElementById("frame");
   };
 
   preloadImages();
-  setTimeout(animar, 300); // aguarda o carregamento e inicia após 300ms
+  setTimeout(animar, 300);
 });
