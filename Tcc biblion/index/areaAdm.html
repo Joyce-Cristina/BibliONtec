@@ -22,7 +22,7 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
-       font-size: 17px;
+      font-size: 17px;
     }
 
     .navbar,
@@ -31,6 +31,7 @@
     .sidebar button.dropdown-toggle {
       font-size: 17px;
     }
+
     .navbar {
       background-color: #7a1505;
       z-index: 1050;
@@ -154,6 +155,7 @@
         margin-top: 10px;
       }
     }
+
     .notificacao-dropdown {
       background-color: #ffffff;
       min-width: 250px;
@@ -213,18 +215,18 @@
                 Atualizações
               </a>
               <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">Foi adicionado um 
-                  <br>elemento novo  <br> no sistema</a></li>
+                <li><a class="dropdown-item" href="#">Foi adicionado um
+                    <br>elemento novo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="#">Foi excluído um 
-                 <br> elemento antigo <br> no sistema</a></li>
+                <li><a class="dropdown-item" href="#">Foi excluído um
+                    <br> elemento antigo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
                 <li><a class="dropdown-item" href="#">Foi alterado um
-                  <br> elemento no sistema</a></li>
+                    <br> elemento no sistema</a></li>
               </ul>
             </li>
           </ul>
@@ -262,24 +264,48 @@
       <form>
         <div class="row mb-4 text-start">
           <div class="col-md-6">
-            <label for="nome">Nome</label>
-            <input type="text" id="nome" class="form-control shadow-sm" />
+            <label for="fname">Nome</label>
+            <input type="text" id="fname" class="form-control shadow-sm" autocomplete="name" />
           </div>
           <div class="col-md-6">
             <label for="email">E-mail</label>
-            <input type="email" id="email" class="form-control shadow-sm" />
+            <input type="email" id="email" class="form-control shadow-sm" autocomplete="email" />
           </div>
         </div>
         <div class="row mb-4 text-start">
           <div class="col-md-6">
-            <label for="telefone">Telefone</label>
-            <input type="text" id="telefone" class="form-control shadow-sm" />
+            <label for="phone">Telefone</label>
+            <input type="text" id="phone" class="form-control shadow-sm" autocomplete="tel" />
           </div>
+      <div class="col-md-6">
+  <label for="senha">Senha</label>
+  
+  <div class="input-group shadow-sm">
+    <input type="password" id="senha" class="form-control" autocomplete="current-password" />
+    <span class="input-group-text" onclick="toggleSenha()" style="cursor: pointer;">
+      <i class="bi bi-eye-slash" id="toggleSenha"></i>
+    </span>
+  </div>
+
+  <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
+</div>
+
+
+        <div class="row mb-4">
+
+
           <div class="col-md-6">
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" class="form-control shadow-sm" />
+            <label for="funcao" class="form-label">Função:</label>
+            <select id="funcao" class="form-select">
+              <option value="">Selecione a função</option>
+              <option value="1">Administrador</option>
+              <option value="2">Bibliotecário</option>
+              <option value="3">Assistente</option>
+
+            </select>
           </div>
         </div>
+
         <div class="mb-4 text-start">
           <p style="font-weight: bold;">
             Caso queira excluir a sua conta, todos os livros cadastrados vão ser apagados do nosso banco de dados para
@@ -287,7 +313,7 @@
           </p>
         </div>
         <div class="d-flex justify-content-end gap-3">
-          <button type="button" class="btn btn-custom-brown">Editar conta</button>
+          <button id="btnEditar" type="button" class="btn btn-custom-brown">Editar conta</button>
           <button type="button" class="btn btn-custom-red">Excluir conta</button>
         </div>
       </form>
@@ -313,13 +339,13 @@
         </div>
         <div id="entregaHoje" class="p-3 toggle-content" style="background-color: #5a3c24;">
           <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
-            <img src="../img/logoquadrada.jpeg" alt="Capa do livro"
-              class="me-3" style="width: 60px; height: auto; border-radius: 5px;" />
+            <img src="../img/logoquadrada.jpeg" alt="Capa do livro" class="me-3"
+              style="width: 60px; height: auto; border-radius: 5px;" />
             <div><strong>O Meu Pé de Laranja Lima</strong> - Guilherme</div>
           </div>
           <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
-            <img src="../img/logoquadrada.jpeg" alt="Capa do livro"
-              class="me-3" style="width: 60px; height: auto; border-radius: 5px;" />
+            <img src="../img/logoquadrada.jpeg" alt="Capa do livro" class="me-3"
+              style="width: 60px; height: auto; border-radius: 5px;" />
             <div><strong>Olha os Lírios do Campo</strong> - Mariana</div>
           </div>
         </div>
@@ -334,13 +360,13 @@
         </div>
         <div id="livrosAtraso" class="p-3 toggle-content" style="background-color: #5a0c00;">
           <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
-            <img src="../img/logoquadrada.jpeg"
-              alt="Cem Anos de Solidão" class="me-3" style="width: 60px; height: auto; border-radius: 5px;" />
+            <img src="../img/logoquadrada.jpeg" alt="Cem Anos de Solidão" class="me-3"
+              style="width: 60px; height: auto; border-radius: 5px;" />
             <div><strong>Cem Anos de Solidão</strong> - André</div>
           </div>
           <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
-            <img src="../img/logoquadrada.jpeg" alt="O Ateneu"
-              class="me-3" style="width: 60px; height: auto; border-radius: 5px;" />
+            <img src="../img/logoquadrada.jpeg" alt="O Ateneu" class="me-3"
+              style="width: 60px; height: auto; border-radius: 5px;" />
             <div><strong>O Ateneu</strong> - Tiago</div>
           </div>
         </div>
@@ -389,7 +415,10 @@
     document.querySelectorAll('.toggle-content').forEach(el => {
       el.style.display = 'block';
     });
+
   </script>
+  <script src="../java/script.js"></script>
+
 </body>
 
 </html>
