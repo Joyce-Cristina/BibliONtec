@@ -272,17 +272,32 @@
       <input type="email" id="email" class="form-control" required />
     </div>
   </div>
-
+ 
   <div class="row mb-4">
     <div class="col-md-6">
       <label class="form-label">Senha:</label>
-      <input type="password" id="senha" class="form-control" required />
+      <input type="password" id="senha" class="form-control"  />
     </div>
     <div class="col-md-6">
       <label class="form-label">Foto de Perfil:</label>
       <input type="file" id="foto" class="form-control" accept="image/*" />
     </div>
+     <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Telefone:</label>
+            <input type="text" id="telefone" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Função:</label>
+            <select id="funcao" class="form-select">
+              <option value="">Selecione a função</option>
+              <option value="1">Administrador</option>
+              <option value="2">Bibliotecário</option>
+              <option value="3">Assistente</option>
+
+            </select>
   </div>
+
 
   <div class="d-flex justify-content-center mb-5">
     <div class="p-4 border rounded bg-light" style="min-width: 400px;">
