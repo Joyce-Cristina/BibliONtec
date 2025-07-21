@@ -155,7 +155,7 @@
                         <div class="col-md-6">
                             <label for="nome" class="form-label fw-semibold">Nome <span
                                     class="text-danger">*</span></label>
-                            <input type="text" class="form-control shadow-sm" id="nome" required>
+                            <input type="text" class="form-control shadow-sm" id="fname" required>
                         </div>
                         <div class="col-md-6">
                             <label for="email" class="form-label fw-semibold">E-mail <span
@@ -163,19 +163,29 @@
                             <input type="email" class="form-control shadow-sm" id="email" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="telefone" class="form-label fw-semibold">Telefone</label>
-                            <input type="text" class="form-control shadow-sm" id="telefone">
+                            <label for="phone" class="form-label fw-semibold">Telefone</label>
+                            <input type="text" class="form-control shadow-sm" id="phone">
                         </div>
                         <div class="col-md-6">
-                            <label for="senha" class="form-label fw-semibold">Senha <span
-                                    class="text-danger">*</span></label>
-                            <input type="password" class="form-control shadow-sm" id="senha" required>
+  <label for="senha">Senha</label>
+  
+  <div class="input-group shadow-sm">
+    <input type="password" id="senha" class="form-control" autocomplete="current-password" />
+    <span class="input-group-text" onclick="toggleSenha()" style="cursor: pointer;">
+      <i class="bi bi-eye-slash" id="toggleSenha"></i>
+    </span>
+  </div>
+
+  <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
+</div>
+
+
                         </div>
                     </div>
                     <div class="text-end mt-4">
                         <button type="submit" class="btn text-white px-4 py-2 fw-semibold"
                             style="background-color: #5a3c24; box-shadow: 2px 2px 6px rgba(0,0,0,0.3); border-radius: 10px;">
-                            Editar senha
+                            Editar Perfil
                         </button>
                     </div>
                 </form>
@@ -256,7 +266,7 @@
             el.style.display = 'block';
         });
     </script>
-
+ <script src="../java/script.js"></script>
 </body>
 
 </html>
