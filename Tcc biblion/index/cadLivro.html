@@ -277,99 +277,100 @@
   <div class="main-container">
     <div class="form-card">
       <h1>Cadastro de Livros</h1>
-      <form>
-        <!-- Parte superior do formulário -->
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Título <span class="required">*</span></label>
-            <input type="text" class="form-control" required />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Data de publicação</label>
-            <input type="date" class="form-control" />
-          </div>
-        </div>
+      <form id="formLivro" enctype="multipart/form-data">
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Título <span class="required">*</span></label>
+      <input type="text" class="form-control" required name="titulo" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Data de publicação</label>
+      <input type="date" class="form-control" name="data_publicacao" />
+    </div>
+  </div>
 
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Autor <span class="required">*</span></label>
-            <input type="text" class="form-control" required />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Disponibilidade</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Autor <span class="required">*</span></label>
+      <input type="text" class="form-control" required name="autor" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Disponibilidade</label>
+      <input type="text" class="form-control" name="disponibilidade" />
+    </div>
+  </div>
 
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Edição <span class="required">*</span></label>
-            <input type="text" class="form-control" required />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Sinopse</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Edição <span class="required">*</span></label>
+      <input type="text" class="form-control" required name="edicao" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Sinopse</label>
+      <input type="text" class="form-control" name="sinopse" />
+    </div>
+  </div>
 
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Editora</label>
-            <input type="text" class="form-control" />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">ISBN <span class="required">*</span></label>
-            <input type="text" class="form-control" required />
-          </div>
-        </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Editora</label>
+      <input type="text" class="form-control" name="editora" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">ISBN <span class="required">*</span></label>
+      <input type="text" class="form-control" required name="isbn" />
+    </div>
+  </div>
 
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Local de publicação</label>
-            <input type="text" class="form-control" />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Páginas</label>
-            <input type="number" class="form-control" />
-          </div>
-        </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Volume</label>
+      <input type="text" class="form-control" name="volume" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Subtítulo</label>
+      <input type="text" class="form-control" name="subtitulo" />
+    </div>
+  </div>
 
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Gênero <span class="required">*</span></label>
-            <input type="text" class="form-control" required />
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Subtítulo</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Assunto discutido</label>
+      <input type="text" class="form-control" name="assunto_discutido" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Gênero</label>
+      <input type="text" class="form-control" name="genero" />
+    </div>
+  </div>
 
-        <div class="mb-3">
-          <label class="form-label">Assuntos discutidos</label>
-          <input type="text" class="form-control" />
-        </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Número de páginas</label>
+      <input type="text" class="form-control" name="paginas" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Quantidade</label>
+      <input type="text" class="form-control" name="quantidade" />
+    </div>
+  </div>
 
-        <div class="row mb-3" style="margin: 0">
-          <div class="col-md-4">
-            <label class="form-label">Quantidade <span class="required">*</span></label>
-            <input type="number" class="form-control" required />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Volume <span class="required">*</span></label>
-            <input type="text" class="form-control" required />
-          </div>
-        </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Local de publicação</label>
+      <input type="text" class="form-control" name="local_publicacao" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Capa (imagem)</label>
+      <input type="file" class="form-control" name="capa" />
+    </div>
+  </div>
 
-        <div class="mb-3" style="margin-top: 10px;">
-          <label class="form-label">Capa do livro <span class="required">*</span></label>
-          <input type="file" class="form-control" required />
-        </div>
-
-        <div class="text-center mt-4">
+  <div class="text-center mt-4">
           <button type="submit" class="btn btn-custom px-5 py-2">Cadastrar Livro</button>
         </div>
-      </form>
+</form>
+
     </div>
   </div>
 
@@ -386,6 +387,8 @@
             style="width: 50px; height: 50px; border-radius: 10px; box-shadow: 2px 2px 6px rgba(0,0,0,0.3);" />
         </div>
       </div>
+
+      <script src="../java/cadLivro.js"></script>
 </body>
 
 </html>
