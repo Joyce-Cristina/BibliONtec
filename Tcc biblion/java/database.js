@@ -91,8 +91,6 @@ connection.query(
 
 });
 
-
-// Login
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
 
@@ -115,7 +113,6 @@ app.post('/login', (req, res) => {
       });
     }
 
-    // Se não achou no usuario, busca no funcionario
     const sqlFuncionario = `
   SELECT id, nome, email, senha, telefone, FK_funcao_id as funcao_id 
   FROM funcionario 
@@ -299,7 +296,65 @@ app.get('/funcionario/:id', (req, res) => {
   });
 });
 
+// Cadastro de Livro
+app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
+  const {
+    titulo,
+    edicao,
+    paginas,
+    quantidade,
+    local_publicacao,
+    data_publicacao,
+    sinopse,
+    isbn,
+    assunto_discutido,
+    subtitulo,
+    volume,
+    genero,
+    FK_funcionario_id,
+    FK_classificacao_id,
+    FK_status_id
+  } = req.body;
 
+  const capa = req.file ? req.file.filename : null;
+
+  const sql = `
+    INSERT INTO livro (
+      titulo, edicao, paginas, quantidade, local_publicacao,
+      data_publicacao, sinopse, isbn, assunto_discutido,
+      subtitulo, volume, genero, FK_funcionario_id,
+      FK_classificacao_id, FK_status_id, capa
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    titulo || null,
+    edicao || null,
+    paginas || null,
+    quantidade || null,
+    local_publicacao || null,
+    data_publicacao || null,
+    sinopse || null,
+    isbn,
+    assunto_discutido || null,
+    subtitulo || null,
+    volume || null,
+    genero || null,
+    FK_funcionario_id || null,
+    FK_classificacao_id || null,
+    FK_status_id || null,
+    capa
+  ];
+
+  connection.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Erro ao cadastrar livro:', err);
+      return res.status(500).json({ error: 'Erro ao cadastrar livro' });
+    }
+
+    res.status(200).json({ message: 'Livro cadastrado com sucesso!' });
+  });
+});
 
 
 // ✅ Agora o app.listen() pode ficar no final
