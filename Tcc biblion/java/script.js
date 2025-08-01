@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuarioSalvo = JSON.parse(localStorage.getItem("usuario"));
     if (!usuarioSalvo) {
       alert("Usuário não logado!");
-      window.location.href = "./login.html";
+      window.location.href = "./index.html";
     } else {
       carregarDados(usuarioSalvo.id, "usuario");
     }
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const funcionarioSalvo = JSON.parse(localStorage.getItem("funcionario"));
     if (!funcionarioSalvo) {
       alert("Usuário não logado!");
-      window.location.href = "./login.html";
+      window.location.href = "./index.html";
     } else {
       carregarDados(funcionarioSalvo.id, "funcionario");
       // Desabilita o campo função para funcionário (mostra só para visualização)
