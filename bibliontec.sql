@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 09/07/2025 às 04:35
+-- Tempo de geração: 02/08/2025 às 00:09
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -64,7 +64,8 @@ CREATE TABLE `classificacao` (
 CREATE TABLE `comentario` (
   `id` int(11) NOT NULL,
   `comentario` varchar(255) DEFAULT NULL,
-  `data_comentario` date DEFAULT NULL
+  `data_comentario` date DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -120,7 +121,8 @@ CREATE TABLE `emprestimo` (
   `data_emprestimo` date DEFAULT NULL,
   `data_devolucao_prevista` date DEFAULT NULL,
   `data_real_devolucao` date DEFAULT NULL,
-  `id` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -170,16 +172,17 @@ CREATE TABLE `funcionario` (
   `email` varchar(50) DEFAULT NULL,
   `foto` varchar(255) DEFAULT NULL,
   `FK_funcao_id` int(11) DEFAULT NULL,
-  `telefone` varchar(20) DEFAULT NULL
+  `telefone` varchar(20) DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `funcionario`
 --
 
-INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`) VALUES
-(2, 'Feina', '123456', 'feina@gmail.com', '1751928838626.png', NULL, NULL),
-(3, 'Joyce', '123456', 'joyce@gmail.com', '1751935191917.png', 2, '19993592019');
+INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
+(2, 'Feina', '123456', 'feina@gmail.com', '1751928838626.png', NULL, NULL, NULL),
+(3, 'Joyce', '123456', 'joyce@gmail.com', '1751935191917.png', 2, '19993592019', NULL);
 
 -- --------------------------------------------------------
 
@@ -222,7 +225,8 @@ CREATE TABLE `funcionario_permissao` (
 
 CREATE TABLE `historico` (
   `id` int(11) NOT NULL,
-  `data_leitura` date DEFAULT NULL
+  `data_leitura` date DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -255,7 +259,8 @@ CREATE TABLE `historico_usuario` (
 
 CREATE TABLE `indicacao` (
   `id` int(11) NOT NULL,
-  `indicacao` varchar(50) DEFAULT NULL
+  `indicacao` varchar(50) DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -274,12 +279,26 @@ CREATE TABLE `indicacao_usuario` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `instituicao`
+--
+
+CREATE TABLE `instituicao` (
+  `id` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `FK_tipo_instituicao_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `lista_desejo`
 --
 
 CREATE TABLE `lista_desejo` (
   `id` int(11) NOT NULL,
-  `lista_desejo` varchar(255) DEFAULT NULL
+  `lista_desejo` varchar(255) DEFAULT NULL,
+  `FK_usuario_id` int(11) DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -316,7 +335,8 @@ CREATE TABLE `livro` (
   `genero` varchar(20) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL,
   `FK_classificacao_id` int(11) DEFAULT NULL,
-  `FK_status_id` int(11) DEFAULT NULL
+  `FK_status_id` int(11) DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -351,7 +371,8 @@ CREATE TABLE `notificacao` (
   `id` int(11) NOT NULL,
   `mensagem` varchar(255) DEFAULT NULL,
   `tipo` varchar(50) DEFAULT NULL,
-  `data_envio` date DEFAULT NULL
+  `data_envio` date DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -418,7 +439,8 @@ CREATE TABLE `reserva` (
   `reserva` tinyint(1) DEFAULT NULL,
   `hora_reserva` date DEFAULT NULL,
   `retirada` tinyint(1) DEFAULT NULL,
-  `posicao` varchar(20) DEFAULT NULL
+  `posicao` varchar(20) DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -446,6 +468,26 @@ CREATE TABLE `status` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `tipo_instituicao`
+--
+
+CREATE TABLE `tipo_instituicao` (
+  `id` int(11) NOT NULL,
+  `tipo` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tipo_instituicao`
+--
+
+INSERT INTO `tipo_instituicao` (`id`, `tipo`) VALUES
+(1, 'Escola'),
+(2, 'Biblioteca Pública'),
+(3, 'Livraria');
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `usuario`
 --
 
@@ -458,24 +500,26 @@ CREATE TABLE `usuario` (
   `senha` varchar(10) DEFAULT NULL,
   `tipo` varchar(20) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL,
-  `FK_lista_desejo_id` int(11) DEFAULT NULL,
   `curso_id` int(11) DEFAULT NULL,
-  `serie` int(11) DEFAULT NULL
+  `serie` int(11) DEFAULT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL,
+  `codigo_recuperacao` varchar(10) DEFAULT NULL,
+  `expiracao_codigo` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `tipo`, `FK_funcionario_id`, `FK_lista_desejo_id`, `curso_id`, `serie`) VALUES
-(5, '19993592019', 'joyce@gmail.com', '1751927959527.png', 'Joyce', '845236', '1', NULL, NULL, 1, 3),
-(6, '1987965842', 'josefina@gmail.com', '1752021796477.png', 'josefina', '123456', '2', NULL, NULL, NULL, NULL),
-(7, '19658745248', 'matilda@gmail.com', '1752022099104.png', 'matilda', '1456238', '1', NULL, NULL, 2, 2),
-(8, '19993592019', 'claudia@gmail.com', '1752022231477.png', 'claudia', '7894561', '1', 3, NULL, 3, 2),
-(9, '19874563217', 'camila@gmail.com', '1752023716372.png', 'camila', '784596', '1', 3, NULL, 1, 3),
-(10, '19874563217', 'camila@gmail.com', '1752023761064.png', 'camila', '784596', '1', 3, NULL, 1, 3),
-(11, '19874563217', 'camila@gmail.com', '1752024114678.png', 'camila', '1487956', '1', 3, NULL, 1, 3),
-(12, '19993592019', 'janaina@gmail.com', '1752027056040.png', 'Janaína Cristina Dos Santos', 'tiOg7r8J', '1', 3, NULL, 2, 2);
+INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `tipo`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`) VALUES
+(5, '19993592019', 'joyce@gmail.com', '1751927959527.png', 'Joyce', '845236', '1', NULL, 1, 3, NULL, NULL, NULL),
+(6, '1987965842', 'josefina@gmail.com', '1752021796477.png', 'josefina', '123456', '2', NULL, NULL, NULL, NULL, NULL, NULL),
+(7, '19658745248', 'matilda@gmail.com', '1752022099104.png', 'matilda', '1456238', '1', NULL, 2, 2, NULL, NULL, NULL),
+(8, '19993592019', 'claudia@gmail.com', '1752022231477.png', 'claudia', '7894561', '1', 3, 3, 2, NULL, NULL, NULL),
+(9, '19874563217', 'camila@gmail.com', '1752023716372.png', 'camila', '784596', '1', 3, 1, 3, NULL, NULL, NULL),
+(10, '19874563217', 'camila@gmail.com', '1752023761064.png', 'camila', '784596', '1', 3, 1, 3, NULL, NULL, NULL),
+(11, '19874563217', 'camila@gmail.com', '1752024114678.png', 'camila', '1487956', '1', 3, 1, 3, NULL, NULL, NULL),
+(12, '19993592019', 'janaina@gmail.com', '1752027056040.png', 'Janaína Cristina Dos Santos', 'tiOg7r8J', '1', 3, 2, 2, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -566,7 +610,8 @@ ALTER TABLE `classificacao`
 -- Índices de tabela `comentario`
 --
 ALTER TABLE `comentario`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_comentario_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `comentario_livro`
@@ -591,7 +636,8 @@ ALTER TABLE `editora`
 -- Índices de tabela `emprestimo`
 --
 ALTER TABLE `emprestimo`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_emprestimo_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `emprestimo_livro`
@@ -611,7 +657,8 @@ ALTER TABLE `funcao`
 --
 ALTER TABLE `funcionario`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_funcionario_1` (`FK_funcao_id`);
+  ADD KEY `FK_funcionario_1` (`FK_funcao_id`),
+  ADD KEY `FK_funcionario_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `funcionario_acessibilidade`
@@ -638,7 +685,8 @@ ALTER TABLE `funcionario_permissao`
 -- Índices de tabela `historico`
 --
 ALTER TABLE `historico`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_historico_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `historico_indicacao`
@@ -658,7 +706,8 @@ ALTER TABLE `historico_usuario`
 -- Índices de tabela `indicacao`
 --
 ALTER TABLE `indicacao`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_indicacao_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `indicacao_usuario`
@@ -669,10 +718,19 @@ ALTER TABLE `indicacao_usuario`
   ADD KEY `fk_indicacao_usuario_curso` (`FK_curso_id`);
 
 --
+-- Índices de tabela `instituicao`
+--
+ALTER TABLE `instituicao`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_instituicao_tipo` (`FK_tipo_instituicao_id`);
+
+--
 -- Índices de tabela `lista_desejo`
 --
 ALTER TABLE `lista_desejo`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_lista_desejo_usuario` (`FK_usuario_id`),
+  ADD KEY `FK_lista_desejo_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `lista_livro`
@@ -688,7 +746,8 @@ ALTER TABLE `livro`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_livro_1` (`FK_funcionario_id`),
   ADD KEY `FK_livro_2` (`FK_classificacao_id`),
-  ADD KEY `FK_livro_3` (`FK_status_id`);
+  ADD KEY `FK_livro_3` (`FK_status_id`),
+  ADD KEY `FK_livro_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `livro_autor`
@@ -708,7 +767,8 @@ ALTER TABLE `livro_editora`
 -- Índices de tabela `notificacao`
 --
 ALTER TABLE `notificacao`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_notificacao_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `notificacao_emprestimo`
@@ -741,7 +801,8 @@ ALTER TABLE `permissao`
 -- Índices de tabela `reserva`
 --
 ALTER TABLE `reserva`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_reserva_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `reserva_livro`
@@ -757,13 +818,19 @@ ALTER TABLE `status`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tipo_instituicao`
+--
+ALTER TABLE `tipo_instituicao`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `usuario`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_usuario_1` (`FK_funcionario_id`),
-  ADD KEY `FK_usuario_2` (`FK_lista_desejo_id`),
-  ADD KEY `fk_usuario_curso` (`curso_id`);
+  ADD KEY `fk_usuario_curso` (`curso_id`),
+  ADD KEY `FK_usuario_instituicao` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `usuario_acessibilidade`
@@ -871,6 +938,12 @@ ALTER TABLE `indicacao`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `instituicao`
+--
+ALTER TABLE `instituicao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `lista_desejo`
 --
 ALTER TABLE `lista_desejo`
@@ -907,6 +980,12 @@ ALTER TABLE `status`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `tipo_instituicao`
+--
+ALTER TABLE `tipo_instituicao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
@@ -917,11 +996,23 @@ ALTER TABLE `usuario`
 --
 
 --
+-- Restrições para tabelas `comentario`
+--
+ALTER TABLE `comentario`
+  ADD CONSTRAINT `FK_comentario_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
 -- Restrições para tabelas `comentario_livro`
 --
 ALTER TABLE `comentario_livro`
   ADD CONSTRAINT `FK_comentario_livro_1` FOREIGN KEY (`FK_comentario_id`) REFERENCES `comentario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_comentario_livro_id` FOREIGN KEY (`FK_livro_id`) REFERENCES `livro` (`id`);
+
+--
+-- Restrições para tabelas `emprestimo`
+--
+ALTER TABLE `emprestimo`
+  ADD CONSTRAINT `FK_emprestimo_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `emprestimo_livro`
@@ -934,7 +1025,8 @@ ALTER TABLE `emprestimo_livro`
 -- Restrições para tabelas `funcionario`
 --
 ALTER TABLE `funcionario`
-  ADD CONSTRAINT `FK_funcionario_1` FOREIGN KEY (`FK_funcao_id`) REFERENCES `funcao` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `FK_funcionario_1` FOREIGN KEY (`FK_funcao_id`) REFERENCES `funcao` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_funcionario_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `funcionario_acessibilidade`
@@ -958,6 +1050,12 @@ ALTER TABLE `funcionario_permissao`
   ADD CONSTRAINT `FK_funcionario_permissao_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
+-- Restrições para tabelas `historico`
+--
+ALTER TABLE `historico`
+  ADD CONSTRAINT `FK_historico_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
 -- Restrições para tabelas `historico_indicacao`
 --
 ALTER TABLE `historico_indicacao`
@@ -972,12 +1070,31 @@ ALTER TABLE `historico_usuario`
   ADD CONSTRAINT `FK_historico_usuario_1` FOREIGN KEY (`FK_historico_id`) REFERENCES `historico` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
+-- Restrições para tabelas `indicacao`
+--
+ALTER TABLE `indicacao`
+  ADD CONSTRAINT `FK_indicacao_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
 -- Restrições para tabelas `indicacao_usuario`
 --
 ALTER TABLE `indicacao_usuario`
   ADD CONSTRAINT `FK_indicacao_usuario_0` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`),
   ADD CONSTRAINT `FK_indicacao_usuario_1` FOREIGN KEY (`FK_indicacao_id`) REFERENCES `indicacao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_indicacao_usuario_curso` FOREIGN KEY (`FK_curso_id`) REFERENCES `curso` (`id`);
+
+--
+-- Restrições para tabelas `instituicao`
+--
+ALTER TABLE `instituicao`
+  ADD CONSTRAINT `FK_instituicao_tipo` FOREIGN KEY (`FK_tipo_instituicao_id`) REFERENCES `tipo_instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `lista_desejo`
+--
+ALTER TABLE `lista_desejo`
+  ADD CONSTRAINT `FK_lista_desejo_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_lista_desejo_usuario` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `lista_livro`
@@ -992,7 +1109,8 @@ ALTER TABLE `lista_livro`
 ALTER TABLE `livro`
   ADD CONSTRAINT `FK_livro_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_livro_2` FOREIGN KEY (`FK_classificacao_id`) REFERENCES `classificacao` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_livro_3` FOREIGN KEY (`FK_status_id`) REFERENCES `status` (`id`);
+  ADD CONSTRAINT `FK_livro_3` FOREIGN KEY (`FK_status_id`) REFERENCES `status` (`id`),
+  ADD CONSTRAINT `FK_livro_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `livro_autor`
@@ -1007,6 +1125,12 @@ ALTER TABLE `livro_autor`
 ALTER TABLE `livro_editora`
   ADD CONSTRAINT `FK_livro_editora_0` FOREIGN KEY (`FK_editora_id`) REFERENCES `editora` (`id`),
   ADD CONSTRAINT `FK_livro_editora_id` FOREIGN KEY (`FK_livro_id`) REFERENCES `livro` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `notificacao`
+--
+ALTER TABLE `notificacao`
+  ADD CONSTRAINT `FK_notificacao_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `notificacao_emprestimo`
@@ -1030,6 +1154,12 @@ ALTER TABLE `notificacao_reserva`
   ADD CONSTRAINT `FK_notificacao_reserva_1` FOREIGN KEY (`FK_notificacao_id`) REFERENCES `notificacao` (`id`);
 
 --
+-- Restrições para tabelas `reserva`
+--
+ALTER TABLE `reserva`
+  ADD CONSTRAINT `FK_reserva_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
 -- Restrições para tabelas `reserva_livro`
 --
 ALTER TABLE `reserva_livro`
@@ -1041,7 +1171,7 @@ ALTER TABLE `reserva_livro`
 --
 ALTER TABLE `usuario`
   ADD CONSTRAINT `FK_usuario_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_usuario_2` FOREIGN KEY (`FK_lista_desejo_id`) REFERENCES `lista_desejo` (`id`),
+  ADD CONSTRAINT `FK_usuario_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_usuario_curso` FOREIGN KEY (`curso_id`) REFERENCES `curso` (`id`);
 
 --
