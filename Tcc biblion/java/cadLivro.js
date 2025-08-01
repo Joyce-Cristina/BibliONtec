@@ -1,5 +1,3 @@
-// 📁 public/java/cadLivro.js
-
 document.getElementById('formLivro').addEventListener('submit', async function (e) {
   e.preventDefault();
 

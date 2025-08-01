@@ -356,6 +356,20 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   });
 });
 
+app.get('/livros', (req, res) => {
+  const sql = 'SELECT titulo, sinopse, capa FROM livro';
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar livros:', err);
+      return res.status(500).send('Erro interno do servidor');
+    }
+
+    res.json(results);
+  });
+});
+
+
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = 3000;

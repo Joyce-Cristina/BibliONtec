@@ -306,58 +306,9 @@
     <!-- Cards dos Livros -->
 <section class="page-section text-white mb-0" id="wishlist">
   <div class="container my-5">
-    <div class="row justify-content-center g-4">
+    <div id="cardsContainer" class="row justify-content-center g-4">
 
-      <div class="col-md-4 col-lg-3">
-        <div class="card h-100" style="background-color: #d6c9b4;">
-          <img src="../img/avatar.jpg" class="card-img-top" alt="Livro 1" style="height: 300px; object-fit: cover;">
-          <div class="card-body text-center">
-            <h5 class="card-title fw-bold">O Alienista</h5>
-            <h6 class="card-subtitle">Descrição do livro</h6>
-          </div>
-          <div class="card-footer text-center">
-            <button class="btn btn-danger me-2">Excluir</button>
-            <button class="btn btn-dark">Editar</button>
-            <div class="mt-2">
-              <span class="badge bg-danger">Indisponível</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-lg-3">
-        <div class="card h-100" style="background-color: #d6c9b4;">
-          <img src="../img/avatar.jpg" class="card-img-top" alt="Livro 2" style="height: 300px; object-fit: cover;">
-          <div class="card-body text-center">
-            <h5 class="card-title fw-bold">Fragmentos do Horror</h5>
-            <h6 class="card-subtitle">Descrição do livro</h6>
-          </div>
-          <div class="card-footer text-center">
-            <button class="btn btn-danger me-2">Excluir</button>
-            <button class="btn btn-dark">Editar</button>
-            <div class="mt-2">
-              <span class="badge bg-success">Disponível</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 col-lg-3">
-        <div class="card h-100" style="background-color: #d6c9b4;">
-          <img src="../img/avatar.jpg" class="card-img-top" alt="Livro 3" style="height: 300px; object-fit: cover;">
-          <div class="card-body text-center">
-            <h5 class="card-title fw-bold">Mistério da Casa Amarela</h5>
-            <h6 class="card-subtitle">Descrição do livro</h6>
-          </div>
-          <div class="card-footer text-center">
-            <button class="btn btn-danger me-2">Excluir</button>
-            <button class="btn btn-dark">Editar</button>
-            <div class="mt-2">
-              <span class="badge bg-danger">Indisponível</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
     </div>
   </div>
@@ -387,6 +338,41 @@
         link.classList.add('active');
       }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+  carregarLivros();
+});
+
+async function carregarLivros() {
+  try {
+    const resposta = await fetch('http://localhost:3000/livros');
+    const livros = await resposta.json();
+    const container = document.getElementById('cardsContainer');
+
+    livros.forEach(livro => {
+      const card = document.createElement('div');
+      card.className = 'col-md-4 col-lg-3';
+
+      card.innerHTML = `
+        <div class="card h-100" style="background-color: #d6c9b4;">
+          <img src="http://localhost:3000/uploads/${livro.capa}"  class="card-img-top" alt="${livro.titulo}" style="height: 300px; object-fit: cover;">
+          <div class="card-body text-center">
+            <h5 class="card-title fw-bold">${livro.titulo}</h5>
+            <h6 class="card-subtitle">${livro.sinopse}</h6>
+          </div>
+          <div class="card-footer text-center">
+            <button class="btn btn-danger me-2">Excluir</button>
+            <button class="btn btn-dark">Editar</button>
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  } catch (erro) {
+    console.error('Erro ao carregar livros:', erro);
+  }
+}
+
   </script>
 </body>
 
