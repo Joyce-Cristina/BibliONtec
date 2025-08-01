@@ -348,14 +348,23 @@ async function carregarLivros() {
     const resposta = await fetch('http://localhost:3000/livros');
     const livros = await resposta.json();
     const container = document.getElementById('cardsContainer');
+    container.innerHTML = ''; 
 
-    livros.forEach(livro => {
-      const card = document.createElement('div');
-      card.className = 'col-md-4 col-lg-3';
+let row;
 
-      card.innerHTML = `
-        <div class="card h-100" style="background-color: #d6c9b4;">
-          <img src="http://localhost:3000/uploads/${livro.capa}"  class="card-img-top" alt="${livro.titulo}" style="height: 300px; object-fit: cover;">
+livros.forEach((livro, index) => {
+  if (index % 3 === 0) {
+    row = document.createElement('div');
+    row.className = 'row mb-4';
+    container.appendChild(row);
+  }
+
+  const col = document.createElement('div');
+  col.className = 'col-md-4 d-flex align-items-stretch';
+
+  col.innerHTML = `
+      <div class="card h-100" style="background-color: #d6c9b4;">
+          <img src="http://localhost:3000/uploads/${livro.capa}" class="card-img-top" alt="${livro.titulo}" style="height: 300px; object-fit: cover;">
           <div class="card-body text-center">
             <h5 class="card-title fw-bold">${livro.titulo}</h5>
             <h6 class="card-subtitle">${livro.sinopse}</h6>
@@ -363,11 +372,17 @@ async function carregarLivros() {
           <div class="card-footer text-center">
             <button class="btn btn-danger me-2">Excluir</button>
             <button class="btn btn-dark">Editar</button>
+            <div class="mt-2">
+              <span class="badge bg-danger">Indisponível</span>
+            </div>
           </div>
         </div>
-      `;
-      container.appendChild(card);
-    });
+  `;
+
+
+
+  row.appendChild(col);
+});
   } catch (erro) {
     console.error('Erro ao carregar livros:', erro);
   }
