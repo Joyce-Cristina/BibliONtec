@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 02/08/2025 às 00:09
+-- Tempo de geração: 05/08/2025 às 00:54
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -332,12 +332,20 @@ CREATE TABLE `livro` (
   `assunto_discutido` varchar(200) DEFAULT NULL,
   `subtitulo` varchar(200) DEFAULT NULL,
   `volume` varchar(20) DEFAULT NULL,
-  `genero` varchar(20) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL,
   `FK_classificacao_id` int(11) DEFAULT NULL,
   `FK_status_id` int(11) DEFAULT NULL,
-  `FK_instituicao_id` int(11) DEFAULT NULL
+  `FK_instituicao_id` int(11) DEFAULT NULL,
+  `FK_genero_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `livro`
+--
+
+INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`) VALUES
+(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama Listrado', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, NULL, NULL, NULL, NULL, 5),
+(4, '1ª', '1754347887770.png', '368', '1', NULL, '2017-04-04', 'O Homenage AOS 10 Anos de Publicação, um Globo Livros Lança EDIÇÃO COMEMORATIVA DA OBRA, QUE TRAZ PREFÁCIO INÉDITO E EXCLUSIVO DO AUTOR. ', ' 9788525060303', 'Uma cidade do sol', 'Ficção', NULL, '1', NULL, NULL, NULL, NULL, 89);
 
 -- --------------------------------------------------------
 
@@ -747,7 +755,8 @@ ALTER TABLE `livro`
   ADD KEY `FK_livro_1` (`FK_funcionario_id`),
   ADD KEY `FK_livro_2` (`FK_classificacao_id`),
   ADD KEY `FK_livro_3` (`FK_status_id`),
-  ADD KEY `FK_livro_instituicao` (`FK_instituicao_id`);
+  ADD KEY `FK_livro_instituicao` (`FK_instituicao_id`),
+  ADD KEY `FK_livro_genero` (`FK_genero_id`);
 
 --
 -- Índices de tabela `livro_autor`
@@ -953,7 +962,7 @@ ALTER TABLE `lista_desejo`
 -- AUTO_INCREMENT de tabela `livro`
 --
 ALTER TABLE `livro`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `notificacao`
@@ -1110,6 +1119,7 @@ ALTER TABLE `livro`
   ADD CONSTRAINT `FK_livro_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_livro_2` FOREIGN KEY (`FK_classificacao_id`) REFERENCES `classificacao` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_livro_3` FOREIGN KEY (`FK_status_id`) REFERENCES `status` (`id`),
+  ADD CONSTRAINT `FK_livro_genero` FOREIGN KEY (`FK_genero_id`) REFERENCES `genero` (`id`),
   ADD CONSTRAINT `FK_livro_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
