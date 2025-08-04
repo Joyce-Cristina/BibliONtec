@@ -447,9 +447,9 @@ function validarSenha(senha) {
 
 //Mostrar aviso ao editar a senha 
 
-  const senhaInput = document.getElementById('senha');
+ const senhaInput = document.getElementById('senha');
 
-  // Se a div de aviso não existir, cria ela logo depois do input senha
+if (senhaInput) {
   let avisoSenha = document.getElementById('avisoSenha');
   if (!avisoSenha) {
     avisoSenha = document.createElement('div');
@@ -469,6 +469,8 @@ function validarSenha(senha) {
   senhaInput.addEventListener('blur', () => {
     avisoSenha.style.display = 'none';
   });
+}
+
 
 
 });
@@ -486,3 +488,38 @@ function toggleSenha() {
     icon.classList.add("bi-eye-slash");
   }
 }
+//Abre o menu ao clicar na foto
+  const avatar = document.getElementById('avatarPerfil'); // <- este é o que está no seu HTML
+  const dropdown = document.getElementById('menuPerfil'); // <- também no seu HTML
+
+  if (avatar && dropdown) {
+    avatar.addEventListener('click', (event) => {
+      event.stopPropagation(); // evita que o clique feche o menu imediatamente
+      dropdown.classList.toggle('show');
+    });
+
+    // Fecha o menu se clicar fora
+    window.addEventListener('click', (event) => {
+      if (!avatar.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
+  }
+
+  // Troca foto se estiver salva no localStorage
+  const usuario = JSON.parse(localStorage.getItem('usuario'));
+  if (usuario && usuario.foto) {
+    const avatarImg = document.querySelector('.avatar-navbar');
+    if (avatarImg) {
+      avatarImg.src = `http://localhost:3000/uploads/${usuario.foto}`;
+    }
+  }
+
+
+// Função de logout
+function logout() {
+  localStorage.removeItem('usuario');
+  window.location.href = './login.html';
+}
+
+

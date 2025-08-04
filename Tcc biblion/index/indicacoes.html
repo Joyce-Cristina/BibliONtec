@@ -14,6 +14,55 @@
 
   <!-- Estilo personalizado -->
   <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .menu-perfil.show {
+  display: flex;
+}
+    .perfil-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-navbar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.menu-perfil {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 50px; /* Distância abaixo do avatar */
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  min-width: 180px;
+  z-index: 1000;
+  flex-direction: column;
+}
+
+.menu-perfil a {
+  padding: 10px 15px;
+  text-decoration: none;
+  display: block;
+  color: #333;
+  font-weight: 500;
+}
+
+.menu-perfil a:hover {
+  background-color: #f0f0f0;
+}
+.menu-perfil hr.menu-divider {
+  margin: 5px 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+  </style>
 </head>
 
 <body>
@@ -44,14 +93,21 @@
     </div>
 
     <div class="navbar-right">
-      <a href="./areaAluno.html#notificacoes" class="icon-btn">
-        <i class="bi bi-bell"></i>
-      </a>
-      <a >
-        <img src="../img/avatar.jpg" alt="Perfil" class="avatar-navbar">
-      </a>
-    </div>
-  </nav>
+    <a href="./areaAluno.html#notificacoes" class="icon-btn">
+      <i class="bi bi-bell"></i>
+    </a>
+   <div class="perfil-dropdown">
+  <img src="../img/avatar.jpg" alt="Perfil" class="avatar-navbar" id="avatarPerfil">
+  <div class="menu-perfil" id="menuPerfil">
+    <a href="#"> Perguntas frequentes</a>
+      <hr class="menu-divider">
+    <a href="#"> Entre em contato</a>
+      <hr class="menu-divider">
+    <a href="index.html" onclick="logout()"> Logout</a>
+  </div>
+</div>
+  </div>
+</nav>
 
   <br><br>
 
@@ -235,6 +291,7 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../java/script.js"></script>
 </body>
 
 </html>

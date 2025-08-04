@@ -130,6 +130,60 @@
       background-color: #a82010;
       color: white;
     }
+    /* Container do avatar fixado no canto inferior esquerdo */
+.avatar-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1051;
+}
+
+/* Imagem do avatar */
+.avatar-navbar {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+/* Menu que aparece ao clicar no avatar */
+.menu-perfil {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: none;
+  min-width: 150px;
+}
+
+/* Mostrar o menu quando ativado com JS */
+.menu-perfil.show {
+  display: block;
+}
+
+/* Itens do menu */
+.menu-perfil .dropdown-item {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.menu-perfil .dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+.menu-perfil hr.menu-divider {
+  margin: 5px 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
   </style>
 </head>
 
@@ -211,11 +265,17 @@
     </button>
   </div>
 
-  <!-- Avatar -->
-  <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1051;">
-    <img src="../img/avatar.jpg" alt="User"
-      style="width: 50px; height: 50px; border-radius: 10px; box-shadow: 2px 2px 6px rgba(0,0,0,0.3);" />
+  <!-- Avatar com menu -->
+<div class="avatar-container">
+  <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+  <div id="menuPerfil" class="menu-perfil">
+    <a href="./areaProf.html" class="dropdown-item">Meu Perfil</a>
+    <hr class="menu-divider">
+    <a href="#" class="dropdown-item">Perguntas frequentes</a>
+    <hr class="menu-divider">
+    <a href="index.html" class="dropdown-item" onclick="logout()">Sair</a>
   </div>
+</div>
 
   <script src="../java/script.js"></script>
 </body>
