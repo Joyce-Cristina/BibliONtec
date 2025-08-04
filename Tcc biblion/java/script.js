@@ -489,38 +489,33 @@ function toggleSenha() {
   }
 }
 //Abre o menu ao clicar na foto
-const avatar = document.getElementById('avatarNavbar'); // <- ID único para navbar
-const dropdown = document.getElementById('menuPerfil');
-const avatarGrande = document.getElementById('avatarPerfilGrande'); // <- ID para imagem grande
+const avatar = document.getElementById('avatarPerfil'); // <- navbar
+  const dropdown = document.getElementById('menuPerfil');
+  const avatarGrande = document.getElementById('avatarPerfilGrande'); // <- imagem grande
 
-if (avatar && dropdown && avatarGrande) {
-  avatar.addEventListener('click', (event) => {
-    event.stopPropagation(); // evita que o clique feche o menu imediatamente
-    dropdown.classList.toggle('show');
-  });
+  // Mostra/oculta o menu do avatar
+  if (avatar && dropdown) {
+    avatar.addEventListener('click', (event) => {
+      event.stopPropagation(); // Evita que o clique feche o menu
+      dropdown.classList.toggle('show');
+    });
 
-  // Fecha o menu se clicar fora
-  window.addEventListener('click', (event) => {
-    if (!avatar.contains(event.target) && !dropdown.contains(event.target)) {
-      dropdown.classList.remove('show');
-    }
-  });
-}
-
-// Troca foto se estiver salva no localStorage
-const usuario = JSON.parse(localStorage.getItem('usuario'));
-if (usuario && usuario.foto) {
-  const avatarImgNavbar = document.getElementById('avatarNavbar');
-  const avatarImgGrande = document.getElementById('avatarPerfilGrande');
-
-  if (avatarImgNavbar) {
-    avatarImgNavbar.src = `http://localhost:3000/uploads/${usuario.foto}`;
+    // Fecha o menu se clicar fora
+    window.addEventListener('click', (event) => {
+      if (!avatar.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    });
   }
 
-  if (avatarImgGrande) {
-    avatarImgGrande.src = `http://localhost:3000/uploads/${usuario.foto}`;
+  // Troca a imagem do avatar com base no localStorage
+  const usuario = JSON.parse(localStorage.getItem('usuario'));
+  if (usuario && usuario.foto) {
+    const novaSrc = `http://localhost:3000/uploads/${usuario.foto}`;
+
+    if (avatar) avatar.src = novaSrc;
+    if (avatarGrande) avatarGrande.src = novaSrc;
   }
-}
 
 
 // Função de logout
