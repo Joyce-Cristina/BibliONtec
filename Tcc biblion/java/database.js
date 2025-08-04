@@ -94,7 +94,8 @@ connection.query(
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
 
-  const sqlUsuario = 'SELECT id, nome, tipo FROM usuario WHERE email = ? AND senha = ?';
+const sqlUsuario = 'SELECT id, nome, tipo, foto FROM usuario WHERE email = ? AND senha = ?';
+
   connection.query(sqlUsuario, [email, senha], (err, results) => {
     if (err) {
       console.error('Erro no login:', err);
@@ -103,14 +104,16 @@ app.post('/login', (req, res) => {
 
     if (results.length > 0) {
       const usuario = results[0];
-      return res.status(200).json({
-        message: 'Login usuário bem-sucedido',
-        usuario: {
-          id: usuario.id,
-          nome: usuario.nome,
-          tipo: usuario.tipo
-        }
-      });
+   return res.status(200).json({
+  message: 'Login usuário bem-sucedido',
+  usuario: {
+    id: usuario.id,
+    nome: usuario.nome,
+    tipo: usuario.tipo,
+    foto: usuario.foto
+  }
+});
+
     }
 
     const sqlFuncionario = `

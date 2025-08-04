@@ -185,6 +185,58 @@
       background-color: #a82010;
       color: white;
     }
+    /* Avatar flutuante */
+.avatar-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1051;
+}
+
+.avatar-navbar {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Menu do avatar */
+.menu-perfil {
+  display: none;
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  min-width: 200px;
+}
+
+.menu-perfil.show {
+  display: block;
+}
+
+.menu-perfil .dropdown-item {
+  padding: 12px 16px;
+  text-decoration: none;
+  color: #333;
+  display: block;
+  background-color: #fff;
+  transition: background-color 0.2s;
+}
+
+.menu-perfil .dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+.menu-divider {
+  margin: 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
   </style>
 </head>
 
@@ -374,19 +426,18 @@
     </div>
   </div>
 
-  <!-- Menu flutuante -->
-  <div style="position: fixed; bottom: 20px; left: 20px; z-index: 1051;">
-    <div class="d-flex align-items-end gap-2">
-      <img src="../img/avatar.jpg" alt="User"
-        style="width: 50px; height: 50px; border-radius: 10px; box-shadow: 2px 2px 6px rgba(0,0,0,0.3);" />
-      <div class="bg-light p-3 rounded shadow-sm">
-        <div class="mb-2"><i class="bi bi-question-circle me-2"></i>Perguntas frequentes</div>
-        <div class="mb-2"><i class="bi bi-envelope me-2"></i>Entre em contato</div>
-        <div><i class="bi bi-box-arrow-right me-2"></i>Logout</div>
-      </div>
-    </div>
+ 
+ <!-- Avatar com menu fixado no canto inferior esquerdo -->
+<div class="avatar-container">
+  <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+  <div id="menuPerfil" class="menu-perfil">
+    <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
+    <hr class="menu-divider">
+    <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+    <hr class="menu-divider">
+    <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
   </div>
-
+</div>
   <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
     <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
