@@ -3,6 +3,8 @@ const mysql = require('mysql');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const bodyParser = require('body-parser');
+const axios = require('axios');
 
 const app = express();
 app.use(cors());
@@ -359,18 +361,39 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   });
 });
 
-app.get('/livros', (req, res) => {
-  const sql = 'SELECT titulo, sinopse, capa FROM livro';
+// Rota de tradução
+app.post('/traduzir', async (req, res) => {
+  const { texto, de = 'en', para = 'pt' } = req.body;
 
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error('Erro ao buscar livros:', err);
-      return res.status(500).send('Erro interno do servidor');
+  try {
+    const response = await fetch('https://libretranslate.com/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        q: texto,
+        source: de,
+        target: para,
+        format: 'text'
+      })
+    });
+    const data = await response.json();
+    console.log(data.translatedText);
+    
+    
+
+    try {
+      const data = JSON.parse(text);
+      return res.json({ traducao: data.translatedText });
+    } catch {
+      return res.status(500).json({ error: 'Resposta da API não é JSON válido.' });
     }
 
-    res.json(results);
-  });
+  } catch (error) {
+    console.error('Erro na tradução:', error);
+    return res.status(500).json({ error: 'Erro na tradução' });
+  }
 });
+
 
 
 
