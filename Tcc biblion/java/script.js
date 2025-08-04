@@ -489,31 +489,38 @@ function toggleSenha() {
   }
 }
 //Abre o menu ao clicar na foto
-  const avatar = document.getElementById('avatarPerfil'); // <- este é o que está no seu HTML
-  const dropdown = document.getElementById('menuPerfil'); // <- também no seu HTML
+const avatar = document.getElementById('avatarNavbar'); // <- ID único para navbar
+const dropdown = document.getElementById('menuPerfil');
+const avatarGrande = document.getElementById('avatarPerfilGrande'); // <- ID para imagem grande
 
-  if (avatar && dropdown) {
-    avatar.addEventListener('click', (event) => {
-      event.stopPropagation(); // evita que o clique feche o menu imediatamente
-      dropdown.classList.toggle('show');
-    });
+if (avatar && dropdown && avatarGrande) {
+  avatar.addEventListener('click', (event) => {
+    event.stopPropagation(); // evita que o clique feche o menu imediatamente
+    dropdown.classList.toggle('show');
+  });
 
-    // Fecha o menu se clicar fora
-    window.addEventListener('click', (event) => {
-      if (!avatar.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.classList.remove('show');
-      }
-    });
-  }
-
-  // Troca foto se estiver salva no localStorage
-  const usuario = JSON.parse(localStorage.getItem('usuario'));
-  if (usuario && usuario.foto) {
-    const avatarImg = document.querySelector('.avatar-navbar');
-    if (avatarImg) {
-      avatarImg.src = `http://localhost:3000/uploads/${usuario.foto}`;
+  // Fecha o menu se clicar fora
+  window.addEventListener('click', (event) => {
+    if (!avatar.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.classList.remove('show');
     }
+  });
+}
+
+// Troca foto se estiver salva no localStorage
+const usuario = JSON.parse(localStorage.getItem('usuario'));
+if (usuario && usuario.foto) {
+  const avatarImgNavbar = document.getElementById('avatarNavbar');
+  const avatarImgGrande = document.getElementById('avatarPerfilGrande');
+
+  if (avatarImgNavbar) {
+    avatarImgNavbar.src = `http://localhost:3000/uploads/${usuario.foto}`;
   }
+
+  if (avatarImgGrande) {
+    avatarImgGrande.src = `http://localhost:3000/uploads/${usuario.foto}`;
+  }
+}
 
 
 // Função de logout
