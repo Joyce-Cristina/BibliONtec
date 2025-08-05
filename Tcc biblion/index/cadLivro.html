@@ -386,8 +386,10 @@
       <input type="text" class="form-control" name="assunto_discutido" />
     </div>
     <div class="col-md-6">
-      <label class="form-label">Gênero</label>
-      <input type="text" class="form-control" name="genero" />
+      <label for="generoTexto" class="form-label">Gênero</label>
+      <input list="listaGeneros" class="form-control" id="generoTexto" placeholder="Digite ou escolha" autocomplete="off">
+      <input type="hidden" name="FK_genero_id" id="FK_genero_id">
+      <datalist id="listaGeneros"></datalist>
     </div>
   </div>
 

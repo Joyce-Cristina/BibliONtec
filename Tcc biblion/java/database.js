@@ -4,6 +4,10 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 
+
+
+
+
 const app = express();
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -300,6 +304,7 @@ app.get('/funcionario/:id', (req, res) => {
 });
 
 // Cadastro de Livro
+// Cadastro de Livro
 app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   const {
     titulo,
@@ -313,7 +318,7 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
     assunto_discutido,
     subtitulo,
     volume,
-    genero,
+    FK_genero_id,          // <-- aqui pega o id do gênero
     FK_funcionario_id,
     FK_classificacao_id,
     FK_status_id
@@ -325,7 +330,7 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
     INSERT INTO livro (
       titulo, edicao, paginas, quantidade, local_publicacao,
       data_publicacao, sinopse, isbn, assunto_discutido,
-      subtitulo, volume, genero, FK_funcionario_id,
+      subtitulo, volume, FK_genero_id, FK_funcionario_id,
       FK_classificacao_id, FK_status_id, capa
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
@@ -338,15 +343,15 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
     local_publicacao || null,
     data_publicacao || null,
     sinopse || null,
-    isbn,
+    isbn || null,
     assunto_discutido || null,
     subtitulo || null,
     volume || null,
-    genero || null,
+    FK_genero_id || null,      // <-- id do gênero aqui
     FK_funcionario_id || null,
     FK_classificacao_id || null,
     FK_status_id || null,
-    capa
+    capa || null
   ];
 
   connection.query(sql, values, (err, result) => {
@@ -359,18 +364,41 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   });
 });
 
-app.get('/livros', (req, res) => {
-  const sql = 'SELECT titulo, sinopse, capa FROM livro';
+
+//carrega genero dos livros 
+app.get('/generos', (req, res) => {
+  const sql = 'SELECT id, genero FROM genero';  // ajuste o nome da tabela se necessário
 
   connection.query(sql, (err, results) => {
     if (err) {
-      console.error('Erro ao buscar livros:', err);
-      return res.status(500).send('Erro interno do servidor');
+      console.error('Erro ao buscar gêneros:', err);
+      return res.status(500).json({ error: 'Erro ao buscar gêneros' });
     }
 
     res.json(results);
   });
 });
+app.post('/generos', (req, res) => {
+  const { genero } = req.body;
+
+  if (!genero || genero.trim() === '') {
+    return res.status(400).json({ error: 'Gênero é obrigatório' });
+  }
+
+  // Verifica se já existe (opcional, para evitar duplicidade)
+  const sqlCheck = 'SELECT * FROM genero WHERE LOWER(genero) = LOWER(?) LIMIT 1';
+  connection.query(sqlCheck, [genero], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erro no banco' });
+    if (results.length > 0) return res.status(409).json({ error: 'Gênero já existe' });
+
+    const sqlInsert = 'INSERT INTO genero (genero) VALUES (?)';
+    connection.query(sqlInsert, [genero], (err2) => {
+      if (err2) return res.status(500).json({ error: 'Erro ao salvar gênero' });
+      res.status(201).json({ message: 'Gênero salvo com sucesso' });
+    });
+  });
+});
+
 
 
 
