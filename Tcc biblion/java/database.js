@@ -184,7 +184,7 @@ if (permissoesFormatadas && Array.isArray(permissoesFormatadas)) {
     return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!' });
   });
 } else {
-  return res.status(200).json({ message: 'Funcionário cadastrado com sucesso (sem permissões).' });
+  return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!' });
 }
 
   });
