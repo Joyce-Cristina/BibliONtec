@@ -146,6 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  document.querySelectorAll('.apenasTexto').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
+    });
+  });
+
 
   // ----------- LÓGICA DE LOGIN ------------
   const formLogin = document.getElementById('formLogin');
@@ -214,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         senhaInput.value = senha;
         alert(`Senha gerada automaticamente: ${senha}`);
       } else if (!validarSenha(senha)) {
-        alert("Senha inválida! A senha deve conter exatamente 8 caracteres, com pelo menos:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)");
+        alert("Senha inválida! A senha deve conter pelo menos 8 caracteres, com pelo menos:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)");
         return;
       }
 
@@ -462,7 +468,7 @@ if (senhaInput) {
   }
 
   senhaInput.addEventListener('focus', () => {
-    avisoSenha.textContent = "A senha deve conter exatamente 8 caracteres, com pelo menos:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)";
+    avisoSenha.textContent = "A senha deve conter pelo menos 8 caracteres, com pelo menos:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)";
     avisoSenha.style.display = 'block';
   });
 
