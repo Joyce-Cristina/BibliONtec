@@ -106,127 +106,132 @@
         }
 
         /* Estilos específicos para o main-container */
-.main-container-custom {
-    flex: 1;
-    padding-left: 270px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow-y: auto;
-    min-height: calc(100vh - 56px);
-}
+        .main-container-custom {
+            flex: 1;
+            padding-left: 270px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            min-height: calc(100vh - 56px);
+        }
 
-/* Título estilizado */
-.text-center-custom {
-    text-align: center;
-    font-family: Georgia, serif;
-    font-weight: 500;
-}
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center;
+            font-family: Georgia, serif;
+            font-weight: 500;
+        }
 
-/* Estilos para o grupo de busca */
-.input-group-custom {
-    max-width: 600px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin: 0 auto;
-}
+        /* Estilos para o grupo de busca */
+        .input-group-custom {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+        }
 
-/* Barra de pesquisa */
-.search-input {
-    border-radius: 25px;
-    padding-left: 20px;
-    font-size: 16px;
-    flex: 1;
-}
+        /* Barra de pesquisa */
+        .search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
 
-/* Estilo do botão de pesquisa */
-.search-btn {
-    background-color: #fff;
-    border: 1px solid #d2b28c;
-    border-radius: 25px;
-    padding: 10px 20px;
-    font-size: 18px;
-}
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
 
-/* Ajuste do card */
-.custom-card {
-    background-color: #c8aa78;
-    border-radius: 15px;
-    padding: 30px;
-    max-width: 1000px;
-    margin: 0 auto;
-    width: 100%;
-}
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
 
-/* Estilo para o campo de status */
-.status-label {
-    font-weight: bold;
-    color: white;
-    margin-right: 5px;
-}
+        /* Estilo para o campo de status */
+        .status-label {
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            margin-right: 5px;
+        }
 
-/* Estilo para o botão Status */
-.status-select {
-    margin-left: 10px;
-    margin-right: 20px; /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
-}
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px;
+            margin-right: 20px;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
 
-/* Layout para os botões fora do card */
-.d-flex.justify-content-between.mt-3 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 20px; /* Adiciona espaço nas laterais para afastar da "parede" */
-}
+        /* Layout para os botões fora do card */
+        .d-flex.justify-content-between.mt-3 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 20px;
+            /* Adiciona espaço nas laterais para afastar da "parede" */
+        }
 
-/* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
-.new-user-btn {
-    background-color: #7a1600;
-    color: white;
-    border-radius: 25px;
-    padding: 10px 20px;
-}
+        /* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
+        .new-user-btn {
+            background-color: #7a1600;
+            color: white;
+            border-radius: 25px;
+            padding: 10px 20px;
+        }
 
-.new-user-btn:hover {
-    background-color: #5c0e00;
-}
+        .new-user-btn:hover {
+            background-color: #5c0e00;
+        }
 
-/* Estilo do checkbox */
-.form-check {
-    display: flex;
-    align-items: center;
-    margin-right: 20px; /* Adiciona espaço entre a caixa de seleção e o próximo botão */
-}
-.form-check-input {
-    margin-right: 10px;
-}
+        /* Estilo do checkbox */
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+            /* Adiciona espaço entre a caixa de seleção e o próximo botão */
+        }
 
-/* Estilo para a caixa de seleção "Organizar por ordem alfabética" */
-.form-check-label {
-    font-size: 1rem;
-    font-weight: normal;
-    color: #333;
-}
+        .form-check-input {
+            margin-right: 10px;
+        }
 
-/* Ajuste de layout para os botões e a caixa de seleção */
-.custom-card .d-flex {
-    justify-content: space-between;
-    align-items: center;
-}
+        /* Estilo para a caixa de seleção "Organizar por ordem alfabética" */
+        .form-check-label {
+            font-size: 1rem;
+            font-weight: normal;
+            color: #333;
+        }
 
-.custom-card .btn {
-    border-radius: 25px;
-}
+        /* Ajuste de layout para os botões e a caixa de seleção */
+        .custom-card .d-flex {
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .custom-card .btn {
+            border-radius: 25px;
+        }
 
 
-/* Estilo dos botões */
-.status-select,
-.new-user-btn {
-    margin-top: 10px; /* Adiciona um pequeno espaço superior para os botões */
-}
+        /* Estilo dos botões */
+        .status-select,
+        .new-user-btn {
+            margin-top: 10px;
+            /* Adiciona um pequeno espaço superior para os botões */
+        }
 
 
         .form-card {
@@ -489,126 +494,217 @@
             border-top: 1px solid #ccc;
         }
 
-    /* Tabela de Bibliotecários */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        border-radius: 10px;
-        margin-top: 30px;
-        background-color: #fff;
-        max-width: 1200px;
-        border: 2px solid #d2b28c;  /* Borda com a cor #d2b28c, ajustando para ficar mais visível */
-        margin-left: 1pc;
-    }
+        /* Tabela de Bibliotecários */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            margin-top: 30px;
+            background-color: #fff;
+            max-width: 1200px;
+            border: 5px solid #d2b28c;
+            /* Borda com a cor #d2b28c */
+            margin-left: 1pc;
+        }
 
-    th, td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #e0e0e0;
-        font-size: 16px;
-    }
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 16px;
+        }
 
-    th {
-        background-color: #f8f8f8;
-        font-weight: bold;
-        color: #6a5d4d;
-        border-bottom: 2px solid #d2b28c;  /* A borda do cabeçalho também tem a cor ajustada */
-    }
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+            color: #6a5d4d;
+            border-bottom: 2px solid #d2b28c;
+        }
 
-    td {
-        background-color: #f9f9f9;
-    }
+        td {
+            background-color: #f9f9f9;
+        }
 
-    /* Cores de Status */
-    .badge {
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 14px;
-        font-weight: bold;
-    }
-
-    .bg-success {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .bg-danger {
-        background-color: #f44336;
-        color: white;
-    }
-
-    /* Estilo dos botões (Editar, Excluir, Visualizar) */
-    .btn {
-        padding: 6px 12px;
-        font-size: 14px;
-        border-radius: 5px;
-        text-align: center;
-        margin: 2px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .btn-outline-primary {
-        background-color: #e7e7e7;
-        border: 1px solid #6c757d;
-        color: #6c757d;
-    }
-
-    .btn-outline-primary:hover {
-        background-color: #007bff;
-        color: white;
-        border-color: #007bff;
-    }
-
-    .btn-outline-warning {
-        background-color: #fff;
-        border: 1px solid #f39c12;
-        color: #f39c12;
-    }
-
-    .btn-outline-warning:hover {
-        background-color: #f39c12;
-        color: white;
-        border-color: #f39c12;
-    }
-
-    .btn-outline-danger {
-        background-color: #fff;
-        border: 1px solid #dc3545;
-        color: #dc3545;
-    }
-
-    .btn-outline-danger:hover {
-        background-color: #dc3545;
-        color: white;
-        border-color: #dc3545;
-    }
-
-    /* Estilo dos ícones (Visualizar, Editar, Excluir) */
-    .bi {
-        font-size: 18px;
-        margin-right: 8px;
-    }
-
-    /* Ajustes para a tabela */
-    tbody tr:nth-child(even) {
-        background-color: #f5f5f5;
-    }
-
-    tbody tr:hover {
-        background-color: #e9e9e9;
-    }
-
-    /* Responsivo */
-    @media (max-width: 768px) {
-        th, td {
+        /* Cores de Status */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 15px;
             font-size: 14px;
+            font-weight: bold;
         }
 
-        .btn {
-            font-size: 12px;
+        .bg-success {
+            background-color: #4CAF50;
+            color: white;
         }
-    }
+
+        .bg-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        /* Estilo dos botões (Editar, Excluir, Visualizar) */
+        .btn {
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary {
+            background-color: #e7e7e7;
+            border: 1px solid #6c757d;
+            color: #6c757d;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .btn-outline-warning {
+            background-color: #fff;
+            border: 1px solid #f39c12;
+            color: #f39c12;
+        }
+
+        .btn-outline-warning:hover {
+            background-color: #f39c12;
+            color: white;
+            border-color: #f39c12;
+        }
+
+        .btn-outline-danger {
+            background-color: #fff;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        /* Estilo dos ícones (Visualizar, Editar, Excluir) */
+        .bi {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        /* Ajustes para a tabela */
+        tbody tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+
+        tbody tr:hover {
+            background-color: #e9e9e9;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+
+            th,
+            td {
+                font-size: 14px;
+            }
+
+            .btn {
+                font-size: 12px;
+            }
+        }
+
+        /* Estilos principais */
+        .card-container {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 10px;
+            width: 300px;
+            /* Largura aumentada */
+            border: 2px solid #007bff;
+            height: 85%;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .card .icon-container {
+            background-color: #e0f7fa;
+            padding: 15px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .card .info {
+            font-family: Arial, sans-serif;
+        }
+
+        .card .info p {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .card .info span {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Estilos para cada tipo de card */
+        .card.active {
+            border: 2px solid #4caf50;
+        }
+
+        .card.inactive {
+            border: 2px solid #f44336;
+        }
+
+        /* Adicionando ícones */
+        .bi {
+            font-size: 32px;
+        }
+
+        /* Estilo para o botão "Novo bibliotecário" */
+        .btn-new-user {
+            background-color: #7a1600;
+            /* Cor de fundo do botão */
+            color: white;
+            /* Cor do texto */
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* Ajusta o espaço entre o ícone e o texto */
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-new-user:hover {
+            background-color: #5c0e00;
+            /* Cor de fundo ao passar o mouse */
+        }
+
+        .btn-new-user i {
+            font-size: 1.4rem;
+            /* Tamanho do ícone */
+        }
     </style>
 </head>
 
@@ -687,7 +783,8 @@
             </div>
         </div>
 
-        <!-- Botões e checkbox fora do card -->
+
+
         <div class="d-flex justify-content-between align-items-center mt-3">
             <div class="d-flex align-items-center">
                 <!-- Checkbox "Organizar por ordem alfabética" -->
@@ -700,81 +797,125 @@
             </div>
             <div class="d-flex align-items-center">
                 <!-- Botão Status -->
-                <label for="status" class="text-white status-label">Status</label>
+                <label for="status" class="text-black status-label">Status</label>
                 <select id="status" class="form-control status-select">
                     <option>Ativo</option>
                     <option>Inativo</option>
                 </select>
                 <!-- Botão Novo bibliotecário -->
-                <button class="btn btn-outline-dark rounded-3 new-user-btn" type="button" data-bs-toggle="modal"
-                    data-bs-target="#newUserModal">
-                    + Novo bibliotecário
+                <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                    <i class="bi bi-plus-circle"></i> Novo bibliotecário
                 </button>
+
             </div>
         </div>
 
-         <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>E-mail</th>
-                        <th>Status</th>
-                        <th>Telefone</th>
-                        <th>Permissões</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Carlos Ferro</td>
-                        <td>carlos.fe@email.com</td>
-                        <td><span class="badge bg-success">Ativo</span></td>
-                        <td>(12) 99999-1111</td>
-                        <td>Administração, Catalogação</td>
-                        <td>
-                            <button class="btn btn-outline-primary btn-sm">Visualizar</button>
-                            <button class="btn btn-outline-warning btn-sm">Editar</button>
-                            <button class="btn btn-outline-danger btn-sm">Excluir</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Tháis Santos</td>
-                        <td>thais.sant@email.com</td>
-                        <td><span class="badge bg-danger">Inativo</span></td>
-                        <td>(12) 99999-1111</td>
-                        <td>Administração, Catalogação</td>
-                        <td>
-                            <button class="btn btn-outline-primary btn-sm">Visualizar</button>
-                            <button class="btn btn-outline-warning btn-sm">Editar</button>
-                            <button class="btn btn-outline-danger btn-sm">Excluir</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Paula Lima</td>
-                        <td>paula.lima@email.com</td>
-                        <td><span class="badge bg-danger">Inativo</span></td>
-                        <td>(12) 99999-1111</td>
-                        <td>Administração, Catalogação</td>
-                        <td>
-                            <button class="btn btn-outline-primary btn-sm">Visualizar</button>
-                            <button class="btn btn-outline-warning btn-sm">Editar</button>
-                            <button class="btn btn-outline-danger btn-sm">Excluir</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Mateus Rosa</td>
-                        <td>mateus.ro@email.com</td>
-                        <td><span class="badge bg-success">Ativo</span></td>
-                        <td>(12) 99999-1111</td>
-                        <td>Administração, Catalogação</td>
-                        <td>
-                            <button class="btn btn-outline-primary btn-sm">Visualizar</button>
-                            <button class="btn btn-outline-warning btn-sm">Editar</button>
-                            <button class="btn btn-outline-danger btn-sm">Excluir</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+
+        <div class="card-container">
+            <div class="card">
+                <div class="icon-container">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div class="info">
+                    <p>Total de bibliotecários</p>
+                    <span>5</span>
+                </div>
+            </div>
+            <div class="card active">
+                <div class="icon-container">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div class="info">
+                    <p>Ativos</p>
+                    <span>3</span>
+                </div>
+            </div>
+            <div class="card inactive">
+                <div class="icon-container">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+                <div class="info">
+                    <p>Inativos</p>
+                    <span>2</span>
+                </div>
+            </div>
+        </div>
+
+
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Status</th>
+                    <th>Telefone</th>
+                    <th>Permissões</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Carlos Ferro</td>
+                    <td>carlos.fe@email.com</td>
+                    <td><span class="badge bg-success">Ativo</span></td>
+                    <td>(12) 99999-1111</td>
+                    <td>Administração, Catalogação</td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
+                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
+                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tháis Santos</td>
+                    <td>thais.sant@email.com</td>
+                    <td><span class="badge bg-danger">Inativo</span></td>
+                    <td>(12) 99999-1111</td>
+                    <td>Administração, Catalogação</td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
+                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
+                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Paula Lima</td>
+                    <td>paula.lima@email.com</td>
+                    <td><span class="badge bg-danger">Inativo</span></td>
+                    <td>(12) 99999-1111</td>
+                    <td>Administração, Catalogação</td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
+                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
+                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Mateus Rosa</td>
+                    <td>mateus.ro@email.com</td>
+                    <td><span class="badge bg-success">Ativo</span></td>
+                    <td>(12) 99999-1111</td>
+                    <td>Administração, Catalogação</td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
+                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
+                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Rose Ricardo</td>
+                    <td>rose.ricar@email.com</td>
+                    <td><span class="badge bg-success">Ativo</span></td>
+                    <td>(12) 99999-1111</td>
+                    <td>Catalogação</td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
+                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
+                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
 
