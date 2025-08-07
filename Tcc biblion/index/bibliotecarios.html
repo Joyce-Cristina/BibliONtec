@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BibliOnTec - Página Inicial</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0e6d2;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 17px;
+        }
+
+        .navbar,
+        .sidebar,
+        .sidebar a,
+        .sidebar button.dropdown-toggle {
+            font-size: 17px;
+        }
+
+        .navbar {
+            background-color: #7a1505;
+            z-index: 1050;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 220px;
+            height: calc(100vh - 56px);
+            background-color: #7a1505;
+            padding: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 1040;
+        }
+
+        .dropdown-menu {
+            background-color: #691400;
+        }
+
+        .dropdown-item {
+            background-color: #691400;
+        }
+
+        .dropdown-item:hover {
+            background-color: #a82010;
+            color: white;
+        }
+
+        .dropdown-item.active {
+            background-color: #4d0f03 !important;
+            color: white !important;
+        }
+
+        .sidebar a,
+        .sidebar button.dropdown-toggle {
+            display: block;
+            background-color: #7a1505;
+            color: white;
+            margin-bottom: 10px;
+            text-align: left;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar button.dropdown-toggle:hover {
+            background-color: #a82010;
+            color: white;
+        }
+
+        .sidebar>a.active {
+            background-color: #4d0f03 !important;
+            color: white !important;
+            box-shadow: none !important;
+        }
+
+        .sidebar>button.dropdown-toggle.active {
+            background-color: #7a1505 !important;
+            color: white !important;
+            box-shadow: none !important;
+        }
+
+        /* Estilos específicos para o main-container */
+.main-container-custom {
+    flex: 1;
+    padding-left: 270px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+    min-height: calc(100vh - 56px);
+}
+
+/* Título estilizado */
+.text-center-custom {
+    text-align: center;
+    font-family: Georgia, serif;
+    font-weight: 500;
+}
+
+/* Estilos para o grupo de busca */
+.input-group-custom {
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+/* Barra de pesquisa */
+.search-input {
+    border-radius: 25px;
+    padding-left: 20px;
+    font-size: 16px;
+    flex: 1;
+}
+
+/* Estilo do botão de pesquisa */
+.search-btn {
+    background-color: #fff;
+    border: 1px solid #d2b28c;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 18px;
+}
+
+/* Ajuste do card */
+.custom-card {
+    background-color: #c8aa78;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Estilo para o campo de status */
+.status-label {
+    font-weight: bold;
+    color: white;
+    margin-right: 5px;
+}
+
+/* Estilo para o botão Status */
+.status-select {
+    margin-left: 10px;
+    margin-right: 20px; /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+}
+
+/* Layout para os botões fora do card */
+.d-flex.justify-content-between.mt-3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 20px; /* Adiciona espaço nas laterais para afastar da "parede" */
+}
+
+/* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
+.new-user-btn {
+    background-color: #7a1600;
+    color: white;
+    border-radius: 25px;
+    padding: 10px 20px;
+}
+
+.new-user-btn:hover {
+    background-color: #5c0e00;
+}
+
+/* Estilo do checkbox */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-right: 20px; /* Adiciona espaço entre a caixa de seleção e o próximo botão */
+}
+.form-check-input {
+    margin-right: 10px;
+}
+
+/* Estilo para a caixa de seleção "Organizar por ordem alfabética" */
+.form-check-label {
+    font-size: 1rem;
+    font-weight: normal;
+    color: #333;
+}
+
+/* Ajuste de layout para os botões e a caixa de seleção */
+.custom-card .d-flex {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-card .btn {
+    border-radius: 25px;
+}
+
+
+/* Estilo dos botões */
+.status-select,
+.new-user-btn {
+    margin-top: 10px; /* Adiciona um pequeno espaço superior para os botões */
+}
+
+
+        .form-card {
+            background-color: #dab57e;
+            /* Cor de fundo do protótipo */
+            padding: 40px;
+            border-radius: 15px;
+            /* Bordas arredondadas */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            /* A largura será 100% do contêiner pai */
+            max-width: 1000px;
+            /* Limita a largura máxima do card */
+            margin: 0 auto;
+            /* Centraliza o card */
+            font-size: 1.1rem;
+        }
+
+
+        h3.text-center.mb-5 {
+            font-size: 1.5rem;
+            /* Tamanho da fonte do título */
+            font-weight: bold;
+            margin-bottom: 20px;
+            /* Ajuste no espaçamento */
+        }
+
+        .form-label {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px solid #d2b28c;
+            background-color: #fff;
+        }
+
+        .btn-editar,
+        .btn-excluir {
+            font-weight: bold;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            transition: background-color 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-editar {
+            background-color: #8c7340;
+            /* Cor de fundo para "Editar Senha" */
+        }
+
+        .btn-editar:hover {
+            background-color: #6f5929;
+            /* Cor de fundo ao passar o mouse */
+        }
+
+        .btn-excluir {
+            background-color: #7a1600;
+            /* Cor de fundo para "Excluir Conta" */
+        }
+
+        .btn-excluir:hover {
+            background-color: #5c0e00;
+            /* Cor de fundo ao passar o mouse */
+        }
+
+        /* Card de Estatísticas */
+        .card-stat {
+            background-color: #faf8f0;
+            border: 2px solid #d3c6a1;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .card-stat i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .card-stat h5 {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-stat p {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Cards de Atividades Recentes */
+        .card-atividade {
+            background-color: #faf8f0;
+            border: 2px solid #d3c6a1;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .card-atividade i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .card-atividade p {
+            font-size: 1.1rem;
+        }
+
+        /* Estilo para os ícones de status */
+        .card-atividade .status-atraso {
+            color: red;
+        }
+
+        .card-atividade .status-usuario {
+            color: teal;
+        }
+
+        .card-atividade .status-default {
+            color: orange;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .btn-cadastro {
+            background-color: #7a1600;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-cadastro:hover {
+            background-color: #5c0e00;
+        }
+
+        /* Responsivo */
+        @media (max-width: 800px) {
+            .sidebar {
+                position: relative;
+                height: auto;
+                width: 100%;
+                border-radius: 0;
+                padding: 10px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .sidebar a,
+            .sidebar button.dropdown-toggle {
+                margin-bottom: 0;
+                flex: 1 1 auto;
+                text-align: center;
+                padding: 8px 5px;
+            }
+
+            .main-container {
+                padding-left: 0;
+            }
+
+            .content {
+                width: 100%;
+                max-width: 100%;
+                margin-top: 10px;
+            }
+        }
+
+        .notificacao-dropdown {
+            background-color: #ffffff;
+            min-width: 250px;
+            max-width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 0px;
+            padding: 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-left: -20px;
+        }
+
+        .notificacao-dropdown .dropdown-item {
+            background-color: #ffffff;
+            color: #333333;
+            padding: 15px 20px;
+            border: none;
+            border-bottom: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        .notificacao-dropdown .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .notificacao-dropdown .dropdown-item.active {
+            background-color: #a82010;
+            color: white;
+        }
+
+        /* Avatar flutuante */
+        .avatar-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1051;
+        }
+
+        .avatar-navbar {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Menu do avatar */
+        .menu-perfil {
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .menu-perfil.show {
+            display: block;
+        }
+
+        .menu-perfil .dropdown-item {
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #333;
+            display: block;
+            background-color: #fff;
+            transition: background-color 0.2s;
+        }
+
+        .menu-perfil .dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .menu-divider {
+            margin: 0;
+            border: none;
+            border-top: 1px solid #ccc;
+        }
+
+    /* Tabela de Bibliotecários */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 10px;
+        margin-top: 30px;
+        background-color: #fff;
+        max-width: 1200px;
+        border: 2px solid #d2b28c;  /* Borda com a cor #d2b28c, ajustando para ficar mais visível */
+        margin-left: 1pc;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 16px;
+    }
+
+    th {
+        background-color: #f8f8f8;
+        font-weight: bold;
+        color: #6a5d4d;
+        border-bottom: 2px solid #d2b28c;  /* A borda do cabeçalho também tem a cor ajustada */
+    }
+
+    td {
+        background-color: #f9f9f9;
+    }
+
+    /* Cores de Status */
+    .badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .bg-success {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .bg-danger {
+        background-color: #f44336;
+        color: white;
+    }
+
+    /* Estilo dos botões (Editar, Excluir, Visualizar) */
+    .btn {
+        padding: 6px 12px;
+        font-size: 14px;
+        border-radius: 5px;
+        text-align: center;
+        margin: 2px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary {
+        background-color: #e7e7e7;
+        border: 1px solid #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+
+    .btn-outline-warning {
+        background-color: #fff;
+        border: 1px solid #f39c12;
+        color: #f39c12;
+    }
+
+    .btn-outline-warning:hover {
+        background-color: #f39c12;
+        color: white;
+        border-color: #f39c12;
+    }
+
+    .btn-outline-danger {
+        background-color: #fff;
+        border: 1px solid #dc3545;
+        color: #dc3545;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+        border-color: #dc3545;
+    }
+
+    /* Estilo dos ícones (Visualizar, Editar, Excluir) */
+    .bi {
+        font-size: 18px;
+        margin-right: 8px;
+    }
+
+    /* Ajustes para a tabela */
+    tbody tr:nth-child(even) {
+        background-color: #f5f5f5;
+    }
+
+    tbody tr:hover {
+        background-color: #e9e9e9;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+        th, td {
+            font-size: 14px;
+        }
+
+        .btn {
+            font-size: 12px;
+        }
+    }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid d-flex align-items-center" style="gap: 0;">
+            <a class="navbar-brand" href="./homepageAdm2.html">
+                <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+                <form class="d-flex">
+                    <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" style="color: white;">
+                                <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
+                                Atualizações
+                            </a>
+                            <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#">Foi adicionado um
+                                        <br>elemento novo <br> no sistema</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#">Foi excluído um
+                                        <br> elemento antigo <br> no sistema</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#">Foi alterado um
+                                        <br> elemento no sistema</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column">
+        <a class="btn w-100" href="./cadAdm.html">Administrador</a>
+        <a class="btn w-100 active" href="./bibliotecarios.html">Bibliotecários</a>
+        <a class="btn w-100" href="./configAdm2.html">Configurações</a>
+        <a class="btn w-100" href="./manutencao.html">Manutenção</a>
+        <a class="btn w-100" href="./usuariosAdm2.html">Usuários</a>
+        <a class="btn w-100" href="./relatorios.html">Relatórios</a>
+    </div>
+
+    <!-- Conteúdo -->
+    <div class="main-container-custom">
+        <div class="p-4 rounded-3 shadow custom-card">
+            <h2 class="text-center-custom">Seus funcionários</h2>
+            <p class="text-center fw-bold mb-4">Esta página é para visualizar todos os seus usuários cadastrados.</p>
+            <div class="d-flex justify-content-center">
+                <div class="input-group-custom">
+                    <input type="text" class="form-control search-input" placeholder="Buscar usuário..." />
+                    <button class="btn btn-light search-btn rounded-end-pill" type="button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botões e checkbox fora do card -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="d-flex align-items-center">
+                <!-- Checkbox "Organizar por ordem alfabética" -->
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="organizeAlphabetically">
+                    <label class="form-check-label" for="organizeAlphabetically">
+                        Organizar por ordem alfabética
+                    </label>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <!-- Botão Status -->
+                <label for="status" class="text-white status-label">Status</label>
+                <select id="status" class="form-control status-select">
+                    <option>Ativo</option>
+                    <option>Inativo</option>
+                </select>
+                <!-- Botão Novo bibliotecário -->
+                <button class="btn btn-outline-dark rounded-3 new-user-btn" type="button" data-bs-toggle="modal"
+                    data-bs-target="#newUserModal">
+                    + Novo bibliotecário
+                </button>
+            </div>
+        </div>
+
+         <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Status</th>
+                        <th>Telefone</th>
+                        <th>Permissões</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Carlos Ferro</td>
+                        <td>carlos.fe@email.com</td>
+                        <td><span class="badge bg-success">Ativo</span></td>
+                        <td>(12) 99999-1111</td>
+                        <td>Administração, Catalogação</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm">Visualizar</button>
+                            <button class="btn btn-outline-warning btn-sm">Editar</button>
+                            <button class="btn btn-outline-danger btn-sm">Excluir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Tháis Santos</td>
+                        <td>thais.sant@email.com</td>
+                        <td><span class="badge bg-danger">Inativo</span></td>
+                        <td>(12) 99999-1111</td>
+                        <td>Administração, Catalogação</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm">Visualizar</button>
+                            <button class="btn btn-outline-warning btn-sm">Editar</button>
+                            <button class="btn btn-outline-danger btn-sm">Excluir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Paula Lima</td>
+                        <td>paula.lima@email.com</td>
+                        <td><span class="badge bg-danger">Inativo</span></td>
+                        <td>(12) 99999-1111</td>
+                        <td>Administração, Catalogação</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm">Visualizar</button>
+                            <button class="btn btn-outline-warning btn-sm">Editar</button>
+                            <button class="btn btn-outline-danger btn-sm">Excluir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Mateus Rosa</td>
+                        <td>mateus.ro@email.com</td>
+                        <td><span class="badge bg-success">Ativo</span></td>
+                        <td>(12) 99999-1111</td>
+                        <td>Administração, Catalogação</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm">Visualizar</button>
+                            <button class="btn btn-outline-warning btn-sm">Editar</button>
+                            <button class="btn btn-outline-danger btn-sm">Excluir</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </div>
+
+
+
+
+
+
+
+    <!-- Botão de acessibilidade -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
+        <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
+            <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
+        </button>
+    </div>
+
+    <!-- Avatar com menu fixado no canto inferior esquerdo -->
+    <div class="avatar-container">
+        <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+        <div id="menuPerfil" class="menu-perfil">
+            <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
+            <hr class="menu-divider">
+            <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+            <hr class="menu-divider">
+            <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+        </div>
+    </div>
+
+    <script src="../java/script.js"></script>
+</body>
+
+</html>
