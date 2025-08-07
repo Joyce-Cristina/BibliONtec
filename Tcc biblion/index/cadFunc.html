@@ -241,6 +241,28 @@
   </style>
 </head>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const fotoInput = document.getElementById("foto");
+    const previewBox = document.getElementById("previewBox");
+
+    fotoInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        previewBox.style.backgroundImage = `url('${event.target.result}')`;
+        previewBox.style.backgroundSize = "cover";
+        previewBox.style.backgroundPosition = "center";
+      };
+
+      reader.readAsDataURL(file);
+    });
+  });
+</script>
+
+
 <body>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark">
@@ -349,6 +371,16 @@
         <option value="2">Circulação</option>
         <option value="3">Catalogação</option>
       </select>
+    </div>
+  </div>
+  <div class="row mb-4">
+    <h4 style="font-weight: bold;" >Foto de perfil:</h4>
+  </div>
+  <div class="row mb-4">
+  <div class="mb-4 d-flex align-items-center">
+    <div id="previewBox" style="width: 100px; height: 150px; background-color: #5d3b1a; border-radius: 6px; margin-right: 20px;">
+    </div>
+    <div>
     </div>
   </div>
 

@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
         serieGroup.classList.add('oculto');
         cursoSelect.removeAttribute('required');
         serieSelect.removeAttribute('required');
+        cursoSelect.value = "";
+    serieSelect.value = "";
       } else {
         cursoGroup.classList.remove('oculto');
         serieGroup.classList.remove('oculto');
@@ -342,10 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("Erro ao carregar dados do usuário: " + err.message);
     }
   }
-
-
-
-
 
 
   const path = window.location.pathname;
