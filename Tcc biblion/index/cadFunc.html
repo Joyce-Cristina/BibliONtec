@@ -118,7 +118,7 @@
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
       max-width: 960px;
       width: 100%;
-      min-height: 850px;
+      height: 500px;
       font-weight: bold;
       /* <- esta linha faz o texto ficar em negrito */
     }
@@ -157,6 +157,7 @@
 
 
     }
+
     .notificacao-dropdown {
       background-color: #ffffff;
       min-width: 250px;
@@ -186,58 +187,58 @@
       background-color: #a82010;
       color: white;
     }
+
     /* Avatar flutuante */
-.avatar-container {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 1051;
-}
+    .avatar-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1051;
+    }
 
-.avatar-navbar {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
-}
+    .avatar-navbar {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+    }
 
-/* Menu do avatar */
-.menu-perfil {
-  display: none;
-  position: absolute;
-  bottom: 60px;
-  left: 0;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  min-width: 200px;
-}
+    /* Menu do avatar */
+    .menu-perfil {
+      display: none;
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      min-width: 200px;
+    }
 
-.menu-perfil.show {
-  display: block;
-}
+    .menu-perfil.show {
+      display: block;
+    }
 
-.menu-perfil .dropdown-item {
-  padding: 12px 16px;
-  text-decoration: none;
-  color: #333;
-  display: block;
-  background-color: #fff;
-  transition: background-color 0.2s;
-}
+    .menu-perfil .dropdown-item {
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #333;
+      display: block;
+      background-color: #fff;
+      transition: background-color 0.2s;
+    }
 
-.menu-perfil .dropdown-item:hover {
-  background-color: #f5f5f5;
-}
+    .menu-perfil .dropdown-item:hover {
+      background-color: #f5f5f5;
+    }
 
-.menu-divider {
-  margin: 0;
-  border: none;
-  border-top: 1px solid #ccc;
-}
-
+    .menu-divider {
+      margin: 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
   </style>
 </head>
 
@@ -261,25 +262,25 @@
               </a>
             </li>
           </ul>
-         <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+          <ul class="navbar-nav mb-2 mb-lg-0 me-3">
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false" style="color: white;">
                 Atualizações
               </a>
               <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">Foi adicionado um 
-                  <br>elemento novo  <br> no sistema</a></li>
+                <li><a class="dropdown-item" href="#">Foi adicionado um
+                    <br>elemento novo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="#">Foi excluído um 
-                 <br> elemento antigo <br> no sistema</a></li>
+                <li><a class="dropdown-item" href="#">Foi excluído um
+                    <br> elemento antigo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
                 <li><a class="dropdown-item" href="#">Foi alterado um
-                  <br> elemento no sistema</a></li>
+                    <br> elemento no sistema</a></li>
               </ul>
             </li>
           </ul>
@@ -314,70 +315,70 @@
     <div class="form-card">
       <h3 class="text-center mb-5">Cadastro de Funcionários</h3>
       <form id="formFuncionario" enctype="multipart/form-data">
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <label class="form-label" for="nome">Nome:</label>
-      <input type="text" id="nome" name="nome" class="form-control apenasTexto" required />
-    </div>
-    <div class="col-md-6">
-      <label class="form-label" for="email">E-mail:</label>
-      <input type="email" id="email" name="email" class="form-control" required />
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" class="form-control apenasTexto" required />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="email">E-mail:</label>
+            <input type="email" id="email" name="email" class="form-control" required />
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="senha">Senha:</label>
+            <input type="password" id="senha" name="senha" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="foto">Foto de Perfil:</label>
+            <input type="file" id="foto" name="foto" class="form-control" accept="image/*" />
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="telefone">Telefone:</label>
+            <input type="number" id="telefone" name="telefone" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="funcao">Função:</label>
+            <select id="funcao" name="funcao" class="form-select">
+              <option value="">Selecione a função</option>
+              <option value="1">Administração</option>
+              <option value="2">Circulação</option>
+              <option value="3">Catalogação</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-custom px-5 py-3">Cadastrar Funcionário</button>
+        </div>
+      </form>
+
     </div>
   </div>
 
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <label class="form-label" for="senha">Senha:</label>
-      <input type="password" id="senha" name="senha" class="form-control" />
-    </div>
-    <div class="col-md-6">
-      <label class="form-label" for="foto">Foto de Perfil:</label>
-      <input type="file" id="foto" name="foto" class="form-control" accept="image/*" />
-    </div>
-  </div>
-
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <label class="form-label" for="telefone">Telefone:</label>
-      <input type="number" id="telefone" name="telefone" class="form-control" />
-    </div>
-    <div class="col-md-6">
-      <label class="form-label" for="funcao">Função:</label>
-      <select id="funcao" name="funcao" class="form-select">
-        <option value="">Selecione a função</option>
-        <option value="1">Administração</option>
-        <option value="2">Circulação</option>
-        <option value="3">Catalogação</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="text-center">
-    <button type="submit" class="btn btn-custom px-5 py-3">Cadastrar Funcionário</button>
-  </div>
-</form>
-
-    </div>
-  </div>
-
-   <!-- Botão de acessibilidade -->
+  <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
     <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
       <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
     </button>
   </div>
-<!-- Avatar com menu fixado no canto inferior esquerdo -->
-<div class="avatar-container">
-  <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
-  <div id="menuPerfil" class="menu-perfil">
-    <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
-    <hr class="menu-divider">
-    <a href="#" class="dropdown-item">Perguntas Frequentes</a>
-    <hr class="menu-divider">
-    <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+  <!-- Avatar com menu fixado no canto inferior esquerdo -->
+  <div class="avatar-container">
+    <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+    <div id="menuPerfil" class="menu-perfil">
+      <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
+      <hr class="menu-divider">
+      <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+      <hr class="menu-divider">
+      <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+    </div>
   </div>
-</div>
-      <script src="../java/script.js"></script>
+  <script src="../java/script.js"></script>
 </body>
 
 </html>
