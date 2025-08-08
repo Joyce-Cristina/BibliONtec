@@ -3,6 +3,8 @@ const mysql = require('mysql');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+
 
 
 
@@ -18,7 +20,14 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, '..', 'uploads')),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
-const upload = multer({ storage });
+const upload = multer({ storage,
+  fileFilter: (req, file, cb) => {
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos de imagem JPEG, PNG, JPG e WEBP são permitidos.'));
+    }
+  } });
 
 const connection = mysql.createConnection({
   host: 'localhost',
@@ -413,7 +422,16 @@ app.post('/generos', (req, res) => {
   });
 });
 
-
+app.get('/generosFiltro', (req, res) => {
+  const sql = 'SELECT * FROM genero ORDER BY genero ASC';
+  connection.query(sql, (err, result) => {
+    if (err) {
+      console.error('Erro ao buscar gêneros:', err);
+      return res.status(500).json({ erro: 'Erro ao buscar gêneros' });
+    }
+    res.json(result);
+  });
+});
 
 
 // ✅ Agora o app.listen() pode ficar no final
