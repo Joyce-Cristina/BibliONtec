@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', async () => {
+
+  const loadingIsbn = document.getElementById('loadingIsbn');
+
+function mostrarLoading() {
+  loadingIsbn.style.display = 'inline-block';
+}
+
+function esconderLoading() {
+  loadingIsbn.style.display = 'none';
+}
+
+
+
+
   const generosExistentes = await carregarGeneros(); // já retorna [{ id, genero }]
   const form = document.getElementById('formLivro');
   const inputGeneroTexto = document.getElementById('generoTexto');
@@ -16,11 +30,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   isbnInput.addEventListener('blur', async () => {
     const isbn = isbnInput.value.trim();
     if (!isbn) return;
+    mostrarLoading();
+
 
     try {
       const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&langRestrict=pt&country=BR`);
       const data = await response.json();
-
+      
       if (data.totalItems > 0) {
         const livro = data.items[0].volumeInfo;
 
@@ -63,6 +79,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
       console.error('Erro ao consultar API do Google Books:', error);
       alert('Erro ao consultar API.');
+    } finally {
+      esconderLoading();
     }
   });
 
@@ -114,7 +132,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (erro) {
       console.error('Erro na requisição:', erro);
       alert('Erro na conexão com o servidor.');
-    }
+    }      
+    
   });
 });
 
@@ -148,4 +167,6 @@ async function carregarGeneros() {
     console.error('Erro ao carregar gêneros:', error);
     return [];
   }
+
+  
 }

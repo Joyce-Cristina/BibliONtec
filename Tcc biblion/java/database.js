@@ -194,6 +194,20 @@ if (permissoesFormatadas && Array.isArray(permissoesFormatadas)) {
   });
 });
 
+app.get('/livros', (req, res) => {
+  const query = 'SELECT * FROM livro';
+
+  connection.query(query, (err, resultados) => {
+    if (err) {
+      console.error('Erro ao buscar livros:', err);
+      res.status(500).json({ erro: 'Erro ao buscar livros' });
+    } else {
+      res.json(resultados);
+    }
+  });
+});
+
+
 
 // Atualizar dados do usuário
 app.put('/usuario/:id', (req, res) => {

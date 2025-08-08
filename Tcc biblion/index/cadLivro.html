@@ -353,19 +353,32 @@
       <input type="text" class="form-control" required name="edicao" />
     </div>
     <div class="col-md-6">
-      <label class="form-label">Sinopse</label>
-      <input type="text" class="form-control" name="sinopse" />
+      <label class="form-label">Editora</label>
+      <input type="text" class="form-control" name="editora" />
     </div>
   </div>
 
   <div class="row mb-3">
     <div class="col-md- 6">
-      <label class="form-label">Editora</label>
-      <input type="text" class="form-control" name="editora" />
+      <label class="form-label">Sinopse</label>
+      <input type="text" class="form-control" name="sinopse" />
     </div>
     <div class="col-md-6">
       <label class="form-label">ISBN <span class="required">*</span></label>
-      <input type="text" class="form-control" required name="isbn" />
+      <div class="input-group align-items-center">
+        <input type="text" class="form-control" required name="isbn" id="isbnInput" />
+        <span class="input-group-text" style="background: transparent; border: none;">
+          <img
+            src="../uploads/loading.gif"
+            alt="Carregando..."
+            id="loadingIsbn"
+            style="width: 24px; height: 24px; display: none; object-fit: contain;"
+          />
+        </span>
+      </div>
+      <small class="form-text text-muted">
+        Para facilitar o preenchimento, insira o código ISBN para carregar as informações automaticamente.
+      </small>
     </div>
   </div>
 
@@ -400,7 +413,7 @@
     </div>
     <div class="col-md-6">
       <label class="form-label">Quantidade</label>
-      <input type="text" class="form-control" name="quantidade" />
+      <input type="number" class="form-control" name="quantidade" />
     </div>
   </div>
 
