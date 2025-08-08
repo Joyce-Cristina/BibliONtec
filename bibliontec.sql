@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 05/08/2025 às 00:54
+-- Tempo de geração: 08/08/2025 às 03:14
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -216,6 +216,112 @@ CREATE TABLE `funcionario_permissao` (
   `FK_permissao_id` int(11) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `genero`
+--
+
+CREATE TABLE `genero` (
+  `id` int(11) NOT NULL,
+  `genero` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `genero`
+--
+
+INSERT INTO `genero` (`id`, `genero`) VALUES
+(1, 'Romance'),
+(2, 'Fantasia'),
+(3, 'Ficção científica'),
+(4, 'Suspense'),
+(5, 'Drama'),
+(6, 'Aventura'),
+(7, 'Terror'),
+(8, 'Biografia'),
+(9, 'História'),
+(10, 'Autoajuda'),
+(11, 'Religião'),
+(12, 'Didático'),
+(13, 'Infantil'),
+(14, 'Juvenil'),
+(15, 'Poesia'),
+(16, 'Conto'),
+(17, 'Crônica'),
+(18, 'Novela'),
+(19, 'Fábula'),
+(20, 'Farsa'),
+(21, 'Poema'),
+(22, 'Soneto'),
+(23, 'Tragicomédia'),
+(24, 'Tragédia'),
+(25, 'Comédia'),
+(26, 'Épico'),
+(27, 'Ensaio'),
+(28, 'Auto'),
+(29, 'Ação'),
+(30, 'Mistério'),
+(31, 'Romance Policial'),
+(32, 'Romance Histórico'),
+(33, 'Romance de Época'),
+(34, 'Romance Contemporâneo'),
+(35, 'Romance Espírita'),
+(36, 'Romance Juvenil'),
+(37, 'Distopia'),
+(38, 'Mitologia'),
+(39, 'Realismo Fantástico'),
+(40, 'Literatura Infantojuvenil'),
+(41, 'Chick-lit'),
+(42, 'Young Adult'),
+(43, 'Autobiografia'),
+(44, 'Motivacional'),
+(45, 'Espiritualidade'),
+(46, 'Teologia'),
+(47, 'Filosofia'),
+(48, 'Sociologia'),
+(49, 'Psicologia'),
+(50, 'Ciências Humanas'),
+(51, 'Ciências Exatas'),
+(52, 'Ciências Biológicas'),
+(53, 'Administração'),
+(54, 'Marketing'),
+(55, 'Finanças'),
+(56, 'Direito'),
+(57, 'Política'),
+(58, 'Geografia'),
+(59, 'Matemática'),
+(60, 'Física'),
+(61, 'Química'),
+(62, 'Astronomia'),
+(63, 'Saúde'),
+(64, 'Medicina'),
+(65, 'Educação'),
+(66, 'Pedagogia'),
+(67, 'Acadêmico'),
+(68, 'Técnico'),
+(69, 'Profissionalizante'),
+(70, 'Culinária'),
+(71, 'Gastronomia'),
+(72, 'Turismo'),
+(73, 'Moda'),
+(74, 'Design'),
+(75, 'Arte'),
+(76, 'Música'),
+(77, 'Fotografia'),
+(78, 'Arquitetura'),
+(79, 'Engenharia'),
+(80, 'Informática'),
+(81, 'Tecnologia'),
+(82, 'Graphic Novel'),
+(83, 'Mangá'),
+(84, 'HQ'),
+(85, 'Antologia'),
+(86, 'Coletânea'),
+(87, 'Manual'),
+(88, 'Catálogo'),
+(89, 'Ficção');
 
 -- --------------------------------------------------------
 
@@ -690,6 +796,12 @@ ALTER TABLE `funcionario_permissao`
   ADD KEY `FK_funcionario_permissao_1` (`FK_funcionario_id`);
 
 --
+-- Índices de tabela `genero`
+--
+ALTER TABLE `genero`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `historico`
 --
 ALTER TABLE `historico`
@@ -933,6 +1045,12 @@ ALTER TABLE `funcao`
 --
 ALTER TABLE `funcionario`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de tabela `genero`
+--
+ALTER TABLE `genero`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT de tabela `historico`
