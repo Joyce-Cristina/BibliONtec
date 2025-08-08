@@ -87,13 +87,13 @@
       color: white;
     }
 
-    .sidebar > a.active {
+    .sidebar>a.active {
       background-color: #4d0f03 !important;
       color: white !important;
       box-shadow: none !important;
     }
 
-    .sidebar > button.dropdown-toggle.active {
+    .sidebar>button.dropdown-toggle.active {
       background-color: #7a1505 !important;
       color: white !important;
       box-shadow: none !important;
@@ -108,7 +108,7 @@
 
     .filtro-dropdown {
       background-color: #d9d9d9 !important;
-      max-height: 150px;
+      max-height: 300px;
       overflow-y: auto;
       border-radius: 12px;
       padding: 0;
@@ -140,6 +140,7 @@
     .filtro-dropdown::-webkit-scrollbar-track {
       background-color: transparent;
     }
+
     .notificacao-dropdown {
       background-color: #ffffff;
       min-width: 250px;
@@ -169,58 +170,58 @@
       background-color: #a82010;
       color: white;
     }
+
     /* Avatar flutuante */
-.avatar-container {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 1051;
-}
+    .avatar-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1051;
+    }
 
-.avatar-navbar {
-  width: 50px;
-  height: 50px;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
-}
+    .avatar-navbar {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+    }
 
-/* Menu do avatar */
-.menu-perfil {
-  display: none;
-  position: absolute;
-  bottom: 60px;
-  left: 0;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  min-width: 200px;
-}
+    /* Menu do avatar */
+    .menu-perfil {
+      display: none;
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      min-width: 200px;
+    }
 
-.menu-perfil.show {
-  display: block;
-}
+    .menu-perfil.show {
+      display: block;
+    }
 
-.menu-perfil .dropdown-item {
-  padding: 12px 16px;
-  text-decoration: none;
-  color: #333;
-  display: block;
-  background-color: #fff;
-  transition: background-color 0.2s;
-}
+    .menu-perfil .dropdown-item {
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #333;
+      display: block;
+      background-color: #fff;
+      transition: background-color 0.2s;
+    }
 
-.menu-perfil .dropdown-item:hover {
-  background-color: #f5f5f5;
-}
+    .menu-perfil .dropdown-item:hover {
+      background-color: #f5f5f5;
+    }
 
-.menu-divider {
-  margin: 0;
-  border: none;
-  border-top: 1px solid #ccc;
-}
-
+    .menu-divider {
+      margin: 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
   </style>
 </head>
 
@@ -244,25 +245,25 @@
               </a>
             </li>
           </ul>
-         <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+          <ul class="navbar-nav mb-2 mb-lg-0 me-3">
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false" style="color: white;">
                 Atualizações
               </a>
               <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">Foi adicionado um 
-                  <br>elemento novo  <br> no sistema</a></li>
+                <li><a class="dropdown-item" href="#">Foi adicionado um
+                    <br>elemento novo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="#">Foi excluído um 
-                 <br> elemento antigo <br> no sistema</a></li>
+                <li><a class="dropdown-item" href="#">Foi excluído um
+                    <br> elemento antigo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
                 <li><a class="dropdown-item" href="#">Foi alterado um
-                  <br> elemento no sistema</a></li>
+                    <br> elemento no sistema</a></li>
               </ul>
             </li>
           </ul>
@@ -301,7 +302,7 @@
       <h2 style="font-family: Georgia, serif; font-weight: 500;">Seus livros</h2>
       <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
       <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
-        <input type="text" class="form-control" placeholder="Buscar livro..."
+        <input type="text" id="buscaLivro" class="form-control" placeholder="Buscar livro..."
           style="max-width: 300px; border-radius: 10px;">
         <i class="bi bi-search" style="font-size: 1.2rem;"></i>
       </div>
@@ -337,38 +338,36 @@
           </ul>
         </div>
 
-        <!-- Filtro: Categoria -->
+        <!-- Filtro: Gênero -->
         <div class="dropdown">
-          <button class="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown"
+          <button class="btn dropdown-toggle text-white" type="button" id="btnGenero" data-bs-toggle="dropdown"
             style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
-            Categoria
+            Gênero
           </button>
-          <ul class="dropdown-menu filtro-dropdown">
-            <li><a class="dropdown-item item-com-linha" href="#">Drama</a></li>
-            <li><a class="dropdown-item item-com-linha" href="#">Romance</a></li>
-            <li><a class="dropdown-item" href="#">Mistério</a></li>
+          <ul id="listaGeneros" class="dropdown-menu filtro-dropdown">
           </ul>
         </div>
+
 
       </div>
     </div>
 
-    
+
 
     <!-- Cards dos Livros -->
-<section class="page-section text-white mb-0" id="wishlist">
-  <div class="container my-5">
-    <div id="cardsContainer" class="row justify-content-center g-4">
+    <section class="page-section text-white mb-0" id="wishlist">
+      <div class="container my-5">
+        <div id="cardsContainer" class="row justify-content-center g-4">
 
-      
 
-    </div>
+
+        </div>
+      </div>
+    </section>
+
   </div>
-</section>
 
-  </div>
-
-   <!-- Botão de acessibilidade -->
+  <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
     <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
       <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
@@ -376,76 +375,19 @@
   </div>
 
   <!-- Avatar com menu fixado no canto inferior esquerdo -->
-<div class="avatar-container">
-  <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
-  <div id="menuPerfil" class="menu-perfil">
-    <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
-    <hr class="menu-divider">
-    <a href="#" class="dropdown-item">Perguntas Frequentes</a>
-    <hr class="menu-divider">
-    <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+  <div class="avatar-container">
+    <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+    <div id="menuPerfil" class="menu-perfil">
+      <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
+      <hr class="menu-divider">
+      <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+      <hr class="menu-divider">
+      <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+    </div>
   </div>
-</div>
 
-  <script>
-    const links = document.querySelectorAll('.sidebar > a.btn');
-    const currentPage = window.location.pathname.split('/').pop();
-    links.forEach((link) => {
-      if (link.getAttribute('href') === currentPage) {
-        link.classList.add('active');
-      }
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-  carregarLivros();
-});
-
-async function carregarLivros() {
-  try {
-    const resposta = await fetch('http://localhost:3000/livros');
-    const livros = await resposta.json();
-    const container = document.getElementById('cardsContainer');
-    container.innerHTML = ''; 
-
-let row;
-
-livros.forEach((livro, index) => {
-  if (index % 3 === 0) {
-    row = document.createElement('div');
-    row.className = 'row mb-4';
-    container.appendChild(row);
-  }
-
-  const col = document.createElement('div');
-  col.className = 'col-md-4 d-flex align-items-stretch';
-
-  col.innerHTML = `
-      <div class="card h-100" style="background-color: #d6c9b4;">
-          <img src="http://localhost:3000/uploads/${livro.capa}" class="card-img-top" alt="${livro.titulo}" style="height: 300px; object-fit: cover;">
-          <div class="card-body text-center">
-            <h5 class="card-title fw-bold">${livro.titulo}</h5>
-            <h6 class="card-subtitle">${livro.sinopse}</h6>
-          </div>
-          <div class="card-footer text-center">
-            <button class="btn btn-danger me-2">Excluir</button>
-            <button class="btn btn-dark">Editar</button>
-            <div class="mt-2">
-              <span class="badge bg-danger">Indisponível</span>
-            </div>
-          </div>
-        </div>
-  `;
-
-
-
-  row.appendChild(col);
-});
-  } catch (erro) {
-    console.error('Erro ao carregar livros:', erro);
-  }
-}
-  </script>
-<script src="../java/script.js"></script>
+  <script src="../java/acervo.js"></script>
+  <script src="../java/script.js"></script>
 
 </body>
 
