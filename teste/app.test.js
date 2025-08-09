@@ -7,7 +7,7 @@ test('Sistema BibliONtec está funcionando', () => {
 
 // Teste 2: Exemplo de função que falha se alterada
 function soma(a, b) {
-  return a + b; // Se mudar para "-" o teste vai falhar
+  return a - b; // Se mudar para "-" o teste vai falhar
 }
 
 test('Função soma funciona corretamente', () => {
