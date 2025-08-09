@@ -45,7 +45,7 @@ function exibirLivros(livros) {
       <div class="card h-100" style="background-color: #d6c9b4;">
         <img src="http://localhost:3000/uploads/${livro.capa}" class="card-img-top" alt="${livro.titulo}" style="height: 300px; object-fit: cover;">
         <div class="card-body text-center">
-          <h5 class="card-title fw-bold">${livro.subtitulo}</h5>
+          <h5 class="card-title fw-bold">${livro.titulo}</h5>
           <h6 class="card-subtitle">${livro.sinopse}</h6>
         </div>
         <div class="card-footer text-center">
