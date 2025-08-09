@@ -1,75 +1,221 @@
 {
-  
-
-"scripts": {
-  
-
-  
-
-"start": "node \"Tcc biblion/java/database.js\"",
-  
-
-  
-
-"test": "jest"
-  
-
-},
-  
-
-"dependencies": {
-  
-
-  
-
-"@vitalets/google-translate-api": "^9.2.1",
-  
-
-  
-
-"axios": "^1.11.0",
-  
-
-  
-
-"cors": "^2.8.5",
-  
-
-  
-
-"express": "^5.1.0",
-  
-
-  
-
-"multer": "^2.0.1",
-  
-
-  
-
-"mysql": "^2.18.1",
-  
-
-  
-
-"node-fetch": "^2.7.0"
-  
-
-},
-  
-
-"devDependencies": {
-  
-
-  
-
-"jest": "^30.0.5",
-  
-
-  
-
-"supertest": "^7.1.4"
-  
-
-}
+  
+
+
+
+
+
+
+
+"scripts": {
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"start": "node \"Tcc biblion/java/database.js\"",
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"test": "jest"
+  
+
+
+
+
+
+
+
+},
+  
+
+
+
+
+
+
+
+"dependencies": {
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"@vitalets/google-translate-api": "^9.2.1",
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"axios": "^1.11.0",
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"cors": "^2.8.5",
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"express": "^5.1.0",
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"multer": "^2.0.1",
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"mysql": "^2.18.1",
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+"node-fetch": "^2.7.0"
+  
+
+
+
+
+
+
+
+},
+  
+
+
+
+
+
+
+
+"devDependencies": {
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+}
 }
