@@ -12,7 +12,7 @@
 
 
 
-"test": "jest",
+"start": "node \"Tcc biblion/java/database.js\"",
   
 
 
@@ -21,7 +21,7 @@
 
 
 
-"start": "node \"Tcc biblion/java/database.js\""
+"test": "jest"
   
 
 
@@ -113,7 +113,16 @@
 
 
 
-"jest": "^30.0.5"
+"jest": "^30.0.5",
+  
+
+
+
+  
+
+
+
+"supertest": "^7.1.4"
   
 
 
