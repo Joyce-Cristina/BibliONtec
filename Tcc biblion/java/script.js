@@ -252,18 +252,26 @@ document.addEventListener('DOMContentLoaded', () => {
       permissoesSelecionadas.forEach(p => formData.append('permissoes[]', p));
 
       try {
-        const response = await fetch('http://localhost:3000/cadastrarFuncionario', {
-          method: 'POST',
-          body: formData
-        });
+  const response = await fetch('http://localhost:3000/cadastrarFuncionario', {
+    method: 'POST',
+    body: formData
+  });
 
-        const data = await response.json();
-        alert(data.message || "Cadastro realizado.");
-        if (response.ok) formFunc.reset();
-      } catch (error) {
-        console.error("Erro:", error);
-        alert("Erro de rede ou servidor!");
-      }
+  const data = await response.json();
+
+  if (!response.ok) {
+    // Mostra a mensagem de erro do backend
+    alert(data.error || 'Ocorreu um erro ao cadastrar o funcionário.');
+    return;
+  }
+
+  // Se deu certo
+  alert(data.message || 'Funcionário cadastrado com sucesso!');
+} catch (error) {
+  console.error('Erro ao cadastrar funcionário:', error);
+  alert('Erro ao enviar o formulário. Tente novamente.');
+}
+
     });
   }
 
@@ -520,6 +528,44 @@ const avatar = document.getElementById('avatarPerfil'); // <- navbar
     if (avatar) avatar.src = novaSrc;
     if (avatarGrande) avatarGrande.src = novaSrc;
   }
+   // Troca a imagem do avatar com base no localStorage para funcionário
+const funcionario = JSON.parse(localStorage.getItem('funcionario'));
+if (funcionario && funcionario.foto) { // ← CORRETO
+  const novaSrc = `http://localhost:3000/uploads/${funcionario.foto}`;
+
+  if (avatar) avatar.src = novaSrc;
+ 
+}
+
+  //Foto padrao
+document.addEventListener("DOMContentLoaded", function () {
+    const fotoInput = document.getElementById("foto");
+    const previewBox = document.getElementById("previewBox");
+
+    if (!fotoInput) {
+        console.error("Input de foto não encontrado!");
+        return;
+    }
+
+    fotoInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            previewBox.style.backgroundImage = "url('http://localhost:3000/uploads/padrao.jpg')";
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            previewBox.style.backgroundImage = `url('${event.target.result}')`;
+            previewBox.style.backgroundSize = "cover";
+            previewBox.style.backgroundPosition = "center";
+        };
+
+        reader.readAsDataURL(file);
+    });
+});
+
+
 
 
 // Função de logout

@@ -241,26 +241,6 @@
   </style>
 </head>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const fotoInput = document.getElementById("foto");
-    const previewBox = document.getElementById("previewBox");
-
-    fotoInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        previewBox.style.backgroundImage = `url('${event.target.result}')`;
-        previewBox.style.backgroundSize = "cover";
-        previewBox.style.backgroundPosition = "center";
-      };
-
-      reader.readAsDataURL(file);
-    });
-  });
-</script>
 
 
 <body>
@@ -352,10 +332,15 @@
             <label class="form-label" for="senha">Senha:</label>
             <input type="password" id="senha" name="senha" class="form-control" />
           </div>
-          <div class="col-md-6">
-            <label class="form-label" for="foto">Foto de Perfil:</label>
-            <input type="file" id="foto" name="foto" class="form-control" accept="image/*" />
-          </div>
+        <div class="col-md-6">
+      <label class="form-label" for="funcao">Função:</label>
+      <select id="funcao" name="funcao_id" class="form-select">
+        <option value="">Selecione a função</option>
+        <option value="1">Administração</option>
+        <option value="2">Circulação</option>
+        <option value="3">Catalogação</option>
+      </select>
+    </div>
         </div>
 
   <div class="row mb-4">
@@ -363,26 +348,19 @@
       <label class="form-label" for="telefone">Telefone:</label>
       <input type="number" id="telefone" name="telefone" class="form-control" />
     </div>
-    <div class="col-md-6">
-      <label class="form-label" for="funcao">Função:</label>
-      <select id="funcao" name="funcao" class="form-select">
-        <option value="">Selecione a função</option>
-        <option value="1">Administração</option>
-        <option value="2">Circulação</option>
-        <option value="3">Catalogação</option>
-      </select>
-    </div>
+    
   </div>
 
   <div class="mb-4 d-flex align-items-center">
-    <div id="previewBox"
-         style="width: 100px; height: 150px; background-color: #5d3b1a; border-radius: 6px; margin-right: 20px;">
-    </div>
-    <div>
-      <label class="mb-2">Escolha a foto para o usuário</label>
-      <input type="file" class="form-control" id="foto" accept="image/*">
-    </div>
+  <div id="previewBox"
+       style="width: 100px; height: 150px; background-color: #5d3b1a; border-radius: 6px; margin-right: 20px; background-image: url('http://localhost:3000/uploads/padrao.jpg'); background-size: cover; background-position: center;">
   </div>
+  <div>
+    <label class="mb-2">Escolha a foto para o usuário</label>
+    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+  </div>
+</div>
+
   
 
   <div class="mb-4"></div>
@@ -404,7 +382,8 @@
   </div>
   <!-- Avatar com menu fixado no canto inferior esquerdo -->
   <div class="avatar-container">
-    <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+    
+    <img src="http://localhost:3000/uploads/padrao.png"id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
     <div id="menuPerfil" class="menu-perfil">
       <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
       <hr class="menu-divider">
@@ -414,6 +393,7 @@
     </div>
   </div>
   <script src="../java/script.js"></script>
+    <script src="../java/funcionario.js"></script>
 </body>
 
 </html>

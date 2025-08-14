@@ -116,31 +116,7 @@
       margin-top: 30px;
       justify-items: center;
     }
-    .card {
-      background-color: #d6c9b4;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 250px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,.1);
-      display: flex;
-      flex-direction: column;
-      height: auto;
-      margin-bottom: 20px;
-    }
-    .card img {
-      width: 100%; height: 200px;
-      object-fit: cover; border-radius: 10px;
-    }
-    .card-body { flex: 1; }
-    .card-footer {
-      margin-top: 10px;
-      border-top: 1px solid rgb(0, 0, 0);
-      background-color: transparent;
-    }
-    .card .btn { margin: 5px; width: 90px; }
-
+    
     /* ===== Responsividade ===== */
     @media (max-width: 992px) { .card-container { grid-template-columns: repeat(2,1fr); } }
     @media (max-width: 576px) { .card-container { grid-template-columns: 1fr; } }
@@ -323,88 +299,44 @@
         <label for="alphabetical" class="form-check-label">Organizar por ordem alfabética</label>
       </div>
     </div>
+<div class="row" id="lista-funcionarios"></div>
 
-    <!-- === Cards === -->
-    <div class="card-container">
-      <!-- Card 1 -->
-      <div class="card">
-        <img src="../img/avatar.jpg" alt="Funcionário 1">
-        <div class="card-body">
-          <h5 class="card-title">Funcionário 1</h5>
-          <p class="card-text">Nome + email</p>
-        </div>
-        <div class="card-footer">
-          <button class="btn btn-danger">Excluir</button>
-          <button class="btn btn-dark">Editar</button>
-        </div>
+<!-- Modal -->
+
+
+
+<div id="modal-editar" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Funcionário</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
-      <!-- Card 2 -->
-      <div class="card">
-        <img src="../img/avatar.jpg" alt="Funcionário 2">
-        <div class="card-body">
-          <h5 class="card-title">Funcionário 2</h5>
-          <p class="card-text">Nome + email</p>
-        </div>
-        <div class="card-footer">
-          <button class="btn btn-danger">Excluir</button>
-          <button class="btn btn-dark">Editar</button>
-        </div>
-      </div>
-
-      <!-- Card 3 -->
-      <div class="card">
-        <img src="../img/avatar.jpg" alt="Funcionário 3">
-        <div class="card-body">
-          <h5 class="card-title">Funcionário 3</h5>
-          <p class="card-text">Nome + email</p>
-        </div>
-        <div class="card-footer">
-          <button class="btn btn-danger">Excluir</button>
-          <button class="btn btn-dark">Editar</button>
-        </div>
-      </div>
-
-      <!-- Card 4 -->
-      <div class="card">
-        <img src="../img/avatar.jpg" alt="Funcionário 4">
-        <div class="card-body">
-          <h5 class="card-title">Funcionário 4</h5>
-          <p class="card-text">Nome + email</p>
-        </div>
-        <div class="card-footer">
-          <button class="btn btn-danger">Excluir</button>
-          <button class="btn btn-dark">Editar</button>
-        </div>
-      </div>
-
-      <!-- Card 5 -->
-      <div class="card">
-        <img src="../img/avatar.jpg" alt="Funcionário 5">
-        <div class="card-body">
-          <h5 class="card-title">Funcionário 5</h5>
-          <p class="card-text">Nome + email</p>
-        </div>
-        <div class="card-footer">
-          <button class="btn btn-danger">Excluir</button>
-          <button class="btn btn-dark">Editar</button>
-        </div>
-      </div>
-
-      <!-- Card 6 -->
-      <div class="card">
-        <img src="../img/avatar.jpg" alt="Funcionário 6">
-        <div class="card-body">
-          <h5 class="card-title">Funcionário 6</h5>
-          <p class="card-text">Nome + email</p>
-        </div>
-        <div class="card-footer">
-          <button class="btn btn-danger">Excluir</button>
-          <button class="btn btn-dark">Editar</button>
-        </div>
+      <div class="modal-body">
+        <form id="form-editar">
+          <input type="hidden" id="id-funcionario">
+          <div class="mb-3">
+            <label>Nome</label>
+            <input type="text" id="nome-funcionario" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label>Email</label>
+            <input type="email" id="email-funcionario" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label>Telefone</label>
+            <input type="text" id="telefone-funcionario" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label>Função</label>
+            <input type="text" id="funcao-funcionario" class="form-control">
+          </div>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
       </div>
     </div>
   </div>
+</div>
 
    <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
@@ -415,7 +347,7 @@
 
   <!-- Avatar com menu fixado no canto inferior esquerdo -->
 <div class="avatar-container">
-  <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+  <img src="http://localhost:3000/uploads/padrao.png" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
   <div id="menuPerfil" class="menu-perfil">
     <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
     <hr class="menu-divider">
@@ -435,5 +367,6 @@
     });
   </script>
   <script src="../java/script.js"></script>
+     <script src="../java/funcionario.js"></script>
 </body>
 </html>
