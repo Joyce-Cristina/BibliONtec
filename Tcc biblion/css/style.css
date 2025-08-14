@@ -314,27 +314,7 @@ form input[type="submit"]:hover {
   margin-bottom: 30px;
 }
 
-.card.mb-3 {
-  border: none;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin-bottom: 30px;
-}
 
-.card .card-body {
-  padding: 20px;
-}
-
-.card-title {
-  font-size: 1.3rem;
-  font-weight: bold;
-}
-
-.card-text {
-  font-size: 1rem;
-  color: #333;
-}
 
 /* Footer */
 footer {
@@ -841,3 +821,65 @@ form.form-limpo label {
 .menu-navbar a {
   text-decoration: none; /* Remove sublinhado de todos os links */
 }
+
+    /* Estilo dos cards de usuários */
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3 colunas por linha */
+      gap: 15px; /* Espaço entre os cards */
+      justify-items: center;
+    }
+
+    .card-usuario {
+      background-color: #c8aa78;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      width: 100%; /* Garantir que ocupe o espaço da coluna */
+      max-width: 200px; /* Limite de largura para não ultrapassar 3 colunas */
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);      
+      height: auto;
+      margin-bottom: 20px;
+      flex-direction: column;
+    }
+
+    .card-usuario img {
+      width: 100px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .card-usuario .botoes {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .card-usuario button {
+      padding: 5px 10px;
+      border: none;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .card-usuario .excluir {
+      background-color: #a82010;
+      color: white;
+    }
+
+    .card-usuario .editar {
+      background-color: #3d2b1f;
+      color: white;
+    }
+
+    .card-usuario .indisponivel {
+      background-color: #6a1400;
+      color: white;
+      padding: 6px;
+      margin-top: 10px;
+      border-radius: 4px;
+    }

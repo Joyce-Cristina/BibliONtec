@@ -394,14 +394,15 @@
           <label for="professor">Professores</label>
         </div>
 
-        <div class="mb-4 d-flex align-items-center">
-          <div style="width: 100px; height: 150px; background-color: #5d3b1a; border-radius: 6px; margin-right: 20px;">
-          </div>
-          <div>
-            <label class="mb-2">Escolha a foto para o usuário</label>
-            <input type="file" class="form-control" id="foto" accept="image/*">
-          </div>
-        </div>
+         <div class="mb-4 d-flex align-items-center">
+  <div id="previewBox"
+       style="width: 100px; height: 150px; background-color: #5d3b1a; border-radius: 6px; margin-right: 20px; background-image: url('http://localhost:3000/uploads/padrao.jpg'); background-size: cover; background-position: center;">
+  </div>
+  <div>
+    <label class="mb-2">Escolha a foto para o usuário</label>
+    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+  </div>
+</div>
 
         <div class="text-center">
           <button type="submit" class="btn btn-cadastro">Cadastrar</button>
@@ -419,7 +420,7 @@
 
   <!-- Avatar com menu fixado no canto inferior esquerdo -->
 <div class="avatar-container">
-  <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+  <img src="http://localhost:3000/uploads/padrao.png"id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
   <div id="menuPerfil" class="menu-perfil">
     <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
     <hr class="menu-divider">
