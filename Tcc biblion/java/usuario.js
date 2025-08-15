@@ -50,22 +50,18 @@ function exibirUsuarios(usuarios) {
 
 // Torna a função global para uso no onclick inline
 function abrirModalEdicao(id) {
-  // Busca o usuário pelo id
   const usuario = todosOsUsuarios.find(u => u.id === id);
   if (!usuario) return;
 
-  // Preenche os campos do modal
   document.getElementById('id-usuario').value = usuario.id;
   document.getElementById('nome-usuario').value = usuario.nome;
   document.getElementById('email-usuario').value = usuario.email;
   document.getElementById('telefone-usuario').value = usuario.telefone || '';
-  document.getElementById('tipo-usuario').value = usuario.tipo || ''; // Aqui mostra o tipo do usuário
-
-  // Abre o modal usando Bootstrap
+  document.getElementById('tipo-usuario').value = usuario.FK_tipo_usuario_id || '';
+  
   const modal = new bootstrap.Modal(document.getElementById('modal-editar'));
   modal.show();
 }
-
 const API_URL = 'http://localhost:3000/api/usuarios'; // Atualizado para usuários
 
 function fecharModal() {

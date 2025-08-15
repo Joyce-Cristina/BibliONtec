@@ -203,8 +203,12 @@ app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
 });
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
-
-  const sqlUsuario = 'SELECT id, nome, tipo, foto FROM usuario WHERE email = ? AND senha = ?';
+// Busca o id do tipo e renomeia para "tipo"
+const sqlUsuario = `
+  SELECT id, nome, FK_tipo_usuario_id AS tipo, foto 
+  FROM usuario 
+  WHERE email = ? AND senha = ?
+`;
   connection.query(sqlUsuario, [email, senha], (err, results) => {
     if (err) {
       console.error('Erro no login:', err);
@@ -597,7 +601,7 @@ app.get('/verificarNome', (req, res) => {
 // Lista todos os usuários
 app.get('/api/usuarios', (req, res) => {
   const sql = `
-    SELECT u.id, u.nome, u.email, u.telefone, u.foto, u.tipo AS tipo
+    SELECT u.id, u.nome, u.email, u.telefone, u.foto, u.FK_tipo_usuario_id AS tipo
     FROM usuario u
   `;
   
@@ -609,24 +613,21 @@ app.get('/api/usuarios', (req, res) => {
     res.json(results);
   });
 });
-
-// Atualiza usuário
-app.put('/api/usuarios/:id', (req, res) => {
+// Atualizar livro
+app.put('/livros/:id', (req, res) => {
   const { id } = req.params;
-  const { nome, email, telefone, tipo } = req.body;
+  const { titulo, autor, editora, sinopse } = req.body;
 
   const sql = `
-    UPDATE usuario
-    SET nome = ?, email = ?, telefone = ?, tipo = ?
+    UPDATE livro
+    SET titulo = ?, autor = ?, editora = ?, sinopse = ?
     WHERE id = ?
   `;
-  
-  connection.query(sql, [nome, email, telefone, tipo, id], (err) => {
-    if (err) {
-      console.error('Erro ao atualizar usuário:', err);
-      return res.status(500).json({ error: 'Erro no servidor' });
-    }
-    res.json({ message: 'Usuário atualizado com sucesso' });
+
+  connection.query(sql, [titulo, autor, editora, sinopse, id], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Erro no servidor' });
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Livro não encontrado' });
+    res.json({ message: 'Livro atualizado com sucesso' });
   });
 });
 
