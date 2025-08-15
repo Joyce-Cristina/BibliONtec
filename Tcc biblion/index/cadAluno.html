@@ -349,9 +349,10 @@
             <label for="nome" class="me-2" style="width: 100px;">Nome:</label>
             <input type="text" class="form-control apenasTexto" id="nome" required>
           </div>
+            <div id="mensagemErroAluno" style="display:none; color:red; margin-bottom:10px;"></div>
           <div class="col-md-6 d-flex align-items-center">
             <label for="senha" class="me-2" style="width: 100px;">Senha:</label>
-            <input type="password" class="form-control" id="senha" required>
+            <input type="password" class="form-control" id="senha" >
           </div>
         </div>
 
@@ -371,21 +372,32 @@
           </div>
         </div>
 
-        <div class="row mb-3">
-          <div class="col-md-6 d-flex align-items-center">
-            <label for="telefone" class="me-2" style="width: 100px;">Telefone:</label>
-            <input type="number" class="form-control" id="telefone" required>
-          </div>
-          <div class="col-md-6 d-flex align-items-center" id="serieGroup">
-            <label for="serie" class="me-2" style="width: 100px;">Série:</label>
-            <select class="form-select" id="serie" required>
-              <option value="" disabled selected>Selecione a série</option>
-              <option value="1º">1º</option>
-              <option value="2º">2º</option>
-              <option value="3º">3º</option>
-            </select>
-          </div>
-        </div>
+      <div class="row mb-3">
+  <div class="col-md-6">
+    <div class="d-flex align-items-center">
+      <label for="telefone" class="me-2" style="width: 100px;">Telefone:</label>
+      <input type="number" class="form-control" id="telefone"
+        pattern="^\d{10,11}$"
+        title="Digite apenas números (DDD + telefone, 10 ou 11 dígitos)"
+        required>
+    </div>
+    <div id="erroTelefone" style="display:none; color:red; font-size:14px; margin-top:5px;"></div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="d-flex align-items-center" id="serieGroup">
+      <label for="serie" class="me-2" style="width: 100px;">Série:</label>
+      <select class="form-select" id="serie" required>
+        <option value="" disabled selected>Selecione a série</option>
+        <option value="1º">1º</option>
+        <option value="2º">2º</option>
+        <option value="3º">3º</option>
+      </select>
+    </div>
+    <div id="erroSerie" style="display:none; color:red; font-size:14px; margin-top:5px;"></div>
+  </div>
+</div>
+
 
         <div class="mb-3">
           <input type="checkbox" id="aluno">
