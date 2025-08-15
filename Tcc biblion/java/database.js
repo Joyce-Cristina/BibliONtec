@@ -43,15 +43,23 @@ connection.connect(err => {
   }
   console.log('Conectado ao MySQL');
 });
+// Função para validar telefone (apenas números, 10 ou 11 dígitos)
+function telefoneValido(telefone) {
+  return /^\d{10,11}$/.test(telefone);
+}
 
 // -------------------- CADASTRO DE ALUNO/PROFESSOR --------------------
 app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
   const { nome, telefone, email, senha, curso_id, serie, tipo_usuario_id, funcionario_id } = req.body;
   const foto = req.file ? req.file.filename : null;
 
-  if (!nome || !telefone || !email || !senha || !tipo_usuario_id) {
+  if (!nome || !telefone || !email || !tipo_usuario_id) {
     return res.status(400).json({ error: 'Campos obrigatórios faltando.' });
-    
+  }
+
+  // 📌 Validação do telefone
+  if (!telefoneValido(telefone)) {
+    return res.status(400).json({ error: 'Telefone inválido. Use apenas números com DDD (10 ou 11 dígitos).' });
   }
 
   if (Number(tipo_usuario_id) === 1 && (!curso_id || !serie)) {
@@ -70,6 +78,9 @@ app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
       return res.status(400).json({ error: 'E-mail já cadastrado.' });
     }
 
+    // Usa senha enviada ou gera automática
+    const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
+
     // Inserir usuário
     const sql = `INSERT INTO usuario 
       (nome, telefone, email, senha, foto, tipo, curso_id, serie, FK_funcionario_id) 
@@ -81,7 +92,7 @@ app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
         nome,
         telefone,
         email,
-        senha,
+        senhaFinal,
         foto,
         tipo_usuario_id,
         curso_id || null,
@@ -103,14 +114,92 @@ app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
               console.error('Erro ao inserir em usuario_curso:', err);
               return res.status(500).json({ error: 'Erro ao inserir em usuario_curso' });
             }
-            return res.status(200).json({ message: 'Usuário cadastrado com sucesso!' });
+            return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
           });
         } else {
-          return res.status(200).json({ message: 'Usuário cadastrado com sucesso (sem curso).' });
+          return res.status(200).json({ message: 'Usuário cadastrado com sucesso (sem curso).', senhaGerada: senhaFinal });
         }
       }
     );
   });
+});
+
+// -------------------- CADASTRO DE FUNCIONÁRIO --------------------
+app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
+  try {
+    const { nome, senha, email, funcao_id, telefone, permissoes } = req.body;
+    let foto = req.file ? req.file.filename : 'padrao.png';
+
+    if (!nome || !email) {
+      return res.status(400).json({ error: 'Campos obrigatórios não preenchidos.' });
+    }
+
+    // 📌 Validação do telefone
+    if (telefone && !telefoneValido(telefone)) {
+      return res.status(400).json({ error: 'Telefone inválido. Use apenas números com DDD (10 ou 11 dígitos).' });
+    }
+
+    // 📌 Se o usuário enviou uma foto, redimensiona
+    if (req.file) {
+      foto = Date.now() + '.jpg';
+      await sharp(req.file.path)
+        .resize(300, 300)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`uploads/${foto}`);
+      fs.unlinkSync(req.file.path);
+    }
+
+    // ✅ Verifica se o e-mail já existe
+    const checkEmailSql = `SELECT id FROM funcionario WHERE email = ?`;
+    connection.query(checkEmailSql, [email], (err, results) => {
+      if (err) {
+        console.error('Erro ao verificar e-mail:', err);
+        return res.status(500).json({ error: 'Erro no servidor ao verificar e-mail.' });
+      }
+
+      if (results.length > 0) {
+        return res.status(400).json({ error: 'E-mail já cadastrado.' });
+      }
+
+      // Usa senha enviada ou gera automática
+      const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
+
+      // Insere o funcionário
+      const sql = `INSERT INTO funcionario (nome, senha, email, foto, telefone, FK_funcao_id)
+                   VALUES (?, ?, ?, ?, ?, ?)`;
+      connection.query(sql, [nome, senhaFinal, email, foto, telefone || null, funcao_id || null], (err, result) => {
+        if (err) {
+          console.error('Erro ao cadastrar funcionário:', err);
+          return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
+        }
+
+        const funcionarioId = result.insertId;
+        let permissoesFormatadas = permissoes;
+
+        if (typeof permissoesFormatadas === 'string') {
+          permissoesFormatadas = [permissoesFormatadas];
+        }
+
+        if (permissoesFormatadas && Array.isArray(permissoesFormatadas)) {
+          const values = permissoesFormatadas.map(p => [p, funcionarioId]);
+          const permSql = `INSERT INTO funcionario_permissao (FK_permissao_id, FK_funcionario_id) VALUES ?`;
+          connection.query(permSql, [values], (err) => {
+            if (err) {
+              console.error('Erro ao cadastrar permissões:', err);
+              return res.status(500).json({ error: 'Funcionário criado, mas erro nas permissões.', senhaGerada: senhaFinal });
+            }
+            return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!', senhaGerada: senhaFinal });
+          });
+        } else {
+          return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!', senhaGerada: senhaFinal });
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Erro geral no cadastro:', error);
+    return res.status(500).json({ error: 'Erro inesperado no servidor.' });
+  }
 });
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
@@ -171,81 +260,6 @@ app.post('/login', (req, res) => {
       });
     }
   });
-});
-
-
-
-
-// Cadastro de Funcionário
-app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
-  try {
-    const { nome, senha, email, funcao_id, telefone, permissoes } = req.body;
-  let foto = req.file ? req.file.filename : 'padrao.png'; // usa padrão se não enviou nada
-
-    if (!nome || !senha || !email) {
-      return res.status(400).json({ error: 'Campos obrigatórios não preenchidos.' });
-    }
-
-    // 📌 Se o usuário enviou uma foto, redimensiona
-    if (req.file) {
-      foto = Date.now() + '.jpg';
-      await sharp(req.file.path)
-        .resize(300, 300) // define tamanho da imagem
-        .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(`uploads/${foto}`);
-
-      // remove o arquivo original que o Multer criou
-      fs.unlinkSync(req.file.path);
-    }
-
-    // ✅ Verifica se o e-mail já existe
-    const checkEmailSql = `SELECT id FROM funcionario WHERE email = ?`;
-    connection.query(checkEmailSql, [email], (err, results) => {
-      if (err) {
-        console.error('Erro ao verificar e-mail:', err);
-        return res.status(500).json({ error: 'Erro no servidor ao verificar e-mail.' });
-      }
-
-      if (results.length > 0) {
-        return res.status(400).json({ error: 'E-mail já cadastrado.' });
-      }
-
-      // Insere o funcionário
-      const sql = `INSERT INTO funcionario (nome, senha, email, foto, telefone, FK_funcao_id)
-                   VALUES (?, ?, ?, ?, ?, ?)`;
-      connection.query(sql, [nome, senha, email, foto, telefone || null, funcao_id || null], (err, result) => {
-        if (err) {
-          console.error('Erro ao cadastrar funcionário:', err);
-          return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
-        }
-
-        const funcionarioId = result.insertId;
-        let permissoesFormatadas = req.body.permissoes;
-
-        if (typeof permissoesFormatadas === 'string') {
-          permissoesFormatadas = [permissoesFormatadas];
-        }
-
-        if (permissoesFormatadas && Array.isArray(permissoesFormatadas)) {
-          const values = permissoesFormatadas.map(p => [p, funcionarioId]);
-          const permSql = `INSERT INTO funcionario_permissao (FK_permissao_id, FK_funcionario_id) VALUES ?`;
-          connection.query(permSql, [values], (err) => {
-            if (err) {
-              console.error('Erro ao cadastrar permissões:', err);
-              return res.status(500).json({ error: 'Funcionário criado, mas erro nas permissões.' });
-            }
-            return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!' });
-          });
-        } else {
-          return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!' });
-        }
-      });
-    });
-  } catch (error) {
-    console.error('Erro geral no cadastro:', error);
-    return res.status(500).json({ error: 'Erro inesperado no servidor.' });
-  }
 });
 
 
@@ -557,6 +571,83 @@ app.delete('/api/funcionarios/:id', (req, res) => {
     }
   });
 });
+
+// Rota para verificar nome duplicado
+app.get('/verificarNome', (req, res) => {
+  const { nome } = req.query;
+  if (!nome) return res.status(400).json({ error: 'Nome não informado.' });
+
+  const sqlAluno = 'SELECT id FROM usuario WHERE nome = ? LIMIT 1';
+  const sqlFunc = 'SELECT id FROM funcionario WHERE nome = ? LIMIT 1';
+
+  connection.query(sqlAluno, [nome], (err, alunoResult) => {
+    if (err) return res.status(500).json({ error: 'Erro ao verificar aluno.' });
+
+    connection.query(sqlFunc, [nome], (err2, funcResult) => {
+      if (err2) return res.status(500).json({ error: 'Erro ao verificar funcionário.' });
+
+      if ((alunoResult && alunoResult.length > 0) || (funcResult && funcResult.length > 0)) {
+        return res.json({ exists: true });
+      } else {
+        return res.json({ exists: false });
+      }
+    });
+  });
+});
+// Lista todos os usuários
+app.get('/api/usuarios', (req, res) => {
+  const sql = `
+    SELECT u.id, u.nome, u.email, u.telefone, u.foto, u.tipo AS tipo
+    FROM usuario u
+  `;
+  
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar usuários:', err);
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+    res.json(results);
+  });
+});
+
+// Atualiza usuário
+app.put('/api/usuarios/:id', (req, res) => {
+  const { id } = req.params;
+  const { nome, email, telefone, tipo } = req.body;
+
+  const sql = `
+    UPDATE usuario
+    SET nome = ?, email = ?, telefone = ?, tipo = ?
+    WHERE id = ?
+  `;
+  
+  connection.query(sql, [nome, email, telefone, tipo, id], (err) => {
+    if (err) {
+      console.error('Erro ao atualizar usuário:', err);
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+    res.json({ message: 'Usuário atualizado com sucesso' });
+  });
+});
+
+// Apaga usuário
+app.delete('/api/usuarios/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+
+  // Se houver tabelas dependentes (como usuario_curso), deletar antes
+  const sqlDependencias = 'DELETE FROM usuario_curso WHERE FK_usuario_id = ?';
+  connection.query(sqlDependencias, [id], (err) => {
+    if (err) return res.status(500).json({ error: 'Erro ao deletar dependências' });
+
+    // Deletar o usuário
+    connection.query('DELETE FROM usuario WHERE id = ?', [id], (err, result) => {
+      if (err) return res.status(500).json({ error: 'Erro ao excluir usuário' });
+      if (result.affectedRows === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
+      res.status(200).json({ message: 'Usuário excluído com sucesso' });
+    });
+  });
+});
+
 
 
 // ✅ Agora o app.listen() pode ficar no final

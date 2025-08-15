@@ -883,3 +883,37 @@ form.form-limpo label {
       margin-top: 10px;
       border-radius: 4px;
     }
+    .erro {
+    grid-column: 2;
+}
+#formCadastro {
+    display: grid;
+    grid-template-columns: 150px 1fr; /* primeira coluna para labels, segunda para campos */
+    gap: 10px 20px;
+    align-items: center;
+}
+
+#formCadastro label {
+    text-align: right;
+    font-weight: bold;
+}
+
+#formCadastro input,
+#formCadastro select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.foto-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.foto-preview img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+

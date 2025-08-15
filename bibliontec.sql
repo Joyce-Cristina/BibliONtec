@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 08/08/2025 às 03:14
+-- Tempo de geração: 15/08/2025 às 03:46
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -181,8 +181,8 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
-(2, 'Feina', '123456', 'feina@gmail.com', '1751928838626.png', NULL, NULL, NULL),
-(3, 'Joyce', '123456', 'joyce@gmail.com', '1751935191917.png', 2, '19993592019', NULL);
+(4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654321', NULL),
+(5, 'joao carlos da silva', '123Abc@1', 'josefina@gmail.com', NULL, NULL, '11987654321', NULL);
 
 -- --------------------------------------------------------
 
@@ -628,12 +628,9 @@ CREATE TABLE `usuario` (
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `tipo`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`) VALUES
 (5, '19993592019', 'joyce@gmail.com', '1751927959527.png', 'Joyce', '845236', '1', NULL, 1, 3, NULL, NULL, NULL),
 (6, '1987965842', 'josefina@gmail.com', '1752021796477.png', 'josefina', '123456', '2', NULL, NULL, NULL, NULL, NULL, NULL),
-(7, '19658745248', 'matilda@gmail.com', '1752022099104.png', 'matilda', '1456238', '1', NULL, 2, 2, NULL, NULL, NULL),
-(8, '19993592019', 'claudia@gmail.com', '1752022231477.png', 'claudia', '7894561', '1', 3, 3, 2, NULL, NULL, NULL),
-(9, '19874563217', 'camila@gmail.com', '1752023716372.png', 'camila', '784596', '1', 3, 1, 3, NULL, NULL, NULL),
-(10, '19874563217', 'camila@gmail.com', '1752023761064.png', 'camila', '784596', '1', 3, 1, 3, NULL, NULL, NULL),
-(11, '19874563217', 'camila@gmail.com', '1752024114678.png', 'camila', '1487956', '1', 3, 1, 3, NULL, NULL, NULL),
-(12, '19993592019', 'janaina@gmail.com', '1752027056040.png', 'Janaína Cristina Dos Santos', 'tiOg7r8J', '1', 3, 2, 2, NULL, NULL, NULL);
+(13, '185749632172', 'joaodograu@gmail.com', '1755198080522.jpg', 'joao silva', '1234Abc@', '1', 4, 1, 3, NULL, NULL, NULL),
+(14, '11988887777', 'ana@email.com', '1755216297490.jpg', 'Ana', 'B0rD8dD7', '1', 4, 1, 3, NULL, NULL, NULL),
+(15, '174824859627', 'larrisalinda@gmail.com', '1755216483191.jpg', 'larissa', 'nHCqz2N1', '1', 4, 1, 2, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -673,8 +670,9 @@ CREATE TABLE `usuario_curso` (
 --
 
 INSERT INTO `usuario_curso` (`FK_usuario_id`, `FK_curso_id`) VALUES
-(11, 1),
-(12, 2);
+(13, 1),
+(14, 1),
+(15, 1);
 
 -- --------------------------------------------------------
 
@@ -1044,7 +1042,7 @@ ALTER TABLE `funcao`
 -- AUTO_INCREMENT de tabela `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de tabela `genero`
@@ -1116,7 +1114,7 @@ ALTER TABLE `tipo_instituicao`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Restrições para tabelas despejadas
