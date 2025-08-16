@@ -280,9 +280,79 @@ app.get('/livros', (req, res) => {
     }
   });
 });
+// Buscar um livro específico com todas as informações 
+// Buscar todos os livros com informações relacionadas
+app.get('/livros', (req, res) => {
+  const sql = `
+    SELECT 
+      l.id,
+      l.titulo,
+      l.sinopse,
+      l.capa,
+      l.numero_paginas,
+      l.isbn,
+      g.genero,
+      e.nome AS editora,
+      GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
+      f.nome AS funcionario_cadastrou
+    FROM livro l
+    LEFT JOIN genero g ON l.FK_genero_id = g.id
+    LEFT JOIN editora e ON l.FK_editora_id = e.id
+    LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
+    LEFT JOIN autor a ON la.FK_autor_id = a.id
+    LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
+    GROUP BY l.id
+  `;
 
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar livros:', err);
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+    res.json(results);
+  });
+});
 
+// Buscar um livro específico com todas as informações
+app.get('/livros/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = `
+    SELECT 
+      l.id,
+      l.titulo,
+      l.sinopse,
+      l.capa,
+      l.numero_paginas,
+      l.isbn,
+      g.id AS genero_id,
+      g.genero,
+      e.id AS editora_id,
+      e.nome AS editora,
+      GROUP_CONCAT(a.id) AS autores_ids,
+      GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
+      f.id AS funcionario_id,
+      f.nome AS funcionario_cadastrou
+    FROM livro l
+    LEFT JOIN genero g ON l.FK_genero_id = g.id
+    LEFT JOIN editora e ON l.FK_editora_id = e.id
+    LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
+    LEFT JOIN autor a ON la.FK_autor_id = a.id
+    LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
+    WHERE l.id = ?
+    GROUP BY l.id
+  `;
 
+  connection.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar livro:', err);
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Livro não encontrado' });
+    }
+    res.json(results[0]);
+  });
+});
 // Atualizar dados do usuário
 app.put('/usuario/:id', (req, res) => {
   const id = req.params.id;
@@ -613,23 +683,7 @@ app.get('/api/usuarios', (req, res) => {
     res.json(results);
   });
 });
-// Atualizar livro
-app.put('/livros/:id', (req, res) => {
-  const { id } = req.params;
-  const { titulo, autor, editora, sinopse } = req.body;
 
-  const sql = `
-    UPDATE livro
-    SET titulo = ?, autor = ?, editora = ?, sinopse = ?
-    WHERE id = ?
-  `;
-
-  connection.query(sql, [titulo, autor, editora, sinopse, id], (err, result) => {
-    if (err) return res.status(500).json({ error: 'Erro no servidor' });
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Livro não encontrado' });
-    res.json({ message: 'Livro atualizado com sucesso' });
-  });
-});
 
 // Apaga usuário
 app.delete('/api/usuarios/:id', (req, res) => {
@@ -649,6 +703,83 @@ app.delete('/api/usuarios/:id', (req, res) => {
   });
 });
 
+// Atualizar livro com chaves estrangeiras
+app.put('/livros/:id', (req, res) => {
+  const { id } = req.params;
+  const { titulo, isbn, autoresIds, editoraId, generoId, funcionarioId, sinopse, paginas } = req.body;
+
+  // Atualiza a tabela livro
+  const sqlLivro = `
+    UPDATE livro
+    SET titulo = ?, isbn = ?, FK_editora_id = ?, FK_genero_id = ?, FK_funcionario_id = ?, sinopse = ? , paginas = ?
+    WHERE id = ?
+  `;
+
+  connection.query(
+    sqlLivro,
+    [titulo, isbn, editoraId, generoId, funcionarioId, sinopse, paginas, id],
+    (err, result) => {
+      if (err) {
+        console.error('Erro ao atualizar livro:', err);
+        return res.status(500).json({ error: 'Erro no servidor' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Livro não encontrado' });
+      }
+
+      // Atualiza os autores (livro_autor)
+      if (Array.isArray(autoresIds)) {
+        // Primeiro, deleta os autores antigos
+        connection.query('DELETE FROM livro_autor WHERE FK_livro_id = ?', [id], (err) => {
+          if (err) {
+            console.error('Erro ao deletar autores antigos:', err);
+            return res.status(500).json({ error: 'Erro ao atualizar autores' });
+          }
+
+          // Insere os novos autores
+          if (autoresIds.length > 0) {
+            const valoresAutores = autoresIds.map(autorId => [id, autorId]);
+            connection.query('INSERT INTO livro_autor (FK_livro_id, FK_autor_id) VALUES ?', [valoresAutores], (err) => {
+              if (err) {
+                console.error('Erro ao inserir autores:', err);
+                return res.status(500).json({ error: 'Erro ao atualizar autores' });
+              }
+              return res.json({ message: 'Livro atualizado com sucesso' });
+            });
+          } else {
+            return res.json({ message: 'Livro atualizado com sucesso' });
+          }
+        });
+      } else {
+        return res.json({ message: 'Livro atualizado com sucesso' });
+      }
+    }
+  );
+});
+// Deletar livro com dependências
+app.delete('/livros/:id', (req, res) => {
+  const { id } = req.params;
+
+  // Primeiro, deletar os autores associados
+  connection.query('DELETE FROM livro_autor WHERE FK_livro_id = ?', [id], (err) => {
+    if (err) {
+      console.error('Erro ao deletar autores do livro:', err);
+      return res.status(500).json({ error: 'Erro ao deletar autores do livro' });
+    }
+
+    // Depois, deletar o livro
+    connection.query('DELETE FROM livro WHERE id = ?', [id], (err, result) => {
+      if (err) {
+        console.error('Erro ao deletar livro:', err);
+        return res.status(500).json({ error: 'Erro ao deletar livro' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Livro não encontrado' });
+      }
+      res.json({ message: 'Livro excluído com sucesso' });
+    });
+  });
+});
 
 
 // ✅ Agora o app.listen() pode ficar no final

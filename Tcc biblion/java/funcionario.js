@@ -1,10 +1,17 @@
 document.addEventListener('DOMContentLoaded', carregarFuncionarios);
-
+const API_URL = 'http://localhost:3000/api/funcionarios';
 let todosOsFuncionarios = [];
+
+// Só carrega funcionários se o elemento existir
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('lista-funcionarios')) {
+    carregarFuncionarios();
+  }
+});
 
 async function carregarFuncionarios() {
   try {
-    const resposta = await fetch('http://localhost:3000/api/funcionarios');
+    const resposta = await fetch(API_URL);
     todosOsFuncionarios = await resposta.json();
     exibirFuncionarios(todosOsFuncionarios);
   } catch (erro) {
@@ -14,9 +21,11 @@ async function carregarFuncionarios() {
 
 function exibirFuncionarios(funcionarios) {
   const container = document.getElementById('lista-funcionarios');
-  container.innerHTML = '';
+  if (!container) return; // Se não existir na página, não faz nada
 
+  container.innerHTML = '';
   let row;
+
   funcionarios.forEach((f, index) => {
     if (index % 3 === 0) {
       row = document.createElement('div');
@@ -50,50 +59,64 @@ function exibirFuncionarios(funcionarios) {
     row.appendChild(col);
   });
 }
-// Torna a função global para uso no onclick inline
+
 function abrirModalEdicao(id) {
-  // Busca o funcionário pelo id
   const funcionario = todosOsFuncionarios.find(f => f.id === id);
   if (!funcionario) return;
 
-  // Preenche os campos do modal
-  document.getElementById('id-funcionario').value = funcionario.id;
-  document.getElementById('nome-funcionario').value = funcionario.nome;
-  document.getElementById('email-funcionario').value = funcionario.email;
-  document.getElementById('telefone-funcionario').value = funcionario.telefone || '';
-  document.getElementById('funcao-funcionario').value = funcionario.funcao || '';
+  // Só preenche se os campos existirem
+  const idField = document.getElementById('id-funcionario');
+  if (idField) idField.value = funcionario.id;
 
-  // Abre o modal usando Bootstrap
-  const modal = new bootstrap.Modal(document.getElementById('modal-editar'));
-  modal.show();
+  const nomeField = document.getElementById('nome-funcionario');
+  if (nomeField) nomeField.value = funcionario.nome;
+
+  const emailField = document.getElementById('email-funcionario');
+  if (emailField) emailField.value = funcionario.email;
+
+  const telefoneField = document.getElementById('telefone-funcionario');
+  if (telefoneField) telefoneField.value = funcionario.telefone || '';
+
+  const funcaoField = document.getElementById('funcao-funcionario');
+  if (funcaoField) funcaoField.value = funcionario.funcao || '';
+
+  const modalElement = document.getElementById('modal-editar');
+  if (modalElement) {
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+  }
 }
-
-
-const API_URL = 'http://localhost:3000/api/funcionarios';
 
 function fecharModal() {
-  document.getElementById('modal-editar').style.display = 'none';
+  const modalElement = document.getElementById('modal-editar');
+  if (modalElement) {
+    modalElement.style.display = 'none';
+  }
 }
 
-document.getElementById('form-editar').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const id = document.getElementById('id-funcionario').value;
-  const dados = {
-    nome: document.getElementById('nome-funcionario').value,
-    email: document.getElementById('email-funcionario').value,
-    telefone: document.getElementById('telefone-funcionario').value,
-    funcao: document.getElementById('funcao-funcionario').value
-  };
-  
-  fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados)
-  }).then(() => {
-    fecharModal();
-    carregarFuncionarios();
+// Só adiciona evento no formulário se ele existir
+const formEditar = document.getElementById('form-editar');
+if (formEditar) {
+  formEditar.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('id-funcionario')?.value;
+    const dados = {
+      nome: document.getElementById('nome-funcionario')?.value,
+      email: document.getElementById('email-funcionario')?.value,
+      telefone: document.getElementById('telefone-funcionario')?.value,
+      funcao: document.getElementById('funcao-funcionario')?.value
+    };
+    
+    fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    }).then(() => {
+      fecharModal();
+      carregarFuncionarios();
+    });
   });
-});
+}
 
 // Função para excluir funcionário
 function excluirFuncionario(id) {
