@@ -811,6 +811,31 @@
     font-size: 15px;
     color: #555;
 }
+.btn-preto {
+  background-color: black;
+  color: white; /* Ou outra cor para o texto que contraste com o preto */
+  border-color: black; /* Cor da borda, se desejar */
+}
+
+.btn-preto:hover {
+    background-color: #333; /* Cor mais escura ao passar o mouse */
+    color: white;
+    border-color: #333;
+}
+
+/* Card de Estatísticas */
+        .card-stat {
+            background-color: #faf8f0;
+            border: 2px solid #d3c6a1;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+#configTabsContent .tab-pane { display: none; }
+#configTabsContent .tab-pane.active { display: block; }
+
 
     </style>
 </head>
@@ -887,242 +912,295 @@
         </div>
 
 
+
 <!-- Conteúdo das Abas -->
-<div id="backup" class="tab-content active">
+<div class="tab-content mt-3" id="configTabsContent">
+
+  <!-- Aba: Backup -->
+  <div id="backup" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
     <div class="d-flex flex-wrap gap-3">
-        <!-- Primeira tabela/seção -->
-        <div class="section-box" style="flex: 1 1 48%;">
-            <div class="section-header">Backup do banco de dados</div>
-            <div class="backup-info mb-3">
-                <div class="backup-item">
-                    <span class="backup-label">Último backup:</span>
-                    <span class="backup-value">16/01/2024 às 10:30</span>
-                </div>
-                <div class="backup-item-verifica">
-                    <i class="bi bi-check-circle-fill"></i> Backup automático diário ativo
-                </div>
-            </div>
-            <div class="mb-4 d-flex gap-2">
-                <button class="btn-save"><i class="bi bi-hdd-stack"></i> Backup manual</button>
-                <button class="btn-comum"><i class="bi bi-upload"></i> Restaurar backup</button>
-            </div>
+
+      <!-- Seção: Backup do banco -->
+      <div class="section-box" style="flex: 1 1 48%;">
+        <div class="section-header">Backup do banco de dados</div>
+        <div class="backup-info mb-3">
+          <div class="backup-item">
+            <span class="backup-label">Último backup:</span>
+            <span class="backup-value">16/01/2024 às 10:30</span>
+          </div>
+          <div class="backup-item-verifica">
+            <i class="bi bi-check-circle-fill"></i> Backup automático diário ativo
+          </div>
         </div>
-
-        <!-- Configuração de backup -->
-        <div class="section-box" style="flex: 1 1 48%;">
-            <div class="section-header"><i class="bi bi-gear"></i> Configuração de backup</div>
-            <div class="config-section p-3 mb-4">
-
-                <div class="config-item d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <div class="config-title">Backup automático</div>
-                        <div class="config-desc">
-                            Backup diário às
-                            <input type="time" value="02:00" class="form-control form-control-sm d-inline w-auto">
-                        </div>
-                    </div>
-                    <span class="badge bg-success">Ativo</span>
-                </div>
-
-                <div class="config-item d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <div class="config-title">Retenção de backups</div>
-                        <div class="config-desc">
-                            Manter por
-                            <input type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
-                        </div>
-                    </div>
-                    <span class="badge bg-secondary">30 dias</span>
-                </div>
-
-                <div class="config-item d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <div class="config-title">Compressão</div>
-                        <div class="config-desc">Reduz o tamanho do arquivo</div>
-                    </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" checked>
-                    </div>
-                </div>
-
-                <button class="btn-comum w-100 d-flex justify-content-center align-items-center">
-                    <i class="bi bi-save me-2"></i> Configurar backup
-                </button>
-
-            </div>
+        <div class="mb-4 d-flex gap-2">
+          <button class="btn-save">
+            <i class="bi bi-hdd-stack"></i> Backup manual
+          </button>
+          <button class="btn-comum">
+            <i class="bi bi-upload"></i> Restaurar backup
+          </button>
         </div>
+      </div>
 
-        <!-- Histórico de backups -->
-        <div class="section-box history-section">
-            <div class="section-header"><i class="bi bi-clock-history"></i> Histórico de backups</div>
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Data/Hora</th>
-                            <th>Tipo</th>
-                            <th>Tamanho</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>16/01/2024 10:30</td>
-                            <td>Automático</td>
-                            <td>27.8 MB</td>
-                            <td class="text-success"><span class="badge bg-success">Concluido</span></td>
-                        </tr>
-                        <tr>
-                            <td>15/01/2024 02:00</td>
-                            <td>Automático</td>
-                            <td>24.5 MB</td>
-                            <td class="text-fall"><span class="badge bg-danger">Falhou</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div> <!-- Fim aba Backup -->
-
-<div id="logs" class="tab-content permissions-tab">
-    <div class="section-box">
+      <!-- Seção: Configuração de backup -->
+      <div class="section-box" style="flex: 1 1 48%;">
         <div class="section-header">
-            <i class="bi bi-shield-check"></i>
-            <span><strong>Logs do sistema</strong></span>
+          <i class="bi bi-gear"></i> Configuração de backup
         </div>
-
-        <div class="user-role">
-            <i class="bi bi-check"></i>
-            <h2>Backup automático realizado</h2>
-            <div class="user-permission-row">
-                <div class="form-group">
-                    <label>Máximo de empréstimos</label>
-                    <input type="number" class="form-control" value="0" />
-                </div>
-                <div class="form-group">
-                    <label>Duração do empréstimo (dias)</label>
-                    <input type="number" class="form-control" value="0" />
-                </div>
-                <div class="toggle-group">
-                    <label class="switch">
-                        <input type="checkbox" />
-                        <span class="slider"></span>
-                    </label>
-                    <span>Pode reservar</span>
-                </div>
-                <div class="toggle-group">
-                    <label class="switch">
-                        <input type="checkbox" />
-                        <span class="slider"></span>
-                    </label>
-                    <span>Pode renovar</span>
-                </div>
+        <div class="config-section p-3 mb-4">
+          <div class="config-item d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="config-title">Backup automático</div>
+              <div class="config-desc">
+                Backup diário às
+                <input type="time" value="02:00" class="form-control form-control-sm d-inline w-auto">
+              </div>
             </div>
-        </div>
+            <span class="badge bg-success">Ativo</span>
+          </div>
 
-        <!-- Bloco: Professor -->
-        <div class="user-role">
-            <h4>Professor</h4>
-            <div class="user-permission-row">
-                <div class="form-group">
-                    <label>Máximo de empréstimos</label>
-                    <input type="number" class="form-control" value="0" />
-                </div>
-                <div class="form-group">
-                    <label>Duração do empréstimo (dias)</label>
-                    <input type="number" class="form-control" value="0" />
-                </div>
-                <div class="toggle-group">
-                    <label class="switch">
-                        <input type="checkbox" />
-                        <span class="slider"></span>
-                    </label>
-                    <span>Pode reservar</span>
-                </div>
-                <div class="toggle-group">
-                    <label class="switch">
-                        <input type="checkbox" />
-                        <span class="slider"></span>
-                    </label>
-                    <span>Pode renovar</span>
-                </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="config-title">Retenção de backups</div>
+              <div class="config-desc">
+                Manter por
+                <input type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
+              </div>
             </div>
-        </div>
+            <span class="badge bg-primary">30 dias</span>
+          </div>
 
-        <!-- Bloco: Funcionários -->
-        <div class="user-role">
-            <h4>Funcionários</h4>
-            <div class="user-permission-row">
-                <div class="form-group">
-                    <label>Máximo de empréstimos</label>
-                    <input type="number" class="form-control" value="0" />
-                </div>
-                <div class="form-group">
-                    <label>Duração do empréstimo (dias)</label>
-                    <input type="number" class="form-control" value="0" />
-                </div>
-                <div class="toggle-group">
-                    <label class="switch">
-                        <input type="checkbox" />
-                        <span class="slider"></span>
-                    </label>
-                    <span>Pode reservar</span>
-                </div>
-                <div class="toggle-group">
-                    <label class="switch">
-                        <input type="checkbox" />
-                        <span class="slider"></span>
-                    </label>
-                    <span>Pode renovar</span>
-                </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="config-title">Compressão</div>
+              <div class="config-desc">Reduz o tamanho do arquivo</div>
             </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" checked>
+            </div>
+          </div>
         </div>
+        <button class="btn-comum w-100 d-flex justify-content-center align-items-center">
+            <i class="bi bi-save me-2"></i> Configurar backup
+          </button>
+      </div>
+
+      <!-- Seção: Histórico -->
+      <div class="section-box history-section">
+        <div class="section-header">
+          <i class="bi bi-clock-history"></i> Histórico de backups
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>Data/Hora</th>
+                <th>Tipo</th>
+                <th>Tamanho</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>16/01/2024 10:30</td>
+                <td>Automático</td>
+                <td>27.8 MB</td>
+                <td><span class="badge bg-success">Concluído</span></td>
+                <td>
+                        <button class="btn btn-outline btn-preto"><i class="bi bi-save"></i></button>
+                </td>
+              </tr>
+              <tr>
+                <td>15/01/2024 02:00</td>
+                <td>Automático</td>
+                <td>24.5 MB</td>
+                <td><span class="badge bg-danger">Falhou</span></td>
+                <td>
+                        <button class="btn btn-outline btn-preto"><i class="bi bi-save"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
-</div> <!-- Fim aba Logs -->
+  </div>
 
-<div id="status" class="tab-content">
-    <div class="institutional-data">
-        <div class="form-container">
-            <div class="header">
-                <span class="icon"><i class="bi bi-briefcase"></i></span>
-                <h2>Dados institucionais</h2>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="institutionName">Nome da instituição</label>
-                    <input type="text" id="institutionName" placeholder="Digite o nome da instituição">
-                </div>
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" placeholder="Digite o e-mail">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="workingHours">Horário de funcionamento</label>
-                    <input type="text" id="workingHours" placeholder="Digite o horário de funcionamento">
-                </div>
-                <div class="form-group">
-                    <label for="phone">Telefone</label>
-                    <input type="tel" id="phone" placeholder="Digite o telefone">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="website">Website</label>
-                    <input type="url" id="website" placeholder="Digite o website">
-                </div>
-                <div class="form-group">
-                    <label for="address">Endereço</label>
-                    <input type="text" id="address" placeholder="Digite o endereço">
-                </div>
-            </div>
-        </div>
+  <!-- Aba: Logs -->
+  <div id="logs" class="tab-pane fade" role="tabpanel" aria-labelledby="logs-tab">
+  <div class="section-box">
+    <div class="section-header">
+      <span><strong>Logs do sistema</strong></span>
+      <div class="ms-auto d-flex gap-2">
+        <select class="form-select form-select-sm" style="width:auto;">
+          <option>Todos</option>
+          <option>Sucesso</option>
+          <option>Atenção</option>
+          <option>Erro</option>
+        </select>
+        <button class="btn btn-save">
+          <i class="bi bi-download"></i> Exportar
+        </button>
+      </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
-</div> <!-- Fim aba Status -->
- </div>
+
+    <!-- Lista de logs -->
+    <div id="logs-list">
+
+      <!-- Exemplo 1 -->
+      <div class="log-card" data-date="2024-01-16T09:15:22"> <!--apartir do momento que muda o date-date atualiza a ordem do mais novo para o mais antigo-->
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle text-success fs-4"></i>
+            <div>
+              <strong>Backup automático realizado</strong>
+              <span class="badge bg-success">Sucesso</span>
+            </div>
+          </div>
+        </div>
+        <p class="mb-1">Backup completo do banco de dados salvo com sucesso</p>
+        <small class="text-muted">
+          <i class="bi bi-clock"></i> 16-01-2024 09:15:22 &nbsp; 
+          <i class="bi bi-person"></i> Sistema
+        </small>
+      </div>
+
+      <!-- Exemplo 2 -->
+      <div class="log-card" data-date="2024-01-16T08:17:36">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-circle text-warning fs-4"></i>
+            <div>
+              <strong>Configuração alterada</strong>
+              <span class="badge bg-warning text-dark">Atenção</span>
+            </div>
+          </div>
+        </div>
+        <p class="mb-1">Prazo de empréstimo alterado de 14 para 20 dias</p>
+        <small class="text-muted">
+          <i class="bi bi-clock"></i> 16-01-2024 08:17:36 &nbsp;
+          <i class="bi bi-person"></i> admin@email.com
+        </small>
+      </div>
+
+      <!-- Exemplo 3 -->
+      <div class="log-card" data-date="2024-01-19T22:07:55">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-x-octagon text-danger fs-4"></i>
+            <div>
+              <strong>Falha de login</strong>
+              <span class="badge bg-danger">Erro</span>
+            </div>
+          </div>
+        </div>
+        <p class="mb-1">Tentativa de acesso com credenciais inválidas</p>
+        <small class="text-muted">
+          <i class="bi bi-clock"></i> 19-01-2024 22:07:55 &nbsp;
+          <i class="bi bi-person"></i> usuario.invalido@email.com
+        </small>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <!-- Aba: Status -->
+<div id="status" class="tab-pane fade" role="tabpanel" aria-labelledby="status-tab">
+  <div class="d-flex flex-column gap-3">
+
+    <!-- Linha com 3 cards -->
+    <div class="d-flex gap-3 flex-wrap">
+
+      <div class="section-box card-stat" style="flex: 1 1 30%;">
+        <div class="section-header"><i class="bi bi-server"></i> Banco de Dados</div>
+        <div class="config-section p-2">
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Status</div>
+            <span class="badge bg-success fw-bold">Online</span>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Conexões</div>
+            <div>12/100</div>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Tamanho</div>
+            <div>49.8 MB</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box card-stat" style="flex: 1 1 30%;">
+        <div class="section-header"><i class="bi bi-globe"></i> Servidor Web</div>
+        <div class="config-section p-2">
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Status</div>
+            <span class="badge bg-success fw-bold">Ativo</span>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Uptime</div>
+            <div>15 dias, 8 horas</div>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>CPU</div>
+            <div>12%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box card-stat" style="flex: 1 1 30%;">
+        <div class="section-header"><i class="bi bi-hdd-stack"></i> Armazenamento</div>
+        <div class="config-section p-2">
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Usado</div>
+            <div>4.9 GB / 10 GB</div>
+          </div>
+          <div class="mb-2">
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" style="width: 49%;" aria-valuenow="49" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Disponível</div>
+            <div>6.1 GB</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Card grande embaixo -->
+    <div class="section-box card-stat">
+      <div class="section-header"><i class="bi bi-speedometer2"></i> Monitoramento em tempo real</div>
+      <div class="d-flex justify-content-around text-center">
+        <div>
+          <h2 class="text-success">78.9%</h2>
+          <p>Disponibilidade</p>
+        </div>
+        <div>
+          <h2 class="text-primary">156ms</h2>
+          <p>Tempo de resposta</p>
+        </div>
+        <div>
+          <h2 class="text-warning">98</h2>
+          <p>Usuários ativos</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
+
+
 
         <!-- Botão de acessibilidade -->
     <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
@@ -1143,17 +1221,46 @@
         </div>
     </div>
 
-    <script src="../java/script.js"></script>
+   
+<!-- Scripts das abas -->
+
+
+<!--Arruma a ordem da lista da aba "log"-->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const list = document.getElementById("logs-list");
+    const cards = Array.from(list.children);
+
+    cards.sort((a, b) => {
+      return new Date(b.dataset.date) - new Date(a.dataset.date);
+    });
+
+    cards.forEach(c => list.appendChild(c));
+  });
+</script>
+
+<!--Arrumou as abas para que elas apareçam apenas quando clicar no botão-->
     <script>
-        function openTab(evt, tabId) {
-            const allTabs = document.querySelectorAll('.tab-content');
-            const allButtons = document.querySelectorAll('.tab-button');
-            allTabs.forEach(tab => tab.classList.remove('active'));
-            allButtons.forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
-        }
-    </script>
+  function openTab(evt, tabId) {
+    // desativa TODAS as abas (os panes)
+    document.querySelectorAll('#configTabsContent .tab-pane')
+      .forEach(pane => pane.classList.remove('active', 'show'));
+
+    // desmarca todos os botões
+    document.querySelectorAll('.tab-container .tab-button')
+      .forEach(btn => btn.classList.remove('active'));
+
+    // ativa só a aba clicada
+    const pane = document.getElementById(tabId);
+    if (pane) pane.classList.add('active', 'show'); // 'show' dá o fade, 'active' mostra
+
+    // marca o botão clicado
+    evt.currentTarget.classList.add('active');
+  }
+
+</script>
+
+</script>
 </body>
 
 </html>
