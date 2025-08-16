@@ -252,13 +252,38 @@
   border: none;
   border-top: 1px solid #ccc;
 }
+ /* altura típica da navbar do Bootstrap ~56–60px */
+.main-container,
+.main-container-custom{
+  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+}
+#isbnWrapper { position: relative; }
+
+#isbnInput {
+  /* mantém igual aos outros campos */
+  border-radius: 6px !important;
+  padding-right: 40px;            /* espaço para o ícone */
+}
+
+#loadingIsbn.isbn-spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: none;                  /* seu JS mostra/esconde */
+  pointer-events: none;           /* não bloqueia clique no input */
+  background: transparent;
+}
+
 
   </style>
 </head>
 
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid d-flex align-items-center">
       <a class="navbar-brand" href="./homepageAdm.html">
         <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto" />
@@ -363,24 +388,23 @@
       <label class="form-label">Sinopse</label>
       <input type="text" class="form-control" name="sinopse" />
     </div>
-    <div class="col-md-6">
-      <label class="form-label">ISBN <span class="required">*</span></label>
-      <div class="input-group align-items-center">
-        <input type="text" class="form-control" required name="isbn" id="isbnInput" />
-        <span class="input-group-text" style="background: transparent; border: none;">
-          <img
-            src="../uploads/loading.gif"
-            alt="Carregando..."
-            id="loadingIsbn"
-            style="width: 24px; height: 24px; display: none; object-fit: contain;"
-          />
-        </span>
-      </div>
-      <small class="form-text text-muted">
-        Para facilitar o preenchimento, insira o código ISBN para carregar as informações automaticamente.
-      </small>
-    </div>
+  <div class="col-md-6">
+  <label class="form-label">ISBN <span class="required">*</span></label>
+
+  <div class="position-relative" id="isbnWrapper">
+    <input type="text" class="form-control" required name="isbn" id="isbnInput">
+    <img
+      src="../uploads/loading.gif"
+      alt="Carregando..."
+      id="loadingIsbn"
+      class="isbn-spinner"
+    />
   </div>
+
+  <small class="form-text text-muted">
+    Para facilitar o preenchimento, insira o código ISBN para carregar as informações automaticamente.
+  </small>
+</div>
 
   <div class="row mb-3">
     <div class="col-md-6">

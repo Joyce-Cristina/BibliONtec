@@ -283,13 +283,17 @@
   border: none;
   border-top: 1px solid #ccc;
 }
-
+ /* altura típica da navbar do Bootstrap ~56–60px */
+.main-container,
+.main-container-custom{
+  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+}
   </style>
 </head>
 
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid d-flex align-items-center" style="gap: 0;">
       <a class="navbar-brand" href="./homepageAdm.html">
         <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">

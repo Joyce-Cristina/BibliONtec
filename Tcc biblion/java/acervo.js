@@ -1,33 +1,42 @@
-
 let todosOsLivros = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-  carregarLivros();
-  carregarGeneros(); 
+  // Só carrega livros se o container existir
+  if (document.getElementById('cardsContainer')) {
+    carregarLivros();
+  }
+
+  // Só carrega gêneros se a lista existir
+  if (document.getElementById('listaGeneros')) {
+    carregarGeneros();
+  }
 
   // Busca por título
-  document.getElementById('buscaLivro').addEventListener('input', function () {
-    const termo = this.value.toLowerCase();
-
-    const filtrados = todosOsLivros.filter(livro =>
-      livro.titulo && livro.titulo.toLowerCase().includes(termo)
-    );
-
-    exibirLivros(filtrados);
-  });
+  const buscaInput = document.getElementById('buscaLivro');
+  if (buscaInput) {
+    buscaInput.addEventListener('input', function () {
+      const termo = this.value.toLowerCase();
+      const filtrados = todosOsLivros.filter(livro =>
+        livro.titulo && livro.titulo.toLowerCase().includes(termo)
+      );
+      exibirLivros(filtrados);
+    });
+  }
 
   // Delegação de eventos para Editar e Excluir
   const container = document.getElementById('cardsContainer');
-  container.addEventListener('click', e => {
-    if (e.target.classList.contains('btn-danger')) {
-      const id = Number(e.target.dataset.id);
-      excluirLivro(id);
-    }
-    if (e.target.classList.contains('btn-dark')) {
-      const id = Number(e.target.dataset.id);
-      abrirModalEdicaoLivro(id);
-    }
-  });
+  if (container) {
+    container.addEventListener('click', e => {
+      if (e.target.classList.contains('btn-danger')) {
+        const id = Number(e.target.dataset.id);
+        excluirLivro(id);
+      }
+      if (e.target.classList.contains('btn-dark')) {
+        const id = Number(e.target.dataset.id);
+        abrirModalEdicaoLivro(id);
+      }
+    });
+  }
 });
 
 // Carregar livros do backend
@@ -44,6 +53,7 @@ async function carregarLivros() {
 // Exibir livros na tela
 function exibirLivros(livros) {
   const container = document.getElementById('cardsContainer');
+  if (!container) return; // Proteção
   container.innerHTML = '';
 
   let row;
@@ -78,14 +88,15 @@ function exibirLivros(livros) {
 
 // Carregar gêneros
 async function carregarGeneros() {
+  const lista = document.getElementById('listaGeneros');
+  if (!lista) return; // Proteção
+
   try {
     const resposta = await fetch('http://localhost:3000/generos');
     const generos = await resposta.json();
-    const lista = document.getElementById('listaGeneros');
 
     lista.innerHTML = '';
 
-    // Opção "Todos"
     const itemTodos = document.createElement('li');
     itemTodos.innerHTML = `<a class="dropdown-item item-com-linha" href="#" data-id="0">Todos</a>`;
     lista.appendChild(itemTodos);
@@ -100,7 +111,6 @@ async function carregarGeneros() {
       if (e.target && e.target.matches('a[data-id]')) {
         e.preventDefault();
         const idGenero = parseInt(e.target.dataset.id);
-
         if (idGenero === 0) {
           exibirLivros(todosOsLivros);
         } else {
@@ -134,47 +144,59 @@ function abrirModalEdicaoLivro(id) {
   const livro = todosOsLivros.find(l => l.id === id);
   if (!livro) return;
 
-  document.getElementById('id-livro').value = livro.id;
-  document.getElementById('titulo-livro').value = livro.titulo;
-  document.getElementById('autor-livro').value = livro.autor || '';
-  document.getElementById('editora-livro').value = livro.editora || '';
-  document.getElementById('sinopse-livro').value = livro.sinopse || '';
+  const campos = ['id-livro','titulo-livro','isbn-livro','autores-livro','editora-livro','genero-livro','funcionario-livro','sinopse-livro','paginas-livro'];
+  campos.forEach(campo => {
+    const el = document.getElementById(campo);
+    if (el) {
+      if (campo === 'id-livro') el.value = livro.id;
+      else el.value = livro[campo.replace('-livro','')] || '';
+    }
+  });
 
-  const modal = new bootstrap.Modal(document.getElementById('modal-editar-livro'));
-  modal.show();
+  const modalEl = document.getElementById('modal-editar-livro');
+  if (modalEl) {
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
 }
 
 // Fechar modal
 function fecharModalLivro() {
   const modalEl = document.getElementById('modal-editar-livro');
-  const modal = bootstrap.Modal.getInstance(modalEl);
+  const modal = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
   if (modal) modal.hide();
 }
 
 // Salvar alterações do modal
-document.getElementById('form-editar-livro').addEventListener('submit', function(e) {
-  e.preventDefault();
+const formEditar = document.getElementById('form-editar-livro');
+if (formEditar) {
+  formEditar.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = document.getElementById('id-livro')?.value;
+    const dados = {
+      titulo: document.getElementById('titulo-livro')?.value,
+      isbn: document.getElementById('isbn-livro')?.value,
+      autores: document.getElementById('autores-livro')?.value,
+      editora: document.getElementById('editora-livro')?.value,
+      genero: document.getElementById('genero-livro')?.value,
+      funcionario: document.getElementById('funcionario-livro')?.value,
+      sinopse: document.getElementById('sinopse-livro')?.value,
+      paginas: document.getElementById('paginas-livro')?.value
+    };
 
-  const id = document.getElementById('id-livro').value;
-  const dados = {
-    titulo: document.getElementById('titulo-livro').value,
-    autor: document.getElementById('autor-livro').value,
-    editora: document.getElementById('editora-livro').value,
-    sinopse: document.getElementById('sinopse-livro').value
-  };
-
-  fetch(`http://localhost:3000/livros/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados)
-  })
-  .then(res => {
-    if (res.ok) {
-      fecharModalLivro();
-      carregarLivros();
-    } else {
-      alert('Erro ao editar livro');
-    }
-  })
-  .catch(err => console.error('Erro ao editar livro:', err));
-});
+    fetch(`http://localhost:3000/livros/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    })
+    .then(res => {
+      if (res.ok) {
+        fecharModalLivro();
+        carregarLivros();
+      } else {
+        alert('Erro ao editar livro');
+      }
+    })
+    .catch(err => console.error('Erro ao editar livro:', err));
+  });
+}

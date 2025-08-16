@@ -479,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     senhaInput.addEventListener('focus', () => {
-      avisoSenha.textContent = "A senha deve conter pelo menos 8 caracteres, com pelo menos:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)";
+      avisoSenha.textContent = "A senha deve conter pelo menos 8 caracteres, com pelo menos:\n 1 letra maiúscula (A-Z)\n 1 letra minúscula (a-z)\n 1 número (0-9)";
       avisoSenha.style.display = 'block';
     });
 
@@ -505,6 +505,7 @@ function toggleSenha() {
     icon.classList.add("bi-eye-slash");
   }
 }
+
 //Abre o menu ao clicar na foto
 const avatar = document.getElementById('avatarPerfil'); // <- navbar
 const dropdown = document.getElementById('menuPerfil');
@@ -544,16 +545,17 @@ if (funcionario && funcionario.foto) { // ← CORRETO
 
 //Foto padrao
 document.addEventListener("DOMContentLoaded", function () {
+  // Procura o input de foto
   const fotoInput = document.getElementById("foto");
   const previewBox = document.getElementById("previewBox");
 
-  if (!fotoInput) {
-    console.error("Input de foto não encontrado!");
-    return;
-  }
+  // Se não existir, não faz nada
+  if (!fotoInput || !previewBox) return;
 
+  // Adiciona listener para mostrar preview
   fotoInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
+
     if (!file) {
       previewBox.style.backgroundImage = "url('http://localhost:3000/uploads/padrao.jpg')";
       return;
