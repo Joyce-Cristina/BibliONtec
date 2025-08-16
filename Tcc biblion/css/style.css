@@ -939,3 +939,37 @@ form.form-limpo label {
     object-fit: cover;
 }
 
+/* Bloco de informações do backup */
+.backup-info {
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Configuração do backup */
+.config-section {
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Histórico de backups */
+.history-section {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.config-title {
+    font-weight: bold;
+    font-size: medium;
+}
+.config-desc {
+    font-size: small;
+    color: #555;
+}
+
+#configTabsContent .tab-pane { display: none; }
+#configTabsContent .tab-pane.active { display: block; }
