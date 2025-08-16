@@ -948,3 +948,6 @@ form.form-limpo label {
     font-size: small;
     color: #555;
 }
+
+#configTabsContent .tab-pane { display: none; }
+#configTabsContent .tab-pane.active { display: block; }
