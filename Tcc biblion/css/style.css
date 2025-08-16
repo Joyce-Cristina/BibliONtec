@@ -865,7 +865,7 @@ form.form-limpo label {
 
 .card p {
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* limita texto em 3 linhas */
+  /*-webkit-line-clamp: 3;  limita texto em 3 linhas */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -970,6 +970,46 @@ form.form-limpo label {
     font-size: small;
     color: #555;
 }
+/* Afastar todo conteúdo das laterais da tela */
+.container, .container-fluid {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+/* Espaçamento automático entre colunas em qualquer .row */
+.row {
+  margin-left: 0;
+  margin-right: 0;
+  gap: 15px; /* dá espaçamento horizontal e vertical entre colunas */
+}
+
+/* Todos os cards terão a mesma base de estilo */
+.card, .status-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Ícones dentro dos cards */
+.card .icon, .status-card .icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+/* Responsividade padrão */
+@media (max-width: 768px) {
+  .col-md-4, .col-md-6, .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+
+
+
 
 #configTabsContent .tab-pane { display: none; }
 #configTabsContent .tab-pane.active { display: block; }
