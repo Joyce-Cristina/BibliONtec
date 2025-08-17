@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("../Tcc biblion/java/app"); // aqui deve ser o Express
+const app = require("../app"); // app.js está na raiz
 const connection = require("../Tcc biblion/java/database");
 
 jest.setTimeout(20000);
