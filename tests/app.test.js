@@ -1,7 +1,7 @@
 const request = require("supertest");
 const mysql = require("mysql2/promise"); // Import necessário
 const app = require("../app.js"); // app.js deve apenas exportar o Express
-const connection = require("../Tcc biblion/java/database"); // apenas se precisar fechar a conexão
+
 
 jest.setTimeout(20000);
 
@@ -36,7 +36,7 @@ afterAll(async () => {
   // Liberar conexão e encerrar pool
   if (conn) await conn.release();
   if (pool) await pool.end();
-  if (connection && connection.end) connection.end();
+  
 });
 
 describe("Teste de Login real no banco", () => {
