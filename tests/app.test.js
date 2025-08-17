@@ -1,7 +1,7 @@
 const request = require("supertest");
-const app = require("../app.js"); // app.js está na raiz
-const connection = require("../Tcc biblion/java/database");
-const mysql = require("mysql2/promise");
+const mysql = require("mysql2/promise"); // Import necessário
+const app = require("../app.js"); // app.js deve apenas exportar o Express
+const connection = require("../Tcc biblion/java/database"); // apenas se precisar fechar a conexão
 
 jest.setTimeout(20000);
 
@@ -10,20 +10,21 @@ let conn;
 let userId;
 
 beforeAll(async () => {
-  const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  database: process.env.DB_NAME || "bibliontec",
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  charset: "utf8mb4" // adiciona isso
-});
-
+  // Criar pool de conexões
+  pool = mysql.createPool({
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "bibliontec",
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    charset: "utf8mb4"
+  });
 
   conn = await pool.getConnection();
 
+  // Inserir usuário de teste
   const [result] = await conn.query(
     "INSERT INTO usuario (nome, email, senha, FK_tipo_usuario_id) VALUES (?, ?, ?, ?)",
     ["Aluno CI", "teste_ci@teste.com", "123456", 1]
@@ -32,15 +33,11 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  try {
-    await conn.query("DELETE FROM usuario WHERE id = ?", [userId]);
-    conn.release(); // devolve a conexão para o pool
-    await pool.end(); // encerra todas conexões ativas
-  } catch (err) {
-    console.error("Erro ao finalizar conexão:", err);
-  }
+  // Liberar conexão e encerrar pool
+  if (conn) await conn.release();
+  if (pool) await pool.end();
+  if (connection && connection.end) connection.end();
 });
-
 
 describe("Teste de Login real no banco", () => {
   it("Deve logar com credenciais válidas", async () => {
@@ -58,8 +55,4 @@ describe("Teste de Login real no banco", () => {
 
     expect(res.statusCode).toBe(401);
   });
-});
-
-afterAll(async () => {
-  if (connection && connection.end) connection.end();
 });

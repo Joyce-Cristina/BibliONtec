@@ -7,6 +7,21 @@ const fs = require('fs');
 const sharp = require('sharp');
 
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+// database.js
+const mysql = require("mysql2/promise");
+
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || "127.0.0.1",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "bibliontec",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  charset: "utf8mb4"
+});
+
+module.exports = pool;
 
 const app = express();
 app.use(cors());
@@ -699,9 +714,9 @@ app.delete('/livros/:id', (req, res) => {
     });
   });
 });
-const app = require("./app");
+// ✅ Agora o app.listen() pode ficar no final
 const PORT = 3000;
-
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+
