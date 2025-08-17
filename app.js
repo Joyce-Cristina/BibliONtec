@@ -1,20 +1,13 @@
 // app.js
 const express = require("express");
-const cors = require("cors");
-const path = require("path");
-
 const app = express();
 
-// Middlewares globais
-app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Rotas
+const usuarioRoutes = require("./routes/usuario");
+app.use("/usuario", usuarioRoutes);
 
-// Rota de teste
-app.get("/", (req, res) => {
-  res.send("Servidor rodando 🚀");
-});
+// outras rotas...
 
 module.exports = app;
