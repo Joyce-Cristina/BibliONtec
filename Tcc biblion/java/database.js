@@ -699,16 +699,9 @@ app.delete('/livros/:id', (req, res) => {
     });
   });
 });
-// Só inicia o servidor se o arquivo for executado diretamente
-if (require.main === module) {
-  app.listen(3000, () => {
-    console.log("Servidor rodando na porta 3000");
-  });
-}
-afterAll(async () => {
-  const conn = require("../Tcc biblion/java/database");
-  if (conn && conn.end) conn.end();
+// ✅ Agora o app.listen() pode ficar no final
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-// Exporta o app para os testes
-module.exports = app;
