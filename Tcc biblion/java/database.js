@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
@@ -29,7 +29,9 @@ const upload = multer({ storage,
     }
   } });
 
-const mysql = require('mysql'); // ou mysql2
+
+const mysql = require('mysql2');  // use apenas este
+
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',       // ou outro usuário
