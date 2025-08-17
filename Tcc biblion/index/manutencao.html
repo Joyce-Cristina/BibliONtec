@@ -833,6 +833,97 @@
             text-align: center;
         }
 
+        /* Adicionando ícones */
+        .bi {
+            font-size: 32px;
+        }
+
+        /* Estilo para o botão "Novo bibliotecário" */
+        .btn-new-user {
+            background-color: #7a1600;
+            /* Cor de fundo do botão */
+            color: white;
+            /* Cor do texto */
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* Ajusta o espaço entre o ícone e o texto */
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-new-user:hover {
+            background-color: #5c0e00;
+            color: rgb(146, 146, 146);
+            /* Cor de fundo ao passar o mouse */
+        }
+
+        .btn-new-user i {
+            font-size: 1.4rem;
+            /* Tamanho do ícone */
+        }
+
+        .bg-wh-1 {
+            display: inline-block;
+            min-width: 10px;
+            padding: 3px 7px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #6030ba;
+            line-height: 1;
+            vertical-align: middle;
+            white-space: nowrap;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .bg-wh-2 {
+            display: inline-block;
+            min-width: 10px;
+            padding: 3px 7px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #409cff;
+            line-height: 1;
+            vertical-align: middle;
+            white-space: nowrap;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+
+        
+        /* === Largura total nas abas === */
+.tab-content {
+  display: block;        /* não precisa ser flex aqui */
+  width: 100% !important;
+  max-width: none !important;
+  margin: 20px 0 !important;
+}
+
+#configTabsContent .tab-pane {
+  width: 100% !important;
+}
+
+#em,
+#em .col-12,
+#em .section-box {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+#em canvas#graficoEmprestimos {
+  width: 100% !important;   /* Chart.js ocupa toda a largura */
+  height: 380px !important; /* ajuste a gosto */
+}
+
+/* opcional: se não quiser a caixa gigante */
+#em .section-box { min-height: 420px !important; }
+
 #configTabsContent .tab-pane { display: none; }
 #configTabsContent .tab-pane.active { display: block; }
 

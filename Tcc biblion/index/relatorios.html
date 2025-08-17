@@ -639,6 +639,12 @@
             .btn {
                 font-size: 12px;
             }
+
+            /* Ajuste das abas em dispositivos menores */
+            .tab-container {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
 
         /* Estilos principais */
@@ -728,6 +734,592 @@
             font-size: 1.4rem;
             /* Tamanho do ícone */
         }
+
+        .tab-container {
+            background-color: #dddddd;
+            border-radius: 30px;
+            padding: 5px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            width: fit-content;
+            margin: 0 auto;
+        }
+        .tab-button {
+            background-color: transparent;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .tab-button.active {
+            background-color: #f0f0f0;
+        }
+
+        .tab-button:hover:not(.active) {
+            background-color: #e0e0e0;
+        }
+
+        .tab-content {
+            display: flex;
+            padding: 20px;
+            margin: 20px auto;
+            border: none;
+            background-color: transparent;
+            max-width: 800px;
+            gap: 20px; /* espaço entre as caixas */
+            align-items: flex-start;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+        /* Caixa com borda e título */
+        .section-box {
+            border: 2px solid #c8aa78;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            max-width: 1000px;
+            margin: none;
+            flex: 1; /* cada caixa ocupa metade */
+        }
+
+        /* Cabeçalho com ícone */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            color: #000;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #c8aa78;
+            padding-bottom: 10px;
+        }
+
+        /* Layout dos campos */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Campo ocupa a largura toda */
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        /* Campos e labels */
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            background-color: #dddddd;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .permissions-tab .section-box {
+            background-color: transparent;
+            border: 2px solid #cba95b;
+            border-radius: 8px;
+            padding: none;
+            transition: background-color 0.3s;
+            margin: 0 auto;
+            /* Centraliza o card */
+            max-width: 1000px;
+            /* Ajuste a largura conforme necessário */
+        }
+
+        .permissions-tab .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #cba95b;
+            margin-bottom: 1rem;
+        }
+
+        .permissions-tab.active .section-box {
+            background-color: #f3f3f3;
+        }
+
+        .permissions-tab .user-role {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #cba95b;
+            padding-bottom: 1rem;
+        }
+
+        .permissions-tab .user-role:last-child {
+            border-bottom: none;
+        }
+
+        .permissions-tab h4 {
+            margin: 0 0 0.5rem;
+        }
+
+        .permissions-tab .user-permission-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: nowrap; /* Impede que os itens quebrem para a linha de baixo */
+}
+
+
+        .permissions-tab .form-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .permissions-tab .form-control {
+            background-color: #ddd;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+
+        .permissions-tab .toggle-group {
+            display: flex;
+            align-items: center;
+        }
+        .permissions-tab .toggle-group span {
+    white-space: nowrap;  /* Impede que o texto quebre em várias linhas */
+    margin-left: 10px; /* Ajusta o espaçamento entre o botão e o texto */
+}
+/* Switch estilo iOS */
+        .permissions-tab .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .permissions-tab .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .permissions-tab .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: black;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .permissions-tab .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        .permissions-tab .switch input:checked+.slider {
+            background-color: #4caf50;
+        }
+
+        .permissions-tab .switch input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+        /* Estilos específicos para o formulário de Dados Institucionais */
+        .institutional-data {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 2px solid #cba95b;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .institutional-data .form-container {
+            width: 100%;
+        }
+
+        .institutional-data .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .institutional-data .icon {
+            color: #007bff;
+            font-size: 30px;
+            margin-right: 10px;
+        }
+
+        .institutional-data h2 {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .institutional-data .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .institutional-data .form-group {
+            width: 48%;
+            /* Ajusta a largura dos campos */
+        }
+
+        .institutional-data .form-group label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .institutional-data .form-group input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #f7f7f7;
+            width: 100%;
+        }
+
+        .institutional-data .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .institutional-data .form-group input::placeholder {
+            color: #888;
+        }
+
+        .notification-settings {
+            width: 100%;
+            max-width: 1000px;
+            /* Largura maior */
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 2px solid #c8aa78;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .notification-settings .form-container {
+            width: 100%;
+        }
+
+        .notification-settings .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .notification-settings .icon {
+            color: #007bff;
+            font-size: 30px;
+            margin-right: 10px;
+        }
+
+        .notification-settings h2 {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .notification-settings .form-group {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            /* Alinha o conteúdo */
+            align-items: center;
+            /* Alinha os itens verticalmente */
+        }
+
+        .notification-settings .form-group label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+            flex: 1;
+            /* Deixa o label ocupar o espaço restante */
+        }
+
+        .notification-settings .form-group p {
+            font-size: 14px;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        .notification-settings .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            /* Alinha os switches à direita */
+        }
+
+        .notification-settings .form-group input[type="number"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #f7f7f7;
+            width: 100px;
+        }
+
+        .notification-settings .form-group input[type="number"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .notification-settings .form-group .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notification-settings .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .notification-settings .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .notification-settings .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .notification-settings .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+        }
+
+        .notification-settings input:checked+.slider {
+            background-color: #007bff;
+        }
+
+        .notification-settings input:checked+.slider:before {
+            transform: translateX(22px);
+        }
+
+        .notification-settings .form-group.dias {
+            flex-direction: column;
+            /* Organiza o conteúdo verticalmente */
+            align-items: flex-start;
+            /* Alinha o conteúdo à esquerda */
+        }
+
+        .notification-settings .form-group.dias .switch-container {
+            margin-top: 10px;
+            /* Adiciona um pouco de espaço entre o título e o campo de dias */
+            justify-content: flex-start;
+            /* Alinha à esquerda para a terceira opção */
+        }
+
+        /* Responsividade da Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                top: 0;
+                left: -220px;
+                width: 220px;
+                height: 100%;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-container-custom {
+                padding-left: 0;
+                margin-top: 10px;
+                /* Ajusta para não ficar muito colado ao topo */
+            }
+
+            /* Botões na navbar para dispositivos móveis */
+            .navbar-toggler {
+                display: block;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                display: none;
+            }
+
+            .navbar-collapse.show {
+                display: flex;
+            }
+
+            /* Ajuste das abas em dispositivos menores */
+            .tab-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+    .backup-container {
+        flex-direction: column;
+    }
+}
+
+        /*parte do backup*/
+
+    .section-box {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.section-header {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.backup-info {
+    background: #a3bafe;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.backup-item {
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.backup-item-verifica {
+    font-weight: bold;
+    color: #0000FF;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.config-section {
+    background: #f8f9fa;
+}
+
+.form-label {
+    white-space: nowrap; /* Evita quebrar o texto em várias linhas */
+}
+.config-title {
+    font-weight: bold;
+    font-size: medium;
+}
+.config-desc {
+    font-size: 15px;
+    color: #555;
+}
+.btn-preto {
+  background-color: black;
+  color: white; /* Ou outra cor para o texto que contraste com o preto */
+  border-color: black; /* Cor da borda, se desejar */
+}
+
+.btn-preto:hover {
+    background-color: #333; /* Cor mais escura ao passar o mouse */
+    color: white;
+    border-color: #333;
+}
+
+/* Card de Estatísticas */
+        .card-stat {
+            background-color: #faf8f0;
+            border: 2px solid #d3c6a1;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .btn-outline-contatar{
+            background-color: #fff;
+            border-radius: 10px;
+            border: rgb(133, 0, 0);
+        }
+
+        .btn-contatar{
+            color: #000;
+        }
+        
+        #em {
+  width: 90%;  
+}
+
+/* === Largura total nas abas === */
+.tab-content {
+  display: block;        /* não precisa ser flex aqui */
+  width: 100% !important;
+  max-width: none !important;
+  margin: 20px 0 !important;
+}
+
+#configTabsContent .tab-pane {
+  width: 100% !important;
+}
+
+#em,
+#em .col-12,
+#em .section-box {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+#em canvas#graficoEmprestimos {
+  width: 100% !important;   /* Chart.js ocupa toda a largura */
+  height: 380px !important; /* ajuste a gosto */
+}
+
+/* opcional: se não quiser a caixa gigante */
+#em .section-box { min-height: 420px !important; }
+
+#configTabsContent .tab-pane { display: none; }
+#configTabsContent .tab-pane.active { display: block; }
     </style>
 </head>
 
@@ -784,18 +1376,18 @@
     <!-- Sidebar -->
     <div class="sidebar d-flex flex-column">
         <a class="btn w-100" href="./cadAdm.html">Administrador</a>
-        <a class="btn w-100 active" href="./bibliotecarios.html">Bibliotecários</a>
+        <a class="btn w-100" href="./bibliotecarios.html">Bibliotecários</a>
         <a class="btn w-100" href="./configAdm2.html">Configurações</a>
         <a class="btn w-100" href="./manutencao.html">Manutenção</a>
         <a class="btn w-100" href="./usuariosAdm2.html">Usuários</a>
-        <a class="btn w-100" href="./relatorios.html">Relatórios</a>
+        <a class="btn w-100 active" href="./relatorios.html">Relatórios</a>
     </div>
 
     <!-- Conteúdo -->
     <div class="main-container-custom">
         <div class="p-4 rounded-3 shadow custom-card">
-            <h2 class="text-center-custom">Seus funcionários</h2>
-            <p class="text-center fw-bold mb-4">Esta página é para visualizar todos os seus usuários cadastrados.</p>
+            <h2 class="text-center-custom">Relatórios e estatísticas</h2>
+            <p class="text-center fw-bold mb-4">Esta página é para visualizar todas as informações do seus usuários, livros e empréstimos.</p>
             <div class="d-flex justify-content-center">
                 <div class="input-group-custom">
                     <input type="text" class="form-control search-input" placeholder="Buscar usuário..." />
@@ -804,30 +1396,22 @@
                     </button>
                 </div>
             </div>
+
         </div>
 
-
-
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <div class="d-flex align-items-center">
-                <!-- Checkbox "Organizar por ordem alfabética" -->
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="organizeAlphabetically">
-                    <label class="form-check-label" for="organizeAlphabetically">
-                        Organizar por ordem alfabética
-                    </label>
-                </div>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mt-3" style="flex: 1 1 48%;">
             <div class="d-flex align-items-center">
                 <!-- Botão Status -->
-                <label for="status" class="text-black status-label">Status</label>
+                <label for="status" class="text-black status-label">Tempo</label>
                 <select id="status" class="form-control status-select">
-                    <option>Ativo</option>
-                    <option>Inativo</option>
+                    <option>Esta semana</option>
+                    <option>Última semana</option>
+                    <option>Último mês</option>
+                    <option>Ano inteiro</option>
                 </select>
                 <!-- Botão Novo bibliotecário -->
                 <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
-                    <i class="bi bi-plus-circle"></i> Novo bibliotecário
+                    <i class="bi bi-arrow-bar-up"></i> Exportar Pdf
                 </button>
 
             </div>
@@ -835,128 +1419,225 @@
 
 
         <div class="card-container">
-            <div class="card">
+            <div class="card" >
                 <div class="icon-container">
                     <i class="bi bi-person"></i>
                 </div>
                 <div class="info">
-                    <p>Total de bibliotecários</p>
-                    <span>5</span>
+                    <p>Usuários ativos</p>
+                    <span>41</span>
                 </div>
             </div>
             <div class="card active">
                 <div class="icon-container">
-                    <i class="bi bi-check-circle"></i>
+                    <i class="bi bi-book"></i>
                 </div>
                 <div class="info">
-                    <p>Ativos</p>
-                    <span>3</span>
+                    <p>Empréstimos</p>
+                    <span>22</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="icon-container">
+                    <i class="bi bi-clock"></i>
+                </div>
+                <div class="info">
+                    <p>Reservas pendentes</p>
+                    <span>6</span>
                 </div>
             </div>
             <div class="card inactive">
                 <div class="icon-container">
-                    <i class="bi bi-x-circle"></i>
+                    <i class="bi bi-exclamation-circle"></i>
                 </div>
                 <div class="info">
-                    <p>Inativos</p>
-                    <span>2</span>
+                    <p>Atrasos</p>
+                    <span>1</span>
                 </div>
             </div>
         </div>
 
+        <!-- Abas -->
+        <div class="tab-container">
+            <button class="tab-button active" onclick="openTab(event, 'atrasos')">Atrasos</button>
+            <button class="tab-button" onclick="openTab(event, 'em')">Empréstimos</button>
+            <button class="tab-button" onclick="openTab(event, 'mais')">Mais populares</button>
+            <button class="tab-button" onclick="openTab(event, 'usu')">Usuários</button>
+        </div>
 
-        <table class="table table-striped table-bordered">
+        <!-- Conteúdo das Abas -->
+<div class="tab-content mt-3" id="configTabsContent">
+
+  <!-- Aba: Atrasos -->
+  <div id="atrasos" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
+    <div class="d-flex flex-wrap gap-3">
+
+      <table class="table table-striped table-bordered mt-3">
             <thead>
                 <tr>
                     <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Status</th>
-                    <th>Telefone</th>
-                    <th>Permissões</th>
+                    <th>Livro</th>
+                    <th>Dias de atraso</th>
+                    <th>Multa</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>Carlos Ferro</td>
-                    <td>carlos.fe@email.com</td>
-                    <td><span class="badge bg-success">Ativo</span></td>
-                    <td>(12) 99999-1111</td>
-                    <td>Administração, Catalogação</td>
+                    <td>Dom Casmurro</td>
+                    <td><span class="badge bg-danger">2 dias</span></td>
+                    <td>R$6,50</td>
                     <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                        <button class="btn btn-outline-danger btn-sm"> Notificar</button>
+                        <button class="btn btn-outline-dark">Contatar</button>
                     </td>
                 </tr>
-                <tr>
-                    <td>Tháis Santos</td>
-                    <td>thais.sant@email.com</td>
-                    <td><span class="badge bg-danger">Inativo</span></td>
-                    <td>(12) 99999-1111</td>
-                    <td>Administração, Catalogação</td>
+                    <td>Josiane Morales</td>
+                    <td>Mil léguas submarinas</td>
+                    <td><span class="badge bg-danger">12 dias</span></td>
+                    <td>R$35,00</td>
                     <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                        <button class="btn btn-outline-danger btn-sm"> Notificar</button>
+                        <button class="btn btn-outline-dark">Contatar</button>
                     </td>
                 </tr>
-                <tr>
-                    <td>Paula Lima</td>
-                    <td>paula.lima@email.com</td>
-                    <td><span class="badge bg-danger">Inativo</span></td>
-                    <td>(12) 99999-1111</td>
-                    <td>Administração, Catalogação</td>
+                    <td>Antonela</td>
+                    <td>Razão e sensibilidade</td>
+                    <td><span class="badge bg-danger">7 dias</span></td>
+                    <td>R$16,65</td>
                     <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Mateus Rosa</td>
-                    <td>mateus.ro@email.com</td>
-                    <td><span class="badge bg-success">Ativo</span></td>
-                    <td>(12) 99999-1111</td>
-                    <td>Administração, Catalogação</td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Rose Ricardo</td>
-                    <td>rose.ricar@email.com</td>
-                    <td><span class="badge bg-success">Ativo</span></td>
-                    <td>(12) 99999-1111</td>
-                    <td>Catalogação</td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
+                        <button class="btn btn-outline-danger btn-sm"> Notificar</button>
+                        <button class="btn btn-outline-dark">Contatar</button>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+  </div>
+
+  <!--aba empréstimos-->
+  <div id="em" class="tab-pane fade row" role="tabpanel" aria-labelledby="logs-tab">
+  <div class="col-12">
+    <div class="section-box">
+      <div class="section-header">
+          <span><strong>Empréstimos e devoluções por mês</strong></span>
+      </div>
+      <canvas id="graficoEmprestimos" height="110"></canvas>
+    </div>
+  </div>
+</div>
 
 
+  <!-- Aba: Status -->
+<div id="status" class="tab-pane fade" role="tabpanel" aria-labelledby="status-tab">
+  <div class="d-flex flex-column gap-3">
+
+    <!-- Linha com 3 cards -->
+    <div class="d-flex gap-3 flex-wrap">
+
+      <div class="section-box card-stat" style="flex: 1 1 30%;">
+        <div class="section-header"><i class="bi bi-server"></i> Banco de Dados</div>
+        <div class="config-section p-2">
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Status</div>
+            <span class="badge bg-success fw-bold">Online</span>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Conexões</div>
+            <div>12/100</div>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Tamanho</div>
+            <div>49.8 MB</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box card-stat" style="flex: 1 1 30%;">
+        <div class="section-header"><i class="bi bi-globe"></i> Servidor Web</div>
+        <div class="config-section p-2">
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Status</div>
+            <span class="badge bg-success fw-bold">Ativo</span>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Uptime</div>
+            <div>15 dias, 8 horas</div>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>CPU</div>
+            <div>12%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box card-stat" style="flex: 1 1 30%;">
+        <div class="section-header"><i class="bi bi-hdd-stack"></i> Armazenamento</div>
+        <div class="config-section p-2">
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Usado</div>
+            <div>4.9 GB / 10 GB</div>
+          </div>
+          <div class="mb-2">
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" style="width: 49%;" aria-valuenow="49" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          <div class="config-item d-flex justify-content-between align-items-center mb-2">
+            <div>Disponível</div>
+            <div>6.1 GB</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Card grande embaixo -->
+    <div class="section-box card-stat">
+      <div class="section-header"><i class="bi bi-speedometer2"></i> Monitoramento em tempo real</div>
+      <div class="d-flex justify-content-around text-center">
+        <div>
+          <h2 class="text-success">78.9%</h2>
+          <p>Disponibilidade</p>
+        </div>
+        <div>
+          <h2 class="text-primary">156ms</h2>
+          <p>Tempo de resposta</p>
+        </div>
+        <div>
+          <h2 class="text-warning">98</h2>
+          <p>Usuários ativos</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- Aba: Usuários -->
+<div id="usu" class="tab-pane fade" role="tabpanel" aria-labelledby="usu-tab">
+  <div class="section-box">
+    <div class="section-header">
+      <span><strong>Usuários mais ativos</strong></span>
+    </div>
+    <canvas id="graficoUsuarios" style="max-width: 600px; max-height: 400px;"></canvas>
+  </div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
 
 
-
-
-
-    <!-- Botão de acessibilidade -->
+        <!-- Botão de acessibilidade -->
     <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
         <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
             <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
         </button>
     </div>
 
-    <!-- Avatar com menu fixado no canto inferior esquerdo -->
+    <!-- Avatar com menu fixado -->
     <div class="avatar-container">
-        <img src="http://localhost:3000/uploads/padrao.png" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+        <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
         <div id="menuPerfil" class="menu-perfil">
             <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
             <hr class="menu-divider">
@@ -966,7 +1647,133 @@
         </div>
     </div>
 
+
+
+<!-- Importar Chart.js e o plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+
+<!-- Scripts das abas -->
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const ctx = document.getElementById('graficoEmprestimos').getContext('2d');
+  
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+      datasets: [
+        {
+          label: 'Empréstimos',
+          data: [40, 58, 70, 74, 73, 53, 68, 69, 75, 35, 48, 12],
+          backgroundColor: '#6c2d19' // marrom
+        },
+        {
+          label: 'Devoluções',
+          data: [50, 47, 53, 68, 69, 75, 87, 65, 35, 48, 36, 15],
+          backgroundColor: '#d4af72' // bege
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+});
+</script>
+
+<script>const ctxUsuarios = document.getElementById('graficoUsuarios').getContext('2d');
+
+const graficoUsuarios = new Chart(ctxUsuarios, {
+  type: 'pie',
+  data: {
+    labels: ['Alunos', 'Professores', 'Funcionários'],
+    datasets: [{
+      data: [65, 25, 10], // porcentagens
+      backgroundColor: [
+        '#409cff',     // Alunos
+        '#6030ba',    // Professores
+        '#008257'      // Funcionários
+      ],
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'right',  // 👈 legenda do lado direito
+      labels: {
+        font: {
+          size: 14
+        }
+      }
+    },
+    datalabels: {
+      color: '#fff',
+      font: {
+        weight: 'bold',
+        size: 14
+      },
+      formatter: (value, ctx) => {
+        return value + '%';
+      }
+    }
+  }
+},
+  plugins: [ChartDataLabels]
+});
+</script>
+
+<!--Arruma a ordem da lista da aba "log"-->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const list = document.getElementById("logs-list");
+    const cards = Array.from(list.children);
+
+    cards.sort((a, b) => {
+      return new Date(b.dataset.date) - new Date(a.dataset.date);
+    });
+
+    cards.forEach(c => list.appendChild(c));
+  });
+</script>
+
+<!--Arrumou as abas para que elas apareçam apenas quando clicar no botão-->
+    <script>
+  function openTab(evt, tabId) {
+    // desativa TODAS as abas (os panes)
+    document.querySelectorAll('#configTabsContent .tab-pane')
+      .forEach(pane => pane.classList.remove('active', 'show'));
+
+    // desmarca todos os botões
+    document.querySelectorAll('.tab-container .tab-button')
+      .forEach(btn => btn.classList.remove('active'));
+
+    // ativa só a aba clicada
+    const pane = document.getElementById(tabId);
+    if (pane) pane.classList.add('active', 'show'); // 'show' dá o fade, 'active' mostra
+
+    // marca o botão clicado
+    evt.currentTarget.classList.add('active');
+  }
+
+</script>
+
     <script src="../java/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
 </body>
 
 </html>
