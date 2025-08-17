@@ -1,4 +1,6 @@
 // app.test.js - Testes básicos para o projeto BibliONtec
+jest.setTimeout(20000); // aumenta tempo máximo de cada teste
+
 const request = require("supertest");
 const mysql = require("mysql2/promise");
 const app = require("../Tcc biblion/java/database"); // seu app Express
