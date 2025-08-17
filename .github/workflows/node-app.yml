@@ -2,13 +2,27 @@ name: Node.js CI/CD
 
 on:
   push:
-    branches: [ "main" ] # Roda quando houver commit na branch main
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: bibliontec
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
     - name: Checkout do código
@@ -21,14 +35,24 @@ jobs:
 
     - name: Instalar dependências
       run: npm install
-      
-    - name: Garantir permissão de execução do Jest
-      run: chmod +x node_modules/.bin/jest
+
+    - name: Aguardar MySQL
+      run: |
+        until mysqladmin ping -h"127.0.0.1" -uroot -proot --silent; do
+          echo "Aguardando MySQL iniciar..."
+          sleep 2
+        done
+
+    - name: Criar tabelas no banco de teste
+      run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
 
     - name: Rodar testes
-      run: npm test
-    - name: Rodar testes
-      run: npm test
+      env:
+        DB_HOST: 127.0.0.1
+        DB_USER: root
+        DB_PASSWORD: root
+        DB_NAME: bibliontec
+      run: npm test -- --forceExit --detectOpenHandles
 
     - name: Empacotar projeto
       run: zip -r BibliONtec.zip .
@@ -38,16 +62,3 @@ jobs:
       with:
         name: bibliotec-artifact
         path: BibliONtec.zip
-services:
-  mysql:
-    image: mysql:8
-    ports:
-      - 3306:3306
-    env:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: biblioteca_test
-    options: >-
-      --health-cmd="mysqladmin ping -h localhost"
-      --health-interval=10s
-      --health-timeout=5s
-      --health-retries=3
