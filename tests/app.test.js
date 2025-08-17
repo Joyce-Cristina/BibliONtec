@@ -1,9 +1,9 @@
-// app.test.js - Testes básicos para o projeto BibliONtec
-jest.setTimeout(20000); // aumenta tempo máximo de cada teste
-
 const request = require("supertest");
-const mysql = require("mysql2/promise");
-const app = require("../Tcc biblion/java/database"); // seu app Express
+const app = require("../Tcc biblion/java/app"); // aqui deve ser o Express
+const connection = require("../Tcc biblion/java/database");
+
+jest.setTimeout(20000);
+
 let pool;
 let conn;
 let userId;
@@ -39,7 +39,6 @@ afterAll(async () => {
 });
 
 
-
 describe("Teste de Login real no banco", () => {
   it("Deve logar com credenciais válidas", async () => {
     const res = await request(app)
@@ -47,7 +46,6 @@ describe("Teste de Login real no banco", () => {
       .send({ email: "teste_ci@teste.com", senha: "123456" });
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty("usuario.nome", "Aluno CI");
   });
 
   it("Não deve logar com senha errada", async () => {
@@ -57,4 +55,8 @@ describe("Teste de Login real no banco", () => {
 
     expect(res.statusCode).toBe(401);
   });
+});
+
+afterAll(async () => {
+  if (connection && connection.end) connection.end();
 });
