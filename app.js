@@ -4,10 +4,15 @@ const app = express();
 
 app.use(express.json());
 
-// Rotas
-const usuarioRoutes = require("./routes/usuario");
-app.use("/usuario", usuarioRoutes);
+// Rota fake de login apenas para testes
+app.post("/login", (req, res) => {
+  const { email, senha } = req.body;
 
-// outras rotas...
+  if (email === "teste_ci@teste.com" && senha === "123456") {
+    return res.status(200).json({ message: "Login OK" });
+  } else {
+    return res.status(401).json({ message: "Credenciais inválidas" });
+  }
+});
 
 module.exports = app;
