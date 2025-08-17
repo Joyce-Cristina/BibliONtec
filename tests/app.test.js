@@ -1,6 +1,7 @@
 const request = require("supertest");
 const app = require("../app.js"); // app.js está na raiz
 const connection = require("../Tcc biblion/java/database");
+const mysql = require("mysql2/promise");
 
 jest.setTimeout(20000);
 
