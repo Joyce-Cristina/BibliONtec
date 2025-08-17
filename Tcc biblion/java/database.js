@@ -33,11 +33,12 @@ const upload = multer({
 
 // -------------------- MYSQL --------------------
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '', 
-  database: 'bibliontec'
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASS || '',
+  database: process.env.DB_NAME || 'biblioteca'
 });
+
 
 connection.connect(err => {
   if (err) {
@@ -704,6 +705,10 @@ if (require.main === module) {
     console.log("Servidor rodando na porta 3000");
   });
 }
+afterAll(async () => {
+  const conn = require("../Tcc biblion/java/database");
+  if (conn && conn.end) conn.end();
+});
 
 // Exporta o app para os testes
 module.exports = app;
