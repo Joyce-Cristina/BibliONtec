@@ -29,10 +29,11 @@ const upload = multer({ storage,
     }
   } });
 
+const mysql = require('mysql'); // ou mysql2
 const connection = mysql.createConnection({
   host: 'localhost',
-  user: 'root',
-  password: '',
+  user: 'root',       // ou outro usuário
+  password: '',       // senha vazia
   database: 'bibliontec'
 });
 
@@ -43,6 +44,7 @@ connection.connect(err => {
   }
   console.log('Conectado ao MySQL');
 });
+
 // Função para validar telefone (apenas números, 10 ou 11 dígitos)
 function telefoneValido(telefone) {
   return /^\d{10,11}$/.test(telefone);
