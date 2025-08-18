@@ -453,6 +453,398 @@
         .permissions-tab .switch input:checked+.slider:before {
             transform: translateX(24px);
         }
+<<<<<<< Updated upstream
+=======
+
+        /* Estilos específicos para o formulário de Dados Institucionais */
+        .institutional-data {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 2px solid #cba95b;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .institutional-data .form-container {
+            width: 100%;
+        }
+
+        .institutional-data .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .institutional-data .icon {
+            color: #007bff;
+            font-size: 30px;
+            margin-right: 10px;
+        }
+
+        .institutional-data h2 {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .institutional-data .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .institutional-data .form-group {
+            width: 48%;
+            /* Ajusta a largura dos campos */
+        }
+
+        .institutional-data .form-group label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .institutional-data .form-group input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #f7f7f7;
+            width: 100%;
+        }
+
+        .institutional-data .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .institutional-data .form-group input::placeholder {
+            color: #888;
+        }
+
+        .notification-settings {
+            width: 100%;
+            max-width: 1000px;
+            /* Largura maior */
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 2px solid #c8aa78;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .notification-settings .form-container {
+            width: 100%;
+        }
+
+        .notification-settings .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .notification-settings .icon {
+            color: #007bff;
+            font-size: 30px;
+            margin-right: 10px;
+        }
+
+        .notification-settings h2 {
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .notification-settings .form-group {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            /* Alinha o conteúdo */
+            align-items: center;
+            /* Alinha os itens verticalmente */
+        }
+
+        .notification-settings .form-group label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+            flex: 1;
+            /* Deixa o label ocupar o espaço restante */
+        }
+
+        .notification-settings .form-group p {
+            font-size: 14px;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        .notification-settings .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            /* Alinha os switches à direita */
+        }
+
+        .notification-settings .form-group input[type="number"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #f7f7f7;
+            width: 100px;
+        }
+
+        .notification-settings .form-group input[type="number"]:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .notification-settings .form-group .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notification-settings .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .notification-settings .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .notification-settings .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .notification-settings .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+        }
+
+        .notification-settings input:checked+.slider {
+            background-color: #007bff;
+        }
+
+        .notification-settings input:checked+.slider:before {
+            transform: translateX(22px);
+        }
+
+        .notification-settings .form-group.dias {
+            flex-direction: column;
+            /* Organiza o conteúdo verticalmente */
+            align-items: flex-start;
+            /* Alinha o conteúdo à esquerda */
+        }
+
+        .notification-settings .form-group.dias .switch-container {
+            margin-top: 10px;
+            /* Adiciona um pouco de espaço entre o título e o campo de dias */
+            justify-content: flex-start;
+            /* Alinha à esquerda para a terceira opção */
+        }
+
+        /* Responsividade da Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                top: 0;
+                left: -220px;
+                width: 220px;
+                height: 100%;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-container-custom {
+                padding-left: 0;
+                margin-top: 10px;
+                /* Ajusta para não ficar muito colado ao topo */
+            }
+
+            /* Botões na navbar para dispositivos móveis */
+            .navbar-toggler {
+                display: block;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                display: none;
+            }
+
+            .navbar-collapse.show {
+                display: flex;
+            }
+
+            /* Ajuste das abas em dispositivos menores */
+            .tab-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+
+
+        /* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1;
+            padding-left: 270px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center;
+            font-family: Georgia, serif;
+            font-weight: 500;
+        }
+
+        /* Estilos para o grupo de busca */
+        .input-group-custom {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* Barra de pesquisa */
+        .search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78 !important;
+            border-radius: 15px !important;
+            padding: 30px !important; 
+            max-width: 1000px !important;
+            margin: 20px auto !important;
+            width: 100% !important;
+
+        }
+
+        /* Estilo para o campo de status */
+        .status-label {
+            font-weight: bold  !important;
+            color: rgb(0, 0, 0) !important;
+            margin-right: 5px !important;
+        }
+
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px !important;
+            margin-right: 20px !important;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+
+        /* Layout para os botões fora do card */
+        .d-flex.justify-content-between.mt-3 {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin: 0 20px !important;
+            /* Adiciona espaço nas laterais para afastar da "parede" */
+        }
+
+        /* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
+        .new-user-btn {
+            background-color: #7a1600 !important;
+            color: white !important;
+            border-radius: 25px !important;
+            padding: 10px 20px !important;
+        }
+
+        .new-user-btn:hover {
+            background-color: #5c0e00 !important;
+        }
+
+        /* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1 !important;
+            padding-left: 270px !important;
+             padding-top: 100px !important;
+            padding-bottom: 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            overflow-y: auto !important;
+            min-height: calc(100vh - 56px) !important;
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center !important;
+            font-family: Georgia, serif !important;
+            font-weight: 500 !important;
+            font-size: 2rem  !important;
+            margin: 0 !important;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78 !important;
+            border-radius: 10px!important;
+            padding: 20px 40px!important;
+            width: auto;
+            /* Ajuste a largura para se ajustar ao conteúdo */
+            margin: 0 auto;
+            /* Centraliza o card */
+            padding: 10%;
+        }
+
+        /* Sombra semelhante à da imagem */
+        .shadow-title {
+            box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15)!important;
+        }
+>>>>>>> Stashed changes
     </style>
 </head>
 
@@ -523,20 +915,26 @@
             <div class="custom-card shadow-title">
                 <h2 class="text-center-custom">Configurações do sistema</h2>
             </div>
-
-            <!-- Botão Salvar alterações -->
-            <button class="btn btn-save" type="button">
+<button class="btn btn-save" type="button">
                 <i class="bi bi-save"></i> Salvar alterações
             </button>
+            
         </div>
         <br><br>
         <!-- Abas -->
+        <div>
         <div class="tab-container">
             <button class="tab-button active" onclick="openTab(event, 'prazos')">Prazos e regras</button>
             <button class="tab-button" onclick="openTab(event, 'permissoes')">Permissões</button>
             <button class="tab-button" onclick="openTab(event, 'dados')">Dados institucionais</button>
-            <button class="tab-button" onclick="openTab(event, 'notificacoes')">Notificações</button>
+            <button class="tab-button" onclick="openTab(event, 'notificacoes')">Notificações</button>        
+        <!-- Botão Salvar alterações -->
+         
+            
+            
         </div>
+        
+        
 
         <!-- Conteúdo das Abas -->
 
