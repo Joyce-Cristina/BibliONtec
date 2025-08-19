@@ -8,9 +8,9 @@ const sharp = require('sharp');
 
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 // database.js
-const mysql = require("mysql2/promise");
+const mysqlRaw = require("mysql2/promise");
 
-const pool = mysql.createPool({
+const pool = mysqlRaw.createPool({
   host: process.env.DB_HOST || "127.0.0.1",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
@@ -50,8 +50,8 @@ const upload = multer({
 const connection = mysql.createConnection({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD ?? 'root', // usa 'root' se não existir
-  database: process.env.DB_NAME || 'biblioteca'
+    password: process.env.DB_PASSWORD ?? '', // usa 'root' se não existir
+  database: process.env.DB_NAME || 'bibliontec'
 });
 
 
