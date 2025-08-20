@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cursoSelect.removeAttribute('required');
         serieSelect.removeAttribute('required');
         cursoSelect.value = "";
-    serieSelect.value = "";
+        serieSelect.value = "";
       } else {
         cursoGroup.classList.remove('oculto');
         serieGroup.classList.remove('oculto');
@@ -123,11 +123,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentType = response.headers.get("content-type");
 
         if (!response.ok) {
-          const text = await response.text();
-          console.error("Resposta de erro do servidor:", text);
-          alert("Erro ao cadastrar aluno. Veja o console.");
+          const data = await response.json().catch(() => ({}));
+          const erroDiv = document.getElementById('mensagemErroAluno');
+          erroDiv.innerText = data.error || 'Erro ao cadastrar aluno.';
+          erroDiv.style.display = 'block';
           return;
+        } else {
+          document.getElementById('mensagemErro').style.display = 'none';
         }
+
 
         if (contentType && contentType.includes("application/json")) {
           const data = await response.json();
@@ -257,12 +261,21 @@ document.addEventListener('DOMContentLoaded', () => {
           body: formData
         });
 
-        const data = await response.json();
-        alert(data.message || "Cadastro realizado.");
-        if (response.ok) formFunc.reset();
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          const erroDiv = getOrCreateErrorBox('mensagemErroFuncionario', formFunc);
+
+          erroDiv.innerText = data.error || 'Erro ao cadastrar funcionário.';
+          erroDiv.style.display = 'block';
+          return;
+        }
+
+        alert(data.message || 'Funcionário cadastrado com sucesso!');
+        formFunc.reset();
       } catch (error) {
-        console.error("Erro:", error);
-        alert("Erro de rede ou servidor!");
+        erroDiv.innerText = 'Erro ao enviar o formulário. Tente novamente.';
+        erroDiv.style.display = 'block';
       }
     });
   }
@@ -376,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Salvar alterações - atualiza usuário ou funcionário conforme quem está logado
   const editarBtn = document.getElementById('btnEditar');
 
- 
+
 
   if (editarBtn) {
     editarBtn.addEventListener('click', async (e) => {
@@ -424,56 +437,56 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-// Função para gerar senha segura (8 dígitos: A-Z, a-z, 0-9)
-function gerarSenhaSegura() {
-  const letrasMaiusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const letrasMinusculas = "abcdefghijklmnopqrstuvwxyz";
-  const numeros = "0123456789";
-  const todos = letrasMaiusculas + letrasMinusculas + numeros;
+  // Função para gerar senha segura (8 dígitos: A-Z, a-z, 0-9)
+  function gerarSenhaSegura() {
+    const letrasMaiusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const letrasMinusculas = "abcdefghijklmnopqrstuvwxyz";
+    const numeros = "0123456789";
+    const todos = letrasMaiusculas + letrasMinusculas + numeros;
 
-  let senha = "";
-  senha += letrasMaiusculas[Math.floor(Math.random() * letrasMaiusculas.length)];
-  senha += letrasMinusculas[Math.floor(Math.random() * letrasMinusculas.length)];
-  senha += numeros[Math.floor(Math.random() * numeros.length)];
+    let senha = "";
+    senha += letrasMaiusculas[Math.floor(Math.random() * letrasMaiusculas.length)];
+    senha += letrasMinusculas[Math.floor(Math.random() * letrasMinusculas.length)];
+    senha += numeros[Math.floor(Math.random() * numeros.length)];
 
-  for (let i = senha.length; i < 8; i++) {
-    senha += todos[Math.floor(Math.random() * todos.length)];
+    for (let i = senha.length; i < 8; i++) {
+      senha += todos[Math.floor(Math.random() * todos.length)];
+    }
+
+    return senha.split('').sort(() => Math.random() - 0.5).join('');
   }
 
-  return senha.split('').sort(() => Math.random() - 0.5).join('');
-}
-
-// Validação de senha (exatamente 8 dígitos com A-Z, a-z e número)
-function validarSenha(senha) {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8}$/;
-  return regex.test(senha);
-}
-
-//Mostrar aviso ao editar a senha 
-
- const senhaInput = document.getElementById('senha');
-
-if (senhaInput) {
-  let avisoSenha = document.getElementById('avisoSenha');
-  if (!avisoSenha) {
-    avisoSenha = document.createElement('div');
-    avisoSenha.id = 'avisoSenha';
-    avisoSenha.style.color = 'red';
-    avisoSenha.style.fontSize = '0.9em';
-    avisoSenha.style.marginTop = '4px';
-    avisoSenha.style.display = 'none';
-    senhaInput.insertAdjacentElement('afterend', avisoSenha);
+  // Validação de senha (exatamente 8 dígitos com A-Z, a-z e número)
+  function validarSenha(senha) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8}$/;
+    return regex.test(senha);
   }
 
-  senhaInput.addEventListener('focus', () => {
-    avisoSenha.textContent = "A senha deve conter pelo menos 8 caracteres, com pelo menos:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)";
-    avisoSenha.style.display = 'block';
-  });
+  //Mostrar aviso ao editar a senha 
 
-  senhaInput.addEventListener('blur', () => {
-    avisoSenha.style.display = 'none';
-  });
-}
+  const senhaInput = document.getElementById('senha');
+
+  if (senhaInput) {
+    let avisoSenha = document.getElementById('avisoSenha');
+    if (!avisoSenha) {
+      avisoSenha = document.createElement('div');
+      avisoSenha.id = 'avisoSenha';
+      avisoSenha.style.color = 'red';
+      avisoSenha.style.fontSize = '0.9em';
+      avisoSenha.style.marginTop = '4px';
+      avisoSenha.style.display = 'none';
+      senhaInput.insertAdjacentElement('afterend', avisoSenha);
+    }
+
+    senhaInput.addEventListener('focus', () => {
+      avisoSenha.textContent = "A senha deve conter pelo menos 8 caracteres, com pelo menos:\n 1 letra maiúscula (A-Z)\n 1 letra minúscula (a-z)\n 1 número (0-9)";
+      avisoSenha.style.display = 'block';
+    });
+
+    senhaInput.addEventListener('blur', () => {
+      avisoSenha.style.display = 'none';
+    });
+  }
 
 
 
@@ -492,34 +505,106 @@ function toggleSenha() {
     icon.classList.add("bi-eye-slash");
   }
 }
+
 //Abre o menu ao clicar na foto
 const avatar = document.getElementById('avatarPerfil'); // <- navbar
-  const dropdown = document.getElementById('menuPerfil');
-  const avatarGrande = document.getElementById('avatarPerfilGrande'); // <- imagem grande
+const dropdown = document.getElementById('menuPerfil');
+const avatarGrande = document.getElementById('avatarPerfilGrande'); // <- imagem grande
 
-  // Mostra/oculta o menu do avatar
-  if (avatar && dropdown) {
-    avatar.addEventListener('click', (event) => {
-      event.stopPropagation(); // Evita que o clique feche o menu
-      dropdown.classList.toggle('show');
-    });
+// Mostra/oculta o menu do avatar
+if (avatar && dropdown) {
+  avatar.addEventListener('click', (event) => {
+    event.stopPropagation(); // Evita que o clique feche o menu
+    dropdown.classList.toggle('show');
+  });
 
-    // Fecha o menu se clicar fora
-    window.addEventListener('click', (event) => {
-      if (!avatar.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.classList.remove('show');
-      }
-    });
+  // Fecha o menu se clicar fora
+  window.addEventListener('click', (event) => {
+    if (!avatar.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+}
+
+// Troca a imagem do avatar com base no localStorage
+const usuario = JSON.parse(localStorage.getItem('usuario'));
+if (usuario && usuario.foto) {
+  const novaSrc = `http://localhost:3000/uploads/${usuario.foto}`;
+
+  if (avatar) avatar.src = novaSrc;
+  if (avatarGrande) avatarGrande.src = novaSrc;
+}
+// Troca a imagem do avatar com base no localStorage para funcionário
+const funcionario = JSON.parse(localStorage.getItem('funcionario'));
+if (funcionario && funcionario.foto) { // ← CORRETO
+  const novaSrc = `http://localhost:3000/uploads/${funcionario.foto}`;
+
+  if (avatar) avatar.src = novaSrc;
+
+}
+
+//Foto padrao
+document.addEventListener("DOMContentLoaded", function () {
+  // Procura o input de foto
+  const fotoInput = document.getElementById("foto");
+  const previewBox = document.getElementById("previewBox");
+
+  // Se não existir, não faz nada
+  if (!fotoInput || !previewBox) return;
+
+  // Adiciona listener para mostrar preview
+  fotoInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+
+    if (!file) {
+      previewBox.style.backgroundImage = "url('http://localhost:3000/uploads/padrao.jpg')";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      previewBox.style.backgroundImage = `url('${event.target.result}')`;
+      previewBox.style.backgroundSize = "cover";
+      previewBox.style.backgroundPosition = "center";
+    };
+
+    reader.readAsDataURL(file);
+  });
+});
+
+//mensagem de erro
+// Helpers para mensagens
+function getOrCreateErrorBox(id, form) {
+  let box = document.getElementById(id);
+  if (!box) {
+    box = document.createElement('div');
+    box.id = id;
+    box.style.cssText = 'display:none;color:red;margin-bottom:10px;';
+    form.parentNode.insertBefore(box, form); // insere a caixa logo acima do form
   }
+  return box;
+}
+function showError(box, msg) {
+  box.textContent = msg || 'Ocorreu um erro.';
+  box.style.display = 'block';
+}
+function clearError(box) {
+  box.textContent = '';
+  box.style.display = 'none';
+}
+async function extractErrorMessage(response) {
+  // tenta JSON; se não rolar, tenta texto bruto
+  try {
+    const data = await response.clone().json();
+    if (data?.error || data?.message) return data.error || data.message;
+  } catch {}
+  try {
+    const text = await response.text();
+    if (text) return text;
+  } catch {}
+  return 'Erro ao processar a solicitação.';
+}
 
-  // Troca a imagem do avatar com base no localStorage
-  const usuario = JSON.parse(localStorage.getItem('usuario'));
-  if (usuario && usuario.foto) {
-    const novaSrc = `http://localhost:3000/uploads/${usuario.foto}`;
-
-    if (avatar) avatar.src = novaSrc;
-    if (avatarGrande) avatarGrande.src = novaSrc;
-  }
 
 
 // Função de logout

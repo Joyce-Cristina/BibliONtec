@@ -17,14 +17,15 @@
 
     <style>
         body {
-            margin: 0;
+            height: 100%;
+    margin: 0;
             padding: 0;
             background-color: #f0e6d2;
             font-family: Arial, sans-serif;
-            height: 100vh;
             display: flex;
             flex-direction: column;
             font-size: 17px;
+            
         }
 
         .navbar,
@@ -36,24 +37,31 @@
 
         .navbar {
             background-color: #7a1505;
-            z-index: 1050;
+            position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1050; /* Garante que a navbar fique no topo */
         }
 
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            top: 56px;
-            left: 0;
-            width: 220px;
-            height: calc(100vh - 56px);
-            background-color: #7a1505;
-            padding: 20px;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            z-index: 1040;
-        }
+      /* A sidebar deve começar logo abaixo da navbar */
+.sidebar {
+    position: fixed;
+    top: 56px; /* Distância correta da navbar */
+    left: 0;
+    width: 220px;
+    height: calc(100vh - 56px); /* Ocupa o restante da altura da tela */
+    background-color: #7a1505;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 1040;
+}
+
+
+
 
         .dropdown-menu {
             background-color: #691400;
@@ -111,7 +119,7 @@
         .main-container-custom {
             flex: 1;
             padding-left: 270px;
-            padding-top: 20px;
+             padding-top: 100px;
             padding-bottom: 20px;
             display: flex;
             flex-direction: column;
@@ -134,13 +142,18 @@
             background-color: #c8aa78;
             border-radius: 10px;
             padding: 20px 40px;
-            width: 1250px
+            width: auto;
+            /* Ajuste a largura para se ajustar ao conteúdo */
+            margin: 0 auto;
+            /* Centraliza o card */
         }
 
         /* Sombra semelhante à da imagem */
         .shadow-title {
             box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15);
         }
+
+        
 
         /* Estilo do botão "Salvar alterações" */
         .btn-save {
@@ -150,11 +163,12 @@
             padding: 10px 20px;
             font-size: 16px;
             display: flex;
-            margin-right: 50px;
             align-items: center;
             gap: 8px;
             box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
             transition: background-color 0.3s ease;
+            margin-left: 10px;
+            /* Ajuste a margem para afastar um pouco o botão do título */
         }
 
         .btn-save:hover {
@@ -300,7 +314,7 @@
             padding: 15px;
             background-color: #f8f8f8;
             max-width: 1000px;
-            margin: 20px auto;
+            margin: none;
         }
 
         /* Cabeçalho com ícone */
@@ -348,9 +362,12 @@
             background-color: transparent;
             border: 2px solid #cba95b;
             border-radius: 8px;
-            padding: 20px;
+            padding: none;
             transition: background-color 0.3s;
-            width: 1000px;
+            margin: 0 auto;
+            /* Centraliza o card */
+            max-width: 1000px;
+            /* Ajuste a largura conforme necessário */
         }
 
         .permissions-tab .section-header {
@@ -382,11 +399,12 @@
         }
 
         .permissions-tab .user-permission-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            align-items: center;
-        }
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: nowrap; /* Impede que os itens quebrem para a linha de baixo */
+}
+
 
         .permissions-tab .form-group {
             display: flex;
@@ -405,8 +423,12 @@
         .permissions-tab .toggle-group {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
         }
+        .permissions-tab .toggle-group span {
+    white-space: nowrap;  /* Impede que o texto quebre em várias linhas */
+    margin-left: 10px; /* Ajusta o espaçamento entre o botão e o texto */
+}
+
 
         /* Switch estilo iOS */
         .permissions-tab .switch {
@@ -453,6 +475,7 @@
         .permissions-tab .switch input:checked+.slider:before {
             transform: translateX(24px);
         }
+
         /* Estilos específicos para o formulário de Dados Institucionais */
         .institutional-data {
             width: 100%;
@@ -709,8 +732,6 @@
             }
         }
 
-
-
         /* Estilos específicos para o main-container */
         .main-container-custom {
             flex: 1;
@@ -841,6 +862,7 @@
         .shadow-title {
             box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15)!important;
         }
+
     </style>
 </head>
 
@@ -897,8 +919,8 @@
     <!-- Sidebar -->
     <div class="sidebar d-flex flex-column">
         <a class="btn w-100" href="./cadAdm.html">Administrador</a>
-        <a class="btn w-100 active" href="./bibliotecarios.html">Bibliotecários</a>
-        <a class="btn w-100" href="./configAdm2.html">Configurações</a>
+        <a class="btn w-100" href="./bibliotecarios.html">Bibliotecários</a>
+        <a class="btn w-100 active" href="./configAdm2.html">Configurações</a>
         <a class="btn w-100" href="./manutencao.html">Manutenção</a>
         <a class="btn w-100" href="./usuariosAdm2.html">Usuários</a>
         <a class="btn w-100" href="./relatorios.html">Relatórios</a>
@@ -944,19 +966,19 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Duração padrão do empréstimo (dias)</label>
-                        <input type="number" class="form-control" value="14">
+                        <input type="number" class="form-control" value="0">
                     </div>
                     <div class="form-group">
                         <label>Número máximo de renovações</label>
-                        <input type="number" class="form-control" value="4">
+                        <input type="number" class="form-control" value="0">
                     </div>
                     <div class="form-group">
                         <label>Tempo para retirada de reserva (dias)</label>
-                        <input type="number" class="form-control" value="1">
+                        <input type="number" class="form-control" value="0">
                     </div>
                     <div class="form-group">
                         <label>Número máximo de empréstimos por usuário</label>
-                        <input type="number" class="form-control" value="2">
+                        <input type="number" class="form-control" value="0">
                     </div>
                     <div class="form-group full-width">
                         <label>Multa por dia de atraso (R$)</label>
@@ -1065,23 +1087,118 @@
 
 
         <div id="dados" class="tab-content">
-            <div class="section-box">
-                <div class="section-header">
-                    <i class="bi bi-building"></i>
-                    <span><strong>Dados institucionais</strong></span>
+            <div class="institutional-data">
+                <div class="form-container">
+                    <div class="header">
+                        <span class="icon"><i class="bi bi-briefcase"></i></span>
+                        <h2>Dados institucionais</h2>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="institutionName">Nome da instituição</label>
+                            <input type="text" id="institutionName" placeholder="Digite o nome da instituição">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-mail</label>
+                            <input type="email" id="email" placeholder="Digite o e-mail">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="workingHours">Horário de funcionamento</label>
+                            <input type="text" id="workingHours" placeholder="Digite o horário de funcionamento">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Telefone</label>
+                            <input type="tel" id="phone" placeholder="Digite o telefone">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="website">Website</label>
+                            <input type="url" id="website" placeholder="Digite o website">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Endereço</label>
+                            <input type="text" id="address" placeholder="Digite o endereço">
+                        </div>
+                    </div>
                 </div>
-                <p>Conteúdo da aba Dados Institucionais</p>
             </div>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
+
         </div>
 
         <div id="notificacoes" class="tab-content">
-            <div class="section-box">
-                <div class="section-header">
-                    <i class="bi bi-bell"></i>
-                    <span><strong>Notificações</strong></span>
+            <div class="notification-settings">
+                <div class="form-container">
+                    <div class="header">
+                        <span class="icon"><i class="bi bi-bell"></i></span>
+                        <h2>Configurações de notificações</h2>
+                    </div>
+
+                    <!-- Lembretes por E-mail -->
+                    <div class="form-group">
+                        <label for="emailNotifications">Lembretes por E-mail</label>
+                        <p>Enviar lembretes de devolução por E-mail</p>
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="emailNotifications" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Lembretes por SMS -->
+                    <div class="form-group">
+                        <label for="smsNotifications">Lembretes por SMS</label>
+                        <p>Enviar lembretes de devolução por SMS</p>
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="smsNotifications">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Enviar lembretes quantos dias antes do vencimento -->
+                    <div class="form-group dias">
+                        <label for="reminderDays">Enviar lembretes quantos dias antes do vencimento?</label>
+                        <div class="input-container">
+                            <input type="number" id="reminderDays" min="1" max="30" value="1">
+                        </div>
+                    </div>
+
+
+                    <!-- Notificação de Atraso -->
+                    <div class="form-group">
+                        <label for="overdueNotification">Notificação de atraso</label>
+                        <p>Enviar notificação para livros em atraso</p>
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="overdueNotification" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Notificação de Reserva -->
+                    <div class="form-group">
+                        <label for="reservationNotification">Notificação de reserva</label>
+                        <p>Notificar quando livro reservado estiver disponível</p>
+                        <div class="switch-container">
+                            <label class="switch">
+                                <input type="checkbox" id="reservationNotification" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <p>Conteúdo da aba Notificações</p>
             </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
+
+
         </div>
 
 
@@ -1100,7 +1217,7 @@
 
         <!-- Avatar com menu fixado no canto inferior esquerdo -->
         <div class="avatar-container">
-            <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+            <img src="http://localhost:3000/uploads/padrao.png" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
             <div id="menuPerfil" class="menu-perfil">
                 <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
                 <hr class="menu-divider">
@@ -1129,6 +1246,7 @@
                 evt.currentTarget.classList.add('active');
             }
         </script>
+    </div>
 </body>
 
 </html>

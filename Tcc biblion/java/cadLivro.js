@@ -83,6 +83,7 @@ function esconderLoading() {
       esconderLoading();
     }
   });
+  
 
   // Submissão do formulário
   form.addEventListener('submit', async (evento) => {
@@ -166,7 +167,8 @@ async function carregarGeneros() {
   } catch (error) {
     console.error('Erro ao carregar gêneros:', error);
     return [];
+
   }
 
-  
+
 }

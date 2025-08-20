@@ -81,6 +81,45 @@
 .input-group-text i {
   font-size: 1.2rem;
 }
+.password-wrapper {
+  position: relative;
+  max-width: 300px;
+  margin: 0 auto 8px auto;
+}
+
+/* Estilo igual para email e senha */
+#email,
+#senha {
+  width: 100%;
+  max-width: 300px;
+  height: 44px;
+  border-radius: 12px;
+  padding: 0 40px 0 12px; /* espaço à direita pro olhinho */
+  font-size: 1rem;
+  margin: 0 auto 8px auto;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Wrapper */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 8px auto;
+}
+
+/* Ícone do olho */
+.password-wrapper .toggle-eye {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #555;
+  pointer-events: auto;
+}
 
   </style>
 </head>
@@ -100,15 +139,17 @@
     <form id="formLogin">
       <label for="email">E-Mail:</label><br>
    <input type="email" id="email" name="email" required autocomplete="email"><br>
+<label for="senha">Senha:</label>
 
-    
-               <label for="senha">Senha</label>
-            <div class="input-group shadow-sm" style="max-width: 300px; margin: 0 auto;">
+<div class="password-wrapper">
   <input type="password" id="senha" class="form-control" autocomplete="current-password" />
-  <span class="input-group-text" onclick="toggleSenha()">
-    <i class="bi bi-eye-slash" id="toggleSenha"></i>
-  </span>
+  <i class="bi bi-eye-slash toggle-eye" id="toggleSenha" onclick="toggleSenha()"></i>
 </div>
+<small class="form-text text-danger" id="ajuda-senha" style="display:none;">
+  A senha deve conter pelo menos 8 caracteres, com pelo menos:
+  1 letra maiúscula (A-Z), 1 letra minúscula (a-z) e 1 número (0-9).
+</small>
+
 
     
       <a class="nav-link" href="./esqueceuSenha.html">Clique aqui para mudar sua senha</a>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 08/08/2025 às 03:14
+-- Tempo de geração: 17/08/2025 às 06:40
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -40,7 +40,9 @@ CREATE TABLE `acessibilidade` (
 --
 
 CREATE TABLE `autor` (
+  `id` int(11) NOT NULL,
   `codigo_autor` int(11) NOT NULL,
+  `nome` varchar(255) NOT NULL,
   `autor` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -181,8 +183,8 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
-(2, 'Feina', '123456', 'feina@gmail.com', '1751928838626.png', NULL, NULL, NULL),
-(3, 'Joyce', '123456', 'joyce@gmail.com', '1751935191917.png', 2, '19993592019', NULL);
+(4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654321', NULL),
+(5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', NULL, NULL, '11987654321', NULL);
 
 -- --------------------------------------------------------
 
@@ -442,16 +444,17 @@ CREATE TABLE `livro` (
   `FK_classificacao_id` int(11) DEFAULT NULL,
   `FK_status_id` int(11) DEFAULT NULL,
   `FK_instituicao_id` int(11) DEFAULT NULL,
-  `FK_genero_id` int(11) DEFAULT NULL
+  `FK_genero_id` int(11) DEFAULT NULL,
+  `FK_editora_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `livro`
 --
 
-INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`) VALUES
-(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama Listrado', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, NULL, NULL, NULL, NULL, 5),
-(4, '1ª', '1754347887770.png', '368', '1', NULL, '2017-04-04', 'O Homenage AOS 10 Anos de Publicação, um Globo Livros Lança EDIÇÃO COMEMORATIVA DA OBRA, QUE TRAZ PREFÁCIO INÉDITO E EXCLUSIVO DO AUTOR. ', ' 9788525060303', 'Uma cidade do sol', 'Ficção', NULL, '1', NULL, NULL, NULL, NULL, 89);
+INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`, `FK_editora_id`) VALUES
+(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama Listrado', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, NULL, NULL, NULL, NULL, 5, NULL),
+(5, '1ª', '1755263573033.jpg', '31', NULL, NULL, NULL, 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'o Livro Magico', NULL, NULL, '1', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -460,7 +463,7 @@ INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_pub
 --
 
 CREATE TABLE `livro_autor` (
-  `FK_autor_codigo_autor` int(11) DEFAULT NULL,
+  `FK_autor_id` int(11) DEFAULT NULL,
   `FK_livro_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -602,6 +605,25 @@ INSERT INTO `tipo_instituicao` (`id`, `tipo`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `tipo_usuario`
+--
+
+CREATE TABLE `tipo_usuario` (
+  `id` int(11) NOT NULL,
+  `tipo` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `tipo_usuario`
+--
+
+INSERT INTO `tipo_usuario` (`id`, `tipo`) VALUES
+(1, 'Aluno'),
+(2, 'Professor');
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `usuario`
 --
 
@@ -612,7 +634,7 @@ CREATE TABLE `usuario` (
   `foto` varchar(255) DEFAULT NULL,
   `nome` varchar(200) DEFAULT NULL,
   `senha` varchar(10) DEFAULT NULL,
-  `tipo` varchar(20) DEFAULT NULL,
+  `FK_tipo_usuario_id` int(11) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL,
   `curso_id` int(11) DEFAULT NULL,
   `serie` int(11) DEFAULT NULL,
@@ -625,15 +647,8 @@ CREATE TABLE `usuario` (
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `tipo`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`) VALUES
-(5, '19993592019', 'joyce@gmail.com', '1751927959527.png', 'Joyce', '845236', '1', NULL, 1, 3, NULL, NULL, NULL),
-(6, '1987965842', 'josefina@gmail.com', '1752021796477.png', 'josefina', '123456', '2', NULL, NULL, NULL, NULL, NULL, NULL),
-(7, '19658745248', 'matilda@gmail.com', '1752022099104.png', 'matilda', '1456238', '1', NULL, 2, 2, NULL, NULL, NULL),
-(8, '19993592019', 'claudia@gmail.com', '1752022231477.png', 'claudia', '7894561', '1', 3, 3, 2, NULL, NULL, NULL),
-(9, '19874563217', 'camila@gmail.com', '1752023716372.png', 'camila', '784596', '1', 3, 1, 3, NULL, NULL, NULL),
-(10, '19874563217', 'camila@gmail.com', '1752023761064.png', 'camila', '784596', '1', 3, 1, 3, NULL, NULL, NULL),
-(11, '19874563217', 'camila@gmail.com', '1752024114678.png', 'camila', '1487956', '1', 3, 1, 3, NULL, NULL, NULL),
-(12, '19993592019', 'janaina@gmail.com', '1752027056040.png', 'Janaína Cristina Dos Santos', 'tiOg7r8J', '1', 3, 2, 2, NULL, NULL, NULL);
+INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`) VALUES
+(13, '185749632172', 'joaodograu@gmail.com', '1755198080522.jpg', 'joao pedro silva', '1234Abc@', 1, 4, 1, 3, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -673,8 +688,7 @@ CREATE TABLE `usuario_curso` (
 --
 
 INSERT INTO `usuario_curso` (`FK_usuario_id`, `FK_curso_id`) VALUES
-(11, 1),
-(12, 2);
+(13, 1);
 
 -- --------------------------------------------------------
 
@@ -712,7 +726,7 @@ ALTER TABLE `acessibilidade`
 -- Índices de tabela `autor`
 --
 ALTER TABLE `autor`
-  ADD PRIMARY KEY (`codigo_autor`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Índices de tabela `classificacao`
@@ -868,14 +882,14 @@ ALTER TABLE `livro`
   ADD KEY `FK_livro_2` (`FK_classificacao_id`),
   ADD KEY `FK_livro_3` (`FK_status_id`),
   ADD KEY `FK_livro_instituicao` (`FK_instituicao_id`),
-  ADD KEY `FK_livro_genero` (`FK_genero_id`);
+  ADD KEY `FK_livro_genero` (`FK_genero_id`),
+  ADD KEY `fk_editora` (`FK_editora_id`);
 
 --
 -- Índices de tabela `livro_autor`
 --
 ALTER TABLE `livro_autor`
-  ADD KEY `FK_livro_autor_0` (`FK_autor_codigo_autor`),
-  ADD KEY `FK_livro_autor_id` (`FK_livro_id`);
+  ADD UNIQUE KEY `FK_autor_id` (`FK_autor_id`,`FK_livro_id`);
 
 --
 -- Índices de tabela `livro_editora`
@@ -945,13 +959,20 @@ ALTER TABLE `tipo_instituicao`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `tipo_usuario`
+--
+ALTER TABLE `tipo_usuario`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Índices de tabela `usuario`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_usuario_1` (`FK_funcionario_id`),
   ADD KEY `fk_usuario_curso` (`curso_id`),
-  ADD KEY `FK_usuario_instituicao` (`FK_instituicao_id`);
+  ADD KEY `FK_usuario_instituicao` (`FK_instituicao_id`),
+  ADD KEY `FK_usuario_tipo` (`FK_tipo_usuario_id`);
 
 --
 -- Índices de tabela `usuario_acessibilidade`
@@ -1002,7 +1023,7 @@ ALTER TABLE `acessibilidade`
 -- AUTO_INCREMENT de tabela `autor`
 --
 ALTER TABLE `autor`
-  MODIFY `codigo_autor` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `classificacao`
@@ -1044,7 +1065,7 @@ ALTER TABLE `funcao`
 -- AUTO_INCREMENT de tabela `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de tabela `genero`
@@ -1080,7 +1101,7 @@ ALTER TABLE `lista_desejo`
 -- AUTO_INCREMENT de tabela `livro`
 --
 ALTER TABLE `livro`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `notificacao`
@@ -1113,10 +1134,16 @@ ALTER TABLE `tipo_instituicao`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de tabela `tipo_usuario`
+--
+ALTER TABLE `tipo_usuario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Restrições para tabelas despejadas
@@ -1238,14 +1265,8 @@ ALTER TABLE `livro`
   ADD CONSTRAINT `FK_livro_2` FOREIGN KEY (`FK_classificacao_id`) REFERENCES `classificacao` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_livro_3` FOREIGN KEY (`FK_status_id`) REFERENCES `status` (`id`),
   ADD CONSTRAINT `FK_livro_genero` FOREIGN KEY (`FK_genero_id`) REFERENCES `genero` (`id`),
-  ADD CONSTRAINT `FK_livro_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `livro_autor`
---
-ALTER TABLE `livro_autor`
-  ADD CONSTRAINT `FK_livro_autor_0` FOREIGN KEY (`FK_autor_codigo_autor`) REFERENCES `autor` (`codigo_autor`),
-  ADD CONSTRAINT `FK_livro_autor_id` FOREIGN KEY (`FK_livro_id`) REFERENCES `livro` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `FK_livro_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_editora` FOREIGN KEY (`FK_editora_id`) REFERENCES `editora` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `livro_editora`
@@ -1253,89 +1274,6 @@ ALTER TABLE `livro_autor`
 ALTER TABLE `livro_editora`
   ADD CONSTRAINT `FK_livro_editora_0` FOREIGN KEY (`FK_editora_id`) REFERENCES `editora` (`id`),
   ADD CONSTRAINT `FK_livro_editora_id` FOREIGN KEY (`FK_livro_id`) REFERENCES `livro` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `notificacao`
---
-ALTER TABLE `notificacao`
-  ADD CONSTRAINT `FK_notificacao_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `notificacao_emprestimo`
---
-ALTER TABLE `notificacao_emprestimo`
-  ADD CONSTRAINT `FK_notificacao_emprestimo_0` FOREIGN KEY (`FK_notificacao_id`) REFERENCES `notificacao` (`id`),
-  ADD CONSTRAINT `FK_notificacao_emprestimo_1` FOREIGN KEY (`FK_emprestimo_id`) REFERENCES `emprestimo` (`id`);
-
---
--- Restrições para tabelas `notificacao_livro`
---
-ALTER TABLE `notificacao_livro`
-  ADD CONSTRAINT `FK_notificacao_livro_1` FOREIGN KEY (`FK_notificacao_id`) REFERENCES `notificacao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_notificacao_livro_id` FOREIGN KEY (`FK_livro_id`) REFERENCES `livro` (`id`);
-
---
--- Restrições para tabelas `notificacao_reserva`
---
-ALTER TABLE `notificacao_reserva`
-  ADD CONSTRAINT `FK_notificacao_reserva_0` FOREIGN KEY (`FK_reserva_id`) REFERENCES `reserva` (`id`),
-  ADD CONSTRAINT `FK_notificacao_reserva_1` FOREIGN KEY (`FK_notificacao_id`) REFERENCES `notificacao` (`id`);
-
---
--- Restrições para tabelas `reserva`
---
-ALTER TABLE `reserva`
-  ADD CONSTRAINT `FK_reserva_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `reserva_livro`
---
-ALTER TABLE `reserva_livro`
-  ADD CONSTRAINT `FK_reserva_livro_1` FOREIGN KEY (`FK_reserva_id`) REFERENCES `reserva` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_reserva_livro_id` FOREIGN KEY (`FK_livro_id`) REFERENCES `livro` (`id`);
-
---
--- Restrições para tabelas `usuario`
---
-ALTER TABLE `usuario`
-  ADD CONSTRAINT `FK_usuario_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_usuario_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_usuario_curso` FOREIGN KEY (`curso_id`) REFERENCES `curso` (`id`);
-
---
--- Restrições para tabelas `usuario_acessibilidade`
---
-ALTER TABLE `usuario_acessibilidade`
-  ADD CONSTRAINT `FK_usuario_acessibilidade_0` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `FK_usuario_acessibilidade_1` FOREIGN KEY (`FK_acessibilidade_id`) REFERENCES `acessibilidade` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `usuario_comentario`
---
-ALTER TABLE `usuario_comentario`
-  ADD CONSTRAINT `FK_usuario_comentario_0` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`),
-  ADD CONSTRAINT `FK_usuario_comentario_1` FOREIGN KEY (`FK_comentario_id`) REFERENCES `comentario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `usuario_curso`
---
-ALTER TABLE `usuario_curso`
-  ADD CONSTRAINT `FK_usuario_curso_0` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`),
-  ADD CONSTRAINT `FK_usuario_curso_1` FOREIGN KEY (`FK_curso_id`) REFERENCES `curso` (`id`);
-
---
--- Restrições para tabelas `usuario_emprestimo`
---
-ALTER TABLE `usuario_emprestimo`
-  ADD CONSTRAINT `FK_usuario_emprestimo_0` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`),
-  ADD CONSTRAINT `FK_usuario_emprestimo_1` FOREIGN KEY (`FK_emprestimo_id`) REFERENCES `emprestimo` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `usuario_notificacao`
---
-ALTER TABLE `usuario_notificacao`
-  ADD CONSTRAINT `FK_usuario_notificacao_0` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`),
-  ADD CONSTRAINT `FK_usuario_notificacao_1` FOREIGN KEY (`FK_notificacao_id`) REFERENCES `notificacao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

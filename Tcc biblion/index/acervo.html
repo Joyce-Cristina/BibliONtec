@@ -222,12 +222,19 @@
       border: none;
       border-top: 1px solid #ccc;
     }
+    /* altura típica da navbar do Bootstrap ~56–60px */
+.main-container,
+.main-container-custom{
+  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+}
+
   </style>
 </head>
 
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
+ <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+
     <div class="container-fluid d-flex align-items-center" style="gap: 0;">
       <a class="navbar-brand" href="./homepageAdm.html">
         <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
@@ -349,11 +356,7 @@
         </div>
 
 
-      </div>
-    </div>
-
-
-
+     
     <!-- Cards dos Livros -->
     <section class="page-section text-white mb-0" id="wishlist">
       <div class="container my-5">
@@ -366,6 +369,71 @@
     </section>
 
   </div>
+  <!-- Modal Editar Livro -->
+<!-- Modal Editar Livro -->
+<div id="modal-editar-livro" class="modal fade" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Livro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="form-editar-livro">
+          <input type="hidden" id="id-livro">
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label>Título</label>
+              <input type="text" id="titulo-livro" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>ISBN</label>
+              <input type="text" id="isbn-livro" class="form-control">
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label>Autores</label>
+            <input type="text" id="autores-livro" class="form-control">
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label>Editora</label>
+              <input type="text" id="editora-livro" class="form-control">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>Gênero</label>
+              <input type="text" id="genero-livro" class="form-control">
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label>Funcionário que cadastrou</label>
+            <input type="text" id="funcionario-livro" class="form-control" readonly>
+          </div>
+          
+          <div class="mb-3">
+            <label>Sinopse</label>
+            <textarea id="sinopse-livro" class="form-control" rows="3"></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label>Número de páginas</label>
+            <input type="number" id="paginas-livro" class="form-control">
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
 
   <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
