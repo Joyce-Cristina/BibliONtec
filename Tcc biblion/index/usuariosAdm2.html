@@ -275,6 +275,13 @@
             font-size: 1.1rem;
         }
 
+        .form-control {
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #d2b28c;
+            background-color: #fff;
+        }
+
 
         h3.text-center.mb-5 {
             font-size: 1.5rem;
@@ -290,12 +297,7 @@
             margin-bottom: 8px;
         }
 
-        .form-control {
-            border-radius: 8px;
-            padding: 12px;
-            border: 2px solid #d2b28c;
-            background-color: #fff;
-        }
+        
 
         .btn-editar,
         .btn-excluir {
@@ -855,9 +857,15 @@
         .status-select {
             margin-left: 10px;
             margin-right: 20px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            margin-right: 5px;
+            background-color: white;
+            border-color: #c8aa78;
+            border-radius: 25px;
+            padding: 10px 20px;
             /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
         }
-
         /* Layout para os botões fora do card */
         .d-flex.justify-content-between.mt-3 {
             display: flex;
@@ -972,9 +980,9 @@
             <div class="d-flex align-items-center">
                 <!-- Botão Status -->
                 <label for="status" class="text-black status-label">Status</label>
-                <select id="status" class="form-control status-select">
-                    <option>Ativo</option>
-                    <option>Inativo</option>
+                <select id="status" class="form-select status-select">
+                    <option>Ativo  </option>
+                    <option>Inativo  </option>
                 </select>
             </div>
         </div>
