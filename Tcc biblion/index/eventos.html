@@ -56,7 +56,11 @@
   border: none;
   border-top: 1px solid #ccc;
 }
-
+ /* altura típica da navbar do Bootstrap ~56–60px */
+.main-container,
+.main-container-custom{
+  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+}
   </style>
 </head>
 
@@ -92,7 +96,7 @@
       <i class="bi bi-bell"></i>
     </a>
    <div class="perfil-dropdown">
-  <img src="../img/avatar.jpg" alt="Perfil" class="avatar-navbar" id="avatarPerfil">
+  <img src="http://localhost:3000/uploads/padrao.png" alt="Perfil" class="avatar-navbar" id="avatarPerfil">
   <div class="menu-perfil" id="menuPerfil">
     <a href="#"> Perguntas frequentes</a>
       <hr class="menu-divider">

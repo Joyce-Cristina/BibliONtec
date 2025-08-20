@@ -139,7 +139,11 @@
   border: none;
   border-top: 1px solid #ccc;
 }
-
+/* altura típica da navbar do Bootstrap ~56–60px */
+.main-container,
+.main-container-custom{
+  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+}
 
     </style>
 </head>
@@ -147,7 +151,7 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
         <div class="container-fluid d-flex align-items-center">
             <a class="navbar-brand" href="./homepageProf.html">
                 <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
@@ -295,7 +299,7 @@
 
     <!-- Avatar com menu -->
 <div class="avatar-container">
-  <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+  <img src="http://localhost:3000/uploads/padrao.png" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
   <div id="menuPerfil" class="menu-perfil">
     <a href="./areaProf.html" class="dropdown-item">Meu Perfil</a>
     <hr class="menu-divider">

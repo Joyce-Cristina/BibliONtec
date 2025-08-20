@@ -117,67 +117,13 @@
       padding: 20px;
     }
 
-    /* Estilo dos cards de usuários */
-    .card-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 3 colunas por linha */
-      gap: 15px; /* Espaço entre os cards */
-      justify-items: center;
-    }
+    /* altura típica da navbar do Bootstrap ~56–60px */
+.main-container,
+.main-container-custom{
+  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+}
 
-    .card-usuario {
-      background-color: #c8aa78;
-      border-radius: 6px;
-      padding: 20px;
-      text-align: center;
-      width: 100%; /* Garantir que ocupe o espaço da coluna */
-      max-width: 200px; /* Limite de largura para não ultrapassar 3 colunas */
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);      
-      height: auto;
-      margin-bottom: 20px;
-      flex-direction: column;
-    }
 
-    .card-usuario img {
-      width: 100px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-
-    .card-usuario .botoes {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .card-usuario button {
-      padding: 5px 10px;
-      border: none;
-      font-weight: bold;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .card-usuario .excluir {
-      background-color: #a82010;
-      color: white;
-    }
-
-    .card-usuario .editar {
-      background-color: #3d2b1f;
-      color: white;
-    }
-
-    .card-usuario .indisponivel {
-      background-color: #6a1400;
-      color: white;
-      padding: 6px;
-      margin-top: 10px;
-      border-radius: 4px;
-    }
 
     /* Responsividade para dispositivos menores */
     @media (max-width: 1024px) {
@@ -271,13 +217,13 @@
   border: none;
   border-top: 1px solid #ccc;
 }
-
+ 
   </style>
 </head>
 
 <body>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
+ <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid d-flex align-items-center" style="gap: 0;">
       <a class="navbar-brand" href="./homepageAdm.html">
         <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
@@ -384,55 +330,46 @@
       </div>
 
       <!-- Cards de Usuários -->
-      <div class="card-container mt-4">
-        <div class="card-usuario">
-          <img src="../img/avatar.jpg" alt="Usuário 1">
-          <div>Nome + email</div>
-          <div class="botoes">
-            <button class="excluir">Excluir</button>
-            <button class="editar">Editar</button>
+       <div class="row" id="lista-usuarios"></div>
+
+<!-- Modal -->
+
+
+
+<div id="modal-editar" class="modal fade" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Usuarios</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="form-editar">
+          <input type="hidden" id="id-usuario">
+          <div class="mb-3">
+            <label>Nome</label>
+         <input type="text" id="nome-usuario" class="form-control" required>
           </div>
-        </div>
-
-        <div class="card-usuario">
-          <img src="../img/avatar.jpg" alt="Usuário 2">
-          <div>Nome + email</div>
-          <div class="botoes">
-            <button class="excluir">Excluir</button>
-            <button class="editar">Editar</button>
+          
+          <div class="mb-3">
+            <label>Email</label>
+            <input type="email" id="email-usuario" class="form-control" required>
           </div>
-        </div>
-
-        <div class="card-usuario">
-          <img src="../img/avatar.jpg" alt="Usuário 3">
-          <div>Nome + email</div>
-          <div class="botoes">
-            <button class="excluir">Excluir</button>
-            <button class="editar">Editar</button>
+          <div class="mb-3">
+            <label>Telefone</label>
+          <input type="text" id="telefone-usuario" class="form-control">
           </div>
-        </div>
-
-        <div class="card-usuario">
-          <img src="../img/avatar.jpg" alt="Usuário 4">
-          <div>Nome + email</div>
-          <div class="indisponivel">Indisponível</div>
-        </div>
-
-        <div class="card-usuario">
-          <img src="../img/avatar.jpg" alt="Usuário 5">
-          <div>Nome + email</div>
-          <div class="indisponivel">Indisponível</div>
-        </div>
-
-        <div class="card-usuario">
-          <img src="../img/avatar.jpg" alt="Usuário 6">
-          <div>Nome + email</div>
-          <div class="indisponivel">Indisponível</div>
-        </div>
+          <div class="mb-3">
+            <label>Função</label>
+           <input type="text" id="tipo-usuario" class="form-control">
+          </div>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
       </div>
     </div>
   </div>
-
+</div>
+      
    <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
     <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
@@ -443,7 +380,7 @@
 
  <!-- Avatar com menu fixado no canto inferior esquerdo -->
 <div class="avatar-container">
-  <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+  <img src="http://localhost:3000/uploads/padrao.png"id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
   <div id="menuPerfil" class="menu-perfil">
     <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
     <hr class="menu-divider">
@@ -453,6 +390,7 @@
   </div>
 </div>
 <script src="../java/script.js"></script>
+<script src="../java/usuario.js"></script>
 </body>
 
 </html>
