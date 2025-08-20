@@ -113,47 +113,7 @@
             background-color: #7a1505 !important;
             color: white !important;
             box-shadow: none !important;
-        }
-
-        /* Estilos específicos para o main-container */
-        .main-container-custom {
-            flex: 1;
-            padding-left: 270px;
-             padding-top: 100px;
-            padding-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            overflow-y: auto;
-            min-height: calc(100vh - 56px);
-        }
-
-        /* Título estilizado */
-        .text-center-custom {
-            text-align: center;
-            font-family: Georgia, serif;
-            font-weight: 500;
-            font-size: 2rem;
-            margin: 0;
-        }
-
-        /* Ajuste do card */
-        .custom-card {
-            background-color: #c8aa78;
-            border-radius: 10px;
-            padding: 20px 40px;
-            width: auto;
-            /* Ajuste a largura para se ajustar ao conteúdo */
-            margin: 0 auto;
-            /* Centraliza o card */
-        }
-
-        /* Sombra semelhante à da imagem */
-        .shadow-title {
-            box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        
+        }        
 
         /* Estilo do botão "Salvar alterações" */
         .btn-save {
@@ -921,6 +881,150 @@
   height: 380px !important; /* ajuste a gosto */
 }
 
+
+.history-section table {
+  width: 100%;          /* tabela vai expandir até o limite do container */
+  table-layout: fixed;  /* distribui melhor as colunas */
+}
+
+.history-section {
+    flex: 1 1 70%;   /* 70% da largura da linha */
+    min-width: 500px; /* garante tamanho mínimo */
+}
+
+
+/* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1;
+            padding-left: 270px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center;
+            font-family: Georgia, serif;
+            font-weight: 500;
+        }
+
+        /* Estilos para o grupo de busca */
+        .input-group-custom {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* Barra de pesquisa */
+        .search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78 !important;
+            border-radius: 15px !important;
+            padding: 30px !important; 
+            max-width: 1000px !important;
+            margin: 20px auto !important;
+            width: 100% !important;
+
+        }
+
+        /* Estilo para o campo de status */
+        .status-label {
+            font-weight: bold  !important;
+            color: rgb(0, 0, 0) !important;
+            margin-right: 5px !important;
+        }
+
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px !important;
+            margin-right: 20px !important;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+
+        /* Layout para os botões fora do card */
+        .d-flex.justify-content-between.mt-3 {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin: 0 20px !important;
+            /* Adiciona espaço nas laterais para afastar da "parede" */
+        }
+
+        /* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
+        .new-user-btn {
+            background-color: #7a1600 !important;
+            color: white !important;
+            border-radius: 25px !important;
+            padding: 10px 20px !important;
+        }
+
+        .new-user-btn:hover {
+            background-color: #5c0e00 !important;
+        }
+
+        /* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1 !important;
+            padding-left: 270px !important;
+             padding-top: 100px !important;
+            padding-bottom: 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            overflow-y: auto !important;
+            min-height: calc(100vh - 56px) !important;
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center !important;
+            font-family: Georgia, serif !important;
+            font-weight: 500 !important;
+            font-size: 2rem  !important;
+            margin: 0 !important;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78 !important;
+            border-radius: 10px!important;
+            padding: 20px 40px!important;
+            width: auto;
+            /* Ajuste a largura para se ajustar ao conteúdo */
+            margin: 0 auto;
+            /* Centraliza o card */
+            padding: 10%;
+        }
+
+        /* Sombra semelhante à da imagem */
+        .shadow-title {
+            box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15)!important;
+        }
+
+
 /* opcional: se não quiser a caixa gigante */
 #em .section-box { min-height: 420px !important; }
 
@@ -986,12 +1090,14 @@
     </div>
 
 
-     <div class="main-container-custom">
-
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="custom-card shadow-title">
-                <h2 class="text-center-custom">Manutenção do sistema</h2>
+     <!-- Conteúdo -->
+    <div class="main-container-custom">
+        <div class="p-4 rounded-3 shadow custom-card">
+            <h2 class="text-center-custom">Manutenção do sistema</h2>
+            <div class="d-flex justify-content-center">
+                
             </div>
+
         </div>
         <br><br>
 
@@ -1007,121 +1113,124 @@
 <!-- Conteúdo das Abas -->
 <div class="tab-content mt-3" id="configTabsContent">
 
-  <!-- Aba: Backup -->
-  <div id="backup" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
-    <div class="d-flex flex-wrap gap-3">
+  <!-- Seção: Backup -->
+<div id="backup" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
+  <div class="d-flex flex-wrap gap-3">
 
-      <!-- Seção: Backup do banco -->
-      <div class="section-box" style="flex: 1 1 48%;">
-        <div class="section-header">Backup do banco de dados</div>
-        <div class="backup-info mb-3">
-          <div class="backup-item">
-            <span class="backup-label">Último backup:</span>
-            <span class="backup-value">16/01/2024 às 10:30</span>
-          </div>
-          <div class="backup-item-verifica">
-            <i class="bi bi-check-circle-fill"></i> Backup automático diário ativo
-          </div>
+    <!-- Seção: Backup do banco -->
+    <div class="section-box" style="flex: 1 1 48%;">
+      <div class="section-header">Backup do banco de dados</div>
+      <div class="backup-info mb-3">
+        <div class="backup-item">
+          <span class="backup-label">Último backup:</span>
+          <span class="backup-value">16/01/2024 às 10:30</span>
         </div>
-        <div class="mb-4 d-flex gap-2">
-          <button class="btn-save">
-            <i class="bi bi-hdd-stack"></i> Backup manual
-          </button>
-          <button class="btn-comum">
-            <i class="bi bi-upload"></i> Restaurar backup
-          </button>
+        <div class="backup-item-verifica">
+          <i class="bi bi-check-circle-fill"></i> Backup automático diário ativo
         </div>
       </div>
-
-      <!-- Seção: Configuração de backup -->
-      <div class="section-box" style="flex: 1 1 48%;">
-        <div class="section-header">
-          <i class="bi bi-gear"></i> Configuração de backup
-        </div>
-        <div class="config-section p-3 mb-4">
-          <div class="config-item d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <div class="config-title">Backup automático</div>
-              <div class="config-desc">
-                Backup diário às
-                <input type="time" value="02:00" class="form-control form-control-sm d-inline w-auto">
-              </div>
-            </div>
-            <span class="badge bg-success">Ativo</span>
-          </div>
-
-          <div class="config-item d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <div class="config-title">Retenção de backups</div>
-              <div class="config-desc">
-                Manter por
-                <input type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
-              </div>
-            </div>
-            <span class="badge bg-primary">30 dias</span>
-          </div>
-
-          <div class="config-item d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <div class="config-title">Compressão</div>
-              <div class="config-desc">Reduz o tamanho do arquivo</div>
-            </div>
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" checked>
-            </div>
-          </div>
-        </div>
-        <button class="btn-comum w-100 d-flex justify-content-center align-items-center">
-            <i class="bi bi-save me-2"></i> Configurar backup
-          </button>
+      <div class="mb-4 d-flex gap-2">
+        <button class="btn-save">
+          <i class="bi bi-hdd-stack"></i> Backup manual
+        </button>
+        <button class="btn-comum">
+          <i class="bi bi-upload"></i> Restaurar backup
+        </button>
       </div>
-
-      <!-- Seção: Histórico -->
-      <div class="section-box history-section">
-        <div class="section-header">
-          <i class="bi bi-clock-history"></i> Histórico de backups
-        </div>
-        <div class="table-responsive">
-          <table class="table table-striped table-bordered">
-            <thead class="table-light">
-              <tr>
-                <th>Data/Hora</th>
-                <th>Tipo</th>
-                <th>Tamanho</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>16/01/2024 10:30</td>
-                <td>Automático</td>
-                <td>27.8 MB</td>
-                <td><span class="badge bg-success">Concluído</span></td>
-                <td>
-                        <button class="btn btn-outline btn-preto"><i class="bi bi-save"></i></button>
-                </td>
-              </tr>
-              <tr>
-                <td>15/01/2024 02:00</td>
-                <td>Automático</td>
-                <td>24.5 MB</td>
-                <td><span class="badge bg-danger">Falhou</span></td>
-                <td>
-                        <button class="btn btn-outline btn-preto"><i class="bi bi-save"></i></button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
     </div>
+
+    <!-- Seção: Configuração de backup -->
+    <div class="section-box" style="flex: 1 1 48%;">
+      <div class="section-header">
+        <i class="bi bi-gear"></i> Configuração de backup
+      </div>
+      <div class="config-section p-3 mb-4">
+        <div class="config-item d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="config-title">Backup automático</div>
+            <div class="config-desc">
+              Backup diário às
+              <input type="time" value="02:00" class="form-control form-control-sm d-inline w-auto">
+            </div>
+          </div>
+          <span class="badge bg-success">Ativo</span>
+        </div>
+
+        <div class="config-item d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="config-title">Retenção de backups</div>
+            <div class="config-desc">
+              Manter por
+              <input type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
+            </div>
+          </div>
+          <span class="badge bg-primary">30 dias</span>
+        </div>
+
+        <div class="config-item d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="config-title">Compressão</div>
+            <div class="config-desc">Reduz o tamanho do arquivo</div>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" checked>
+          </div>
+        </div>
+      </div>
+      <button class="btn-comum w-100 d-flex justify-content-center align-items-center">
+          <i class="bi bi-save me-2"></i> Configurar backup
+      </button>
+    </div>
+
+    <!-- Seção: Histórico (maior largura) -->
+    <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
+      <div class="section-header">
+        <i class="bi bi-clock-history"></i> Histórico de backups
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+          <thead class="table-light">
+            <tr>
+              <th>Data/Hora</th>
+              <th>Tipo</th>
+              <th>Tamanho</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>16/01/2024 10:30</td>
+              <td>Automático</td>
+              <td>27.8 MB</td>
+              <td><span class="badge bg-success">Concluído</span></td>
+              <td>
+                <button class="btn btn-outline btn-preto"><i class="bi bi-save"></i></button>
+              </td>
+            </tr>
+            <tr>
+              <td>15/01/2024 02:00</td>
+              <td>Automático</td>
+              <td>24.5 MB</td>
+              <td><span class="badge bg-danger">Falhou</span></td>
+              <td>
+                <button class="btn btn-outline btn-preto"><i class="bi bi-save"></i></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
+</div>
+
 
   <!-- Aba: Logs -->
   <div id="logs" class="tab-pane fade" role="tabpanel" aria-labelledby="logs-tab">
-  <div class="section-box">
+  <div class="row">
+    <div class="col-md-10 offset-md-1">
+    <div class="section-box">
     <div class="section-header">
       <span><strong>Logs do sistema</strong></span>
       <div class="ms-auto d-flex gap-2">
@@ -1139,7 +1248,7 @@
 
     <!-- Lista de logs -->
     <div id="logs-list">
-
+      
       <!-- Exemplo 1 -->
       <div class="log-card" data-date="2024-01-16T09:15:22"> <!--apartir do momento que muda o date-date atualiza a ordem do mais novo para o mais antigo-->
         <div class="d-flex justify-content-between align-items-center">
@@ -1193,7 +1302,8 @@
           <i class="bi bi-person"></i> usuario.invalido@email.com
         </small>
       </div>
-
+      </div>
+  </div>
     </div>
   </div>
 </div>
@@ -1206,7 +1316,7 @@
     <!-- Linha com 3 cards -->
     <div class="d-flex gap-3 flex-wrap">
 
-      <div class="section-box card-stat" style="flex: 1 1 30%;">
+      <div class="section-box" style="flex: 1 1 30%;">
         <div class="section-header"><i class="bi bi-server"></i> Banco de Dados</div>
         <div class="config-section p-2">
           <div class="config-item d-flex justify-content-between align-items-center mb-2">
@@ -1224,7 +1334,7 @@
         </div>
       </div>
 
-      <div class="section-box card-stat" style="flex: 1 1 30%;">
+      <div class="section-box" style="flex: 1 1 30%;">
         <div class="section-header"><i class="bi bi-globe"></i> Servidor Web</div>
         <div class="config-section p-2">
           <div class="config-item d-flex justify-content-between align-items-center mb-2">
@@ -1242,7 +1352,7 @@
         </div>
       </div>
 
-      <div class="section-box card-stat" style="flex: 1 1 30%;">
+      <div class="section-box" style="flex: 1 1 30%;">
         <div class="section-header"><i class="bi bi-hdd-stack"></i> Armazenamento</div>
         <div class="config-section p-2">
           <div class="config-item d-flex justify-content-between align-items-center mb-2">
@@ -1264,7 +1374,7 @@
     </div>
 
     <!-- Card grande embaixo -->
-    <div class="section-box card-stat">
+    <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
       <div class="section-header"><i class="bi bi-speedometer2"></i> Monitoramento em tempo real</div>
       <div class="d-flex justify-content-around text-center">
         <div>
