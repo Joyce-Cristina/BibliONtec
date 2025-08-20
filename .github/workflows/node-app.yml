@@ -1,16 +1,16 @@
 name: Node.js CI/CD
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
 permissions:
   contents: read
   checks: write
 
 jobs:
   build:
+    name: CI Tests
     runs-on: ubuntu-latest
 
     services:
@@ -28,43 +28,44 @@ jobs:
           --health-retries=5
 
     steps:
-    - name: Checkout do código
-      uses: actions/checkout@v3
+      - name: Checkout do código
+        uses: actions/checkout@v3
 
-    - name: Configurar Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Instalar dependências
-      run: npm install
+      - name: Instalar dependências
+        run: npm install
 
-    - name: Aguardar MySQL
-      run: |
-        until mysqladmin ping -h"127.0.0.1" -uroot -proot --silent; do
-          echo "Aguardando MySQL iniciar..."
-          sleep 2
-        done
+      - name: Aguardar MySQL
+        run: |
+          until mysqladmin ping -h"127.0.0.1" -uroot -proot --silent; do
+            echo "Aguardando MySQL iniciar..."
+            sleep 2
+          done
 
-    - name: Criar tabelas no banco de teste
-      run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
-    - name: Dar permissão ao Jest
-      run: chmod +x ./node_modules/.bin/jest
+      - name: Criar tabelas no banco de teste
+        run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
 
-    - name: Rodar testes
-      env:
-        DB_HOST: 127.0.0.1
-        DB_USER: root
-        DB_PASSWORD: root
-        DB_NAME: bibliontec
-      run: npx jest --forceExit --detectOpenHandles
+      - name: Dar permissão ao Jest
+        run: chmod +x ./node_modules/.bin/jest
 
+      - name: Rodar testes
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_NAME: bibliontec
+        run: npx jest --forceExit --detectOpenHandles
 
-    - name: Empacotar projeto
-      run: zip -r BibliONtec.zip .
+      - name: Empacotar projeto
+        run: zip -r BibliONtec.zip .
 
-    - name: Upload do artefato
-      uses: actions/upload-artifact@v4
-      with:
-        name: bibliotec-artifact
-        path: BibliONtec.zip
+      - name: Upload do artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibliotec-artifact
+          path: BibliONtec.zip
+

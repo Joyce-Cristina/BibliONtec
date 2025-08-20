@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -172,6 +173,8 @@
         .status-select {
             margin-left: 10px;
             margin-right: 20px;
+            border-radius: 25px;
+            padding: 10px 20px;
             /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
         }
 
@@ -272,6 +275,13 @@
             font-size: 1.1rem;
         }
 
+        .form-control {
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #d2b28c;
+            background-color: #fff;
+        }
+
 
         h3.text-center.mb-5 {
             font-size: 1.5rem;
@@ -287,12 +297,7 @@
             margin-bottom: 8px;
         }
 
-        .form-control {
-            border-radius: 8px;
-            padding: 12px;
-            border: 2px solid #d2b28c;
-            background-color: #fff;
-        }
+        
 
         .btn-editar,
         .btn-excluir {
@@ -782,6 +787,105 @@
     align-items: center;
     margin: 0;
 }
+
+/* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1;
+            padding-left: 270px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center;
+            font-family: Georgia, serif;
+            font-weight: 500;
+        }
+
+        /* Estilos para o grupo de busca */
+        .input-group-custom {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* Barra de pesquisa */
+        .search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+  height: 40px;
+  border: 1px solid #d2b28c;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Estilo para o campo de status */
+        .status-label {
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            margin-right: 5px;
+        }
+
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px;
+            margin-right: 20px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            margin-right: 5px;
+            background-color: white;
+            border-color: #c8aa78;
+            border-radius: 25px;
+            padding: 10px 20px;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+        /* Layout para os botões fora do card */
+        .d-flex.justify-content-between.mt-3 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 20px;
+            /* Adiciona espaço nas laterais para afastar da "parede" */
+        }
+
+        /* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
+        .new-user-btn {
+            background-color: #7a1600;
+            color: white;
+            border-radius: 25px;
+            padding: 10px 20px;
+        }
+
+        .new-user-btn:hover {
+            background-color: #5c0e00;
+        }
         
     </style>
 </head>
@@ -876,9 +980,9 @@
             <div class="d-flex align-items-center">
                 <!-- Botão Status -->
                 <label for="status" class="text-black status-label">Status</label>
-                <select id="status" class="form-control status-select">
-                    <option>Ativo</option>
-                    <option>Inativo</option>
+                <select id="status" class="form-select status-select">
+                    <option>Ativo  </option>
+                    <option>Inativo  </option>
                 </select>
             </div>
         </div>
@@ -1026,3 +1130,6 @@
 </body>
 
 </html>
+
+</html>
+
