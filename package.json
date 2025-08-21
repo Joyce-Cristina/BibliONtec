@@ -41,7 +41,7 @@
 
 
 
-"test": "jest"
+  "test": "jest --forceExit --detectOpenHandles"
   
 
 
