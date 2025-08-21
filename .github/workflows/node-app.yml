@@ -52,7 +52,7 @@ jobs:
 
       - name: Rodar testes
         env:
-          DB_HOST: mysql   
+          DB_HOST: bibliontec   
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: bibliontec
