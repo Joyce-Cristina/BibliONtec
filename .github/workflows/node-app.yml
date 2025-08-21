@@ -52,7 +52,7 @@ jobs:
 
       - name: Rodar testes
         env:
-          DB_HOST: mysql   # aqui é o nome do serviço do MySQL
+          DB_HOST: mysql   
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: bibliontec
