@@ -49,13 +49,16 @@ jobs:
       - name: Criar tabelas no banco de teste
         run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
 
+      - name: Dar permissão ao Jest
+        run: chmod +x ./node_modules/.bin/jest
+
       - name: Rodar testes
         env:
           DB_HOST: 127.0.0.1
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: bibliontec
-        run: npm test
+        run: npx jest --forceExit --detectOpenHandles
 
       - name: Empacotar projeto
         run: zip -r BibliONtec.zip .
@@ -65,3 +68,4 @@ jobs:
         with:
           name: bibliotec-artifact
           path: BibliONtec.zip
+
