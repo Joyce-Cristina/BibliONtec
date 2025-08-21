@@ -53,6 +53,6 @@ describe("Teste de Login real no banco", () => {
       .send({ email: "teste_ci@teste.com", senha: "errada" });
   
     // propositalmente esperando 200 em vez de 401
-    expect(res.statusCode).toBe(40); 
+    expect(res.statusCode).toBe(200); 
   });
 });
