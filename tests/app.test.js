@@ -53,7 +53,7 @@ describe("Teste de Login real no banco", () => {
       .post("/login")
       .send({ email: "teste_ci@teste.com", senha: "errada" });
 
-    expect(res.statusCode).toBe(200);
+    expect(res.statusCode).toBe(401);
   });
 });
 
