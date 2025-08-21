@@ -37,7 +37,7 @@ jobs:
           node-version: '18'
 
       - name: Instalar dependências
-        run: npm ci
+        run: npm install
 
       - name: Aguardar MySQL
         run: |
@@ -49,10 +49,22 @@ jobs:
       - name: Criar tabelas no banco de teste
         run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
 
+      - name: Dar permissão ao Jest
+        run: chmod +x ./node_modules/.bin/jest
+
       - name: Rodar testes
         env:
           DB_HOST: 127.0.0.1
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: bibliontec
-        run: npx jest --ci --reporters=default
+        run: npx jest --forceExit --detectOpenHandles
+
+      - name: Empacotar projeto
+        run: zip -r BibliONtec.zip .
+
+      - name: Upload do artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibliotec-artifact
+          path: BibliONtec.zip
