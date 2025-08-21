@@ -1,20 +1,19 @@
 const request = require("supertest");
-const mysql = require("mysql2/promise"); // Import necessário
-const app = require("../app.js"); // app.js deve apenas exportar o Express
+const mysql = require("mysql2/promise");
+const app = require("../app.js"); // apenas exportar o Express
 
-
-jest.setTimeout(20000);
+jest.setTimeout(40000); // tempo maior para CI
 
 let pool;
 let conn;
 let userId;
 
 beforeAll(async () => {
-  // Criar pool de conexões
+  // Criar pool de conexões apontando para o container MySQL
   pool = mysql.createPool({
-    host: process.env.DB_HOST || "localhost",
+    host: process.env.DB_HOST || "mysql",
     user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
+    password: process.env.DB_PASSWORD || "root",
     database: process.env.DB_NAME || "bibliontec",
     waitForConnections: true,
     connectionLimit: 10,
@@ -33,10 +32,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // Liberar conexão e encerrar pool
-  if (conn) await conn.release();
+  // Limpar usuário de teste
+  if (conn) {
+    await conn.query("DELETE FROM usuario WHERE id = ?", [userId]);
+    await conn.release();
+  }
   if (pool) await pool.end();
-  
 });
 
 describe("Teste de Login real no banco", () => {
@@ -47,12 +48,12 @@ describe("Teste de Login real no banco", () => {
 
     expect(res.statusCode).toBe(200);
   });
+
   it("Não deve logar com senha errada", async () => {
     const res = await request(app)
       .post("/login")
       .send({ email: "teste_ci@teste.com", senha: "errada" });
-  
-    // propositalmente esperando 200 em vez de 401
-    expect(res.statusCode).toBe(401); 
+
+    expect(res.statusCode).toBe(401);
   });
 });
