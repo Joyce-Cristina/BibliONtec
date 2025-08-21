@@ -25,7 +25,7 @@ jobs:
           --health-cmd="mysqladmin ping -h localhost -uroot -proot"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
 
     steps:
       - name: Checkout do código
@@ -39,19 +39,20 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Aguardar MySQL
+      - name: Aguardar MySQL iniciar
         run: |
           until mysqladmin ping -h"127.0.0.1" -uroot -proot --silent; do
             echo "Aguardando MySQL iniciar..."
             sleep 2
           done
+          echo "MySQL pronto!"
 
       - name: Criar tabelas no banco de teste
         run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
 
       - name: Rodar testes
         env:
-          DB_HOST: 127.0.0.1
+          DB_HOST: mysql   # aqui é o nome do serviço do MySQL
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: bibliontec
