@@ -65,7 +65,7 @@ jobs:
       - name: Empacotar projeto
         run: zip -r BibliONtec.zip .
 
-      - name: Excluir artefatos antigos
+      - name: Excluir artefato antigo
         uses: geekyeggo/delete-artifact@v2
         with:
           name: bibliotec-artifact
