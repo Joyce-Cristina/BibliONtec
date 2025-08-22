@@ -872,7 +872,6 @@ form.form-limpo label {
 }
 
 .dias {
-  background-color: red;
   color: white;
   padding: 3px 8px;
   border-radius: 50%;
@@ -1158,6 +1157,9 @@ form.form-limpo label {
   max-width: 1000px;
   margin: auto;
   margin-bottom: 30px;
+
+  display: flex; /* garante que as colunas fiquem lado a lado */
+  flex-wrap: wrap;
 }
 
 .evento-card {
@@ -1165,19 +1167,19 @@ form.form-limpo label {
   border-radius: 8px;
   text-align: center;
   padding: 15px;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  width: 100%;
 }
 
 .evento-card img {
   width: 100%;
-  height: auto;
+  height: 500px;
   border-radius: 6px;
   margin-bottom: 10px;
   object-fit: cover;
-  max-height: 220px;
+  max-height: 300px;
 }
 
 .evento-card .titulo {
@@ -1192,35 +1194,52 @@ form.form-limpo label {
 }
 
 .evento-card .dias span {
-  background-color: red;
   color: white;
   border-radius: 50%;
   padding: 4px 10px;
   font-weight: bold;
 }
 
-/* Texto ao lado */
 .evento-texto {
   color: #000;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* alinha verticalmente ao centro do card */
+  padding-left: 15px;
 }
 
 .evento-texto .autor {
-  color: red;
+  color: #bc0000;
 }
 
 .evento-texto .descricao {
-  color: red;
+  color: #bc0000;
 }
 
-/* Responsividade: empilha no celular */
+@media (min-width: 768px) {
+  .evento-card {
+    width: 33.3333%; /* 4 colunas de 12 */
+  }
+  .evento-texto {
+    width: 66.6666%; /* 8 colunas de 12 */
+  }
+}
+
 @media (max-width: 768px) {
   .evento-detalhe {
     padding: 15px;
   }
   .evento-card {
     margin-bottom: 20px;
+    width: 100% !important;
+  }
+  .evento-texto {
+    width: 100% !important;
+    padding-left: 0;
   }
 }
+
 
 
 
