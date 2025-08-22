@@ -98,27 +98,28 @@ app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
 
     const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
-    const sql = `INSERT INTO usuario 
-      (nome, telefone, email, senha, foto, tipo, curso_id, serie, FK_funcionario_id) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+     const sql = `INSERT INTO usuario 
+    (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    connection.query(sql, [nome, telefone, email, senhaFinal, foto, tipo_usuario_id, curso_id || null, serie || null, funcionario_id || null], (err, result) => {
-      if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
+  connection.query(sql, [nome, telefone, email, senhaFinal, foto, tipo_usuario_id, curso_id || null, serie || null, funcionario_id || null], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
 
-      const usuarioId = result.insertId;
+    const usuarioId = result.insertId;
 
-      if (curso_id) {
-        const sqlUsuarioCurso = `INSERT INTO usuario_curso (FK_usuario_id, FK_curso_id) VALUES (?, ?)`;
-        connection.query(sqlUsuarioCurso, [usuarioId, curso_id], (err) => {
-          if (err) return res.status(500).json({ error: 'Erro ao inserir em usuario_curso' });
-          return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
-        });
-      } else {
-        return res.status(200).json({ message: 'Usuário cadastrado com sucesso (sem curso).', senhaGerada: senhaFinal });
-      }
-    });
+    if (curso_id) {
+      const sqlUsuarioCurso = `INSERT INTO usuario_curso (FK_usuario_id, FK_curso_id) VALUES (?, ?)`;
+      connection.query(sqlUsuarioCurso, [usuarioId, curso_id], (err) => {
+        if (err) return res.status(500).json({ error: 'Erro ao inserir em usuario_curso' });
+        return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
+      });
+    } else {
+      return res.status(200).json({ message: 'Usuário cadastrado com sucesso (sem curso).', senhaGerada: senhaFinal });
+    }
   });
 });
+});
+
 
 // Cadastro de funcionário
 app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
@@ -287,22 +288,33 @@ app.get('/livros/:id', (req, res) => {
     res.json(results[0]);
   });
 });
-// Atualizar dados do usuário
+// Atualizar dados do usuário (telefone OU senha)
 app.put('/usuario/:id', (req, res) => {
   const id = req.params.id;
-  const { nome, email, telefone, senha } = req.body;
+  const { telefone, senha } = req.body;
 
-  if (!nome || !email || !telefone || !senha) {
-    return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+  if (!telefone && !senha) {
+    return res.status(400).json({ error: "Informe pelo menos telefone ou senha." });
   }
 
-  const sql = `
-    UPDATE usuario
-    SET nome = ?, email = ?, telefone = ?, senha = ?
-    WHERE id = ?
-  `;
+  let sql = "UPDATE usuario SET ";
+  const values = [];
 
-  connection.query(sql, [nome, email, telefone, senha, id], (err, result) => {
+  if (telefone) {
+    sql += "telefone = ? ";
+    values.push(telefone);
+  }
+
+  if (senha) {
+    if (telefone) sql += ", "; // vírgula se os dois vierem
+    sql += "senha = ? ";
+    values.push(senha);
+  }
+
+  sql += "WHERE id = ?";
+  values.push(id);
+
+  connection.query(sql, values, (err, result) => {
     if (err) {
       console.error("Erro ao atualizar usuário:", err);
       return res.status(500).json({ error: "Erro ao atualizar usuário." });
@@ -312,7 +324,7 @@ app.put('/usuario/:id', (req, res) => {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
-    res.status(200).json({ message: "Usuário atualizado com sucesso!" });
+    res.status(200).json({ message: "Dados atualizados com sucesso!" });
   });
 });
 
@@ -321,7 +333,17 @@ app.get('/usuario/:id', (req, res) => {
   const id = req.params.id;
 
   const sql = `
-    SELECT u.*, c.curso AS nome_curso
+    SELECT 
+      u.id, 
+      u.nome, 
+      u.email, 
+      u.telefone, 
+      u.senha, 
+      u.foto, 
+      u.FK_tipo_usuario_id AS tipo,   -- 👈 sempre renomeia para "tipo"
+      u.curso_id, 
+      u.serie, 
+      c.curso AS nome_curso
     FROM usuario u
     LEFT JOIN curso c ON u.curso_id = c.id
     WHERE u.id = ?

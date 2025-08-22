@@ -133,74 +133,70 @@
       </div>
     </section>
     <br><br>
+<!--Perfil-->
+<section class="page-section mb-0" id="about" style="background-color: #775e47;">
+  <div class="container">
+    <div class="divider-custom divider-light">
+      <div class="divider-custom-line"></div>
+      <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+      <div class="divider-custom-line"></div>
+    </div>
 
-    <!--Perfil-->
-    <section class="page-section mb-0" id="about" style="background-color: #775e47;">
-      <div class="container">
-        <!-- About Section Heading-->
-        <!-- Icon Divider-->
-        <div class="divider-custom divider-light">
-          <div class="divider-custom-line"></div>
-          <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-          <div class="divider-custom-line"></div>
-        </div>
-        <!-- About Section Content-->
-        <div class="row">
-          <div class="col-lg-4 me-auto d-flex justify-content-center">
-            <img src="http://localhost:3000/uploads/padrao.png" alt="Perfil" id="avatarPerfilGrande"
-              style="width: 400px; height: 400px; border-radius: 50%; object-fit: cover; border: 10px solid #C2A878;">
-          </div>
-
-          <div class="col-lg-6">
-            <h2 class="form-title">Área do Aluno</h2>
-            <form class="form-limpo">
-              <label for="fname">Nome:</label>
-              <input type="text" id="fname" name="fname">
-
-              <label for="email">E-mail:</label>
-              <input type="text" id="email" name="email">
-
-              <label for="phone">Telefone:</label>
-              <div class="input-btn-group">
-                <input type="text" id="phone" name="phone">
-                <input type="submit" value="Alterar">
-              </div>
-
-              <div class="double-group">
-                <div class="input-with-label">
-                  <label for="curso">Curso:</label>
-                  <div class="input-btn-group">
-                    <input type="text" id="curso" name="curso" />
-                  </div>
-                </div>
-
-                <div class="input-with-label">
-                  <label for="serie">Série:</label>
-                  <div class="input-btn-group">
-                    <input type="text" id="serie" name="serie" />
-                  </div>
-                </div>
-              </div>
-<div class="col-md-6">
-  <label for="senha">Senha</label>
-  
-  <div class="input-group shadow-sm">
-    <input type="password" id="senha" class="form-control" autocomplete="current-password" />
-    <span class="input-group-text" onclick="toggleSenha()" style="cursor: pointer;">
-      <i class="bi bi-eye-slash" id="toggleSenha"></i>
-    </span>
-  </div>
-
-  <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
-</div>
-
-
-            </form>
-          </div>
-
-        </div>
+    <div class="row">
+      <!-- Foto -->
+      <div class="col-lg-4 me-auto d-flex justify-content-center">
+        <img src="http://localhost:3000/uploads/padrao.png" alt="Perfil" id="avatarPerfilGrande"
+          style="width: 400px; height: 400px; border-radius: 50%; object-fit: cover; border: 10px solid #C2A878;">
       </div>
-    </section>
+
+      <!-- Formulário -->
+      <div class="col-lg-6">
+        <h2 class="form-title">Área do Aluno</h2>
+        <form class="form-limpo">
+
+          <label for="fname">Nome:</label>
+          <input type="text" id="fname" name="fname" disabled>
+
+          <label for="email">E-mail:</label>
+          <input type="text" id="email" name="email" disabled>
+
+          <label for="phone">Telefone:</label>
+          <input type="text" id="phone" name="phone">
+
+          <div class="double-group">
+            <div class="input-with-label">
+              <label for="curso">Curso:</label>
+              <input type="text" id="curso" name="curso" disabled>
+            </div>
+
+            <div class="input-with-label">
+              <label for="serie">Série:</label>
+              <input type="text" id="serie" name="serie" disabled>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="senha">Senha</label>
+            <div class="input-group shadow-sm">
+              <input type="password" id="senha" class="form-control" autocomplete="current-password" />
+              <span class="input-group-text" onclick="toggleSenha()" style="cursor: pointer;">
+                <i class="bi bi-eye-slash" id="toggleSenha"></i>
+              </span>
+            </div>
+            <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
+          </div>
+
+          <!-- Botão Editar -->
+          <div class="mt-3">
+            <button id="btnEditar" class="btn btn-primary" type="button">Editar</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
 
     <br><br><br><br>
     <!-- Container centralizador -->
