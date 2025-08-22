@@ -67,16 +67,10 @@ jobs:
         if: success()
         run: zip -r BibliONtec.zip .
 
-      - name: Excluir artefato antigo
-        if: success()
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: bibliotec-artifact
-          failOnError: false
-
       - name: Upload do artefato
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: bibliotec-artifact
           path: BibliONtec.zip
+          retention-days: 1
