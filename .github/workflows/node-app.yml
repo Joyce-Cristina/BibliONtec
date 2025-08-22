@@ -7,8 +7,9 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  contents: write
   checks: write
+  actions: write
 
 jobs:
   build:
@@ -63,15 +64,18 @@ jobs:
         run: npx jest --forceExit --detectOpenHandles
 
       - name: Empacotar projeto
+        if: success()
         run: zip -r BibliONtec.zip .
 
       - name: Excluir artefato antigo
+        if: success()
         uses: geekyeggo/delete-artifact@v2
         with:
           name: bibliotec-artifact
           failOnError: false
 
       - name: Upload do artefato
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: bibliotec-artifact
