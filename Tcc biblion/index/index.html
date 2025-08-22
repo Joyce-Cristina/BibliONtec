@@ -6,7 +6,7 @@
   <title>Login</title>
   <link rel="stylesheet" href="../css/style.css"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
   <style>
     body {
@@ -29,14 +29,11 @@
       z-index: 9999;
     }
 
-   #animacao-logo img {
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-   
-
-}
-
+    #animacao-logo img {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
 
     .login-box {
       display: none;
@@ -53,73 +50,48 @@
       left: 4%;
       top: 5%;
     }
-    .input-group {
-  position: relative;
-  width: 100%;
-  max-width: 300px; /* ou o tamanho que quiser */
-  margin: 10px auto;
-}
 
-.input-group input {
-  padding-right: 40px; /* espaço para o ícone */
-  width: 100%;
-}
+    .password-wrapper {
+      position: relative;
+      max-width: 300px;
+      margin: 0 auto 8px auto;
+    }
 
-.input-group-text {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: #555;
-  z-index: 2;
-  padding: 0;
-}
+    #email,
+    #senha {
+      width: 100%;
+      max-width: 300px;
+      height: 44px;
+      border-radius: 12px;
+      padding: 0 40px 0 12px;
+      font-size: 1rem;
+      margin: 0 auto 8px auto;
+      display: block;
+      box-sizing: border-box;
+    }
 
-.input-group-text i {
-  font-size: 1.2rem;
-}
-.password-wrapper {
-  position: relative;
-  max-width: 300px;
-  margin: 0 auto 8px auto;
-}
+    .password-wrapper .toggle-eye {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #555;
+      pointer-events: auto;
+    }
 
-/* Estilo igual para email e senha */
-#email,
-#senha {
-  width: 100%;
-  max-width: 300px;
-  height: 44px;
-  border-radius: 12px;
-  padding: 0 40px 0 12px; /* espaço à direita pro olhinho */
-  font-size: 1rem;
-  margin: 0 auto 8px auto;
-  display: block;
-  box-sizing: border-box;
-}
-
-/* Wrapper */
-.password-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto 8px auto;
-}
-
-/* Ícone do olho */
-.password-wrapper .toggle-eye {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #555;
-  pointer-events: auto;
-}
+    /* Aviso de senha abaixo do input */
+    #avisoSenha {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      display: none;
+      text-align: left;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
   </style>
 </head>
@@ -138,28 +110,26 @@
   <div class="login-box">
     <form id="formLogin">
       <label for="email">E-Mail:</label><br>
-   <input type="email" id="email" name="email" required autocomplete="email"><br>
-<label for="senha">Senha:</label>
+      <input type="email" id="email" name="email" required autocomplete="email"><br>
 
-<div class="password-wrapper">
-  <input type="password" id="senha" class="form-control" autocomplete="current-password" />
-  <i class="bi bi-eye-slash toggle-eye" id="toggleSenha" onclick="toggleSenha()"></i>
-</div>
-<small class="form-text text-danger" id="ajuda-senha" style="display:none;">
-  A senha deve conter pelo menos 8 caracteres, com pelo menos:
-  1 letra maiúscula (A-Z), 1 letra minúscula (a-z) e 1 número (0-9).
-</small>
+      <label for="senha">Senha:</label>
+      <div class="password-wrapper">
+        <input type="password" id="senha" class="form-control" autocomplete="current-password" />
+        <i class="bi bi-eye-slash toggle-eye" id="toggleSenha" onclick="toggleSenha()"></i>
+      </div>
 
+      <!-- Aviso de senha abaixo do input -->
+      <div id="avisoSenha">
+        A senha deve conter pelo menos 8 caracteres, com pelo menos: 1 letra maiúscula (A-Z), 1 letra minúscula (a-z) e 1 número (0-9).
+      </div>
 
-    
       <a class="nav-link" href="./esqueceuSenha.html">Clique aqui para mudar sua senha</a>
-       
- 
+      <br>
       <button type="submit">Confirmar</button>
     </form>
-    
   </div>
 
   <script src="../java/script.js"></script>
+
 </body>
 </html>
