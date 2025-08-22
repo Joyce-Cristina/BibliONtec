@@ -411,15 +411,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const dadosAtualizados = {
-        nome: document.getElementById("fname").value,
-        email: document.getElementById("email").value,
-        telefone: document.getElementById("phone").value,
-        senha: document.getElementById("senha").value,
+      const dadosAtualizados = {};
 
-
-        funcao_id: document.getElementById("funcao").value
-      };
+      // Sempre pega telefone e senha se tiverem valores
+      const telefoneEl = document.getElementById("phone");
+      const senhaEl = document.getElementById("senha");
+      
+      if (telefoneEl && telefoneEl.value.trim() !== "") {
+        dadosAtualizados.telefone = telefoneEl.value.trim();
+      }
+      if (senhaEl && senhaEl.value.trim() !== "") {
+        dadosAtualizados.senha = senhaEl.value.trim();
+      }
+      
+      // Só adiciona nome e email se não for aluno/professor (ex: funcionário)
+      const nomeEl = document.getElementById("fname");
+      const emailEl = document.getElementById("email");
+      if (nomeEl) dadosAtualizados.nome = nomeEl.value.trim();
+      if (emailEl) dadosAtualizados.email = emailEl.value.trim();
+      
+      // Só adiciona função se o campo existir na tela (funcionário)
+      const funcaoEl = document.getElementById("funcao");
+      if (funcaoEl) dadosAtualizados.funcao_id = funcaoEl.value;
+      
 
       try {
         const url = `http://localhost:3000/${tipo}/${id}`;
