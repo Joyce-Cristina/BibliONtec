@@ -62,6 +62,18 @@
   border-top: 1px solid #ccc;
 }
 
+
+/* Padronizar tamanho dos cards */
+.card,
+.card-livro,
+.grid-cards .card,
+.card-container .card,
+.notifications-container .notification-card {
+  width: 400px !important;  /* ajuste aqui para o tamanho desejado */
+  height: 420px !important; /* altura padronizada */
+  max-width: none !important;
+}
+
   </style>
 </head>
 
@@ -109,7 +121,7 @@
   </div>
 </nav>
 
-  <br><br>
+ <br>
 
   <section class="page-section mb-0" id="about" style="background-color: #ffffff; padding: 60px 0;">
   <div class="container text-center">
@@ -125,9 +137,6 @@
 
   </div>
 </section>
-
-
-  <br><br>
 
   <!-- Filtros -->
   <div class="container my-4">

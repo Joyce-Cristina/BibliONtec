@@ -774,13 +774,81 @@ form.form-limpo label {
   margin-bottom: 30px;
 }
 
+/* ===== Grid Cards Biblioteca ===== */
 .grid-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 30px;
-  max-width: 1000px;
-  margin: auto;
+  max-width: 1200px;  margin: 0 auto;
+  justify-items: center;
 }
+
+.grid-cards .card {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;   /* ocupa a coluna do grid */
+  max-width: 500px;         /* limite de largura */
+  height: auto !important;  /* altura ajusta conforme conteúdo */
+  background-color: #d3d3d3;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+}
+
+.grid-cards .card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.grid-cards .card h4 {
+  margin: 10px 0 5px;
+  white-space: nowrap;        /* impede quebra de linha */
+  overflow: hidden;           /* esconde excesso de texto */
+  text-overflow: ellipsis;    /* adiciona "..." se não couber */
+}
+
+.grid-cards .card p {
+  margin: 10px 0;
+}
+
+.grid-cards .botao-disponivel,
+.grid-cards .botao-indisponivel {
+  margin-top: auto;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: default;
+}
+
+.grid-cards .botao-disponivel {
+  background-color: #c0392b;
+}
+
+.grid-cards .botao-indisponivel {
+  background-color: #444;
+}
+
+/* Mantém os outros cards (fora do grid-cards) com estilo original */
+.card-container .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 250px;
+  height: 380px;
+  background-color: #d9cbb0;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+  padding: 10px;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* grid card acaba aqui*/
 
 .card {
   background-color: #d3d3d3;
@@ -1079,6 +1147,79 @@ form.form-limpo label {
 .btn-editar:hover {
   background-color: #5c0e00;
   /* Cor de fundo ao passar o mouse */
+}
+
+/* ===== Layout Evento Detalhe ===== */
+.evento-detalhe {
+  background-color: transparent;
+  border: 5px solid #dcc7a1;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+  margin-bottom: 30px;
+}
+
+.evento-card {
+  background-color: #d3d3d3;
+  border-radius: 8px;
+  text-align: center;
+  padding: 15px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.evento-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  object-fit: cover;
+  max-height: 220px;
+}
+
+.evento-card .titulo {
+  font-weight: bold;
+  margin: 5px 0;
+  color: #000;
+}
+
+.evento-card .dias {
+  margin: 5px 0;
+  color: #000;
+}
+
+.evento-card .dias span {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 4px 10px;
+  font-weight: bold;
+}
+
+/* Texto ao lado */
+.evento-texto {
+  color: #000;
+}
+
+.evento-texto .autor {
+  color: red;
+}
+
+.evento-texto .descricao {
+  color: red;
+}
+
+/* Responsividade: empilha no celular */
+@media (max-width: 768px) {
+  .evento-detalhe {
+    padding: 15px;
+  }
+  .evento-card {
+    margin-bottom: 20px;
+  }
 }
 
 
