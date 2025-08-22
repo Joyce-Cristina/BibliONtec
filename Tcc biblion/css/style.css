@@ -1033,6 +1033,53 @@ form.form-limpo label {
   }
 }
 
+.card-livro {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 250px;
+  height: 380px;
+  background-color: #d9cbb0;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+  padding: 10px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.notifications-container {
+  display: flex;
+  flex-wrap: wrap; /* cards vão para baixo quando não couberem */
+  gap: 15px;
+  justify-content: center; /* centraliza os cards na tela */
+}
+
+/* Faz o <h2> ocupar a linha toda e afasta dos cards */
+.notifications-container > h2 {
+  flex-basis: 100% !important; /* força quebrar linha */
+  margin: 0 0 20px 0 !important; /* espaço abaixo do título */
+  text-align: center;
+}
+
+/* Mantém os cards lado a lado e com largura fixa */
+.notifications-container .notification-card {
+  flex: 0 0 250px;  /* mesma largura dos seus cards */
+  width: 250px;
+}
+
+.btn-editar {
+  background-color: #7a1600;
+  color: white;
+  border-radius: 25px;
+  border: none;
+  padding: 10px 20px;
+  /* Cor de fundo para "Editar Senha" */
+}
+
+.btn-editar:hover {
+  background-color: #5c0e00;
+  /* Cor de fundo ao passar o mouse */
+}
 
 
 
