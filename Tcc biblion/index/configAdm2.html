@@ -159,7 +159,7 @@
         .btn-save {
             background-color: #7a1600;
             color: white;
-            border-radius: 12px;
+            border-radius: 30px;
             padding: 10px 20px;
             font-size: 16px;
             display: flex;
@@ -167,7 +167,10 @@
             gap: 8px;
             box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
             transition: background-color 0.3s ease;
-            margin-left: 10px;
+            margin-left: 5px;
+            max-height: 40px;
+            margin-top: 37px;
+            margin-right: 10px;
             /* Ajuste a margem para afastar um pouco o botão do título */
         }
 
@@ -1217,15 +1220,15 @@
 
         <!-- Avatar com menu fixado no canto inferior esquerdo -->
         <div class="avatar-container">
-            <img src="http://localhost:3000/uploads/padrao.png" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
-            <div id="menuPerfil" class="menu-perfil">
-                <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
-                <hr class="menu-divider">
-                <a href="#" class="dropdown-item">Perguntas Frequentes</a>
-                <hr class="menu-divider">
-                <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
-            </div>
+        <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+        <div id="menuPerfil" class="menu-perfil">
+            <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
+            <hr class="menu-divider">
+            <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+            <hr class="menu-divider">
+            <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
         </div>
+    </div>
 
         <script src="../java/script.js"></script>
         <script>

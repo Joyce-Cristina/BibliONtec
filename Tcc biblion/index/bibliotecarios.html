@@ -175,6 +175,21 @@
             /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
         }
 
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px;
+            margin-right: 30px;
+            margin-block: 0.2px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            margin-right: 1px;
+            background-color: white;
+            border-color: #c8aa78;
+            border-radius: 25px;
+            padding: 10px 30px;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+
         /* Layout para os botões fora do card */
         .d-flex.justify-content-between.mt-3 {
             display: flex;
@@ -708,14 +723,18 @@
             /* Cor de fundo do botão */
             color: white;
             /* Cor do texto */
-            border-radius: 25px;
-            padding: 10px 20px;
+            border-radius: 50px;
+            padding: 20px 30px;
             font-size: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
-            /* Ajusta o espaço entre o ícone e o texto */
+             box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
             transition: background-color 0.3s ease;
+            margin-left: 5px;
+            max-height: 40px;
+            margin-top: 13px;
+            white-space: nowrap;
         }
 
         .btn-new-user:hover {
@@ -728,6 +747,31 @@
             font-size: 1.4rem;
             /* Tamanho do ícone */
         }
+
+        /* === search-box (igual homepageAluno) === */
+.search-box {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 16px;
+}
+.search-box i {
+  font-size: 18px;
+  color: #000;
+}
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
     </style>
 </head>
 
@@ -797,12 +841,13 @@
             <h2 class="text-center-custom">Seus funcionários</h2>
             <p class="text-center fw-bold mb-4">Esta página é para visualizar todos os seus usuários cadastrados.</p>
             <div class="d-flex justify-content-center">
-                <div class="input-group-custom">
-                    <input type="text" class="form-control search-input" placeholder="Buscar usuário..." />
-                    <button class="btn btn-light search-btn rounded-end-pill" type="button">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
+                <div class="d-flex justify-content-center">
+  <div class="search-box">
+    <input type="text" placeholder="Buscar usuário...">
+    <i class="bi bi-search"></i>
+  </div>
+</div>
+
             </div>
         </div>
 
@@ -821,7 +866,7 @@
             <div class="d-flex align-items-center">
                 <!-- Botão Status -->
                 <label for="status" class="text-black status-label">Status</label>
-                <select id="status" class="form-control status-select">
+                <select id="status" style="min-width: 100px;" class="form-select status-select">
                     <option>Ativo</option>
                     <option>Inativo</option>
                 </select>
@@ -956,7 +1001,7 @@
 
     <!-- Avatar com menu fixado no canto inferior esquerdo -->
     <div class="avatar-container">
-        <img src="http://localhost:3000/uploads/padrao.png" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+        <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
         <div id="menuPerfil" class="menu-perfil">
             <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
             <hr class="menu-divider">
