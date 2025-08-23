@@ -33,11 +33,21 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  // Excluir usuário de teste
+  if (userId) {
+    try {
+      await conn.query("DELETE FROM usuario WHERE id = ?", [userId]);
+      console.log(`Usuário de teste ID ${userId} removido com sucesso.`);
+    } catch (err) {
+      console.error("Erro ao excluir usuário de teste:", err);
+    }
+  }
+
   // Liberar conexão e encerrar pool
   if (conn) await conn.release();
   if (pool) await pool.end();
-  
 });
+
 
 describe("Teste de Login real no banco", () => {
   it("Deve logar com credenciais válidas", async () => {

@@ -86,4 +86,4 @@ jobs:
         with:
           name: bibliotec-artifact
           path: BibliONtec.zip
-          retention-days: 1
+    
