@@ -92,7 +92,7 @@
       <i class="bi bi-bell"></i>
     </a>
    <div class="perfil-dropdown">
-  <img src="http://localhost:3000/uploads/padrao.png" alt="Perfil" class="avatar-navbar" id="avatarPerfil">
+  <img src="../img/avatar.jpg" alt="Perfil" class="avatar-navbar" id="avatarPerfil">
   <div class="menu-perfil" id="menuPerfil">
     <a href="#"> Perguntas frequentes</a>
       <hr class="menu-divider">
@@ -115,31 +115,31 @@
     <br><br><br><br>
 
     <!--About-->
-    <section class="py-5" style="background-color: #dcc7a1;" id="about">
-      <div class="container">
-        <div class="d-flex align-items-center justify-content-between flex-nowrap" style="gap: 2rem;">
+      <section class="py-5" style="background-color: #dcc7a1;" id="about">
+        <div class="container">
+          <div class="d-flex align-items-center justify-content-between flex-nowrap" style="gap: 2rem;">
 
-          <!-- Texto à esquerda -->
-          <div style="flex: 1;">
-              <p class="mb-3" style="font-size: 1.2rem; text-align: justify; color: #000; font-weight: bold;">
-                O site BibliONtec é uma biblioteca virtual onde o usuário poderá acessá-lo quando quiser para visualizar
-                quais livros estão na biblioteca da sua escola.
-              </p>
-              <p style="font-size: 1.2rem; text-align: justify; font-weight: bold;">
-                É possível reservar um livro de sua escolha pelo site, comentar sobre os livros, salvar na sua lista de
-                desejo para ler mais tarde e ver indicações para vestibulares.
-              </p>
+            <!-- Texto à esquerda -->
+            <div style="flex: 1;">
+                <p class="mb-3" style="font-size: 1.2rem; text-align: justify; color: #000; font-weight: bold;">
+                  O site BibliONtec é uma biblioteca virtual onde o usuário poderá acessá-lo quando quiser para visualizar
+                  quais livros estão na biblioteca da sua escola.
+                </p>
+                <p style="font-size: 1.2rem; text-align: justify; font-weight: bold;">
+                  É possível reservar um livro de sua escolha pelo site, comentar sobre os livros, salvar na sua lista de
+                  desejo para ler mais tarde e ver indicações para vestibulares.
+                </p>
+              </div>
+
+            <!-- Imagem à direita -->
+            <div style="flex-shrink: 0;">
+              <img src="../img/logoquadrada.jpeg" alt="Livros" class="img-fluid rounded-4 shadow"
+                style="max-height: 300px;">
             </div>
 
-          <!-- Imagem à direita -->
-          <div style="flex-shrink: 0;">
-            <img src="../img/logoquadrada.jpeg" alt="Livros" class="img-fluid rounded-4 shadow"
-              style="max-height: 300px;">
           </div>
-
         </div>
-      </div>
-    </section>
+      </section>
 
 
 
@@ -210,20 +210,23 @@
   </div>
 </section>
 
-<section style="max-width: 900px; margin: 40px auto 20px auto; text-align: center; padding: 20px; border-radius: 15px; background-color: #7A1600; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+<section style="max-width: 1000px; margin: 40px auto 20px auto; text-align: center; padding: 20px; border-radius: 15px; background-color: #7A1600; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
   <h2 style="font-weight: bold; font-size: 2rem; color: #ffffff; margin: 0;">Eventos</h2>
 </section>
 
-<section class="page-section text-black mb-0" id="indicacao-card" style="background-color: transparent; border: 5px solid #dcc7a1; border-radius: 10px; padding: 20px; max-width: 900px; margin: auto;">
-  <div class="card d-flex flex-row" style="height: 400px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); background-color: transparent;">
-    <!-- Imagem ocupando metade -->
-    <img src="../img/biba.png" alt="Livro" style="width: 50%; object-fit: cover;">
+<section class="page-section text-black mb-0 evento-detalhe">
+  <!-- Card da imagem -->
+  <div class="evento-card">
+    <img src="../img/pink.jpg" alt="Evento">
+  </div>
 
-    <!-- Texto ocupando metade -->
-    <div style="width: 50%; padding: 20px; display: flex; flex-direction: column; justify-content: center; background-color: transparent;">
-      <h5 style="margin-bottom: 10px; color: black;">Título do evento</h5>
-      <p style="color: black;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque euismod justo at felis posuere, ut ullamcorper sapien convallis.</p>
-    </div>
+  <!-- Texto ao lado -->
+  <div class="evento-texto">
+    <h2><strong class="titulo">Título do evento</strong></h2>
+    <p><strong class="autor">Organizador:</strong> Equipe BibliONtec</p>
+    <p><strong class="descricao">Descrição do evento:</strong> Este é um exemplo de evento cultural 
+      promovido pela biblioteca, com palestras, leituras comentadas e espaço de interação.</p>
+    <p>Participe para ter acesso a conteúdos exclusivos, debates e materiais especiais sobre literatura e cultura.</p>
   </div>
 </section>
 

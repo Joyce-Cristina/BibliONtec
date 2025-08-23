@@ -7,6 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BibliOnTec - Página Inicial</title>
 
+    <!--css
+    <link rel="stylesheet" href="../css/style.css">
+    -->
+
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -859,11 +863,11 @@
             margin-right: 20px;
             font-weight: bold;
             color: rgb(0, 0, 0);
-            margin-right: 5px;
+            margin-right: 1px;
             background-color: white;
             border-color: #c8aa78;
             border-radius: 25px;
-            padding: 10px 20px;
+            padding: 10px 30px;
             /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
         }
         /* Layout para os botões fora do card */
@@ -886,6 +890,31 @@
         .new-user-btn:hover {
             background-color: #5c0e00;
         }
+
+        /* === search-box (igual homepageAluno) === */
+.search-box {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 16px;
+}
+.search-box i {
+  font-size: 18px;
+  color: #000;
+}
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
         
     </style>
 </head>
@@ -956,12 +985,13 @@
             <h2 class="text-center-custom">Usuários</h2>
             <p class="text-center fw-bold mb-4">Esta página é para visualizar todos os seus usuários cadastrados.</p>
             <div class="d-flex justify-content-center">
-                <div class="input-group-custom">
-                    <input type="text" class="form-control search-input" placeholder="Buscar usuário..." />
-                    <button class="btn btn-light search-btn rounded-end-pill" type="button">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
+                <div class="d-flex justify-content-center">
+  <div class="search-box">
+    <input type="text" placeholder="Buscar usuário...">
+    <i class="bi bi-search"></i>
+  </div>
+</div>
+
             </div>
         </div>
 
@@ -1116,7 +1146,7 @@
 
     <!-- Avatar com menu fixado no canto inferior esquerdo -->
     <div class="avatar-container">
-        <img src="http://localhost:3000/uploads/padrao.png" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+        <img src="../img/avatar.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
         <div id="menuPerfil" class="menu-perfil">
             <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
             <hr class="menu-divider">

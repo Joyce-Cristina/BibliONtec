@@ -119,7 +119,7 @@
         .btn-save {
             background-color: #7a1600;
             color: white;
-            border-radius: 12px;
+            border-radius: 50px;
             padding: 10px 20px;
             font-size: 16px;
             display: flex;
@@ -127,7 +127,9 @@
             gap: 8px;
             box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
             transition: background-color 0.3s ease;
-            margin-left: 10px;
+            margin-left: 5px;
+            max-height: 40px;
+            margin-top: 13px;
             /* Ajuste a margem para afastar um pouco o botão do título */
         }
 
@@ -137,8 +139,9 @@
         }
 
         .btn-comum:hover {
-            background-color: #ffffff;
-            color: #cfcfcf;
+            background-color: #d7d7d7;
+            color: #000000;
+            border-width: 50px #c8aa78;
         }
 
         .btn-save i {
@@ -148,7 +151,7 @@
         .btn-comum {
             background-color: #fff;
             color: black;
-            border-radius: 12px;
+            border-radius: 50px;
             border-color: #c8aa78;
             padding: 10px 20px;
             font-size: 16px;
@@ -157,7 +160,9 @@
             gap: 8px;
             box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
             transition: background-color 0.3s ease;
-            margin-left: 10px;
+            margin-left: 5px;
+            max-height: 40px;
+            margin-top: 13px;
             /* Ajuste a margem para afastar um pouco o botão do título */
         }
 
@@ -960,9 +965,29 @@
         /* Estilo para o botão Status */
         .status-select {
             margin-left: 10px !important;
-            margin-right: 20px !important;
+            margin-right: 10px !important;
             /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
         }
+        /* Estilo dos botões */
+        .status-select,
+        .new-user-btn {
+            margin-top: 10px;
+            /* Adiciona um pequeno espaço superior para os botões */
+        }
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px;
+            margin-right: 20px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            margin-right: 1px;
+            background-color: white;
+            border-color: #c8aa78;
+            border-radius: 25px;
+            padding: 10px 30px;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+
 
         /* Layout para os botões fora do card */
         .d-flex.justify-content-between.mt-3 {
@@ -1130,11 +1155,11 @@
         </div>
       </div>
       <div class="mb-4 d-flex gap-2">
-        <button class="btn-save">
+        <button class="btn btn-save w-50 d-flex justify-content-center align-items-center">
           <i class="bi bi-hdd-stack"></i> Backup manual
         </button>
-        <button class="btn-comum">
-          <i class="bi bi-upload"></i> Restaurar backup
+        <button class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
+          <i class="bi bi-upload"  style="font-size: 18px;"></i> Restaurar backup
         </button>
       </div>
     </div>
@@ -1177,8 +1202,8 @@
           </div>
         </div>
       </div>
-      <button class="btn-comum w-100 d-flex justify-content-center align-items-center">
-          <i class="bi bi-save me-2"></i> Configurar backup
+      <button class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
+          <i class="bi bi-save" style="font-size: 18px;"></i> Configurar backup
       </button>
     </div>
 
@@ -1205,7 +1230,7 @@
               <td>27.8 MB</td>
               <td><span class="badge bg-success">Concluído</span></td>
               <td>
-                <button class="btn btn-outline btn-preto"><i class="bi bi-save"></i></button>
+                <button class="btn btn-outline btn-preto w-20"><i class="bi bi-save" style="font-size: 20px;"></i></button>
               </td>
             </tr>
             <tr>
@@ -1214,7 +1239,7 @@
               <td>24.5 MB</td>
               <td><span class="badge bg-danger">Falhou</span></td>
               <td>
-                <button class="btn btn-outline btn-preto"><i class="bi bi-save"></i></button>
+                <button class="btn btn-outline btn-preto w-20"><i class="bi bi-save"  style="font-size: 20px;"></i></button>
               </td>
             </tr>
           </tbody>
@@ -1234,7 +1259,7 @@
     <div class="section-header">
       <span><strong>Logs do sistema</strong></span>
       <div class="ms-auto d-flex gap-2">
-        <select class="form-select form-select-sm" style="width:auto;">
+        <select style="min-width: 100px;" class="form-select status-select" >
           <option>Todos</option>
           <option>Sucesso</option>
           <option>Atenção</option>
