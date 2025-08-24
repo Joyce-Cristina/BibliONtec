@@ -18,7 +18,7 @@ jobs:
           --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
 
     steps:
       - uses: actions/checkout@v3
@@ -29,15 +29,15 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --force
 
       # Corrigir permissão dos binários
-      - name: Give execute permission to Jest and Playwright
+      - name: Fix Jest & Playwright permissions
         run: |
           chmod +x ./node_modules/.bin/jest
           chmod +x ./node_modules/.bin/playwright
 
-      # Variáveis de ambiente para banco
+      # Set DB env variables
       - name: Set DB env variables
         run: |
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
@@ -45,10 +45,16 @@ jobs:
           echo "DB_PASSWORD=root" >> $GITHUB_ENV
           echo "DB_NAME=bibliontec" >> $GITHUB_ENV
 
+      # Espera MySQL estar pronto
       - name: Wait for MySQL
-        run: sleep 20
+        run: |
+          echo "Waiting for MySQL to be ready..."
+          for i in {1..30}; do
+            mysqladmin ping -h127.0.0.1 -uroot -proot && break
+            sleep 2
+          done
 
-      # Criação da tabela `usuario` antes dos testes
+      # Criação da tabela usuario antes dos testes
       - name: Create usuario table
         run: |
           mysql -h 127.0.0.1 -uroot -proot bibliontec -e "
@@ -61,16 +67,16 @@ jobs:
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
           "
 
-      # Backend tests (Jest)
-      - name: Run backend tests
-        run: npx jest --runInBand
+      # Run backend tests (Jest)
+      - name: Run Jest tests
+        run: npx jest --runInBand "tests/jest/**/*.test.js"
 
       # Instalação dos browsers do Playwright
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # UI tests (Playwright) — sem argumento de glob
-      - name: Run UI tests (Playwright)
+      # Run UI tests (Playwright)
+      - name: Run Playwright tests
         run: npx playwright test
 
       # Serve website local para testes UI
