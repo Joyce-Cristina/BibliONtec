@@ -31,10 +31,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Garantir Jest com permissão
       - name: Install Jest globally
         run: npm install -g jest
 
-      # Set environment variables for database
+      # Garantir Playwright com permissão
+      - name: Install Playwright globally
+        run: npm install -g @playwright/test
+
+      # Variáveis de ambiente para banco
       - name: Set DB env variables
         run: |
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
@@ -62,22 +67,22 @@ jobs:
       - name: Run backend tests (Jest)
         run: jest --runInBand
 
-      # Playwright browsers
+      # Instalação de browsers do Playwright
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: playwright install --with-deps
 
       # UI tests (Playwright)
       - name: Run UI tests (Playwright)
-        run: npm run test:playwright
+        run: npx playwright test
 
-      # Serve website locally
+      # Serve website local para testes UI
       - name: Start HTTP server
         run: npx http-server "./Tcc biblion" -p 8080 &
 
       - name: Wait for server
         run: sleep 5
 
-      # Run Lighthouse CI
+      # Lighthouse CI
       - name: Run Lighthouse CI
         run: npx lhci autorun --config=lighthouserc.json
 
@@ -87,3 +92,4 @@ jobs:
         with:
           name: lhci-report
           path: lhci-reports/
+
