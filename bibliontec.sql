@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17/08/2025 às 06:40
+-- Tempo de geração: 24/08/2025 às 22:39
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -84,6 +84,53 @@ CREATE TABLE `comentario_livro` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `configuracoes_gerais`
+--
+
+CREATE TABLE `configuracoes_gerais` (
+  `id` int(11) NOT NULL,
+  `duracao_padrao_emprestimo` int(11) NOT NULL,
+  `numero_maximo_renovacoes` int(11) NOT NULL,
+  `tempo_retirada_reserva` int(11) NOT NULL,
+  `numero_maximo_emprestimos` int(11) NOT NULL,
+  `multa_por_atraso` decimal(10,2) NOT NULL,
+  `FK_instituicao_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `configuracoes_notificacao`
+--
+
+CREATE TABLE `configuracoes_notificacao` (
+  `id` int(11) NOT NULL,
+  `lembrete_vencimento` tinyint(1) DEFAULT 1,
+  `dias_antes_vencimento` int(11) DEFAULT 2,
+  `notificacao_atraso` tinyint(1) DEFAULT 1,
+  `notificacao_reserva` tinyint(1) DEFAULT 1,
+  `notificacao_livro_disponivel` tinyint(1) DEFAULT 1,
+  `FK_instituicao_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `configuracoes_tipo_usuario`
+--
+
+CREATE TABLE `configuracoes_tipo_usuario` (
+  `id` int(11) NOT NULL,
+  `FK_tipo_usuario_id` int(11) DEFAULT NULL,
+  `maximo_emprestimos` int(11) NOT NULL,
+  `duracao_emprestimo` int(11) NOT NULL,
+  `pode_reservar` tinyint(1) DEFAULT 0,
+  `pode_renovar` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `curso`
 --
 
@@ -159,7 +206,8 @@ INSERT INTO `funcao` (`id`, `funcao`) VALUES
 (3, 'Assistente'),
 (4, 'Administrador'),
 (5, 'Bibliotecário'),
-(6, 'Assistente');
+(6, 'Assistente'),
+(7, 'Bibliotecário');
 
 -- --------------------------------------------------------
 
@@ -184,7 +232,8 @@ CREATE TABLE `funcionario` (
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
 (4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654321', NULL),
-(5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', NULL, NULL, '11987654321', NULL);
+(5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', NULL, NULL, '11987654321', NULL),
+(8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', 'padrao.png', 1, '11999999999', NULL);
 
 -- --------------------------------------------------------
 
@@ -393,8 +442,22 @@ CREATE TABLE `indicacao_usuario` (
 CREATE TABLE `instituicao` (
   `id` int(11) NOT NULL,
   `nome` varchar(100) NOT NULL,
-  `FK_tipo_instituicao_id` int(11) DEFAULT NULL
+  `FK_tipo_instituicao_id` int(11) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `telefone` varchar(20) DEFAULT NULL,
+  `endereco` varchar(200) DEFAULT NULL,
+  `horario_funcionamento` varchar(100) DEFAULT NULL,
+  `website` varchar(100) DEFAULT NULL,
+  `FK_config_gerais_id` int(11) DEFAULT NULL,
+  `FK_config_notificacao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `instituicao`
+--
+
+INSERT INTO `instituicao` (`id`, `nome`, `FK_tipo_instituicao_id`, `email`, `telefone`, `endereco`, `horario_funcionamento`, `website`, `FK_config_gerais_id`, `FK_config_notificacao_id`) VALUES
+(1, 'etec euro albino de souza ', 1, 'eteceuro.com.br', '1985794623', '', '7 as 5', '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -749,6 +812,27 @@ ALTER TABLE `comentario_livro`
   ADD KEY `FK_comentario_livro_id` (`FK_livro_id`);
 
 --
+-- Índices de tabela `configuracoes_gerais`
+--
+ALTER TABLE `configuracoes_gerais`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_instituicao_id` (`FK_instituicao_id`);
+
+--
+-- Índices de tabela `configuracoes_notificacao`
+--
+ALTER TABLE `configuracoes_notificacao`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_instituicao_id` (`FK_instituicao_id`);
+
+--
+-- Índices de tabela `configuracoes_tipo_usuario`
+--
+ALTER TABLE `configuracoes_tipo_usuario`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_tipo_usuario_id` (`FK_tipo_usuario_id`);
+
+--
 -- Índices de tabela `curso`
 --
 ALTER TABLE `curso`
@@ -856,7 +940,9 @@ ALTER TABLE `indicacao_usuario`
 --
 ALTER TABLE `instituicao`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_instituicao_tipo` (`FK_tipo_instituicao_id`);
+  ADD KEY `FK_instituicao_tipo` (`FK_tipo_instituicao_id`),
+  ADD KEY `FK_instituicao_config_gerais` (`FK_config_gerais_id`),
+  ADD KEY `FK_instituicao_config_notificacao` (`FK_config_notificacao_id`);
 
 --
 -- Índices de tabela `lista_desejo`
@@ -1038,6 +1124,24 @@ ALTER TABLE `comentario`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `configuracoes_gerais`
+--
+ALTER TABLE `configuracoes_gerais`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `configuracoes_notificacao`
+--
+ALTER TABLE `configuracoes_notificacao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `configuracoes_tipo_usuario`
+--
+ALTER TABLE `configuracoes_tipo_usuario`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `curso`
 --
 ALTER TABLE `curso`
@@ -1059,13 +1163,13 @@ ALTER TABLE `emprestimo`
 -- AUTO_INCREMENT de tabela `funcao`
 --
 ALTER TABLE `funcao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de tabela `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de tabela `genero`
@@ -1089,7 +1193,7 @@ ALTER TABLE `indicacao`
 -- AUTO_INCREMENT de tabela `instituicao`
 --
 ALTER TABLE `instituicao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `lista_desejo`
@@ -1143,7 +1247,7 @@ ALTER TABLE `tipo_usuario`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- Restrições para tabelas despejadas
@@ -1161,6 +1265,24 @@ ALTER TABLE `comentario`
 ALTER TABLE `comentario_livro`
   ADD CONSTRAINT `FK_comentario_livro_1` FOREIGN KEY (`FK_comentario_id`) REFERENCES `comentario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_comentario_livro_id` FOREIGN KEY (`FK_livro_id`) REFERENCES `livro` (`id`);
+
+--
+-- Restrições para tabelas `configuracoes_gerais`
+--
+ALTER TABLE `configuracoes_gerais`
+  ADD CONSTRAINT `configuracoes_gerais_ibfk_1` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `configuracoes_notificacao`
+--
+ALTER TABLE `configuracoes_notificacao`
+  ADD CONSTRAINT `configuracoes_notificacao_ibfk_1` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `configuracoes_tipo_usuario`
+--
+ALTER TABLE `configuracoes_tipo_usuario`
+  ADD CONSTRAINT `configuracoes_tipo_usuario_ibfk_1` FOREIGN KEY (`FK_tipo_usuario_id`) REFERENCES `tipo_usuario` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `emprestimo`
@@ -1241,6 +1363,8 @@ ALTER TABLE `indicacao_usuario`
 -- Restrições para tabelas `instituicao`
 --
 ALTER TABLE `instituicao`
+  ADD CONSTRAINT `FK_instituicao_config_gerais` FOREIGN KEY (`FK_config_gerais_id`) REFERENCES `configuracoes_gerais` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `FK_instituicao_config_notificacao` FOREIGN KEY (`FK_config_notificacao_id`) REFERENCES `configuracoes_notificacao` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `FK_instituicao_tipo` FOREIGN KEY (`FK_tipo_instituicao_id`) REFERENCES `tipo_instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
