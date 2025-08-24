@@ -57,7 +57,7 @@ jobs:
 
       # Backend tests (Jest) - apenas arquivos Jest
       - name: Run backend tests (Jest)
-        run: npx jest "tests/jest/**/*.test.js" --runInBand
+        run: npx --no-install jest "tests/jest/**/*.test.js" --runInBand
 
       # Instalação de browsers do Playwright
       - name: Install Playwright browsers
@@ -65,18 +65,18 @@ jobs:
 
       # UI tests (Playwright) - apenas arquivos Playwright
       - name: Run UI tests (Playwright)
-        run: npx playwright test "playwright-tests/**/*.spec.js"
+        run: npx --no-install playwright test "playwright-tests/**/*.spec.js"
 
       # Serve website local para testes UI
       - name: Start HTTP server
-        run: npx http-server "./Tcc biblion" -p 8080 &
+        run: npx --no-install http-server "./Tcc biblion" -p 8080 &
 
       - name: Wait for server
         run: sleep 5
 
       # Lighthouse CI
       - name: Run Lighthouse CI
-        run: npx lhci autorun --config=lighthouserc.json
+        run: npx --no-install lhci autorun --config=lighthouserc.json
 
       # Upload Lighthouse reports
       - name: Upload Lighthouse Report
