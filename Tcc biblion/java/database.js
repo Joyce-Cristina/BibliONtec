@@ -170,11 +170,28 @@ app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
   }
 });
 
+// Função para validar senha forte
+function senhaValida(senha) {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  return regex.test(senha);
+}
+
 // Login (usuário ou funcionário)
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
 
-  const sqlUsuario = `SELECT id, nome, FK_tipo_usuario_id AS tipo, foto FROM usuario WHERE email = ? AND senha = ?`;
+  // valida formato da senha antes de consultar
+  if (!senhaValida(senha)) {
+    return res.status(400).json({
+      error: "Senha inválida. A senha deve conter pelo menos 8 caracteres, incluindo:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)"
+    });
+  }
+
+  // 🔹 LOGIN DE USUÁRIO
+  const sqlUsuario = `SELECT id, nome, FK_tipo_usuario_id AS tipo, foto 
+                      FROM usuario 
+                      WHERE email = ? AND senha = ?`;
+
   connection.query(sqlUsuario, [email, senha], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro no servidor' });
 
@@ -182,39 +199,56 @@ app.post('/login', (req, res) => {
       const usuario = results[0];
       return res.status(200).json({
         message: 'Login usuário bem-sucedido',
-        usuario: { id: usuario.id, nome: usuario.nome, tipo: usuario.tipo, foto: usuario.foto || 'padrao.png' }
+        usuario: { 
+          id: usuario.id, 
+          nome: usuario.nome, 
+          tipo: usuario.tipo, 
+          foto: usuario.foto || 'padrao.png' 
+        }
       });
     }
 
-    const sqlFuncionario = `SELECT id, nome, email, senha, telefone, foto, FK_funcao_id AS funcao_id FROM funcionario WHERE email = ? AND senha = ?`;
+    // 🔹 LOGIN DE FUNCIONÁRIO (inclui ADMIN)
+    const sqlFuncionario = `SELECT id, nome, email, senha, telefone, foto, FK_funcao_id AS funcao_id 
+                            FROM funcionario 
+                            WHERE email = ? AND senha = ?`;
+
     connection.query(sqlFuncionario, [email, senha], (err, results) => {
       if (err) return res.status(500).json({ error: 'Erro no servidor' });
       if (results.length === 0) return res.status(401).json({ error: 'Email ou senha inválidos' });
 
       const f = results[0];
-      return res.status(200).json({ 
-        message: 'Login funcionário bem-sucedido',
-        funcionario: { id: f.id, nome: f.nome, email: f.email, senha: f.senha, telefone: f.telefone, funcao_id: f.funcao_id, foto: f.foto || 'padrao.png' }
-      });
+
+      if (f.funcao_id === 1) {
+        // 👑 ADMINISTRADOR
+        return res.status(200).json({
+          message: 'Login administrador bem-sucedido',
+          administrador: { 
+            id: f.id, 
+            nome: f.nome, 
+            email: f.email, 
+            telefone: f.telefone, 
+            foto: f.foto || 'padrao.png' 
+          }
+        });
+      } else {
+        // 👨‍💼 FUNCIONÁRIO NORMAL
+        return res.status(200).json({
+          message: 'Login funcionário bem-sucedido',
+          funcionario: { 
+            id: f.id, 
+            nome: f.nome, 
+            email: f.email, 
+            telefone: f.telefone, 
+            funcao_id: f.funcao_id, 
+            foto: f.foto || 'padrao.png' 
+          }
+        });
+      }
     });
   });
 });
 
-// Outras rotas (livros, usuários, funcionários, gêneros, etc.) permanecem iguais, removendo duplicações.
-
-
-app.get('/livros', (req, res) => {
-  const query = 'SELECT * FROM livro';
-
-  connection.query(query, (err, resultados) => {
-    if (err) {
-      console.error('Erro ao buscar livros:', err);
-      res.status(500).json({ erro: 'Erro ao buscar livros' });
-    } else {
-      res.json(resultados);
-    }
-  });
-});
 // Buscar um livro específico com todas as informações 
 // Buscar todos os livros com informações relacionadas
 app.get('/livros', (req, res) => {
@@ -736,6 +770,43 @@ app.delete('/livros/:id', (req, res) => {
     });
   });
 });
+
+// Rota para listar tipos de instituição
+app.get("/tipos-instituicao", (req, res) => {
+    const sql = "SELECT * FROM tipo_instituicao";
+    connection.query(sql, (err, results) => {   // <-- aqui
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ mensagem: "Erro ao carregar tipos de instituição" });
+        }
+        res.json(results);
+    });
+});
+
+// Rota para cadastrar nova instituição
+app.post("/instituicao", (req, res) => {
+    const { nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id } = req.body;
+
+    if (!nome || !FK_tipo_instituicao_id) {
+        return res.status(400).json({ mensagem: "Nome e tipo da instituição são obrigatórios." });
+    }
+
+    const sql = `
+        INSERT INTO instituicao 
+        (nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    connection.query(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id], (err, result) => {  // <-- aqui
+        if (err) {
+            console.error("Erro ao cadastrar instituição:", err);
+            return res.status(500).json({ mensagem: "Erro ao cadastrar instituição" });
+        }
+        res.json({ mensagem: "Instituição cadastrada com sucesso!", id: result.insertId });
+    });
+});
+
+
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = 3000;
 app.listen(PORT, () => {
