@@ -48,7 +48,7 @@ jobs:
       # Espera MySQL estar pronto
       - name: Wait for MySQL
         run: |
-          echo "Waiting for MySQL to be ready..."
+          echo "Waiting for MySQL..."
           for i in {1..30}; do
             mysqladmin ping -h127.0.0.1 -uroot -proot && break
             sleep 2
@@ -57,7 +57,7 @@ jobs:
       # Criação da tabela usuario antes dos testes
       - name: Create usuario table
         run: |
-          mysql -h 127.0.0.1 -uroot -proot bibliontec -e "
+          mysql -h127.0.0.1 -uroot -proot bibliontec -e "
             CREATE TABLE IF NOT EXISTS usuario (
               id INT AUTO_INCREMENT PRIMARY KEY,
               nome VARCHAR(255) NOT NULL,
@@ -67,16 +67,16 @@ jobs:
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
           "
 
-      # Run backend tests (Jest)
-      - name: Run Jest tests
+      # ✅ Rodar testes Jest **separadamente**
+      - name: Run backend tests (Jest)
         run: npx jest --runInBand "tests/jest/**/*.test.js"
 
       # Instalação dos browsers do Playwright
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # Run UI tests (Playwright)
-      - name: Run Playwright tests
+      # ✅ Rodar testes Playwright **separadamente**
+      - name: Run UI tests (Playwright)
         run: npx playwright test
 
       # Serve website local para testes UI
