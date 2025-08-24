@@ -1475,30 +1475,275 @@
             background-color: #5c0e00;
         }
 
-        /* === search-box (igual homepageAluno) === */
-.search-box {
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 6px 12px;
-  display: flex;
-  align-items: center;
-  width: 400px;
+/* === Largura total nas abas === */
+.tab-content {
+  display: block;        /* não precisa ser flex aqui */
+  width: 100% !important;
+  max-width: none !important;
+  margin: 20px 0 !important;
 }
-.search-box input {
-  border: none;
-  outline: none;
-  flex: 1;
-  padding: 6px 8px;
-  font-size: 16px;
+
+#configTabsContent .tab-pane {
+  width: 100% !important;
 }
-.search-box i {
-  font-size: 18px;
-  color: #000;
+
+#em,
+#em .col-12,
+#em .section-box {
+  width: 100% !important;
+  max-width: none !important;
 }
-/* responsivo */
+
+#em canvas#graficoEmprestimos {
+  width: 100% !important;   /* Chart.js ocupa toda a largura */
+  height: 380px !important; /* ajuste a gosto */
+}
+
+
+.history-section table {
+  width: 100%;          /* tabela vai expandir até o limite do container */
+  table-layout: fixed;  /* distribui melhor as colunas */
+}
+
+.history-section {
+    flex: 1 1 70%;   /* 70% da largura da linha */
+    min-width: 500px; /* garante tamanho mínimo */
+}
+
+
+/* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1;
+            padding-left: 270px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center;
+            font-family: Georgia, serif;
+            font-weight: 500;
+        }
+
+        /* Estilos para o grupo de busca */
+        .input-group-custom {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* Barra de pesquisa */
+        .search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78 !important;
+            border-radius: 15px !important;
+            padding: 30px !important; 
+            max-width: 1000px !important;
+            margin: 20px auto !important;
+            width: 100% !important;
+
+        }
+
+        /* Estilo para o campo de status */
+        .status-label {
+            font-weight: bold  !important;
+            color: rgb(0, 0, 0) !important;
+            margin-right: 5px !important;
+        }
+
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px !important;
+            margin-right: 10px !important;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+        /* Estilo dos botões */
+        .status-select,
+        .new-user-btn {
+            margin-top: 10px;
+            /* Adiciona um pequeno espaço superior para os botões */
+        }
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px;
+            margin-right: 20px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            margin-right: 1px;
+            background-color: white;
+            border-color: #c8aa78;
+            border-radius: 25px;
+            padding: 10px 30px;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+
+
+        /* Layout para os botões fora do card */
+        .d-flex.justify-content-between.mt-3 {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin: 0 20px !important;
+            /* Adiciona espaço nas laterais para afastar da "parede" */
+        }
+
+        /* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
+        .new-user-btn {
+            background-color: #7a1600 !important;
+            color: white !important;
+            border-radius: 25px !important;
+            padding: 10px 20px !important;
+        }
+
+        .new-user-btn:hover {
+            background-color: #5c0e00 !important;
+        }
+
+        /* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1 !important;
+            padding-left: 270px !important;
+             padding-top: 100px !important;
+            padding-bottom: 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            overflow-y: auto !important;
+            min-height: calc(100vh - 56px) !important;
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center !important;
+            font-family: Georgia, serif !important;
+            font-weight: 500 !important;
+            font-size: 2rem  !important;
+            margin: 0 !important;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78 !important;
+            border-radius: 10px!important;
+            padding: 20px 40px!important;
+            width: auto;
+            /* Ajuste a largura para se ajustar ao conteúdo */
+            margin: 0 auto;
+            /* Centraliza o card */
+            padding: 10%;
+        }
+
+        /* Sombra semelhante à da imagem */
+        .shadow-title {
+            box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15)!important;
+        }
+
+        /* Correções de responsividade extras */
+
+/* Sidebar some no mobile e vira "menu lateral" */
 @media (max-width: 992px) {
-  .search-box { width: 300px; }
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    left: -220px;
+    width: 220px;
+    height: 100%;
+    transition: left 0.3s ease;
+    z-index: 1051;
+  }
+  .sidebar.show {
+    left: 0;
+  }
+
+  .main-container-custom {
+    padding-left: 0 !important;
+    padding-top: 80px !important;
+  }
 }
+
+/* Ajusta grid das abas no celular */
+@media (max-width: 768px) {
+  .tab-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tab-content {
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+
+  .section-box {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+  }
+
+  .d-flex.gap-3.flex-wrap {
+    flex-direction: column;
+  }
+
+  .custom-card {
+    padding: 15px !important;
+  }
+}
+
+/* Ajusta tabelas no mobile */
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Ajusta avatar e botão acessibilidade no mobile */
+@media (max-width: 576px) {
+  .avatar-container {
+    bottom: 70px;
+    left: 10px;
+  }
+  .btn[style*="width: 50px"] {
+    width: 45px !important;
+    height: 45px !important;
+  }
+}
+
+/* Overlay por trás da sidebar no mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1050;
+  display: none;
+}
+.sidebar-overlay.show {
+  display: block;
+}
+
+
 
 /* opcional: se não quiser a caixa gigante */
 #em .section-box { min-height: 420px !important; }
@@ -1511,17 +1756,16 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+   <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid d-flex align-items-center" style="gap: 0;">
             <a class="navbar-brand" href="./homepageAdm2.html">
                 <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" id="sidebarToggle">
+              <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
                 <form class="d-flex">
                     <ul class="navbar-nav mb-2 mb-lg-0 me-3">
@@ -1538,18 +1782,11 @@
                                 Atualizações
                             </a>
                             <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#">Foi adicionado um
-                                        <br>elemento novo <br> no sistema</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="#">Foi excluído um
-                                        <br> elemento antigo <br> no sistema</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="#">Foi alterado um
-                                        <br> elemento no sistema</a></li>
+                                <li><a class="dropdown-item" href="#">Foi adicionado um <br>elemento novo <br> no sistema</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Foi excluído um <br> elemento antigo <br> no sistema</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Foi alterado um <br> elemento no sistema</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -1560,12 +1797,12 @@
 
     <!-- Sidebar -->
     <div class="sidebar d-flex flex-column">
-        <a class="btn w-100 active" href="./areaAdm2.html">Administrador</a>
+        <a class="btn w-100" href="./areaAdm2.html">Administrador</a>
         <a class="btn w-100" href="./bibliotecarios.html">Bibliotecários</a>
         <a class="btn w-100" href="./configAdm2.html">Configurações</a>
         <a class="btn w-100" href="./manutencao.html">Manutenção</a>
         <a class="btn w-100" href="./usuariosAdm2.html">Usuários</a>
-        <a class="btn w-100" href="./relatorios.html">Relatórios</a>
+        <a class="btn w-100 active" href="./relatorios.html">Relatórios</a>
     </div>
 
     <!-- Conteúdo -->
@@ -1911,6 +2148,57 @@ const graficoUsuarios = new Chart(ctxUsuarios, {
     <script src="../java/script.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toggler  = document.querySelector(".navbar-toggler");
+    const sidebar  = document.querySelector(".sidebar");
+    const backdrop = document.getElementById("sidebar-backdrop");
+
+    function openSidebar() {
+      sidebar.classList.add("show");
+      if (window.innerWidth <= 1200 && backdrop) backdrop.classList.add("active");
+    }
+    function closeSidebar() {
+      sidebar.classList.remove("show");
+      if (backdrop) backdrop.classList.remove("active");
+    }
+
+    if (toggler && sidebar) {
+      toggler.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (sidebar.classList.contains("show")) {
+          closeSidebar();
+        } else {
+          openSidebar();
+        }
+      });
+    }
+
+    /* Clicar no backdrop fecha */
+    if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+    /* Clicar fora da sidebar fecha */
+    document.addEventListener("click", function (e) {
+      if (
+        window.innerWidth <= 1200 &&
+        sidebar.classList.contains("show") &&
+        !sidebar.contains(e.target) &&
+        !toggler.contains(e.target)
+      ) {
+        closeSidebar();
+      }
+    });
+
+    /* Ao redimensionar, limpa estados para evitar sobreposição */
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 1200) {
+        if (backdrop) backdrop.classList.remove("active");
+      } else {
+        closeSidebar();
+      }
+    });
+  });
+</script>
 
 </body>
 
