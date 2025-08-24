@@ -32,10 +32,12 @@ jobs:
         run: npm install
 
       # Corrigir permissão dos binários
-      - name: Give execute permission to Jest and Playwright
+      - name: Give execute permission to Jest, Playwright and LHCI
         run: |
-          chmod +x ./node_modules/.bin/jest
-          chmod +x ./node_modules/.bin/playwright
+           chmod +x ./node_modules/.bin/jest
+           chmod +x ./node_modules/.bin/playwright
+           chmod +x ./node_modules/.bin/lhci
+
 
       # Variáveis de ambiente para banco
       - name: Set DB env variables
