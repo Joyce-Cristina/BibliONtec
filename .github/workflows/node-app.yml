@@ -1,6 +1,10 @@
 name: Node.js CI/CD
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   test:
@@ -30,9 +34,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: Install wait-on globally
-        run: npm install -g wait-on
 
       # Corrigir permissão dos binários
       - name: Give execute permission to Jest, Playwright and LHCI
@@ -65,7 +66,7 @@ jobs:
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
           "
 
-      # Backend tests (Jest) — só arquivos Jest
+      # Backend tests (Jest)
       - name: Run backend tests (Jest)
         run: npx jest --runInBand "tests/jest/**/*.test.js"
 
@@ -75,10 +76,10 @@ jobs:
 
       # Serve website local para testes UI
       - name: Start HTTP server
-        run: npx http-server "./Tcc biblion" -p 8080 &
+        run: npx http-server "./TccBiblion" -p 8080 &
 
-      - name: Wait for server
-        run: wait-on http://localhost:8080/index/homepageAdm2.html --timeout 60000
+      - name: Wait for HTTP server
+        run: npx wait-on http://127.0.0.1:8080/index/homepageAdm2.html --timeout 120000
 
       # UI tests (Playwright)
       - name: Run UI tests (Playwright)
