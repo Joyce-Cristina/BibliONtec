@@ -159,55 +159,67 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // ----------- LÓGICA DE LOGIN ------------
-  const formLogin = document.getElementById('formLogin');
-  if (formLogin) {
-    formLogin.addEventListener('submit', async (event) => {
-      event.preventDefault();
+// ----------- LÓGICA DE LOGIN ------------
+const formLogin = document.getElementById('formLogin');
+if (formLogin) {
+  formLogin.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-      const email = document.getElementById('email').value;
-      const senha = document.getElementById('senha').value;
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
 
-      try {
-        const response = await fetch('http://localhost:3000/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, senha }),
-        });
+    try {
+      const response = await fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha }),
+      });
 
-        const data = await response.json();
-        console.log('Resposta do login:', data);
+      const data = await response.json();
+      console.log('Resposta do login:', data);
 
-        if (response.ok) {
-          if (data.usuario) {
-            const usuario = data.usuario;
-            localStorage.setItem("usuario", JSON.stringify(usuario));
-            const tipoUsuario = Number(usuario.tipo);
-            if (tipoUsuario === 1) {
-              window.location.href = './homepageAluno.html';
-            } else if (tipoUsuario === 2) {
-              window.location.href = './homepageProf.html';
-            } else {
-              console.log('Tipo de usuário não reconhecido:', usuario.tipo);
-              alert('Tipo de usuário não reconhecido.');
-            }
-          } else if (data.funcionario) {
-            const funcionario = data.funcionario;
-            localStorage.setItem("funcionario", JSON.stringify(funcionario));
-            window.location.href = './homepageAdm.html'; // página para funcionários
+      if (response.ok) {
+        if (data.usuario) {
+          // 👩‍🎓 Login de usuário (Aluno/Professor)
+          const usuario = data.usuario;
+          localStorage.setItem("usuario", JSON.stringify(usuario));
+          const tipoUsuario = Number(usuario.tipo);
+          if (tipoUsuario === 1) {
+            window.location.href = './homepageAluno.html';
+          } else if (tipoUsuario === 2) {
+            window.location.href = './homepageProf.html';
           } else {
-            alert('Resposta inesperada do servidor.');
+            console.log('Tipo de usuário não reconhecido:', usuario.tipo);
+            alert('Tipo de usuário não reconhecido.');
           }
+
+        } else if (data.administrador) {
+          // 👑 Login de administrador
+          const administrador = data.administrador;
+          localStorage.setItem("administrador", JSON.stringify(administrador));
+          window.location.href = './homepageAdm2.html';
+
+        } else if (data.funcionario) {
+          // 👨‍💼 Login de funcionário normal (bibliotecário, circulação, catalogação)
+          const funcionario = data.funcionario;
+          localStorage.setItem("funcionario", JSON.stringify(funcionario));
+          window.location.href = './homepageAdm.html'; 
+
         } else {
-          alert("Erro ao fazer login: " + data.error);
+          alert('Resposta inesperada do servidor.');
         }
 
-      } catch (error) {
-        console.error('Erro ao fazer login:', error);
-        alert("Erro de rede ou servidor!");
+      } else {
+        alert("Erro ao fazer login: " + data.error);
       }
-    });
-  }
+
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      alert("Erro de rede ou servidor!");
+    }
+  });
+}
+
 
   // ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
   const formFunc = document.getElementById('formFuncionario');
