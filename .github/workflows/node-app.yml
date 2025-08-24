@@ -45,6 +45,19 @@ jobs:
       - name: Wait for MySQL
         run: sleep 20
 
+      # Criação da tabela `usuario` antes dos testes
+      - name: Create usuario table
+        run: |
+          mysql -h 127.0.0.1 -uroot -proot bibliontec -e "
+            CREATE TABLE IF NOT EXISTS usuario (
+              id INT AUTO_INCREMENT PRIMARY KEY,
+              nome VARCHAR(255) NOT NULL,
+              email VARCHAR(255) NOT NULL,
+              senha VARCHAR(255) NOT NULL,
+              FK_tipo_usuario_id INT NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+          "
+
       # Backend tests (Jest)
       - name: Run backend tests (Jest)
         run: jest --runInBand
