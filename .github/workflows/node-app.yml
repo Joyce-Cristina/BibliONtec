@@ -18,7 +18,7 @@ jobs:
           --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 10
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v3
@@ -29,15 +29,15 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install --force
+        run: npm install
 
       # Corrigir permissão dos binários
-      - name: Fix Jest & Playwright permissions
+      - name: Give execute permission to Jest and Playwright
         run: |
           chmod +x ./node_modules/.bin/jest
           chmod +x ./node_modules/.bin/playwright
 
-      # Set DB env variables
+      # Variáveis de ambiente para banco
       - name: Set DB env variables
         run: |
           echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
@@ -45,19 +45,13 @@ jobs:
           echo "DB_PASSWORD=root" >> $GITHUB_ENV
           echo "DB_NAME=bibliontec" >> $GITHUB_ENV
 
-      # Espera MySQL estar pronto
       - name: Wait for MySQL
-        run: |
-          echo "Waiting for MySQL..."
-          for i in {1..30}; do
-            mysqladmin ping -h127.0.0.1 -uroot -proot && break
-            sleep 2
-          done
+        run: sleep 20
 
-      # Criação da tabela usuario antes dos testes
+      # Criação da tabela `usuario` antes dos testes
       - name: Create usuario table
         run: |
-          mysql -h127.0.0.1 -uroot -proot bibliontec -e "
+          mysql -h 127.0.0.1 -uroot -proot bibliontec -e "
             CREATE TABLE IF NOT EXISTS usuario (
               id INT AUTO_INCREMENT PRIMARY KEY,
               nome VARCHAR(255) NOT NULL,
@@ -67,7 +61,7 @@ jobs:
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
           "
 
-      # ✅ Rodar testes Jest **separadamente**
+      # Backend tests (Jest) — só arquivos Jest
       - name: Run backend tests (Jest)
         run: npx jest --runInBand "tests/jest/**/*.test.js"
 
@@ -75,9 +69,9 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # ✅ Rodar testes Playwright **separadamente**
+      # UI tests (Playwright) — só arquivos Playwright
       - name: Run UI tests (Playwright)
-        run: npx playwright test
+        run: npx playwright test "playwright-tests/**/*.spec.js"
 
       # Serve website local para testes UI
       - name: Start HTTP server
