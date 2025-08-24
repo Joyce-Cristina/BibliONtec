@@ -2,14 +2,11 @@
   "ci": {
     "collect": {
       "url": ["http://localhost:8080/index/homepageAdm2.html"],
+      "startServerCommand": "npm start",
       "numberOfRuns": 1
     },
     "upload": {
-      "target": "filesystem",
-      "outputDir": "lhci-reports"
-    },
-    "assert": {
-      "preset": "lighthouse:recommended"
+      "target": "temporary-public-storage"
     }
   }
 }

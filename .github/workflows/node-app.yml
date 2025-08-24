@@ -38,7 +38,6 @@ jobs:
            chmod +x ./node_modules/.bin/playwright
            chmod +x ./node_modules/.bin/lhci
 
-
       # Variáveis de ambiente para banco
       - name: Set DB env variables
         run: |
@@ -80,11 +79,13 @@ jobs:
         run: npx http-server "./Tcc biblion" -p 8080 &
 
       - name: Wait for server
-        run: sleep 5
+        run: npx wait-on http://localhost:8080/index/homepageAdm2.html --timeout 15000
 
       # Lighthouse CI
       - name: Run Lighthouse CI
-        run: npx lhci autorun --config=lighthouserc.json
+        run: |
+          npx lhci autorun --collect.url=http://localhost:8080/index/homepageAdm2.html \
+                           --upload.target=temporary-public-storage
 
       # Upload Lighthouse reports
       - name: Upload Lighthouse Report
