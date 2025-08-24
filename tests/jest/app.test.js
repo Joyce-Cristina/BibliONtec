@@ -11,6 +11,7 @@ let userId;
 
 beforeAll(async () => {
   // cria pool de conexão
+  // cria pool de conexão
   pool = mysql.createPool({
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "root",
