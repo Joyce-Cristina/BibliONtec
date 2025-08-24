@@ -31,9 +31,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Corrigir permissão do Jest
+      # Corrigir permissões dos binários locais
       - name: Give execute permission to Jest
         run: chmod +x ./node_modules/.bin/jest
+
+      - name: Give execute permission to Playwright
+        run: chmod +x ./node_modules/.bin/playwright
 
       # Variáveis de ambiente para banco
       - name: Set DB env variables
@@ -65,22 +68,22 @@ jobs:
 
       # Instalação de browsers do Playwright
       - name: Install Playwright browsers
-        run: npx --no-install playwright install --with-deps
+        run: npx playwright install --with-deps
 
       # UI tests (Playwright)
       - name: Run UI tests (Playwright)
-        run: npx --no-install playwright test "playwright-tests/**/*.spec.js"
+        run: npx playwright test "playwright-tests/**/*.spec.js"
 
       # Serve website local para testes UI
       - name: Start HTTP server
-        run: npx --no-install http-server "./Tcc biblion" -p 8080 &
+        run: npx http-server "./Tcc biblion" -p 8080 &
 
       - name: Wait for server
         run: sleep 5
 
       # Lighthouse CI
       - name: Run Lighthouse CI
-        run: npx --no-install lhci autorun --config=lighthouserc.json
+        run: npx lhci autorun --config=lighthouserc.json
 
       # Upload Lighthouse reports
       - name: Upload Lighthouse Report
