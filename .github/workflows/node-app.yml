@@ -31,6 +31,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Corrigir permissão do Jest
+      - name: Give execute permission to Jest
+        run: chmod +x ./node_modules/.bin/jest
+
       # Variáveis de ambiente para banco
       - name: Set DB env variables
         run: |
@@ -55,15 +59,15 @@ jobs:
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
           "
 
-      # Backend tests (Jest) - apenas arquivos Jest
+      # Backend tests (Jest)
       - name: Run backend tests (Jest)
-        run: npx --no-install jest "tests/jest/**/*.test.js" --runInBand
+        run: npx jest "tests/jest/**/*.test.js" --runInBand
 
       # Instalação de browsers do Playwright
       - name: Install Playwright browsers
         run: npx --no-install playwright install --with-deps
 
-      # UI tests (Playwright) - apenas arquivos Playwright
+      # UI tests (Playwright)
       - name: Run UI tests (Playwright)
         run: npx --no-install playwright test "playwright-tests/**/*.spec.js"
 
