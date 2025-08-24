@@ -31,15 +31,20 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install Jest globally
-        run: npm install -g jest
+      # Set environment variables for database
+      - name: Set DB env variables
+        run: |
+          echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
+          echo "DB_USER=root" >> $GITHUB_ENV
+          echo "DB_PASSWORD=root" >> $GITHUB_ENV
+          echo "DB_NAME=bibliontec" >> $GITHUB_ENV
 
       - name: Wait for MySQL
         run: sleep 20
 
       # Backend tests (Jest)
       - name: Run backend tests (Jest)
-        run: jest --runInBand
+        run: npm test -- --runInBand
 
       # Playwright browsers
       - name: Install Playwright browsers
