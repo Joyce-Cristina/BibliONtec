@@ -31,14 +31,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Garantir Jest com permissão
-      - name: Install Jest globally
-        run: npm install -g jest
-
-      # Garantir Playwright com permissão
-      - name: Install Playwright globally
-        run: npm install -g @playwright/test
-
       # Variáveis de ambiente para banco
       - name: Set DB env variables
         run: |
@@ -63,17 +55,17 @@ jobs:
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
           "
 
-      # Backend tests (Jest)
+      # Backend tests (Jest) - apenas arquivos Jest
       - name: Run backend tests (Jest)
-        run: jest --runInBand
+        run: npx jest "tests/jest/**/*.test.js" --runInBand
 
       # Instalação de browsers do Playwright
       - name: Install Playwright browsers
-        run: playwright install --with-deps
+        run: npx --no-install playwright install --with-deps
 
-      # UI tests (Playwright)
+      # UI tests (Playwright) - apenas arquivos Playwright
       - name: Run UI tests (Playwright)
-        run: npx playwright test
+        run: npx playwright test "playwright-tests/**/*.spec.js"
 
       # Serve website local para testes UI
       - name: Start HTTP server
@@ -92,4 +84,3 @@ jobs:
         with:
           name: lhci-report
           path: lhci-reports/
-
