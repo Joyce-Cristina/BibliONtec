@@ -63,15 +63,15 @@ jobs:
 
       # Backend tests (Jest)
       - name: Run backend tests
-        run: npx jest tests/jest/**/*.test.js --runInBand
+        run: npx jest --runInBand
 
       # Instalação dos browsers do Playwright
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # UI tests (Playwright) — sem erro de regex
+      # UI tests (Playwright) — sem argumento de glob
       - name: Run UI tests (Playwright)
-        run: npx playwright test playwright-tests/**/*.spec.js
+        run: npx playwright test
 
       # Serve website local para testes UI
       - name: Start HTTP server
