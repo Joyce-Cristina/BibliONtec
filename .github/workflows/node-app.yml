@@ -1,89 +1,64 @@
-name: Node.js CI/CD
+name: Node.js CI
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: write
-  checks: write
-  actions: write
+on: [push, pull_request]
 
 jobs:
-  build:
-    name: CI Tests
+  test:
     runs-on: ubuntu-latest
-
     services:
       mysql:
         image: mysql:8
-        ports:
-          - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: bibliontec
+        ports:
+          - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Configurar Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 20
 
-      - name: Instalar dependências
+      - name: Install dependencies
         run: npm install
 
-      - name: Aguardar MySQL
-        run: |
-          until mysqladmin ping -h"127.0.0.1" -uroot -proot --silent; do
-            echo "Aguardando MySQL iniciar..."
-            sleep 2
-          done
+      - name: Wait for MySQL
+        run: sleep 20
 
-      - name: Criar tabelas no banco de teste
-        run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
+      # Backend tests
+      - name: Run backend tests (Jest)
+        run: npm test
 
-      - name: Dar permissão ao Jest
-        run: chmod +x ./node_modules/.bin/jest
+      # Playwright browsers
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
-      - name: Rodar testes
-        env:
-          DB_HOST: 127.0.0.1
-          DB_USER: root
-          DB_PASSWORD: root
-          DB_NAME: bibliontec
-        run: npx jest --forceExit --detectOpenHandles
+      # UI tests
+      - name: Run UI tests (Playwright)
+        run: npx playwright test
 
-      - name: Empacotar projeto
-        if: success()
-        run: zip -r BibliONtec.zip .
+      # Serve website locally
+      - name: Start HTTP server
+        run: npx http-server ./Tcc\ biblion -p 8080 &
 
-      - name: Excluir artefatos antigos via API
-        if: success()
-        run: |
-          artifacts=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/artifacts \
-            | jq -r '.artifacts[] | select(.name=="bibliotec-artifact") | .id')
+      - name: Wait for server
+        run: sleep 5
 
-          for artifact in $artifacts; do
-            echo "Excluindo artefato $artifact..."
-            curl -s -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$artifact
-          done
+      # Run Lighthouse CI
+      - name: Run Lighthouse CI
+        run: npx lhci autorun --config=lighthouserc.json
 
-      - name: Upload do artefato
-        if: success()
-        uses: actions/upload-artifact@v4
+      # Upload Lighthouse reports
+      - name: Upload Lighthouse Report
+        uses: actions/upload-artifact@v3
         with:
-          name: bibliotec-artifact
-          path: BibliONtec.zip
-    
+          name: lhci-report
+          path: lhci-reports/
