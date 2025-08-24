@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+
     services:
       mysql:
         image: mysql:8
@@ -33,21 +34,21 @@ jobs:
       - name: Wait for MySQL
         run: sleep 20
 
-      # Backend tests
+      # Backend tests (Jest)
       - name: Run backend tests (Jest)
-        run: npm test
+        run: npx jest --runInBand
 
       # Playwright browsers
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # UI tests
+      # UI tests (Playwright)
       - name: Run UI tests (Playwright)
         run: npx playwright test
 
       # Serve website locally
       - name: Start HTTP server
-        run: npx http-server ./Tcc\ biblion -p 8080 &
+        run: npx http-server "./Tcc biblion" -p 8080 &
 
       - name: Wait for server
         run: sleep 5
