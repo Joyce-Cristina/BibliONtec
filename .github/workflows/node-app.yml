@@ -71,7 +71,7 @@ jobs:
 
       # UI tests (Playwright) — só arquivos Playwright
       - name: Run UI tests (Playwright)
-        run: npx playwright test "playwright-tests/**/*.spec.js"
+        run: npx playwright test playwright-tests
 
       # Serve website local para testes UI
       - name: Start HTTP server
