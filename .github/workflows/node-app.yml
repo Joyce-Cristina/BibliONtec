@@ -31,12 +31,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Corrigir permissões dos binários locais
-      - name: Give execute permission to Jest
-        run: chmod +x ./node_modules/.bin/jest
-
-      - name: Give execute permission to Playwright
-        run: chmod +x ./node_modules/.bin/playwright
+      # Corrigir permissão dos binários
+      - name: Give execute permission to Jest and Playwright
+        run: |
+          chmod +x ./node_modules/.bin/jest
+          chmod +x ./node_modules/.bin/playwright
 
       # Variáveis de ambiente para banco
       - name: Set DB env variables
@@ -63,16 +62,16 @@ jobs:
           "
 
       # Backend tests (Jest)
-      - name: Run backend tests (Jest)
-        run: npx jest "tests/jest/**/*.test.js" --runInBand
+      - name: Run backend tests
+        run: npx jest tests/jest/**/*.test.js --runInBand
 
-      # Instalação de browsers do Playwright
+      # Instalação dos browsers do Playwright
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # UI tests (Playwright)
+      # UI tests (Playwright) — sem erro de regex
       - name: Run UI tests (Playwright)
-        run: npx playwright test "playwright-tests/**/*.spec.js"
+        run: npx playwright test playwright-tests/**/*.spec.js
 
       # Serve website local para testes UI
       - name: Start HTTP server
