@@ -36,7 +36,7 @@ jobs:
 
       # Backend tests (Jest)
       - name: Run backend tests (Jest)
-        run: npx jest --runInBand
+        run: npm test -- --runInBand
 
       # Playwright browsers
       - name: Install Playwright browsers
@@ -44,7 +44,7 @@ jobs:
 
       # UI tests (Playwright)
       - name: Run UI tests (Playwright)
-        run: npx playwright test
+        run: npm run test:playwright
 
       # Serve website locally
       - name: Start HTTP server
