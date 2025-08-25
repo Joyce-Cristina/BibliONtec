@@ -4,18 +4,15 @@ const app = express();
 
 app.use(express.json());
 
-// exemplo de rota /login
+// Rota fake de login apenas para testes
 app.post("/login", (req, res) => {
   const { email, senha } = req.body;
+
   if (email === "teste_ci@teste.com" && senha === "123456") {
     return res.status(200).json({ message: "Login OK" });
+  } else {
+    return res.status(401).json({ message: "Credenciais inválidas" });
   }
-  return res.status(401).json({ message: "Credenciais inválidas" });
-});
-
-// exemplo de rota /livros
-app.get("/livros", (req, res) => {
-  res.status(200).json([{ id: 1, titulo: "Livro teste" }]);
 });
 
 module.exports = app;
