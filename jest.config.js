@@ -1,4 +1,4 @@
 // jest.config.js
 module.exports = {
-  testMatch: ["<rootDir>/tests/jest/**/*.test.js"],
+  testMatch: ["<rootDir>/tests/**/*.test.js"],
 };
