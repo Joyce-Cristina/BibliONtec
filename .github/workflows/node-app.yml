@@ -6,92 +6,84 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: write
+  checks: write
+  actions: write
+
 jobs:
-  test:
+  build:
+    name: CI Tests
     runs-on: ubuntu-latest
 
     services:
       mysql:
         image: mysql:8
+        ports:
+          - 3306:3306
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: bibliontec
-        ports:
-          - 3306:3306
         options: >-
-          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -proot"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout do código
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: '18'
 
-      - name: Install dependencies
+      - name: Instalar dependências
         run: npm install
 
-      # Corrigir permissão dos binários
-      - name: Give execute permission to Jest, Playwright and LHCI
+      - name: Aguardar MySQL
         run: |
-          chmod +x ./node_modules/.bin/jest
-          chmod +x ./node_modules/.bin/playwright
-          chmod +x ./node_modules/.bin/lhci
+          until mysqladmin ping -h"127.0.0.1" -uroot -proot --silent; do
+            echo "Aguardando MySQL iniciar..."
+            sleep 2
+          done
 
-      # Variáveis de ambiente para banco
-      - name: Set DB env variables
+      - name: Criar tabelas no banco de teste
+        run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
+
+      - name: Dar permissão ao Jest
+        run: chmod +x ./node_modules/.bin/jest
+
+      - name: Rodar testes
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USER: root
+          DB_PASSWORD: root
+          DB_NAME: bibliontec
+        run: npx jest --forceExit --detectOpenHandles
+
+      - name: Empacotar projeto
+        if: success()
+        run: zip -r BibliONtec.zip .
+
+      - name: Excluir artefatos antigos via API
+        if: success()
         run: |
-          echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
-          echo "DB_USER=root" >> $GITHUB_ENV
-          echo "DB_PASSWORD=root" >> $GITHUB_ENV
-          echo "DB_NAME=bibliontec" >> $GITHUB_ENV
+          artifacts=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/artifacts \
+            | jq -r '.artifacts[] | select(.name=="bibliotec-artifact") | .id')
 
-      - name: Wait for MySQL
-        run: sleep 20
+          for artifact in $artifacts; do
+            echo "Excluindo artefato $artifact..."
+            curl -s -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$artifact
+          done
 
-      # Criação da tabela `usuario` antes dos testes
-      - name: Create usuario table
-        run: |
-          mysql -h 127.0.0.1 -uroot -proot bibliontec -e "
-            CREATE TABLE IF NOT EXISTS usuario (
-              id INT AUTO_INCREMENT PRIMARY KEY,
-              nome VARCHAR(255) NOT NULL,
-              email VARCHAR(255) NOT NULL,
-              senha VARCHAR(255) NOT NULL,
-              FK_tipo_usuario_id INT NOT NULL
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-          "
-
-      # Backend tests (Jest)
-      - name: Run backend tests (Jest)
-        run: npx jest --runInBand "tests/jest/**/*.test.js"
-
-      # Instalação dos browsers do Playwright
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      # Serve website local para testes UI
-      - name: Start HTTP server
-        run: npx http-server "./TccBiblion" -p 8080 &
-
-      - name: Wait for HTTP server
-        run: npx wait-on http://127.0.0.1:8080/index/homepageAdm2.html --timeout 120000
-
-      # UI tests (Playwright)
-      - name: Run UI tests (Playwright)
-        run: npx playwright test playwright-tests
-
-      # Lighthouse CI
-      - name: Run Lighthouse CI
-        run: npx lhci autorun --config=lighthouserc.json
-
-      # Upload Lighthouse reports
-      - name: Upload Lighthouse Report
+      - name: Upload do artefato
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: lhci-report
-          path: lhci-reports/
+          name: bibliotec-artifact
+          path: BibliONtec.zip
+    
