@@ -1,15 +1,15 @@
 async function carregarLivros() {
-    try {
-      const resp = await fetch("http://localhost:3000/livros");
-      if (!resp.ok) throw new Error("Erro ao buscar livros");
-      return await resp.json();
-    } catch (err) {
-      console.error("Erro no carregarLivros:", err);
-      return [];
-    }
+  try {
+    const resp = await fetch("http://localhost:3000/livros");
+    if (!resp.ok) throw new Error("Erro ao buscar livros");
+    return await resp.json();
+  } catch (err) {
+    console.error("Erro no carregarLivros:", err);
+    return [];
   }
-  
-  function renderizarLivros(containerId, livros) {
+}
+
+function renderizarLivros(containerId, livros) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
@@ -45,9 +45,19 @@ async function carregarLivros() {
       </div>
     `;
 
-    // 🔗 redirecionar para visLivro.html com o id do livro
-    col.querySelector(".card").addEventListener("click", () => {
-      window.location.href = `visLivro.html?id=${livro.id}`;
+    const card = col.querySelector(".card");
+
+    card.addEventListener("click", () => {
+      localStorage.setItem("livroSelecionado", livro.id);
+      window.location.href = "visLivro.html";
+    });
+
+    const botoes = col.querySelectorAll("button");
+    botoes.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation(); 
+        console.log(`Botão clicado: ${btn.className}`);
+      });
     });
 
     row.appendChild(col);
@@ -56,12 +66,7 @@ async function carregarLivros() {
   console.log("Número de rows criadas:", document.querySelectorAll("#" + containerId + " > .row").length);
 }
 
-  
-  
-  
-  // Executa ao carregar a página
-  document.addEventListener("DOMContentLoaded", async () => {
-    const livros = await carregarLivros();
-    renderizarLivros("gridLivros", livros);
-  });
-  
+document.addEventListener("DOMContentLoaded", async () => {
+  const livros = await carregarLivros();
+  renderizarLivros("gridLivros", livros);
+});

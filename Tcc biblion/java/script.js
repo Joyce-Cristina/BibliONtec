@@ -265,19 +265,6 @@ if (formLogin) {
     }
   }
 
-  if (usuario) {
-    const permissoesUsuario = {
-      1: ["homepageAluno.html","areaAluno.html","biblioteca.html","eventos.html","indicacoes.html","lista.html","meusLivros.html","VisLivro"],
-      2: ["homepageProf.html"]
-    };
-    const tipo = Number(usuario.tipo);
-    if (!permissoesUsuario[tipo].includes(pagina)) {
-      alert("🚫 Você não tem permissão para acessar esta página!");
-      window.location.href = "index.html";
-      return;
-    }
-  }
-
   // ---------------- Esconder links da sidebar ----------------
   if (funcionario) {
     const funcao = Number(funcionario.funcao_id);
