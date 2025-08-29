@@ -130,50 +130,77 @@
       background-color: #7A1600;
       color: #fff;
     }
+    
+    .btn-indicar {
+      background-color: #7A1600;
+      color: #fff;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-weight: bold;
+      margin: 20px auto;
+      display: block;
+    }
 
     /* Comentários */
-   .comentarios-container {
-  max-height: 250px;
-  overflow-y: scroll;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  margin-top: 10px;
-}
+    .comentarios-container {
+      max-height: 250px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 10px;
+    }
 
-/* Força a barra de rolagem sempre visível */
-.comentarios-container::-webkit-scrollbar {
-  width: 10px;
-}
+    /* Força a barra de rolagem sempre visível */
+    .comentarios-container::-webkit-scrollbar {
+      width: 10px;
+    }
 
-.comentarios-container::-webkit-scrollbar-thumb {
-  background-color: #888;
-  border-radius: 5px;
-}
+    .comentarios-container::-webkit-scrollbar-thumb {
+      background-color: #888;
+      border-radius: 5px;
+    }
 
-.comentarios-container::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
-}
+    .comentarios-container::-webkit-scrollbar-track {
+      background-color: #f1f1f1;
+    }
 
-.comentario {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 15px;
-}
+    .comentario {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
 
-.comentario-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
+    .comentario-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
 
-.comentario-conteudo {
-  background-color: #f8f9fa;
-  padding: 8px 12px;
-  border-radius: 8px;
-  flex: 1;
-}
+    .comentario-conteudo {
+      background-color: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 8px;
+      flex: 1;
+    }
+    
+    .oculto-professor {
+      display: none;
+    }
+    
+    .navbar-professor {
+      justify-content: center !important;
+    }
+    
+    .navbar-professor .navbar-center {
+      display: none;
+    }
+    
+    .navbar-professor .navbar-right {
+      position: absolute;
+      right: 20px;
+    }
 
   </style>
 </head>
@@ -181,7 +208,7 @@
 <body>
 
   <!--Navbar-->
-  <nav class="navbar-custom">
+  <nav class="navbar-custom" id="navbarCustom">
     <div class="navbar-left">
       <a href="./index.html">
         <img src="../img/logoreta.png" alt="Logo" class="logo-navbar">
@@ -243,11 +270,12 @@
     </div>
   </section>
 
-  <!-- Botões -->
-  <div class="botoes-livro">
+  <div class="botoes-livro" id="botoesLivro">
     <button class="btn btn-reservar">Reserve o livro agora</button>
     <button class="btn btn-lista">Adicionar na lista de desejos</button>
   </div>
+  
+  <button class="btn btn-indicar oculto-professor" id="btnIndicar">Indicar</button>
 
   <div id="usuarioLogado"></div>
 
@@ -294,6 +322,41 @@
   </footer>
 
   <script src="../java/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const usuario = JSON.parse(localStorage.getItem('usuario'));
+      const funcionario = JSON.parse(localStorage.getItem('funcionario'));
+      
+      let isProfessor = false;
+      
+      if (usuario && usuario.tipo_usuario_id == 2) {
+        isProfessor = true;
+      }
+      
+      if (isProfessor) {
+        document.getElementById('botoesLivro').classList.add('oculto-professor');
+
+        document.getElementById('btnIndicar').classList.remove('oculto-professor');
+        
+        document.getElementById('navbarCustom').classList.add('navbar-professor');
+        
+        document.querySelector('.icon-btn').classList.add('oculto-professor');
+      }
+      
+      if (usuario && usuario.foto) {
+        document.getElementById('avatarPerfil').src = `http://localhost:3000/uploads/${usuario.foto}`;
+      } else if (funcionario && funcionario.foto) {
+        document.getElementById('avatarPerfil').src = `http://localhost:3000/uploads/${funcionario.foto}`;
+      }
+    });
+    
+    // Função de logout
+    function logout() {
+      localStorage.removeItem('usuario');
+      localStorage.removeItem('funcionario');
+      window.location.href = './index.html';
+    }
+  </script>
   <script src="../java/visLivro.js"></script>
 </body>
 

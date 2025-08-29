@@ -268,7 +268,7 @@ if (formLogin) {
     const permissoesUsuario = {
      
       1: ["homepageAluno.html","areaAluno.html","biblioteca.html","eventos.html","indicacoes.html","lista.html","meusLivros.html","visLivro.html"],
-      2: ["homepageProf.html"]
+      2: ["homepageProf.html","livrosProf.html","areaProf.html","visLivro.html"]
     };
     const tipo = Number(usuario.tipo_usuario_id);
     if (!permissoesUsuario[tipo].includes(pagina)) {
