@@ -35,7 +35,7 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 
-const upload = multer({ 
+const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
     if (allowedMimeTypes.includes(file.mimetype)) {
@@ -43,14 +43,14 @@ const upload = multer({
     } else {
       cb(new Error('Apenas arquivos de imagem JPEG, PNG, JPG e WEBP são permitidos.'));
     }
-  } 
+  }
 });
 
 // -------------------- MYSQL --------------------
 const connection = mysql.createConnection({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD ?? '', // usa 'root' se não existir
+  password: process.env.DB_PASSWORD ?? '', // usa 'root' se não existir
   database: process.env.DB_NAME || 'bibliontec'
 });
 
@@ -98,42 +98,58 @@ app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
 
     const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
-     const sql = `INSERT INTO usuario 
+    const sql = `INSERT INTO usuario 
     (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  connection.query(sql, [nome, telefone, email, senhaFinal, foto, tipo_usuario_id, curso_id || null, serie || null, funcionario_id || null], (err, result) => {
-    if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
+    connection.query(sql, [nome, telefone, email, senhaFinal, foto, tipo_usuario_id, curso_id || null, serie || null, funcionario_id || null], (err, result) => {
+      if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
 
-    const usuarioId = result.insertId;
+      const usuarioId = result.insertId;
 
-    if (curso_id) {
-      const sqlUsuarioCurso = `INSERT INTO usuario_curso (FK_usuario_id, FK_curso_id) VALUES (?, ?)`;
-      connection.query(sqlUsuarioCurso, [usuarioId, curso_id], (err) => {
-        if (err) return res.status(500).json({ error: 'Erro ao inserir em usuario_curso' });
-        return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
-      });
-    } else {
-      return res.status(200).json({ message: 'Usuário cadastrado com sucesso (sem curso).', senhaGerada: senhaFinal });
-    }
+      if (curso_id) {
+        const sqlUsuarioCurso = `INSERT INTO usuario_curso (FK_usuario_id, FK_curso_id) VALUES (?, ?)`;
+        connection.query(sqlUsuarioCurso, [usuarioId, curso_id], (err) => {
+          if (err) return res.status(500).json({ error: 'Erro ao inserir em usuario_curso' });
+          return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
+        });
+      } else {
+        return res.status(200).json({ message: 'Usuário cadastrado com sucesso (sem curso).', senhaGerada: senhaFinal });
+      }
+    });
   });
-});
 });
 
 
 // Cadastro de funcionário
 app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
   try {
-    const { nome, senha, email, funcao_id, telefone, permissoes } = req.body;
+    const nome = req.body.nome;
+    const senha = req.body.senha;
+    const email = req.body.email;
+    const telefone = req.body.telefone || null;
+    const FK_funcao_id = req.body.FK_funcao_id || null;
+    let permissoes = req.body['permissoes[]'] || [];
+
+    if (typeof permissoes === "string") {
+      permissoes = [permissoes];
+    }
+
     let foto = req.file ? req.file.filename : 'padrao.png';
 
     if (!nome || !email) return res.status(400).json({ error: 'Campos obrigatórios não preenchidos.' });
     if (telefone && !telefoneValido(telefone)) return res.status(400).json({ error: 'Telefone inválido.' });
-
     if (req.file) {
       foto = Date.now() + '.jpg';
-      await sharp(req.file.path).resize(300, 300).toFormat('jpeg').jpeg({ quality: 90 }).toFile(`uploads/${foto}`);
-      fs.unlinkSync(req.file.path);
+      const uploadDir = path.join(__dirname, '..', 'uploads', foto);
+
+      await sharp(req.file.path)
+        .resize(300, 300)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(uploadDir);
+
+      fs.unlinkSync(req.file.path); // remove o arquivo original salvo pelo multer
     }
 
     const checkEmailSql = `SELECT id FROM funcionario WHERE email = ?`;
@@ -146,15 +162,16 @@ app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
       const sql = `INSERT INTO funcionario (nome, senha, email, foto, telefone, FK_funcao_id)
                    VALUES (?, ?, ?, ?, ?, ?)`;
 
-      connection.query(sql, [nome, senhaFinal, email, foto, telefone || null, funcao_id || null], (err, result) => {
-        if (err) return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
+      connection.query(sql, [nome, senhaFinal, email, foto, telefone, FK_funcao_id], (err, result) => {
+        if (err) {
+          console.error("Erro no INSERT:", err);
+          return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
+        }
 
         const funcionarioId = result.insertId;
-        let permissoesFormatadas = permissoes;
-        if (typeof permissoesFormatadas === 'string') permissoesFormatadas = [permissoesFormatadas];
 
-        if (permissoesFormatadas && Array.isArray(permissoesFormatadas)) {
-          const values = permissoesFormatadas.map(p => [p, funcionarioId]);
+        if (permissoes.length > 0) {
+          const values = permissoes.map(p => [p, funcionarioId]);
           const permSql = `INSERT INTO funcionario_permissao (FK_permissao_id, FK_funcionario_id) VALUES ?`;
           connection.query(permSql, [values], (err) => {
             if (err) return res.status(500).json({ error: 'Funcionário criado, mas erro nas permissões.', senhaGerada: senhaFinal });
@@ -166,31 +183,27 @@ app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
       });
     });
   } catch (error) {
+    console.error("Erro inesperado:", error);
     return res.status(500).json({ error: 'Erro inesperado no servidor.' });
   }
 });
+
 
 // Função para validar senha forte
 function senhaValida(senha) {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
   return regex.test(senha);
 }
-
-// Login (usuário ou funcionário)
+//----------------LOGIN DE USUÁRIO E FUNCIONÁRIO----------------
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
 
-  // valida formato da senha antes de consultar
-  if (!senhaValida(senha)) {
-    return res.status(400).json({
-      error: "Senha inválida. A senha deve conter pelo menos 8 caracteres, incluindo:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)"
-    });
-  }
-
   // 🔹 LOGIN DE USUÁRIO
-  const sqlUsuario = `SELECT id, nome, FK_tipo_usuario_id AS tipo, foto 
-                      FROM usuario 
-                      WHERE email = ? AND senha = ?`;
+  const sqlUsuario = `
+    SELECT id, nome, FK_tipo_usuario_id AS tipo, foto 
+    FROM usuario 
+    WHERE email = ? AND senha = ?
+  `;
 
   connection.query(sqlUsuario, [email, senha], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro no servidor' });
@@ -199,58 +212,55 @@ app.post('/login', (req, res) => {
       const usuario = results[0];
       return res.status(200).json({
         message: 'Login usuário bem-sucedido',
-        usuario: { 
-          id: usuario.id, 
-          nome: usuario.nome, 
-          tipo: usuario.tipo, 
-          foto: usuario.foto || 'padrao.png' 
+        usuario: {
+          id: usuario.id,
+          nome: usuario.nome,
+          tipo: usuario.tipo,
+          foto: usuario.foto || 'padrao.png'
         }
       });
     }
 
-    // 🔹 LOGIN DE FUNCIONÁRIO (inclui ADMIN)
-    const sqlFuncionario = `SELECT id, nome, email, senha, telefone, foto, FK_funcao_id AS funcao_id 
-                            FROM funcionario 
-                            WHERE email = ? AND senha = ?`;
+    // 🔹 LOGIN DE FUNCIONÁRIO
+    const sqlFuncionario = `
+      SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto, 
+             f.FK_funcao_id AS funcao_id,
+             fn.funcao AS funcao_nome
+      FROM funcionario f
+      JOIN funcao fn ON f.FK_funcao_id = fn.id
+      WHERE f.email = ? AND f.senha = ?
+    `;
 
     connection.query(sqlFuncionario, [email, senha], (err, results) => {
-      if (err) return res.status(500).json({ error: 'Erro no servidor' });
-      if (results.length === 0) return res.status(401).json({ error: 'Email ou senha inválidos' });
+      if (err) return res.status(500).json({ error: "Erro no servidor" });
 
-      const f = results[0];
-
-      if (f.funcao_id === 1) {
-        // 👑 ADMINISTRADOR
-        return res.status(200).json({
-          message: 'Login administrador bem-sucedido',
-          administrador: { 
-            id: f.id, 
-            nome: f.nome, 
-            email: f.email, 
-            telefone: f.telefone, 
-            foto: f.foto || 'padrao.png' 
-          }
-        });
-      } else {
-        // 👨‍💼 FUNCIONÁRIO NORMAL
-        return res.status(200).json({
-          message: 'Login funcionário bem-sucedido',
-          funcionario: { 
-            id: f.id, 
-            nome: f.nome, 
-            email: f.email, 
-            telefone: f.telefone, 
-            funcao_id: f.funcao_id, 
-            foto: f.foto || 'padrao.png' 
-          }
-        });
+      if (results.length === 0) {
+        return res.status(401).json({ error: "Email ou senha inválidos" });
       }
+
+      const funcionario = {
+        id: results[0].id,
+        nome: results[0].nome,
+        email: results[0].email,
+        telefone: results[0].telefone,
+        funcao_id: results[0].funcao_id,
+
+        funcao_nome: results[0].funcao_nome,
+        foto: results[0].foto || "padrao.png"
+      };
+
+
+      return res.status(200).json({
+        message: "Login funcionário bem-sucedido",
+        funcionario
+      });
     });
   });
 });
 
-// Buscar um livro específico com todas as informações 
-// Buscar todos os livros com informações relacionadas
+
+
+// Buscar um livro específico com todas as informações
 app.get('/livros', (req, res) => {
   const sql = `
     SELECT 
@@ -258,10 +268,10 @@ app.get('/livros', (req, res) => {
       l.titulo,
       l.sinopse,
       l.capa,
-      l.numero_paginas,
+      l.paginas,
       l.isbn,
       g.genero,
-      e.nome AS editora,
+      e.editora AS editora,
       GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
       f.nome AS funcionario_cadastrou
     FROM livro l
@@ -270,44 +280,6 @@ app.get('/livros', (req, res) => {
     LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
     LEFT JOIN autor a ON la.FK_autor_id = a.id
     LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
-    GROUP BY l.id
-  `;
-
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error('Erro ao buscar livros:', err);
-      return res.status(500).json({ error: 'Erro no servidor' });
-    }
-    res.json(results);
-  });
-});
-
-// Buscar um livro específico com todas as informações
-app.get('/livros/:id', (req, res) => {
-  const { id } = req.params;
-  const sql = `
-    SELECT 
-      l.id,
-      l.titulo,
-      l.sinopse,
-      l.capa,
-      l.numero_paginas,
-      l.isbn,
-      g.id AS genero_id,
-      g.genero,
-      e.id AS editora_id,
-      e.nome AS editora,
-      GROUP_CONCAT(a.id) AS autores_ids,
-      GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
-      f.id AS funcionario_id,
-      f.nome AS funcionario_cadastrou
-    FROM livro l
-    LEFT JOIN genero g ON l.FK_genero_id = g.id
-    LEFT JOIN editora e ON l.FK_editora_id = e.id
-    LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
-    LEFT JOIN autor a ON la.FK_autor_id = a.id
-    LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
-    WHERE l.id = ?
     GROUP BY l.id
   `;
 
@@ -322,6 +294,7 @@ app.get('/livros/:id', (req, res) => {
     res.json(results[0]);
   });
 });
+
 // Atualizar dados do usuário (telefone OU senha)
 app.put('/usuario/:id', (req, res) => {
   const id = req.params.id;
@@ -363,37 +336,32 @@ app.put('/usuario/:id', (req, res) => {
 });
 
 // Rota para buscar dados do usuário logado
-app.get('/usuario/:id', (req, res) => {
-  const id = req.params.id;
-
+app.get('/livros', (req, res) => {
   const sql = `
     SELECT 
-      u.id, 
-      u.nome, 
-      u.email, 
-      u.telefone, 
-      u.senha, 
-      u.foto, 
-      u.FK_tipo_usuario_id AS tipo,   -- 👈 sempre renomeia para "tipo"
-      u.curso_id, 
-      u.serie, 
-      c.curso AS nome_curso
-    FROM usuario u
-    LEFT JOIN curso c ON u.curso_id = c.id
-    WHERE u.id = ?
+      l.id,
+      l.titulo,
+      l.sinopse,
+      l.capa,
+      l.paginas,
+      l.isbn,
+      g.genero,
+      GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
+      f.nome AS funcionario_cadastrou
+    FROM livro l
+    LEFT JOIN genero g ON l.FK_genero_id = g.id
+    LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
+    LEFT JOIN autor a ON la.FK_autor_id = a.id
+    LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
+    GROUP BY l.id
   `;
 
-  connection.query(sql, [id], (err, results) => {
+  connection.query(sql, (err, results) => {
     if (err) {
-      console.error("Erro ao buscar usuário:", err);
-      return res.status(500).json({ error: "Erro ao buscar usuário" });
+      console.error('Erro ao buscar livros:', err);
+      return res.status(500).json({ error: 'Erro no servidor' });
     }
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: "Usuário não encontrado" });
-    }
-
-    res.json({ usuario: results[0] });
+    res.json(results);
   });
 });
 /// Atualizar dados do funcionário
@@ -566,7 +534,7 @@ app.get('/api/funcionarios', (req, res) => {
     FROM funcionario f
     LEFT JOIN funcao fun ON f.FK_funcao_id = fun.id
   `;
-  
+
   connection.query(sql, (err, results) => {
     if (err) {
       console.error('Erro ao buscar funcionários:', err);
@@ -587,7 +555,7 @@ app.put('/api/funcionarios/:id', (req, res) => {
     SET nome = ?, email = ?, telefone = ?, FK_funcao_id = ? 
     WHERE id = ?
   `;
-  
+
   connection.query(sql, [nome, email, telefone, funcao_id, id], (err) => {
     if (err) {
       console.error('Erro ao atualizar funcionário:', err);
@@ -664,7 +632,7 @@ app.get('/api/usuarios', (req, res) => {
     SELECT u.id, u.nome, u.email, u.telefone, u.foto, u.FK_tipo_usuario_id AS tipo
     FROM usuario u
   `;
-  
+
   connection.query(sql, (err, results) => {
     if (err) {
       console.error('Erro ao buscar usuários:', err);
@@ -694,14 +662,13 @@ app.delete('/api/usuarios/:id', (req, res) => {
 });
 
 // Atualizar livro com chaves estrangeiras
-app.put('/livros/:id', (req, res) => {
+pp.put('/livros/:id', (req, res) => {
   const { id } = req.params;
   const { titulo, isbn, autoresIds, editoraId, generoId, funcionarioId, sinopse, paginas } = req.body;
 
-  // Atualiza a tabela livro
   const sqlLivro = `
     UPDATE livro
-    SET titulo = ?, isbn = ?, FK_editora_id = ?, FK_genero_id = ?, FK_funcionario_id = ?, sinopse = ? , paginas = ?
+    SET titulo = ?, isbn = ?, FK_editora_id = ?, FK_genero_id = ?, FK_funcionario_id = ?, sinopse = ?, paginas = ?
     WHERE id = ?
   `;
 
@@ -773,37 +740,37 @@ app.delete('/livros/:id', (req, res) => {
 
 // Rota para listar tipos de instituição
 app.get("/tipos-instituicao", (req, res) => {
-    const sql = "SELECT * FROM tipo_instituicao";
-    connection.query(sql, (err, results) => {   // <-- aqui
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ mensagem: "Erro ao carregar tipos de instituição" });
-        }
-        res.json(results);
-    });
+  const sql = "SELECT * FROM tipo_instituicao";
+  connection.query(sql, (err, results) => {   // <-- aqui
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ mensagem: "Erro ao carregar tipos de instituição" });
+    }
+    res.json(results);
+  });
 });
 
 // Rota para cadastrar nova instituição
 app.post("/instituicao", (req, res) => {
-    const { nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id } = req.body;
+  const { nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id } = req.body;
 
-    if (!nome || !FK_tipo_instituicao_id) {
-        return res.status(400).json({ mensagem: "Nome e tipo da instituição são obrigatórios." });
-    }
+  if (!nome || !FK_tipo_instituicao_id) {
+    return res.status(400).json({ mensagem: "Nome e tipo da instituição são obrigatórios." });
+  }
 
-    const sql = `
+  const sql = `
         INSERT INTO instituicao 
         (nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id) 
         VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-    connection.query(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id], (err, result) => {  // <-- aqui
-        if (err) {
-            console.error("Erro ao cadastrar instituição:", err);
-            return res.status(500).json({ mensagem: "Erro ao cadastrar instituição" });
-        }
-        res.json({ mensagem: "Instituição cadastrada com sucesso!", id: result.insertId });
-    });
+  connection.query(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id], (err, result) => {  // <-- aqui
+    if (err) {
+      console.error("Erro ao cadastrar instituição:", err);
+      return res.status(500).json({ mensagem: "Erro ao cadastrar instituição" });
+    }
+    res.json({ mensagem: "Instituição cadastrada com sucesso!", id: result.insertId });
+  });
 });
 
 

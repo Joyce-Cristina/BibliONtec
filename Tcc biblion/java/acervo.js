@@ -140,11 +140,38 @@ function excluirLivro(id) {
 }
 
 // Abrir modal de edição
-function abrirModalEdicaoLivro(id) {
+async function abrirModalEdicaoLivro(id) {
   const livro = todosOsLivros.find(l => l.id === id);
   if (!livro) return;
 
-  const campos = ['id-livro','titulo-livro','isbn-livro','autores-livro','editora-livro','genero-livro','funcionario-livro','sinopse-livro','paginas-livro'];
+  // 1️⃣ Carrega todos os gêneros do backend
+  let generos = [];
+  try {
+    const resposta = await fetch('http://localhost:3000/generos'); // ou /generosFiltro
+    generos = await resposta.json();
+  } catch (erro) {
+    console.error('Erro ao carregar gêneros:', erro);
+  }
+
+  // 2️⃣ Preenche o select de gêneros com todos os gêneros
+  const selectGenero = document.getElementById('genero-livro');
+  if (selectGenero) {
+    selectGenero.innerHTML = ''; // limpa antes
+    generos.forEach(g => {
+      const option = document.createElement('option');
+      option.value = g.id;
+      option.textContent = g.genero;
+      // ✅ Marca o gênero do livro como selecionado usando FK
+      if (g.id === livro.FK_genero_id) option.selected = true;
+      selectGenero.appendChild(option);
+    });
+  }
+
+  // 3️⃣ Preenche os outros campos do modal
+  const campos = [
+    'id-livro','titulo-livro','isbn-livro','autores-livro',
+    'editora-livro','funcionario-livro','sinopse-livro','paginas-livro'
+  ];
   campos.forEach(campo => {
     const el = document.getElementById(campo);
     if (el) {
@@ -153,6 +180,7 @@ function abrirModalEdicaoLivro(id) {
     }
   });
 
+  // 4️⃣ Abre o modal
   const modalEl = document.getElementById('modal-editar-livro');
   if (modalEl) {
     const modal = new bootstrap.Modal(modalEl);
@@ -160,43 +188,3 @@ function abrirModalEdicaoLivro(id) {
   }
 }
 
-// Fechar modal
-function fecharModalLivro() {
-  const modalEl = document.getElementById('modal-editar-livro');
-  const modal = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
-  if (modal) modal.hide();
-}
-
-// Salvar alterações do modal
-const formEditar = document.getElementById('form-editar-livro');
-if (formEditar) {
-  formEditar.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const id = document.getElementById('id-livro')?.value;
-    const dados = {
-      titulo: document.getElementById('titulo-livro')?.value,
-      isbn: document.getElementById('isbn-livro')?.value,
-      autores: document.getElementById('autores-livro')?.value,
-      editora: document.getElementById('editora-livro')?.value,
-      genero: document.getElementById('genero-livro')?.value,
-      funcionario: document.getElementById('funcionario-livro')?.value,
-      sinopse: document.getElementById('sinopse-livro')?.value,
-      paginas: document.getElementById('paginas-livro')?.value
-    };
-
-    fetch(`http://localhost:3000/livros/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
-    })
-    .then(res => {
-      if (res.ok) {
-        fecharModalLivro();
-        carregarLivros();
-      } else {
-        alert('Erro ao editar livro');
-      }
-    })
-    .catch(err => console.error('Erro ao editar livro:', err));
-  });
-}
