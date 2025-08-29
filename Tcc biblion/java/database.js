@@ -837,10 +837,10 @@ app.post('/livros/:id/comentarios', (req, res) => {
 });
 
 
-// Rota para listar tipos de instituição
+// Lista tipos de instituição
 app.get("/tipos-instituicao", (req, res) => {
   const sql = "SELECT * FROM tipo_instituicao";
-  connection.query(sql, (err, results) => {   // <-- aqui
+  connection.query(sql, (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ mensagem: "Erro ao carregar tipos de instituição" });
@@ -849,7 +849,22 @@ app.get("/tipos-instituicao", (req, res) => {
   });
 });
 
-// Rota para cadastrar nova instituição
+// Buscar dados da instituição
+app.get("/instituicao", (req, res) => {
+  const sql = "SELECT * FROM instituicao LIMIT 1";
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erro ao buscar instituição:", err);
+      return res.status(500).json({ mensagem: "Erro ao buscar instituição" });
+    }
+    if (results.length === 0) {
+      return res.json(null);
+    }
+    res.json(results[0]);
+  });
+});
+
+// Cadastrar instituição
 app.post("/instituicao", (req, res) => {
   const { nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id } = req.body;
 
@@ -863,7 +878,7 @@ app.post("/instituicao", (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-  connection.query(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id], (err, result) => {  // <-- aqui
+  connection.query(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id], (err, result) => {
     if (err) {
       console.error("Erro ao cadastrar instituição:", err);
       return res.status(500).json({ mensagem: "Erro ao cadastrar instituição" });
@@ -871,6 +886,27 @@ app.post("/instituicao", (req, res) => {
     res.json({ mensagem: "Instituição cadastrada com sucesso!", id: result.insertId });
   });
 });
+
+// Atualizar instituição
+app.put("/instituicao/:id", (req, res) => {
+  const { id } = req.params;
+  const { nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id } = req.body;
+
+  const sql = `
+    UPDATE instituicao
+    SET nome = ?, email = ?, horario_funcionamento = ?, telefone = ?, website = ?, endereco = ?, FK_tipo_instituicao_id = ?
+    WHERE id = ?
+  `;
+
+  connection.query(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id, id], (err) => {
+    if (err) {
+      console.error("Erro ao atualizar instituição:", err);
+      return res.status(500).json({ mensagem: "Erro ao atualizar instituição" });
+    }
+    res.json({ mensagem: "Instituição atualizada com sucesso!" });
+  });
+});
+
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = 3000;
