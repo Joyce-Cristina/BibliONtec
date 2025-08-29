@@ -249,38 +249,16 @@
     <button class="btn btn-lista">Adicionar na lista de desejos</button>
   </div>
 
-    <!-- Seção de Comentários -->
+  <div id="usuarioLogado"></div>
+
   <div class="container my-5">
     <h4>Comentários</h4>
-    <div class="comentarios-container">
-      <div class="comentario">
-        <img src="../img/avatar.jpg" alt="Perfil" class="comentario-avatar">
-        <div class="comentario-conteudo">
-          <strong>Ana</strong>
-          <p>Gostei bastante desse livro, recomendo!</p>
-        </div>
-      </div>
-
-      <div class="comentario">
-        <img src="../img/avatar.jpg" alt="Perfil" class="comentario-avatar">
-        <div class="comentario-conteudo">
-          <strong>João</strong>
-          <p>A história é envolvente, mas achei o final previsível.</p>
-        </div>
-      </div>
-
-      <div class="comentario">
-        <img src="../img/avatar.jpg" alt="Perfil" class="comentario-avatar">
-        <div class="comentario-conteudo">
-          <strong>Maria</strong>
-          <p>Excelente para quem gosta de suspense!</p>
-        </div>
-      </div>
+    <div class="comentarios-container" id="comentariosContainer">
     </div>
 
     <div class="novo-comentario mt-3">
-      <textarea class="form-control mb-2" rows="3" placeholder="Escreva seu comentário..."></textarea>
-      <button class="btn btn-reservar">Enviar comentário</button>
+      <textarea id="novoComentario" class="form-control mb-2" rows="3" placeholder="Escreva seu comentário..."></textarea>
+      <button class="btn btn-reservar" id="btnEnviarComentario">Enviar comentário</button>
     </div>
   </div>
 
@@ -316,6 +294,7 @@
   </footer>
 
   <script src="../java/script.js"></script>
+  <script src="../java/visLivro.js"></script>
 </body>
 
 </html>

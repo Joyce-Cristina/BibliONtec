@@ -346,6 +346,19 @@ app.get('/funcionario/:id', (req, res) => {
   });
 });
 
+app.get('/usuario/:id', (req, res) => {
+  const id = req.params.id;
+
+  const sql = `SELECT id, nome, email FROM usuario WHERE id = ?`;
+
+  connection.query(sql, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: "Erro ao buscar usuário" });
+    if (results.length === 0) return res.status(404).json({ error: "Usuário não encontrado" });
+
+    res.json({ usuario: results[0] });
+  });
+});
+
 // Cadastro de Livro
 // Cadastro de Livro
 app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
@@ -588,6 +601,45 @@ app.delete('/api/usuarios/:id', (req, res) => {
   });
 });
 
+app.get('/livros/:id', (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+  SELECT 
+    l.id,
+    l.titulo,
+    l.sinopse,
+    l.capa,
+    l.paginas,
+    l.isbn,
+    g.genero,
+    e.editora,
+    (SELECT GROUP_CONCAT(a.nome SEPARATOR ', ')
+     FROM livro_autor la
+     JOIN autor a ON la.FK_autor_id = a.id
+     WHERE la.FK_livro_id = l.id) AS autores,
+    f.nome AS funcionario_cadastrou
+  FROM livro l
+  LEFT JOIN genero g ON l.FK_genero_id = g.id
+  LEFT JOIN editora e ON l.FK_editora_id = e.id
+  LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
+  WHERE l.id = ?
+`;
+
+  connection.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar livro:', err);
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Livro não encontrado' });
+    }
+
+    res.json(results[0]); // retorna só o livro encontrado
+  });
+});
+
 // Atualizar livro com chaves estrangeiras
 app.put('/livros/:id', (req, res) => {
   const { id } = req.params;
@@ -670,11 +722,17 @@ app.get('/livros/:id/comentarios', (req, res) => {
   const { id } = req.params;
 
   const sql = `
-    SELECT c.id, c.comentario, c.data_comentario, u.nome, u.foto
+    SELECT 
+      c.id, 
+      c.comentario, 
+      c.data_comentario, 
+      u.nome, 
+      u.foto,
+      u.id as usuario_id
     FROM comentario c
-    JOIN comentario_livro cl ON c.id = cl.FK_comentario_id
     JOIN usuario_comentario uc ON c.id = uc.FK_comentario_id
     JOIN usuario u ON uc.FK_usuario_id = u.id
+    JOIN comentario_livro cl ON c.id = cl.FK_comentario_id
     WHERE cl.FK_livro_id = ?
     ORDER BY c.data_comentario DESC
   `;
@@ -760,7 +818,6 @@ app.post("/instituicao", (req, res) => {
     res.json({ mensagem: "Instituição cadastrada com sucesso!", id: result.insertId });
   });
 });
-
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = 3000;
