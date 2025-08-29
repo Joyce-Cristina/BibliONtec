@@ -282,27 +282,22 @@
   
 
 
-  <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column">
-    <div class="dropdown" data-permissao="cadastro">
-      <button class="btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
-        Cadastro
-      </button>
+  <!-- ===== Sidebar ===== -->
+  <div class="sidebar">
+    <div class="dropdown">
+      <button class="btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">Cadastro</button>
       <ul class="dropdown-menu">
-    <li><a class="dropdown-item" href="./cadAluno.html" data-permissao="cadAluno">Aluno</a></li>
-    <li><a class="dropdown-item" href="./cadLivro.html" data-permissao="cadLivro">Livros</a></li>
-    <li><a class="dropdown-item" href="./cadFunc.html" data-permissao="cadFunc">Funcionários</a></li>
-  </ul>
-</div>
-
- 
-    <a class="btn w-100" href="./emprestimo.html" data-permissao="emprestimo">Empréstimo</a>
-    <a class="btn w-100" href="./etiqueta.html" data-permissao="etiqueta">Etiqueta</a>
-    <a class="btn w-100" href="./areaAdm.html" data-permissao="administrador">Administrador</a>
-    <a class="btn w-100" href="./acervo.html" data-permissao="acervo">Acervo</a>
-    <a class="btn w-100" href="./usuarios.html" data-permissao="usuarios">Usuários</a>
-    <a class="btn w-100" href="./funcionarios.html" data-permissao="funcionarios">Funcionários</a>
-    <a class="btn w-100" href="./backup.html" data-permissao="backup">Backup</a>
+        <li><a class="dropdown-item" href="./cadAluno.html">Aluno</a></li>
+        <li><a class="dropdown-item" href="./cadLivro.html">Livro</a></li>
+        <li><a class="dropdown-item" href="./cadFunc.html">Funcionário</a></li>
+      </ul>
+    </div>
+    <a class="btn w-100" href="./emprestimo.html">Empréstimo</a>
+    <a class="btn w-100" href="./etiqueta.html">Etiqueta</a>
+    <a class="btn w-100" href="./areaAdm.html">Administrador</a>
+    <a class="btn w-100 active" href="./acervo.html">Acervo</a>
+    <a class="btn w-100" href="./usuarios.html">Usuários</a>
+    <a class="btn w-100" href="./funcionarios.html">Funcionários</a>
   </div>
 
   <!-- Conteúdo principal -->
@@ -374,8 +369,7 @@
     </section>
 
   </div>
-  <!-- Modal Editar Livro -->
-<!-- Modal Editar Livro -->
+ <!-- Modal Editar Livro -->
 <div id="modal-editar-livro" class="modal fade" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -412,7 +406,10 @@
             </div>
             <div class="col-md-6 mb-3">
               <label>Gênero</label>
-              <input type="text" id="genero-livro" class="form-control">
+              <!-- 🔥 Alterado de input para select -->
+              <select id="genero-livro" class="form-select">
+                <!-- opções vão ser carregadas pelo JS -->
+              </select>
             </div>
           </div>
           
