@@ -267,7 +267,7 @@ if (formLogin) {
 
   if (usuario) {
     const permissoesUsuario = {
-      1: ["homepageAluno.html","areaAluno.html","biblioteca.html","eventos.html","indicacoes.html","lista.html","meusLivros.html"],
+      1: ["homepageAluno.html","areaAluno.html","biblioteca.html","eventos.html","indicacoes.html","lista.html","meusLivros.html","VisLivro"],
       2: ["homepageProf.html"]
     };
     const tipo = Number(usuario.tipo);
@@ -282,8 +282,8 @@ if (formLogin) {
   if (funcionario) {
     const funcao = Number(funcionario.funcao_id);
     const permissoesMenu = {
-      1: ["usuariosAdm2","configAdm2","manutencao","relatorios","VisLivro"],
-      2: ["cadastro","cadAluno","cadLivro","cadFunc","funcionarios","usuarios","emprestimo","etiqueta","acervo"],
+      1: ["usuariosAdm2","configAdm2","manutencao","relatorios"],
+      2: ["cadastro","cadAluno","cadLivro","cadFunc","funcionarios","usuarios","emprestimo","etiqueta","acervo" ],
       3: ["usuarios","emprestimo","acervo"],
       4: ["cadastro","cadLivro","acervo","etiqueta"]
     };
