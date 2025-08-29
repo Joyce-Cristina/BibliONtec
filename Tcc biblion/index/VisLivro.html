@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BibliOnTec - Detalhes do Livro</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+    .menu-perfil.show {
+      display: flex;
+    }
+
+    .perfil-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .avatar-navbar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      object-fit: cover;
+    }
+
+    .menu-perfil {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      min-width: 180px;
+      z-index: 1000;
+      flex-direction: column;
+    }
+
+    .menu-perfil a {
+      padding: 10px 15px;
+      text-decoration: none;
+      display: block;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .menu-perfil a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .menu-perfil hr.menu-divider {
+      margin: 5px 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+
+    /* --- Container do Livro --- */
+    .livro-detalhe {
+      max-width: 1100px;
+      margin: 60px auto 30px auto;
+      background-color: #dcc7a1;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .livro-detalhe img {
+      width: 320px;
+      height: 450px;
+      object-fit: cover;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .livro-info {
+      flex: 1;
+    }
+
+    .livro-info h4 {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .livro-info p {
+      margin-bottom: 15px;
+      text-align: justify;
+    }
+
+    .disponibilidade {
+      font-weight: bold;
+      color: red;
+      margin-top: 20px;
+    }
+
+    /* Botões */
+    .botoes-livro {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 30px auto;
+    }
+
+    .botoes-livro .btn {
+      font-weight: bold;
+      padding: 12px 25px;
+      border-radius: 8px;
+    }
+
+    .btn-reservar {
+      background-color: #7A1600;
+      color: #fff;
+    }
+
+    .btn-lista {
+      background-color: transparent;
+      border: 2px solid #7A1600;
+      color: #7A1600;
+    }
+
+    .btn-lista:hover {
+      background-color: #7A1600;
+      color: #fff;
+    }
+
+    /* Comentários */
+   .comentarios-container {
+  max-height: 250px;
+  overflow-y: scroll;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+/* Força a barra de rolagem sempre visível */
+.comentarios-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.comentarios-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}
+
+.comentarios-container::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+.comentario {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.comentario-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.comentario-conteudo {
+  background-color: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 8px;
+  flex: 1;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar-custom">
+    <div class="navbar-left">
+      <a href="./index.html">
+        <img src="../img/logoreta.png" alt="Logo" class="logo-navbar">
+      </a>
+    </div>
+
+    <div class="navbar-center">
+      <div class="search-box">
+        <input type="text" placeholder="Pesquisar...">
+        <i class="bi bi-search"></i>
+      </div>
+
+      <ul class="menu-navbar">
+        <li><a href="./homepageAluno.html">Página inicial</a></li>
+        <li><a href="./indicacoes.html">Indicações</a></li>
+        <li><a href="./lista.html">Lista de desejo</a></li>
+        <li><a href="./areaAluno.html">Área do aluno</a></li>
+        <li><a href="./meusLivros.html">Meus livros</a></li>
+        <li><a href="./eventos.html">Eventos</a></li>
+        <li><a href="./biblioteca.html">Biblioteca</a></li>
+      </ul>
+    </div>
+    
+    <div class="navbar-right">
+      <a href="./areaAluno.html#notificacoes" class="icon-btn">
+        <i class="bi bi-bell"></i>
+      </a>
+      <div class="perfil-dropdown">
+        <img src="../img/avatar.jpg" alt="Perfil" class="avatar-navbar" id="avatarPerfil">
+        <div class="menu-perfil" id="menuPerfil">
+          <a href="#"> Perguntas frequentes</a>
+          <hr class="menu-divider">
+          <a href="#"> Entre em contato</a>
+          <hr class="menu-divider">
+          <a href="index.html" onclick="logout()"> Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <br><br>
+
+  <!-- Detalhes do Livro -->
+  <section class="livro-detalhe">
+    <img src="https://via.placeholder.com/320x450" alt="Capa do Livro">
+    <div class="livro-info">
+      <h4>Título do Livro:</h4>
+      <p>[Placeholder do título]</p>
+
+      <h4>Autor:</h4>
+      <p>[Placeholder do autor]</p>
+
+      <h4>Descrição:</h4>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin quis sem at odio commodo commodo.
+        Suspendisse potenti. Curabitur euismod nec sapien sed volutpat. Cras eget turpis id est fermentum
+        euismod.</p>
+
+      <p class="disponibilidade">Indisponível</p>
+    </div>
+  </section>
+
+  <!-- Botões -->
+  <div class="botoes-livro">
+    <button class="btn btn-reservar">Reserve o livro agora</button>
+    <button class="btn btn-lista">Adicionar na lista de desejos</button>
+  </div>
+
+    <!-- Seção de Comentários -->
+  <div class="container my-5">
+    <h4>Comentários</h4>
+    <div class="comentarios-container">
+      <div class="comentario">
+        <img src="../img/avatar.jpg" alt="Perfil" class="comentario-avatar">
+        <div class="comentario-conteudo">
+          <strong>Ana</strong>
+          <p>Gostei bastante desse livro, recomendo!</p>
+        </div>
+      </div>
+
+      <div class="comentario">
+        <img src="../img/avatar.jpg" alt="Perfil" class="comentario-avatar">
+        <div class="comentario-conteudo">
+          <strong>João</strong>
+          <p>A história é envolvente, mas achei o final previsível.</p>
+        </div>
+      </div>
+
+      <div class="comentario">
+        <img src="../img/avatar.jpg" alt="Perfil" class="comentario-avatar">
+        <div class="comentario-conteudo">
+          <strong>Maria</strong>
+          <p>Excelente para quem gosta de suspense!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="novo-comentario mt-3">
+      <textarea class="form-control mb-2" rows="3" placeholder="Escreva seu comentário..."></textarea>
+      <button class="btn btn-reservar">Enviar comentário</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-light py-4 mt-5">
+    <div class="container d-flex justify-content-between align-items-start">
+      <div>
+        <h5>Desenvolvedores</h5>
+        <ul class="list-unstyled">
+          <li><strong>Ana Laura</strong> – pesquisadora</li>
+          <li><strong>Camila</strong> – designer</li>
+          <li><strong>Guilherme P.</strong> – pesquisador</li>
+          <li><strong>Joyce</strong> – líder do projeto</li>
+          <li><strong>Juan</strong> – designer</li>
+          <li><strong>Venicius</strong> – programador</li>
+          <li><strong>Vinicius R.</strong> – programador</li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Contatos</h5>
+        <ul class="list-unstyled">
+          <li><strong>E-mail:</strong> tcc@gmail.com</li>
+          <li><strong>Instagram:</strong> @BibliONtec</li>
+        </ul>
+      </div>
+
+      <div class="text-start" style="max-width: 200px;">
+        <h5>Sobre</h5>
+        <p class="mb-0">Site para gestão de biblioteca e interação com usuários.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../java/script.js"></script>
+</body>
+
+</html>
