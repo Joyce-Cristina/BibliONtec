@@ -238,11 +238,13 @@
       border: none;
       border-top: 1px solid #ccc;
     }
-     /* altura típica da navbar do Bootstrap ~56–60px */
-.main-container,
-.main-container-custom{
-  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
-}
+
+    /* altura típica da navbar do Bootstrap ~56–60px */
+    .main-container,
+    .main-container-custom {
+      padding-top: 76px !important;
+      /* evita que o conteúdo fique escondido sob a navbar */
+    }
   </style>
 </head>
 
@@ -250,7 +252,7 @@
 
 <body>
   <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid d-flex align-items-center">
       <a class="navbar-brand" href="./homepageAdm.html">
         <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto" />
@@ -295,25 +297,30 @@
     </div>
   </nav>
 
+
+
+
   <!-- Sidebar -->
   <div class="sidebar d-flex flex-column">
-    <div class="dropdown">
+    <div class="dropdown" data-permissao="cadastro">
       <button class="btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
         Cadastro
       </button>
       <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="./cadAluno.html">Aluno</a></li>
-        <li><a class="dropdown-item" href="./cadLivro.html">Livros</a></li>
-        <li><a class="dropdown-item active" href="./cadFunc.html">Funcionários</a></li>
-      </ul>
-    </div>
-    <a class="btn w-100" href="./emprestimo.html">Empréstimo</a>
-    <a class="btn w-100" href="./etiqueta.html">Etiqueta</a>
-    <a class="btn w-100" href="./areaAdm.html">Administrador</a>
-    <a class="btn w-100" href="./acervo.html">Acervo</a>
-    <a class="btn w-100" href="./usuarios.html">Usuários</a>
-    <a class="btn w-100" href="./funcionarios.html">Funcionários</a>
-    <a class="btn w-100" href="./backup.html">Backup</a>
+    <li><a class="dropdown-item" href="./cadAluno.html" data-permissao="cadAluno">Aluno</a></li>
+    <li><a class="dropdown-item" href="./cadLivro.html" data-permissao="cadLivro">Livros</a></li>
+    <li><a class="dropdown-item" href="./cadFunc.html" data-permissao="cadFunc">Funcionários</a></li>
+  </ul>
+</div>
+
+ 
+    <a class="btn w-100" href="./emprestimo.html" data-permissao="emprestimo">Empréstimo</a>
+    <a class="btn w-100" href="./etiqueta.html" data-permissao="etiqueta">Etiqueta</a>
+    <a class="btn w-100" href="./areaAdm.html" data-permissao="administrador">Administrador</a>
+    <a class="btn w-100" href="./acervo.html" data-permissao="acervo">Acervo</a>
+    <a class="btn w-100" href="./usuarios.html" data-permissao="usuarios">Usuários</a>
+    <a class="btn w-100" href="./funcionarios.html" data-permissao="funcionarios">Funcionários</a>
+    <a class="btn w-100" href="./backup.html" data-permissao="backup">Backup</a>
   </div>
 
   <!-- Conteúdo principal -->
@@ -326,7 +333,7 @@
             <label class="form-label" for="nome">Nome:</label>
             <input type="text" id="nome" name="nome" class="form-control apenasTexto" required />
           </div>
-            <div id="mensagemErroFuncionario" style="display:none; color:red; margin-bottom:10px;"></div>
+          <div id="mensagemErroFuncionario" style="display:none; color:red; margin-bottom:10px;"></div>
           <div class="col-md-6">
             <label class="form-label" for="email">E-mail:</label>
             <input type="email" id="email" name="email" class="form-control" required />
@@ -338,43 +345,46 @@
             <label class="form-label" for="senha">Senha:</label>
             <input type="password" id="senha" name="senha" class="form-control" />
           </div>
-        <div class="col-md-6">
-      <label class="form-label" for="funcao">Função:</label>
-      <select id="funcao" name="funcao_id" class="form-select">
-        <option value="">Selecione a função</option>
-        <option value="1">Administração</option>
-        <option value="2">Circulação</option>
-        <option value="3">Catalogação</option>
-      </select>
-    </div>
+          <div class="col-md-6">
+            <label class="form-label" for="funcao">Função:</label>
+            <select id="funcao" name="FK_funcao_id" class="form-select">
+              <option value="">Selecione a função</option>
+              <option value="1">Administrador</option>
+              <option value="2">Bibliotecário</option>
+              <option value="3">Circulação</option>
+              <option value="4">Catalogação</option>
+            </select>
+
+          </div>
         </div>
 
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <label class="form-label" for="telefone">Telefone:</label>
-       <input type="number" class="form-control" id="telefone"  pattern="^\d{10,11}$" title="Digite apenas números (DDD + telefone, 10 ou 11 dígitos)" required>
-    </div>
-    
-  </div>
- 
-  <div class="mb-4 d-flex align-items-center">
-  <div id="previewBox"
-       style="width: 100px; height: 150px; background-color: #5d3b1a; border-radius: 6px; margin-right: 20px; background-image: url('http://localhost:3000/uploads/padrao.jpg'); background-size: cover; background-position: center;">
-  </div>
-  <div>
-    <label class="mb-2">Escolha a foto para o usuário</label>
-    <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
-  </div>
-</div>
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label" for="telefone">Telefone:</label>
+            <input type="number" class="form-control" id="telefone" pattern="^\d{10,11}$"
+              title="Digite apenas números (DDD + telefone, 10 ou 11 dígitos)" required>
+          </div>
 
-  
+        </div>
 
-  <div class="mb-4"></div>
+        <div class="mb-4 d-flex align-items-center">
+          <div id="previewBox"
+            style="width: 100px; height: 150px; background-color: #5d3b1a; border-radius: 6px; margin-right: 20px; background-image: url('http://localhost:3000/uploads/padrao.jpg'); background-size: cover; background-position: center;">
+          </div>
+          <div>
+            <label class="mb-2">Escolha a foto para o usuário</label>
+            <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+          </div>
+        </div>
 
-  <div class="text-center">
-    <button type="submit" class="btn btn-custom px-5 py-3">Cadastrar Funcionário</button>
-  </div>
-  
+
+
+        <div class="mb-4"></div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-custom px-5 py-3">Cadastrar Funcionário</button>
+        </div>
+
       </form>
 
     </div>
@@ -388,8 +398,9 @@
   </div>
   <!-- Avatar com menu fixado no canto inferior esquerdo -->
   <div class="avatar-container">
-    
-    <img src="http://localhost:3000/uploads/padrao.png"id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+
+    <img src="http://localhost:3000/uploads/padrao.png" id="avatarPerfil" class="avatar-navbar"
+      alt="Avatar do Usuário" />
     <div id="menuPerfil" class="menu-perfil">
       <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
       <hr class="menu-divider">
@@ -399,7 +410,7 @@
     </div>
   </div>
   <script src="../java/script.js"></script>
-    <script src="../java/funcionario.js"></script>
+  <script src="../java/funcionario.js"></script>
 </body>
 
 </html>
