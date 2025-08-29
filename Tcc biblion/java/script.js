@@ -251,7 +251,7 @@ if (formLogin) {
   if (funcionario) {
     const funcao = Number(funcionario.funcao_id);
     const permissoesPaginas = {
-      1: ["homepageAdm2.html","areaAdm2.html","backup.html","configAdm2.html","manutencao.html"],
+      1: ["homepageAdm2.html","areaAdm2.html","backup.html","configAdm2.html","manutencao.html","bibliotecarios.html"],
       2: ["homepageAdm.html","areaAdm.html","cadLivro.html","cadAluno.html","cadFunc.html",
           "usuarios.html","funcionarios.html","emprestimo.html","etiqueta.html","acervo.html","relatorios.html"],
       3: ["homepageAdm.html","usuarios.html","emprestimo.html","acervo.html"],
