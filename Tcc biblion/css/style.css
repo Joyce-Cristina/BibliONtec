@@ -1251,6 +1251,210 @@ form.form-limpo label {
   }
 }
 
+.tab-content {
+            display: flex;
+            padding: 20px;
+            margin: 20px auto;
+            border: none;
+            background-color: transparent;
+            max-width: 800px;
+            gap: 20px; /* espaço entre as caixas */
+            align-items: flex-start;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+  
+  /* === Largura total nas abas === */
+.tab-content {
+  display: block;        /* não precisa ser flex aqui */
+  width: 100% !important;
+  max-width: none !important;
+  margin: 20px 0 !important;
+}
+
+#configTabsContent .tab-pane {
+  width: 100% !important;
+}
+
+#em,
+#em .col-12,
+#em .section-box {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+#em canvas#graficoEmprestimos {
+  width: 100% !important;   /* Chart.js ocupa toda a largura */
+  height: 380px !important; /* ajuste a gosto */
+}
+
+
+.history-section table {
+  width: 100%;          /* tabela vai expandir até o limite do container */
+  table-layout: fixed;  /* distribui melhor as colunas */
+}
+
+.history-section {
+    flex: 1 1 70%;   /* 70% da largura da linha */
+    min-width: 500px; /* garante tamanho mínimo */
+}
+
+
+/* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1;
+            padding-left: 270px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center;
+            font-family: Georgia, serif;
+            font-weight: 500;
+        }
+
+        /* Estilos para o grupo de busca */
+        .input-group-custom {
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* Barra de pesquisa */
+        .search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78 !important;
+            border-radius: 15px !important;
+            padding: 30px !important; 
+            max-width: 1000px !important;
+            margin: 20px auto !important;
+            width: 100% !important;
+
+        }
+
+        /* Estilo para o campo de status */
+        .status-label {
+            font-weight: bold  !important;
+            color: rgb(0, 0, 0) !important;
+            margin-right: 5px !important;
+        }
+
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px !important;
+            margin-right: 10px !important;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+        /* Estilo dos botões */
+        .status-select,
+        .new-user-btn {
+            margin-top: 10px;
+            /* Adiciona um pequeno espaço superior para os botões */
+        }
+        /* Estilo para o botão Status */
+        .status-select {
+            margin-left: 10px;
+            margin-right: 20px;
+            font-weight: bold;
+            color: rgb(0, 0, 0);
+            margin-right: 1px;
+            background-color: white;
+            border-color: #c8aa78;
+            border-radius: 25px;
+            padding: 10px 30px;
+            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+        }
+
+
+        /* Layout para os botões fora do card */
+        .d-flex.justify-content-between.mt-3 {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin: 0 20px !important;
+            /* Adiciona espaço nas laterais para afastar da "parede" */
+        }
+
+        /* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
+        .new-user-btn {
+            background-color: #7a1600 !important;
+            color: white !important;
+            border-radius: 25px !important;
+            padding: 10px 20px !important;
+        }
+
+        .new-user-btn:hover {
+            background-color: #5c0e00 !important;
+        }
+
+        /* Estilos específicos para o main-container */
+        .main-container-custom {
+            flex: 1 !important;
+            padding-left: 270px !important;
+             padding-top: 100px !important;
+            padding-bottom: 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            overflow-y: auto !important;
+            min-height: calc(100vh - 56px) !important;
+        }
+
+        /* Título estilizado */
+        .text-center-custom {
+            text-align: center !important;
+            font-family: Georgia, serif !important;
+            font-weight: 500 !important;
+            font-size: 2rem  !important;
+            margin: 0 !important;
+        }
+
+        /* Ajuste do card */
+        .custom-card {
+            background-color: #c8aa78 !important;
+            border-radius: 10px!important;
+            padding: 20px 40px!important;
+            width: auto;
+            /* Ajuste a largura para se ajustar ao conteúdo */
+            margin: 0 auto;
+            /* Centraliza o card */
+            padding: 10%;
+        }
+
+        /* Sombra semelhante à da imagem */
+        .shadow-title {
+            box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15)!important;
+        }
+
+        /* Correções de responsividade extras */
+
 
 
 
