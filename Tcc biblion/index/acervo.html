@@ -369,8 +369,7 @@
     </section>
 
   </div>
-  <!-- Modal Editar Livro -->
-<!-- Modal Editar Livro -->
+ <!-- Modal Editar Livro -->
 <div id="modal-editar-livro" class="modal fade" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -407,7 +406,10 @@
             </div>
             <div class="col-md-6 mb-3">
               <label>Gênero</label>
-              <input type="text" id="genero-livro" class="form-control">
+              <!-- 🔥 Alterado de input para select -->
+              <select id="genero-livro" class="form-select">
+                <!-- opções vão ser carregadas pelo JS -->
+              </select>
             </div>
           </div>
           
