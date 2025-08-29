@@ -269,6 +269,7 @@ app.get('/livros', (req, res) => {
       l.capa,
       l.paginas,
       l.isbn,
+      l.FK_genero_id,       -- 👈 ADICIONE ISSO
       g.genero,
       e.editora AS editora,
       GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
@@ -281,6 +282,7 @@ app.get('/livros', (req, res) => {
     LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
     GROUP BY l.id
   `;
+
 
   connection.query(sql, (err, results) => {  // <-- removi [id]
     if (err) {
