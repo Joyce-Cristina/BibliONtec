@@ -215,7 +215,7 @@ app.post('/login', (req, res) => {
         usuario: {
           id: usuario.id,
           nome: usuario.nome,
-          tipo: usuario.tipo,
+          tipo_usuario_id: usuario.tipo, 
           foto: usuario.foto || 'padrao.png'
         }
       });

@@ -182,7 +182,7 @@ if (formLogin) {
           // Login de usuário comum
           const usuario = data.usuario;
           localStorage.setItem("usuario", JSON.stringify(usuario));
-          const tipoUsuario = Number(usuario.tipo);
+          const tipoUsuario = Number(usuario.tipo_usuario_id);
           if (tipoUsuario === 1) {
             window.location.href = './homepageAluno.html';
           } else if (tipoUsuario === 2) {
@@ -267,10 +267,10 @@ if (formLogin) {
   if (usuario) {
     const permissoesUsuario = {
      
-      1: ["homepageAluno.html","areaAluno.html","biblioteca.html","eventos.html","indicacoes.html","lista.html","meusLivros.html","VisLivro.html"],
+      1: ["homepageAluno.html","areaAluno.html","biblioteca.html","eventos.html","indicacoes.html","lista.html","meusLivros.html","visLivro.html"],
       2: ["homepageProf.html"]
     };
-    const tipo = Number(usuario.tipo);
+    const tipo = Number(usuario.tipo_usuario_id);
     if (!permissoesUsuario[tipo].includes(pagina)) {
       alert("🚫 Você não tem permissão para acessar esta página!");
       window.location.href = "index.html";
