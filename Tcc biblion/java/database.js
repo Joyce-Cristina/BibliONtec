@@ -194,6 +194,7 @@ function senhaValida(senha) {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
   return regex.test(senha);
 }
+
 //----------------LOGIN DE USUÁRIO E FUNCIONÁRIO----------------
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
@@ -422,6 +423,56 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   });
 });
 
+app.get('/turmas', async (req, res) => {
+  try {
+    const [turmas] = await connection.execute(`
+      SELECT DISTINCT c.id, c.curso, u.serie 
+      FROM curso c 
+      JOIN usuario u ON c.id = u.curso_id 
+      WHERE u.serie IS NOT NULL 
+      ORDER BY c.curso, u.serie
+    `);
+    res.json({ turmas });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar turmas' });
+  }
+});
+
+app.get('/indicacoes-livro/:id', async (req, res) => {
+  try {
+    const livroId = req.params.id;
+    const [indicacoes] = await connection.execute(`
+      SELECT * FROM indicacao 
+      WHERE FK_livro_id = ? AND FK_professor_id IS NOT NULL
+    `, [livroId]);
+    res.json({ indicacoes });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar indicações' });
+  }
+});
+
+app.post('/indicar-livro', async (req, res) => {
+  try {
+    const { livro_id, turmas, professor_id } = req.body;
+    
+    await connection.execute(
+      'DELETE FROM indicacao WHERE FK_livro_id = ? AND FK_professor_id = ?',
+      [livro_id, professor_id]
+    );
+    
+    for (const turma_id of turmas) {
+      await connection.execute(
+        `INSERT INTO indicacao (FK_livro_id, FK_professor_id, FK_turma_id, data_indicacao) 
+         VALUES (?, ?, ?, NOW())`,
+        [livro_id, professor_id, turma_id]
+      );
+    }
+    
+    res.json({ message: 'Indicações salvas com sucesso' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao salvar indicações' });
+  }
+});
 
 //carrega genero dos livros 
 app.get('/generos', (req, res) => {
