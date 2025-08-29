@@ -260,7 +260,6 @@ app.post('/login', (req, res) => {
 
 
 
-// Buscar um livro específico com todas as informações
 app.get('/livros', (req, res) => {
   const sql = `
     SELECT 
@@ -283,87 +282,15 @@ app.get('/livros', (req, res) => {
     GROUP BY l.id
   `;
 
-  connection.query(sql, [id], (err, results) => {
-    if (err) {
-      console.error('Erro ao buscar livro:', err);
-      return res.status(500).json({ error: 'Erro no servidor' });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Livro não encontrado' });
-    }
-    res.json(results[0]);
-  });
-});
-
-// Atualizar dados do usuário (telefone OU senha)
-app.put('/usuario/:id', (req, res) => {
-  const id = req.params.id;
-  const { telefone, senha } = req.body;
-
-  if (!telefone && !senha) {
-    return res.status(400).json({ error: "Informe pelo menos telefone ou senha." });
-  }
-
-  let sql = "UPDATE usuario SET ";
-  const values = [];
-
-  if (telefone) {
-    sql += "telefone = ? ";
-    values.push(telefone);
-  }
-
-  if (senha) {
-    if (telefone) sql += ", "; // vírgula se os dois vierem
-    sql += "senha = ? ";
-    values.push(senha);
-  }
-
-  sql += "WHERE id = ?";
-  values.push(id);
-
-  connection.query(sql, values, (err, result) => {
-    if (err) {
-      console.error("Erro ao atualizar usuário:", err);
-      return res.status(500).json({ error: "Erro ao atualizar usuário." });
-    }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Usuário não encontrado." });
-    }
-
-    res.status(200).json({ message: "Dados atualizados com sucesso!" });
-  });
-});
-
-// Rota para buscar dados do usuário logado
-app.get('/livros', (req, res) => {
-  const sql = `
-    SELECT 
-      l.id,
-      l.titulo,
-      l.sinopse,
-      l.capa,
-      l.paginas,
-      l.isbn,
-      g.genero,
-      GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
-      f.nome AS funcionario_cadastrou
-    FROM livro l
-    LEFT JOIN genero g ON l.FK_genero_id = g.id
-    LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
-    LEFT JOIN autor a ON la.FK_autor_id = a.id
-    LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
-    GROUP BY l.id
-  `;
-
-  connection.query(sql, (err, results) => {
+  connection.query(sql, (err, results) => {  // <-- removi [id]
     if (err) {
       console.error('Erro ao buscar livros:', err);
       return res.status(500).json({ error: 'Erro no servidor' });
     }
-    res.json(results);
+    res.json(results); // retorna a lista toda
   });
 });
+
 /// Atualizar dados do funcionário
 app.put('/funcionario/:id', (req, res) => {
   const id = req.params.id;
@@ -662,7 +589,7 @@ app.delete('/api/usuarios/:id', (req, res) => {
 });
 
 // Atualizar livro com chaves estrangeiras
-pp.put('/livros/:id', (req, res) => {
+app.put('/livros/:id', (req, res) => {
   const { id } = req.params;
   const { titulo, isbn, autoresIds, editoraId, generoId, funcionarioId, sinopse, paginas } = req.body;
 
@@ -737,6 +664,67 @@ app.delete('/livros/:id', (req, res) => {
     });
   });
 });
+
+// Buscar comentários de um livro
+app.get('/livros/:id/comentarios', (req, res) => {
+  const { id } = req.params;
+
+  const sql = `
+    SELECT c.id, c.comentario, c.data_comentario, u.nome, u.foto
+    FROM comentario c
+    JOIN comentario_livro cl ON c.id = cl.FK_comentario_id
+    JOIN usuario_comentario uc ON c.id = uc.FK_comentario_id
+    JOIN usuario u ON uc.FK_usuario_id = u.id
+    WHERE cl.FK_livro_id = ?
+    ORDER BY c.data_comentario DESC
+  `;
+
+  connection.query(sql, [id], (err, results) => {
+    if (err) {
+      console.error("Erro ao buscar comentários:", err);
+      return res.status(500).json({ error: "Erro no servidor" });
+    }
+    res.json(results);
+  });
+});
+
+// Adicionar comentário em um livro
+app.post('/livros/:id/comentarios', (req, res) => {
+  const { id } = req.params; // id do livro
+  const { usuarioId, comentario } = req.body; // virá do frontend
+
+  if (!usuarioId || !comentario) {
+    return res.status(400).json({ error: "Usuário e comentário são obrigatórios" });
+  }
+
+  const dataComentario = new Date();
+
+  const sqlComentario = `INSERT INTO comentario (comentario, data_comentario) VALUES (?, ?)`;
+
+  connection.query(sqlComentario, [comentario, dataComentario], (err, result) => {
+    if (err) {
+      console.error("Erro ao inserir comentário:", err);
+      return res.status(500).json({ error: "Erro ao salvar comentário" });
+    }
+
+    const comentarioId = result.insertId;
+
+    // Relacionar com livro
+    connection.query(
+      `INSERT INTO comentario_livro (FK_comentario_id, FK_livro_id) VALUES (?, ?)`,
+      [comentarioId, id]
+    );
+
+    // Relacionar com usuário
+    connection.query(
+      `INSERT INTO usuario_comentario (FK_usuario_id, FK_comentario_id) VALUES (?, ?)`,
+      [usuarioId, comentarioId]
+    );
+
+    res.status(201).json({ message: "Comentário adicionado com sucesso!" });
+  });
+});
+
 
 // Rota para listar tipos de instituição
 app.get("/tipos-instituicao", (req, res) => {
