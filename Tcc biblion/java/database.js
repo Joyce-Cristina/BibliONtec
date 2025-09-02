@@ -259,7 +259,34 @@ app.post('/login', (req, res) => {
   });
 });
 
+app.post("/indicacoes", async (req, res) => {
+  const { usuarioId, livroId } = req.body;
 
+  if (!usuarioId || !livroId) {
+    return res.status(400).json({ message: "Dados inválidos." });
+  }
+
+  try {
+    const [check] = await connection.query(
+      "SELECT * FROM indicacao WHERE FK_usuario_id = ? AND FK_livro_id = ?",
+      [usuarioId, livroId]
+    );
+
+    if (check.length > 0) {
+      return res.status(409).json({ message: "Já existe indicação deste livro." });
+    }
+
+    await connection.query(
+      "INSERT INTO indicacao (FK_usuario_id, FK_livro_id) VALUES (?, ?)",
+      [usuarioId, livroId]
+    );
+
+    res.status(201).json({ message: "Indicação registrada!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erro ao salvar indicação." });
+  }
+});
 
 app.get('/livros', (req, res) => {
   const sql = `
