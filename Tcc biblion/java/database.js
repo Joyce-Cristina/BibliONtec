@@ -906,6 +906,166 @@ app.put("/instituicao/:id", (req, res) => {
     res.json({ mensagem: "Instituição atualizada com sucesso!" });
   });
 });
+// Buscar regras gerais
+app.get("/configuracoes-gerais", (req, res) => {
+  const sql = "SELECT * FROM configuracoes_gerais LIMIT 1";
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erro ao buscar configurações gerais:", err);
+      return res.status(500).json({ mensagem: "Erro ao buscar configurações gerais" });
+    }
+    if (results.length === 0) {
+      return res.json(null);
+    }
+    res.json(results[0]);
+  });
+});
+
+// Cadastrar regras gerais
+app.post("/configuracoes-gerais", (req, res) => {
+  const { duracao_padrao_emprestimo, numero_maximo_renovacoes, tempo_retirada_reserva, numero_maximo_emprestimos, multa_por_atraso } = req.body;
+
+  const sql = `
+    INSERT INTO configuracoes_gerais
+    (duracao_padrao_emprestimo, numero_maximo_renovacoes, tempo_retirada_reserva, numero_maximo_emprestimos, multa_por_atraso)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  connection.query(sql, [duracao_padrao_emprestimo, numero_maximo_renovacoes, tempo_retirada_reserva, numero_maximo_emprestimos, multa_por_atraso], (err, result) => {
+    if (err) {
+      console.error("Erro ao cadastrar configurações:", err);
+      return res.status(500).json({ mensagem: "Erro ao cadastrar configurações gerais" });
+    }
+    res.json({ mensagem: "Configurações cadastradas com sucesso!", id: result.insertId });
+  });
+});
+
+// Atualizar regras gerais
+app.put("/configuracoes-gerais/:id", (req, res) => {
+  const { id } = req.params;
+  const { duracao_padrao_emprestimo, numero_maximo_renovacoes, tempo_retirada_reserva, numero_maximo_emprestimos, multa_por_atraso } = req.body;
+
+  const sql = `
+    UPDATE configuracoes_gerais
+    SET duracao_padrao_emprestimo = ?, numero_maximo_renovacoes = ?, tempo_retirada_reserva = ?, numero_maximo_emprestimos = ?, multa_por_atraso = ?
+    WHERE id = ?
+  `;
+
+  connection.query(sql, [duracao_padrao_emprestimo, numero_maximo_renovacoes, tempo_retirada_reserva, numero_maximo_emprestimos, multa_por_atraso, id], (err) => {
+    if (err) {
+      console.error("Erro ao atualizar configurações:", err);
+      return res.status(500).json({ mensagem: "Erro ao atualizar configurações gerais" });
+    }
+    res.json({ mensagem: "Configurações atualizadas com sucesso!" });
+  });
+});
+// Buscar todas as permissões
+app.get("/permissoes", (req, res) => {
+  const sql = "SELECT * FROM configuracoes_tipo_usuario";
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erro ao buscar permissões:", err);
+      return res.status(500).json({ mensagem: "Erro ao buscar permissões" });
+    }
+    res.json(results);
+  });
+});
+
+// Cadastrar permissões de um tipo de usuário
+app.post("/permissoes", (req, res) => {
+  const { tipo_usuario, max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar } = req.body;
+
+  if (!tipo_usuario) {
+    return res.status(400).json({ mensagem: "Tipo de usuário é obrigatório." });
+  }
+
+  const sql = `
+    INSERT INTO configuracoes_tipo_usuario 
+    (tipo_usuario, max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  connection.query(sql, [tipo_usuario, max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar], (err, result) => {
+    if (err) {
+      console.error("Erro ao cadastrar permissões:", err);
+      return res.status(500).json({ mensagem: "Erro ao cadastrar permissões" });
+    }
+    res.json({ mensagem: "Permissões cadastradas com sucesso!", id: result.insertId });
+  });
+});
+
+// Atualizar permissões de um tipo de usuário
+app.put("/permissoes/:id", (req, res) => {
+  const { id } = req.params;
+  const { max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar } = req.body;
+
+  const sql = `
+    UPDATE configuracoes_tipo_usuario
+    SET max_emprestimos = ?, duracao_emprestimo = ?, pode_reservar = ?, pode_renovar = ?
+    WHERE id = ?
+  `;
+
+  connection.query(sql, [max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar, id], (err) => {
+    if (err) {
+      console.error("Erro ao atualizar permissões:", err);
+      return res.status(500).json({ mensagem: "Erro ao atualizar permissões" });
+    }
+    res.json({ mensagem: "Permissões atualizadas com sucesso!" });
+  });
+});
+// Buscar configuração de notificações
+app.get("/notificacoes", (req, res) => {
+  const sql = "SELECT * FROM configuracoes_notificacoes LIMIT 1";
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error("Erro ao buscar notificações:", err);
+      return res.status(500).json({ mensagem: "Erro ao buscar notificações" });
+    }
+    res.json(results[0] || {});
+  });
+});
+
+// Salvar/atualizar configuração
+app.post("/notificacoes", (req, res) => {
+  const { email, sms, dias_antecedencia, atraso, reserva } = req.body;
+
+  const checkSql = "SELECT id FROM configuracoes_notificacoes LIMIT 1";
+  connection.query(checkSql, (err, results) => {
+    if (err) {
+      console.error("Erro ao verificar notificações:", err);
+      return res.status(500).json({ mensagem: "Erro ao verificar notificações" });
+    }
+
+    if (results.length > 0) {
+      // Atualiza
+      const id = results[0].id;
+      const updateSql = `
+        UPDATE configuracoes_notificacoes
+        SET email=?, sms=?, dias_antecedencia=?, atraso=?, reserva=?
+        WHERE id=?`;
+      connection.query(updateSql, [email, sms, dias_antecedencia, atraso, reserva, id], (err) => {
+        if (err) {
+          console.error("Erro ao atualizar notificações:", err);
+          return res.status(500).json({ mensagem: "Erro ao atualizar notificações" });
+        }
+        res.json({ mensagem: "Notificações atualizadas com sucesso!" });
+      });
+    } else {
+      // Insere
+      const insertSql = `
+        INSERT INTO configuracoes_notificacoes
+        (email, sms, dias_antecedencia, atraso, reserva)
+        VALUES (?, ?, ?, ?, ?)`;
+      connection.query(insertSql, [email, sms, dias_antecedencia, atraso, reserva], (err) => {
+        if (err) {
+          console.error("Erro ao salvar notificações:", err);
+          return res.status(500).json({ mensagem: "Erro ao salvar notificações" });
+        }
+        res.json({ mensagem: "Notificações cadastradas com sucesso!" });
+      });
+    }
+  });
+});
 
 
 // ✅ Agora o app.listen() pode ficar no final

@@ -194,7 +194,7 @@ if (formLogin) {
         } else if (data.funcionario) {
           // Login de funcionário
           const funcionarioCorrigido = {
-            ...data.funcionario,  // ✅ arrumado (antes tinha ".data")
+            ...data.funcionario,  // 
             funcao_id: Number(data.funcionario.funcao_id)
           };
 
