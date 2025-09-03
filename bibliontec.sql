@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 29/08/2025 às 20:04
+-- Tempo de geração: 03/09/2025 às 01:59
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -70,14 +70,6 @@ CREATE TABLE `comentario` (
   `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `comentario`
---
-
-INSERT INTO `comentario` (`id`, `comentario`, `data_comentario`, `FK_instituicao_id`) VALUES
-(1, 'ameiii amigaaa', '2025-08-29', NULL),
-(2, 'ai que triste esse livro amiga, odeie', '2025-08-29', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -88,14 +80,6 @@ CREATE TABLE `comentario_livro` (
   `FK_comentario_id` int(11) DEFAULT NULL,
   `FK_livro_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `comentario_livro`
---
-
-INSERT INTO `comentario_livro` (`FK_comentario_id`, `FK_livro_id`) VALUES
-(1, 1),
-(2, 1);
 
 -- --------------------------------------------------------
 
@@ -113,6 +97,13 @@ CREATE TABLE `configuracoes_gerais` (
   `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `configuracoes_gerais`
+--
+
+INSERT INTO `configuracoes_gerais` (`id`, `duracao_padrao_emprestimo`, `numero_maximo_renovacoes`, `tempo_retirada_reserva`, `numero_maximo_emprestimos`, `multa_por_atraso`, `FK_instituicao_id`) VALUES
+(1, 6, 2, 1, 2, 1.00, NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -126,7 +117,8 @@ CREATE TABLE `configuracoes_notificacao` (
   `notificacao_atraso` tinyint(1) DEFAULT 1,
   `notificacao_reserva` tinyint(1) DEFAULT 1,
   `notificacao_livro_disponivel` tinyint(1) DEFAULT 1,
-  `FK_instituicao_id` int(11) DEFAULT NULL
+  `FK_instituicao_id` int(11) DEFAULT NULL,
+  `sms_notificacao` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -143,6 +135,14 @@ CREATE TABLE `configuracoes_tipo_usuario` (
   `pode_reservar` tinyint(1) DEFAULT 0,
   `pode_renovar` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `configuracoes_tipo_usuario`
+--
+
+INSERT INTO `configuracoes_tipo_usuario` (`id`, `FK_tipo_usuario_id`, `maximo_emprestimos`, `duracao_emprestimo`, `pode_reservar`, `pode_renovar`) VALUES
+(1, 1, 2, 7, 1, 1),
+(2, 2, 4, 14, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -219,11 +219,8 @@ CREATE TABLE `funcao` (
 INSERT INTO `funcao` (`id`, `funcao`) VALUES
 (1, 'Administrador'),
 (2, 'Bibliotecário'),
-(3, 'Assistente'),
-(4, 'Administrador'),
-(5, 'Bibliotecário'),
-(6, 'Assistente'),
-(7, 'Bibliotecário');
+(3, 'Circulacao'),
+(4, 'Catalogacao');
 
 -- --------------------------------------------------------
 
@@ -250,8 +247,9 @@ INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id
 (4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654321', NULL),
 (5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', NULL, NULL, '11987654321', NULL),
 (8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', 'padrao.png', 1, '11999999999', NULL),
-(9, 'juliana', 'nVC91xSA', 'juju@gmail.com', '1756473389045.jpg', 3, '18574963213', NULL),
-(10, 'fabiana', 'KA69Judm', 'labubu@gmail.com', '1756484001934.jpg', 1, '18999999999', NULL);
+(9, 'cletin do pneu ', 'e32zy2mK', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', NULL),
+(10, 'shaulin ', 'YvP4t1Ev', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', NULL),
+(11, 'Joyce C Silva', 's56zlRvO', 'joyce@gmail.com', 'padrao.png', 3, '19993592019', NULL);
 
 -- --------------------------------------------------------
 
@@ -534,7 +532,7 @@ CREATE TABLE `livro` (
 --
 
 INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`, `FK_editora_id`) VALUES
-(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama Listrado', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, NULL, NULL, NULL, NULL, 5, NULL),
+(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5, '1ª', '1755263573033.jpg', '31', NULL, NULL, NULL, 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'o Livro Magico', NULL, NULL, '1', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
@@ -729,8 +727,8 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`) VALUES
-(13, '185749632172', 'joaodograu@gmail.com', '1755198080522.jpg', 'joao pedro silva', '1234Abc@', 1, 4, 1, 3, NULL, NULL, NULL),
-(30, '18574963213', 'carolzinha23@gmail.com', '1756476546148.jpg', 'carolina', '12TeJ1pT', 1, 4, 1, 2, NULL, NULL, NULL);
+(13, '185749632174', 'joaodograu@gmail.com', '1755198080522.jpg', 'joao pedro silva', '1234Abc@', 1, 4, 1, 3, NULL, NULL, NULL),
+(30, '1966258749', 'cleitindopneu@gmail.com', '1756406172119.jpg', 'cletin do pneu ', 'C8uLqyjK', 1, 4, 2, 3, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -754,14 +752,6 @@ CREATE TABLE `usuario_comentario` (
   `FK_comentario_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `usuario_comentario`
---
-
-INSERT INTO `usuario_comentario` (`FK_usuario_id`, `FK_comentario_id`) VALUES
-(13, 1),
-(13, 2);
-
 -- --------------------------------------------------------
 
 --
@@ -779,7 +769,7 @@ CREATE TABLE `usuario_curso` (
 
 INSERT INTO `usuario_curso` (`FK_usuario_id`, `FK_curso_id`) VALUES
 (13, 1),
-(30, 1);
+(30, 2);
 
 -- --------------------------------------------------------
 
@@ -1149,13 +1139,13 @@ ALTER TABLE `classificacao`
 -- AUTO_INCREMENT de tabela `comentario`
 --
 ALTER TABLE `comentario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `configuracoes_gerais`
 --
 ALTER TABLE `configuracoes_gerais`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `configuracoes_notificacao`
@@ -1167,7 +1157,7 @@ ALTER TABLE `configuracoes_notificacao`
 -- AUTO_INCREMENT de tabela `configuracoes_tipo_usuario`
 --
 ALTER TABLE `configuracoes_tipo_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `curso`
@@ -1197,7 +1187,7 @@ ALTER TABLE `funcao`
 -- AUTO_INCREMENT de tabela `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT de tabela `genero`

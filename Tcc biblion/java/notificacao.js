@@ -1,52 +1,73 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const salvarBtn = document.querySelector(".btn-save");
-  
-    const emailCheckbox = document.getElementById("emailNotifications");
-    const smsCheckbox = document.getElementById("smsNotifications");
-    const reminderDaysInput = document.getElementById("reminderDays");
-    const atrasoCheckbox = document.getElementById("overdueNotification");
-    const reservaCheckbox = document.getElementById("reservationNotification");
-  
-    async function carregarNotificacoes() {
-      try {
-        const res = await fetch("http://localhost:3000/notificacoes");
-        const data = await res.json();
-  
-        if (!data) return;
-  
-        emailCheckbox.checked = !!data.email;
-        smsCheckbox.checked = !!data.sms;
-        reminderDaysInput.value = data.dias_antecedencia || 1;
-        atrasoCheckbox.checked = !!data.atraso;
-        reservaCheckbox.checked = !!data.reserva;
-      } catch (e) {
-        console.error("Erro ao carregar notificações:", e);
-      }
+  carregarNotificacoes();
+
+  const btnSalvar = document.querySelector(".btn-save");
+  if (btnSalvar) {
+    btnSalvar.addEventListener("click", salvarNotificacoes);
+  }
+});
+
+// Pega funcionário logado
+const funcionario = JSON.parse(localStorage.getItem("funcionario"));
+const funcionarioId = funcionario ? funcionario.id : null;
+
+if (!funcionarioId) {
+  console.error("Nenhum funcionário logado encontrado no localStorage.");
+}
+
+// Buscar notificações do funcionário
+async function carregarNotificacoes() {
+  try {
+    const res = await fetch(`http://localhost:3000/notificacoes/${funcionarioId}`);
+    const data = await res.json();
+    if (!data || data.length === 0) return;
+
+    document.getElementById("emailNotifications").checked =
+      data.some(n => n.tipo === "email");
+    document.getElementById("smsNotifications").checked =
+      data.some(n => n.tipo === "sms");
+    document.getElementById("overdueNotification").checked =
+      data.some(n => n.tipo === "atraso");
+    document.getElementById("reservationNotification").checked =
+      data.some(n => n.tipo === "reserva");
+
+    if (data[0].dias_antes_vencimento !== undefined) {
+      document.getElementById("reminderDays").value = data[0].dias_antes_vencimento;
     }
-  
-    async function salvarNotificacoes() {
-      const notificacoes = {
-        email: emailCheckbox.checked ? 1 : 0,
-        sms: smsCheckbox.checked ? 1 : 0,
-        dias_antecedencia: reminderDaysInput.value,
-        atraso: atrasoCheckbox.checked ? 1 : 0,
-        reserva: reservaCheckbox.checked ? 1 : 0
-      };
-  
-      try {
-        const res = await fetch("http://localhost:3000/notificacoes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(notificacoes)
-        });
-        const result = await res.json();
-        alert("✅ " + result.mensagem);
-      } catch (e) {
-        console.error("Erro ao salvar notificações:", e);
-      }
+  } catch (error) {
+    console.error("Erro ao carregar notificações:", error);
+  }
+}
+
+// Salvar preferências do funcionário
+async function salvarNotificacoes() {
+  try {
+    const payload = { notificacoes: [] };
+
+    if (document.getElementById("emailNotifications").checked)
+      payload.notificacoes.push("email");
+    if (document.getElementById("smsNotifications").checked)
+      payload.notificacoes.push("sms");
+    if (document.getElementById("overdueNotification").checked)
+      payload.notificacoes.push("atraso");
+    if (document.getElementById("reservationNotification").checked)
+      payload.notificacoes.push("reserva");
+
+    payload.dias_antes_vencimento =
+      parseInt(document.getElementById("reminderDays").value) || 1;
+
+    const res = await fetch(`http://localhost:3000/notificacoes/${funcionarioId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      alert("✅ Notificações atualizadas com sucesso!");
+    } else {
+      alert("❌ Erro ao salvar notificações!");
     }
-  
-    if (salvarBtn) salvarBtn.addEventListener("click", salvarNotificacoes);
-    carregarNotificacoes();
-  });
-  
+  } catch (error) {
+    console.error("Erro ao salvar notificações:", error);
+  }
+}

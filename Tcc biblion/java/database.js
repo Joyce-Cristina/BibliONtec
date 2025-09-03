@@ -986,113 +986,114 @@ app.put("/configuracoes-gerais/:id", (req, res) => {
     res.json({ mensagem: "Configurações atualizadas com sucesso!" });
   });
 });
-// Buscar todas as permissões
-app.get("/permissoes", (req, res) => {
-  const sql = "SELECT * FROM configuracoes_tipo_usuario";
-  connection.query(sql, (err, results) => {
+// ---------------- PERMISSÕES ----------------
+// Buscar permissões de um funcionário
+app.get("/permissoes/:funcionarioId", (req, res) => {
+  const funcionarioId = req.params.funcionarioId;
+
+  const sql = `
+    SELECT p.id, p.permissao, 
+           CASE WHEN fp.FK_funcionario_id IS NOT NULL THEN 1 ELSE 0 END AS ativo
+    FROM permissao p
+    LEFT JOIN funcionario_permissao fp 
+      ON p.id = fp.FK_permissao_id AND fp.FK_funcionario_id = ?
+  `;
+
+  connection.query(sql, [funcionarioId], (err, results) => {
     if (err) {
       console.error("Erro ao buscar permissões:", err);
-      return res.status(500).json({ mensagem: "Erro ao buscar permissões" });
+      return res.status(500).json({ error: "Erro ao buscar permissões" });
     }
     res.json(results);
   });
 });
 
-// Cadastrar permissões de um tipo de usuário
-app.post("/permissoes", (req, res) => {
-  const { tipo_usuario, max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar } = req.body;
+// Salvar permissões de um funcionário
+app.post("/permissoes/:funcionarioId", (req, res) => {
+  const funcionarioId = req.params.funcionarioId;
+  const { permissoes } = req.body; // array de IDs de permissões
 
-  if (!tipo_usuario) {
-    return res.status(400).json({ mensagem: "Tipo de usuário é obrigatório." });
-  }
+  // Limpa permissões antigas e insere as novas
+  connection.query(
+    "DELETE FROM funcionario_permissao WHERE FK_funcionario_id = ?",
+    [funcionarioId],
+    (err) => {
+      if (err) {
+        console.error("Erro ao limpar permissões:", err);
+        return res.status(500).json({ error: "Erro ao salvar permissões" });
+      }
+
+      if (!permissoes || permissoes.length === 0) {
+        return res.json({ message: "Permissões salvas (nenhuma atribuída)" });
+      }
+
+      const values = permissoes.map((pId) => [pId, funcionarioId]);
+      const sql =
+        "INSERT INTO funcionario_permissao (FK_permissao_id, FK_funcionario_id) VALUES ?";
+      connection.query(sql, [values], (err2) => {
+        if (err2) {
+          console.error("Erro ao salvar permissões:", err2);
+          return res.status(500).json({ error: "Erro ao salvar permissões" });
+        }
+        res.json({ message: "Permissões salvas com sucesso" });
+      });
+    }
+  );
+});
+// ---------------- NOTIFICAÇÕES ----------------
+// Buscar notificações de um funcionário
+app.get("/notificacoes/:funcionarioId", (req, res) => {
+  const funcionarioId = req.params.funcionarioId;
 
   const sql = `
-    INSERT INTO configuracoes_tipo_usuario 
-    (tipo_usuario, max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar)
-    VALUES (?, ?, ?, ?, ?)
+    SELECT fn.FK_notificacao_id AS notificacao_id, n.mensagem, n.tipo, n.data_envio
+    FROM funcionario_notificacao fn
+    JOIN notificacao n ON fn.FK_notificacao_id = n.id
+    WHERE fn.FK_funcionario_id = ?
   `;
 
-  connection.query(sql, [tipo_usuario, max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar], (err, result) => {
-    if (err) {
-      console.error("Erro ao cadastrar permissões:", err);
-      return res.status(500).json({ mensagem: "Erro ao cadastrar permissões" });
-    }
-    res.json({ mensagem: "Permissões cadastradas com sucesso!", id: result.insertId });
-  });
-});
-
-// Atualizar permissões de um tipo de usuário
-app.put("/permissoes/:id", (req, res) => {
-  const { id } = req.params;
-  const { max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar } = req.body;
-
-  const sql = `
-    UPDATE configuracoes_tipo_usuario
-    SET max_emprestimos = ?, duracao_emprestimo = ?, pode_reservar = ?, pode_renovar = ?
-    WHERE id = ?
-  `;
-
-  connection.query(sql, [max_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar, id], (err) => {
-    if (err) {
-      console.error("Erro ao atualizar permissões:", err);
-      return res.status(500).json({ mensagem: "Erro ao atualizar permissões" });
-    }
-    res.json({ mensagem: "Permissões atualizadas com sucesso!" });
-  });
-});
-// Buscar configuração de notificações
-app.get("/notificacoes", (req, res) => {
-  const sql = "SELECT * FROM configuracoes_notificacoes LIMIT 1";
-  connection.query(sql, (err, results) => {
+  connection.query(sql, [funcionarioId], (err, results) => {
     if (err) {
       console.error("Erro ao buscar notificações:", err);
-      return res.status(500).json({ mensagem: "Erro ao buscar notificações" });
+      return res.status(500).json({ error: "Erro ao buscar notificações" });
     }
-    res.json(results[0] || {});
+    res.json(results);
   });
 });
 
-// Salvar/atualizar configuração
-app.post("/notificacoes", (req, res) => {
-  const { email, sms, dias_antecedencia, atraso, reserva } = req.body;
+// Salvar preferências de notificações de um funcionário
+app.post("/notificacoes/:funcionarioId", (req, res) => {
+  const funcionarioId = req.params.funcionarioId;
+  const { notificacoes } = req.body; // array de IDs de notificações
 
-  const checkSql = "SELECT id FROM configuracoes_notificacoes LIMIT 1";
-  connection.query(checkSql, (err, results) => {
-    if (err) {
-      console.error("Erro ao verificar notificações:", err);
-      return res.status(500).json({ mensagem: "Erro ao verificar notificações" });
-    }
+  // Apaga as antigas e insere as novas
+  connection.query(
+    "DELETE FROM funcionario_notificacao WHERE FK_funcionario_id = ?",
+    [funcionarioId],
+    (err) => {
+      if (err) {
+        console.error("Erro ao limpar notificações:", err);
+        return res.status(500).json({ error: "Erro ao salvar notificações" });
+      }
 
-    if (results.length > 0) {
-      // Atualiza
-      const id = results[0].id;
-      const updateSql = `
-        UPDATE configuracoes_notificacoes
-        SET email=?, sms=?, dias_antecedencia=?, atraso=?, reserva=?
-        WHERE id=?`;
-      connection.query(updateSql, [email, sms, dias_antecedencia, atraso, reserva, id], (err) => {
-        if (err) {
-          console.error("Erro ao atualizar notificações:", err);
-          return res.status(500).json({ mensagem: "Erro ao atualizar notificações" });
+      if (!notificacoes || notificacoes.length === 0) {
+        return res.json({ message: "Notificações salvas (nenhuma selecionada)" });
+      }
+
+      const values = notificacoes.map((nId) => [funcionarioId, nId]);
+      const sql =
+        "INSERT INTO funcionario_notificacao (FK_funcionario_id, FK_notificacao_id) VALUES ?";
+      connection.query(sql, [values], (err2) => {
+        if (err2) {
+          console.error("Erro ao salvar notificações:", err2);
+          return res.status(500).json({ error: "Erro ao salvar notificações" });
         }
-        res.json({ mensagem: "Notificações atualizadas com sucesso!" });
-      });
-    } else {
-      // Insere
-      const insertSql = `
-        INSERT INTO configuracoes_notificacoes
-        (email, sms, dias_antecedencia, atraso, reserva)
-        VALUES (?, ?, ?, ?, ?)`;
-      connection.query(insertSql, [email, sms, dias_antecedencia, atraso, reserva], (err) => {
-        if (err) {
-          console.error("Erro ao salvar notificações:", err);
-          return res.status(500).json({ mensagem: "Erro ao salvar notificações" });
-        }
-        res.json({ mensagem: "Notificações cadastradas com sucesso!" });
+        res.json({ message: "Notificações salvas com sucesso" });
       });
     }
-  });
+  );
 });
+
 
 
 // ✅ Agora o app.listen() pode ficar no final
