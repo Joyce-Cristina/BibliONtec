@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 03/09/2025 às 01:59
+-- Tempo de geração: 05/09/2025 às 01:07
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -102,7 +102,7 @@ CREATE TABLE `configuracoes_gerais` (
 --
 
 INSERT INTO `configuracoes_gerais` (`id`, `duracao_padrao_emprestimo`, `numero_maximo_renovacoes`, `tempo_retirada_reserva`, `numero_maximo_emprestimos`, `multa_por_atraso`, `FK_instituicao_id`) VALUES
-(1, 6, 2, 1, 2, 1.00, NULL);
+(12, 4, 2, 1, 2, 1.00, 1);
 
 -- --------------------------------------------------------
 
@@ -121,6 +121,13 @@ CREATE TABLE `configuracoes_notificacao` (
   `sms_notificacao` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `configuracoes_notificacao`
+--
+
+INSERT INTO `configuracoes_notificacao` (`id`, `lembrete_vencimento`, `dias_antes_vencimento`, `notificacao_atraso`, `notificacao_reserva`, `notificacao_livro_disponivel`, `FK_instituicao_id`, `sms_notificacao`) VALUES
+(4, 1, 5, 1, 1, 1, 1, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -133,16 +140,18 @@ CREATE TABLE `configuracoes_tipo_usuario` (
   `maximo_emprestimos` int(11) NOT NULL,
   `duracao_emprestimo` int(11) NOT NULL,
   `pode_reservar` tinyint(1) DEFAULT 0,
-  `pode_renovar` tinyint(1) DEFAULT 0
+  `pode_renovar` tinyint(1) DEFAULT 0,
+  `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `configuracoes_tipo_usuario`
 --
 
-INSERT INTO `configuracoes_tipo_usuario` (`id`, `FK_tipo_usuario_id`, `maximo_emprestimos`, `duracao_emprestimo`, `pode_reservar`, `pode_renovar`) VALUES
-(1, 1, 2, 7, 1, 1),
-(2, 2, 4, 14, 1, 1);
+INSERT INTO `configuracoes_tipo_usuario` (`id`, `FK_tipo_usuario_id`, `maximo_emprestimos`, `duracao_emprestimo`, `pode_reservar`, `pode_renovar`, `FK_instituicao_id`) VALUES
+(7, 1, 2, 7, 1, 1, 1),
+(8, 2, 4, 14, 1, 1, 1),
+(9, 3, 4, 14, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -244,12 +253,12 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
-(4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654321', NULL),
-(5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', NULL, NULL, '11987654321', NULL),
-(8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', 'padrao.png', 1, '11999999999', NULL),
-(9, 'cletin do pneu ', 'e32zy2mK', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', NULL),
-(10, 'shaulin ', 'YvP4t1Ev', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', NULL),
-(11, 'Joyce C Silva', 's56zlRvO', 'joyce@gmail.com', 'padrao.png', 3, '19993592019', NULL);
+(4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654321', 1),
+(5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', NULL, NULL, '11987654321', 1),
+(8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', 'padrao.jpg', 1, '11999999999', 1),
+(9, 'cletin do pneu ', 'e32zy2mK', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1),
+(10, 'shaulin ', 'YvP4t1Ev', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1),
+(11, 'Joyce C Silva', 's56zlRvO', 'joyce@gmail.com', 'padrao.jpg', 3, '19993592019', 1);
 
 -- --------------------------------------------------------
 
@@ -283,6 +292,18 @@ CREATE TABLE `funcionario_permissao` (
   `FK_permissao_id` int(11) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `funcionario_permissao`
+--
+
+INSERT INTO `funcionario_permissao` (`FK_permissao_id`, `FK_funcionario_id`) VALUES
+(NULL, 8),
+(NULL, 8),
+(NULL, 8),
+(NULL, 8),
+(NULL, 8),
+(NULL, 8);
 
 -- --------------------------------------------------------
 
@@ -571,6 +592,16 @@ CREATE TABLE `notificacao` (
   `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `notificacao`
+--
+
+INSERT INTO `notificacao` (`id`, `mensagem`, `tipo`, `data_envio`, `FK_instituicao_id`) VALUES
+(1, 'Lembretes por E-mail', 'email', '2025-09-04', 1),
+(2, 'Lembretes por SMS', 'sms', '2025-09-04', 1),
+(3, 'Notificação de atraso', 'atraso', '2025-09-04', 1),
+(4, 'Notificação de reserva', 'reserva', '2025-09-04', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -698,7 +729,8 @@ CREATE TABLE `tipo_usuario` (
 
 INSERT INTO `tipo_usuario` (`id`, `tipo`) VALUES
 (1, 'Aluno'),
-(2, 'Professor');
+(2, 'Professor'),
+(3, 'Funcionário');
 
 -- --------------------------------------------------------
 
@@ -727,8 +759,8 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`) VALUES
-(13, '185749632174', 'joaodograu@gmail.com', '1755198080522.jpg', 'joao pedro silva', '1234Abc@', 1, 4, 1, 3, NULL, NULL, NULL),
-(30, '1966258749', 'cleitindopneu@gmail.com', '1756406172119.jpg', 'cletin do pneu ', 'C8uLqyjK', 1, 4, 2, 3, NULL, NULL, NULL);
+(13, '185749632174', 'joaodograu@gmail.com', '1755198080522.jpg', 'joao pedro silva', '1234Abc@', 1, 4, 1, 3, 1, NULL, NULL),
+(30, '1966258749', 'cleitindopneu@gmail.com', '1756406172119.jpg', 'cletin do pneu ', 'C8uLqyjK', 1, 4, 2, 3, 1, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -834,7 +866,7 @@ ALTER TABLE `comentario_livro`
 --
 ALTER TABLE `configuracoes_gerais`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_instituicao_id` (`FK_instituicao_id`);
+  ADD UNIQUE KEY `FK_instituicao_id` (`FK_instituicao_id`);
 
 --
 -- Índices de tabela `configuracoes_notificacao`
@@ -1145,19 +1177,19 @@ ALTER TABLE `comentario`
 -- AUTO_INCREMENT de tabela `configuracoes_gerais`
 --
 ALTER TABLE `configuracoes_gerais`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de tabela `configuracoes_notificacao`
 --
 ALTER TABLE `configuracoes_notificacao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `configuracoes_tipo_usuario`
 --
 ALTER TABLE `configuracoes_tipo_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de tabela `curso`
@@ -1229,7 +1261,7 @@ ALTER TABLE `livro`
 -- AUTO_INCREMENT de tabela `notificacao`
 --
 ALTER TABLE `notificacao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `permissao`
@@ -1259,7 +1291,7 @@ ALTER TABLE `tipo_instituicao`
 -- AUTO_INCREMENT de tabela `tipo_usuario`
 --
 ALTER TABLE `tipo_usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `usuario`
