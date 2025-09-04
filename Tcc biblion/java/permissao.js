@@ -1,57 +1,89 @@
 document.addEventListener("DOMContentLoaded", () => {
   const salvarBtn = document.querySelector(".btn-save");
-
   const funcionarioLogado = JSON.parse(localStorage.getItem("funcionario"));
-  const funcionarioId = funcionarioLogado ? funcionarioLogado.id : null;
+  if (!funcionarioLogado) return console.error("Nenhum funcionário logado.");
 
-  if (!funcionarioId) {
-    console.error("Nenhum funcionário logado encontrado no localStorage.");
-    return;
-  }
+  const instituicaoId = funcionarioLogado.FK_instituicao_id;
 
-  async function carregarPermissoes() {
+  // ---------------- CARREGAR CONFIGURAÇÕES ----------------
+  async function carregarTipoUsuario() {
     try {
-      const res = await fetch(`http://localhost:3000/permissoes/${funcionarioId}`);
-      const data = await res.json();
+      const res = await fetch(`http://localhost:3000/configuracoes-tipo-usuario/${instituicaoId}`);
+      const configs = await res.json();
 
-      if (!data || data.length === 0) return;
+      const blocos = document.querySelectorAll(".user-role"); // todos os blocos: Aluno, Professor, Funcionários
 
-      // Marca os checkboxes que o funcionário já possui
-      data.forEach(p => {
-        const input = document.querySelector(`#permissoes input[data-id="${p.FK_permissao_id}"]`);
-        if (input) input.checked = true;
+      configs.forEach(cfg => {
+        const index = cfg.FK_tipo_usuario_id - 1; // 1=aluno, 2=professor, 3=funcionários
+        const bloco = blocos[index];
+        if (!bloco) return;
+
+        const inputs = bloco.querySelectorAll("input[type=number]");
+        const checks = bloco.querySelectorAll("input[type=checkbox]");
+
+        if (inputs.length >= 2) {
+          inputs[0].value = cfg.maximo_emprestimos || 0;
+          inputs[1].value = cfg.duracao_emprestimo || 0;
+        }
+        if (checks.length >= 2) {
+          checks[0].checked = cfg.pode_reservar === 1;
+          checks[1].checked = cfg.pode_renovar === 1;
+        }
+
+        bloco.dataset.id = cfg.id;
       });
-    } catch (e) {
-      console.error("Erro ao carregar permissões:", e);
+    } catch (err) {
+      console.error("Erro ao carregar tipo usuário:", err);
     }
   }
+  console.log(localStorage.getItem("funcionario"));
 
-  async function salvarPermissoes() {
-    const checks = document.querySelectorAll("#permissoes input[type=checkbox]");
-    const selecionadas = [];
 
-    checks.forEach(ch => {
-      if (ch.checked) {
-        selecionadas.push(parseInt(ch.dataset.id)); // só ID
+  // ---------------- SALVAR CONFIGURAÇÕES ----------------
+  async function salvarTipoUsuario() {
+    const blocos = document.querySelectorAll(".user-role"); // todos os blocos
+    const tipos = [1, 2, 3]; // mapeia: 1=Aluno, 2=Professor, 3=Funcionários
+
+    for (let idx = 0; idx < blocos.length; idx++) {
+      const el = blocos[idx];
+      const inputs = el.querySelectorAll("input[type=number]");
+      const checks = el.querySelectorAll("input[type=checkbox]");
+
+      const dados = {
+        FK_tipo_usuario_id: tipos[idx],
+        maximo_emprestimos: parseInt(inputs[0]?.value) || 0,
+        duracao_emprestimo: parseInt(inputs[1]?.value) || 0,
+        pode_reservar: checks[0]?.checked ? 1 : 0,
+        pode_renovar: checks[1]?.checked ? 1 : 0,
+        FK_instituicao_id: instituicaoId
+      };
+
+      const id = el.dataset.id;
+
+      try {
+        const resposta = await fetch(
+          id
+            ? `http://localhost:3000/configuracoes-tipo-usuario/${id}`
+            : "http://localhost:3000/configuracoes-tipo-usuario",
+          {
+            method: id ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+          }
+        );
+
+        const resultado = await resposta.json();
+        console.log("🔹", resultado.mensagem);
+      } catch (erro) {
+        console.error("Erro ao salvar tipo usuário:", erro);
       }
-    });
-
-    try {
-      const resposta = await fetch(`http://localhost:3000/permissoes/${funcionarioId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ permissoes: selecionadas }),
-      });
-
-      const result = await resposta.json();
-      console.log(result.message);
-      alert("✅ Permissões salvas com sucesso!");
-    } catch (e) {
-      console.error("Erro ao salvar permissões:", e);
-      alert("❌ Erro ao salvar permissões!");
     }
+
+    alert("✅ Configurações de tipos de usuário salvas!");
+    carregarTipoUsuario();
   }
 
-  if (salvarBtn) salvarBtn.addEventListener("click", salvarPermissoes);
-  carregarPermissoes();
+  // ---------------- INICIALIZA ----------------
+  carregarTipoUsuario();
+  if (salvarBtn) salvarBtn.addEventListener("click", salvarTipoUsuario);
 });
