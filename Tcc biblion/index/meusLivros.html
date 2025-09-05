@@ -56,6 +56,28 @@
   border: none;
   border-top: 1px solid #ccc;
 }
+:root {
+  --nav-offset: 110px; /* valor inicial, vai ser atualizado no JS */
+}
+
+body {
+  padding-top: var(--nav-offset);
+  transition: padding-top 150ms ease;
+}
+#about .d-flex {
+  flex-direction: row; /* lado a lado no desktop */
+}
+
+@media (max-width: 768px) {
+  #about .d-flex {
+    flex-direction: column; /* empilha no mobile */
+    text-align: center;
+  }
+
+  #about img {
+    margin-top: 20px;
+  }
+}
 
   </style>
 </head>
@@ -224,7 +246,18 @@
         </div>
     </footer>
 
-
+    <script>
+        function aplicarEspacoNavbar() {
+          const nav = document.querySelector('.navbar-custom');
+          if (!nav) return;
+          const h = nav.offsetHeight;
+          document.documentElement.style.setProperty('--nav-offset', h + 'px');
+        }
+      
+        window.addEventListener('load', aplicarEspacoNavbar);
+        window.addEventListener('resize', aplicarEspacoNavbar);
+      </script>
+      
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

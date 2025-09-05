@@ -109,6 +109,8 @@
   </div>
 </nav>
 
+<br><br>
+
   <section class="page-section mb-0" id="about" style="background-color: grey;">
     <div class="container">
       <!-- About Section Heading-->
@@ -119,10 +121,14 @@
         <div class="divider-custom-line"></div>
       </div>
 
-      <!-- About Section Content -->
-      <div class="row justify-content-center text-center my-4">
-        <h1 style="color: #FFFFFF; font-size: 50px;">Lista de Desejos</h1>
-      </div>
+      <section class="page-section mb-0" id="about" style="background-color: grey;">
+        <div class="container">
+          <div class="row justify-content-center text-center my-4">
+            <h1 style="color: #FFFFFF; font-size: 50px;">Lista de desejos</h1>
+          </div>
+        </div>
+      </section>
+      
 
     </div>
   </section>
@@ -286,6 +292,18 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    function aplicarEspacoNavbar() {
+      const nav = document.querySelector('.navbar-custom');
+      if (!nav) return;
+      const h = nav.offsetHeight;
+      document.documentElement.style.setProperty('--nav-offset', h + 'px');
+    }
+    window.addEventListener('load', aplicarEspacoNavbar);
+    window.addEventListener('resize', aplicarEspacoNavbar);
+  </script>
+  
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
