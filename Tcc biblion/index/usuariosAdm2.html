@@ -411,38 +411,6 @@
             background-color: #5c0e00;
         }
 
-        /* Responsivo */
-        @media (max-width: 800px) {
-            .sidebar {
-                position: relative;
-                height: auto;
-                width: 100%;
-                border-radius: 0;
-                padding: 10px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .sidebar a,
-            .sidebar button.dropdown-toggle {
-                margin-bottom: 0;
-                flex: 1 1 auto;
-                text-align: center;
-                padding: 8px 5px;
-            }
-
-            .main-container {
-                padding-left: 0;
-            }
-
-            .content {
-                width: 100%;
-                max-width: 100%;
-                margin-top: 10px;
-            }
-        }
-
         .notificacao-dropdown {
             background-color: #ffffff;
             min-width: 250px;
@@ -916,50 +884,136 @@
   .search-box { width: 300px; }
 }
 
-/* Sidebar responsiva */
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
+
+/* Sidebar some no mobile e vira "menu lateral" */
 @media (max-width: 992px) {
   .sidebar {
-    left: -220px; /* escondida por padrão */
+    position: fixed;
+    top: 56px;
+    left: -220px;
+    width: 220px;
+    height: 100%;
     transition: left 0.3s ease;
+    z-index: 1051;
   }
   .sidebar.show {
-    left: 0; /* aparece quando ativada */
+    left: 0;
   }
+
   .main-container-custom {
-    padding-left: 0 !important; /* conteúdo ocupa toda a largura */
+    padding-left: 0 !important;
+    padding-top: 80px !important;
   }
 }
 
-/* ===== Sidebar responsiva + backdrop (clica fora e fecha) ===== */
-@media (max-width: 992px) {
-  .sidebar {
-    position: fixed;
-    top: 56px;                 /* logo abaixo da navbar */
-    left: -240px;              /* escondida por padrão em telas menores */
-    width: 220px;
-    height: calc(100vh - 56px);
-    background-color: #7a1505; /* mantém sua cor */
-    transition: left .3s ease;
-    z-index: 1040;             /* abaixo da navbar, acima do conteúdo */
-  }
-  .sidebar.show { left: 0; }
-
-  .main-container-custom {
-    padding-left: 0 !important; /* conteúdo ocupa a largura toda */
+/* Ajusta grid das abas no celular */
+@media (max-width: 768px) {
+  .tab-container {
+    flex-direction: column;
+    gap: 10px;
   }
 
-  /* Backdrop para capturar clique fora */
-  .sidebar-backdrop {
-    display: none;
-    position: fixed;
-    top: 56px;                 /* alinha com a navbar */
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 56px);
-    background: rgba(0,0,0,.35);
-    z-index: 1039;             /* abaixo da sidebar, acima do conteúdo */
+  .tab-content {
+    flex-direction: column !important;
+    gap: 15px !important;
   }
-  .sidebar-backdrop.active { display: block; }
+
+  .section-box {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+  }
+
+  .d-flex.gap-3.flex-wrap {
+    flex-direction: column;
+  }
+
+  .custom-card {
+    padding: 15px !important;
+  }
+}
+
+/* Ajusta tabelas no mobile */
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Ajusta avatar e botão acessibilidade no mobile */
+@media (max-width: 576px) {
+  .avatar-container {
+    bottom: 70px;
+    left: 10px;
+  }
+  .btn[style*="width: 50px"] {
+    width: 45px !important;
+    height: 45px !important;
+  }
+}
+
+/* Overlay por trás da sidebar no mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1050;
+  display: none;
+}
+.sidebar-overlay.show {
+  display: block;
+}
+
+/* Responsividade da Sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                top: 0;
+                left: -220px;
+                width: 220px;
+                height: 100%;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-container-custom {
+                padding-left: 0;
+                margin-top: 10px;
+                /* Ajusta para não ficar muito colado ao topo */
+            }
+
+            /* Botões na navbar para dispositivos móveis */
+            .navbar-toggler {
+                display: block;
+            }
+
+            .navbar-collapse {
+                width: 100%;
+                display: none;
+            }
+
+            .navbar-collapse.show {
+                display: flex;
+            }
+
+            /* Ajuste das abas em dispositivos menores */
+            .tab-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+    .backup-container {
+        flex-direction: column;
+    }
 }
 
 /* Garante que o botão hamburguer fique sempre clicável acima de tudo */
