@@ -1456,7 +1456,30 @@ form.form-limpo label {
         /* Correções de responsividade extras */
 
 
-
+        :root {
+          --nav-offset: 110px; /* valor inicial (substituído pelo JS depois) */
+        }
+        
+        body {
+          padding-top: var(--nav-offset);
+          transition: padding-top 120ms ease;
+        }
+        
+        /* Responsividade da section #about */
+        #about .d-flex {
+          flex-direction: row; /* lado a lado no desktop */
+        }
+        
+        @media (max-width: 768px) {
+          #about .d-flex {
+            flex-direction: column; /* empilha no mobile */
+            text-align: center;
+          }
+        
+          #about img {
+            margin-top: 20px;
+          }
+        }
 
 
 #configTabsContent .tab-pane { display: none; }
