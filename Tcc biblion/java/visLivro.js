@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const usuarioFoto = usuarioData && usuarioData.foto 
       ? `http://localhost:3000/uploads/${usuarioData.foto}` 
       : "../img/avatar.jpg";
+    const isProfessor = usuarioData && usuarioData.tipo_usuario_id == 2;
 
     // --- Carregar livro ---
     const livroId = localStorage.getItem("livroSelecionado");
@@ -35,6 +36,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       disponibilidadeElem.style.color = "green";
     }
 
+    // --- SISTEMA DE INDICAÇÃO - VERIFICAÇÃO INICIAL ---
+    const btnIndicar = document.getElementById("btnIndicar");
+    if (btnIndicar && isProfessor && usuarioId) {
+      try {
+        const respVerificacao = await fetch(`http://localhost:3000/verificar-indicacao/${usuarioId}/${livroId}`);
+        
+        if (respVerificacao.ok) {
+          const data = await respVerificacao.json();
+          if (data.indicado) {
+            btnIndicar.innerHTML = "✓ Já Indicado";
+            btnIndicar.disabled = true;
+            btnIndicar.style.backgroundColor = "#28a745";
+            btnIndicar.style.cursor = "not-allowed";
+          }
+        } else if (respVerificacao.status === 500) {
+          console.warn("Servidor retornou erro 500 na verificação de indicação");
+        }
+      } catch (err) {
+        console.error("Erro ao verificar indicação:", err);
+      }
+    }
+
     // --- Comentários ---
     const comentariosContainer = document.getElementById("comentariosContainer");
     const novoComentarioInput = document.getElementById("novoComentario");
@@ -58,7 +81,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     };
 
-    // Buscar comentários
     const carregarComentarios = async () => {
       const respComentarios = await fetch(`http://localhost:3000/livros/${livroId}/comentarios`);
       if (!respComentarios.ok) throw new Error("Erro ao buscar comentários");
@@ -68,7 +90,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await carregarComentarios();
 
-    // Enviar comentário
     if (btnEnviarComentario) {
       btnEnviarComentario.addEventListener("click", async () => {
         if (!usuarioId) return alert("Você precisa estar logado para comentar.");
@@ -83,35 +104,135 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!resp.ok) return alert("Erro ao enviar comentário.");
         novoComentarioInput.value = "";
-        await carregarComentarios(); // Atualiza lista de comentários
+        await carregarComentarios();
       });
     }
 
-    // --- Indicação ---
-    const btnIndicar = document.getElementById("btnIndicar");
-    if (btnIndicar) {
+    // --- SISTEMA DE INDICAÇÃO COM MODAL ---
+    const modalTurma = new bootstrap.Modal(document.getElementById('modalTurma'));
+    
+    let turmasGlobais = [];
+    
+    if (btnIndicar && isProfessor) {
       btnIndicar.addEventListener("click", async () => {
         if (!usuarioId) return alert("Você precisa estar logado para indicar um livro.");
-
+      
         try {
-          const resp = await fetch("http://localhost:3000/indicacoes", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ usuarioId, livroId })
+          const respTurmas = await fetch('http://localhost:3000/turmas');
+          if (!respTurmas.ok) throw new Error("Erro ao buscar turmas");
+      
+          const data = await respTurmas.json();
+      
+          // Combina turmas_agrupadas com cursos para ter nome legível
+          turmasGlobais = data.turmas_agrupadas.map(turma => {
+            const curso = data.cursos.find(c => c.id === turma.curso_id);
+            return {
+              curso_id: turma.curso_id,
+              curso: curso ? curso.curso : "Curso desconhecido",
+              serie: turma.serie
+            };
           });
-
-          if (resp.ok) {
-            alert("Indicação registrada com sucesso!");
-          } else {
-            const erro = await resp.json();
-            alert("Erro: " + erro.message);
+      
+          if (!turmasGlobais.length) {
+            alert("Nenhuma turma encontrada.");
+            return;
           }
+      
+          // Preenche os selects do modal
+          preencherSelectCursos(turmasGlobais);
+      
+          modalTurma.show();
         } catch (err) {
-          console.error(err);
-          alert("Erro de conexão com o servidor.");
+          console.error("Erro ao carregar turmas:", err);
+          alert("Erro ao carregar turmas.");
         }
       });
+      
+      function preencherSelectCursos(turmas) {
+        const selectCurso = document.getElementById('selectCurso');
+        const selectSerie = document.getElementById('selectSerie');
+      
+        selectCurso.innerHTML = '<option value="">Selecione um curso</option>';
+        selectSerie.innerHTML = '<option value="">Selecione uma série</option>';
+      
+        // Cursos únicos
+        const cursosUnicos = {};
+        turmas.forEach(t => {
+          cursosUnicos[t.curso_id] = t.curso;
+        });
+      
+        Object.entries(cursosUnicos).forEach(([id, nome]) => {
+          const option = document.createElement('option');
+          option.value = id;
+          option.textContent = nome;
+          selectCurso.appendChild(option);
+        });
+      
+        selectCurso.addEventListener('change', function() {
+          const cursoId = this.value;
+          preencherSeries(cursoId, turmas);
+        });
+      }
+      
+      function preencherSeries(cursoId, turmas) {
+        const selectSerie = document.getElementById('selectSerie');
+        selectSerie.innerHTML = '<option value="">Selecione a série</option>';
+        if (!cursoId) return;
+      
+        const seriesDoCurso = turmas
+          .filter(t => t.curso_id == cursoId)
+          .map(t => t.serie);
+      
+        const seriesUnicas = [...new Set(seriesDoCurso)];
+        seriesUnicas.forEach(serie => {
+          const option = document.createElement('option');
+          option.value = serie;
+          option.textContent = `${serie}ª série`;
+          selectSerie.appendChild(option);
+        });
+      }
     }
+
+    document.getElementById('btnConfirmarIndicacao').addEventListener('click', async () => {
+      const cursoId = document.getElementById('selectCurso').value;
+      const serie = document.getElementById('selectSerie').value;
+      
+      if (!cursoId || !serie) {
+        alert('Por favor, selecione um curso e uma série');
+        return;
+      }
+
+      try {
+        const resp = await fetch("http://localhost:3000/indicacoes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            usuarioId, 
+            livroId,
+            cursoId,
+            serie 
+          })
+        });
+
+        if (resp.ok) {
+          const result = await resp.json();
+          btnIndicar.innerHTML = "✓ Já Indicado";
+          btnIndicar.disabled = true;
+          btnIndicar.style.backgroundColor = "#28a745";
+          btnIndicar.style.cursor = "not-allowed";
+          
+          modalTurma.hide();
+          alert("Livro indicado com sucesso para a turma selecionada!");
+        } else {
+          const errorText = await resp.text();
+          console.error("Erro do servidor:", errorText);
+          alert("Erro ao indicar livro. Verifique o console para detalhes.");
+        }
+      } catch (err) {
+        console.error("Erro ao indicar livro:", err);
+        alert("Erro de conexão com o servidor.");
+      }
+    });
 
   } catch (err) {
     console.error("Erro no visLivro.js:", err);
