@@ -1526,6 +1526,29 @@ body.biblioteca-page #about img {
     margin-top: 15px;
   }
 }
+/* ==== Ajuste do padding para não ficar escondido atrás da navbar ==== */
+body.eventos-page {
+  padding-top: 76px; /* mesma altura da sua navbar */
+}
+
+.report-table.relatorios-page {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+.report-table.relatorios-page th,
+.report-table.relatorios-page td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.report-table.relatorios-page th {
+  background-color: #f0e6d2;
+  font-weight: bold;
+}
 
 
 
