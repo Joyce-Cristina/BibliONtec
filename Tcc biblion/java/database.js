@@ -268,35 +268,6 @@ app.post('/login', (req, res) => {
   });
 });
 
-app.post("/indicacoes", async (req, res) => {
-  const { usuarioId, livroId } = req.body;
-
-  if (!usuarioId || !livroId) {
-    return res.status(400).json({ message: "Dados inválidos." });
-  }
-
-  try {
-    const [check] = await connection.query(
-      "SELECT * FROM indicacao WHERE FK_usuario_id = ? AND FK_livro_id = ?",
-      [usuarioId, livroId]
-    );
-
-    if (check.length > 0) {
-      return res.status(409).json({ message: "Já existe indicação deste livro." });
-    }
-
-    await connection.query(
-      "INSERT INTO indicacao (FK_usuario_id, FK_livro_id) VALUES (?, ?)",
-      [usuarioId, livroId]
-    );
-
-    res.status(201).json({ message: "Indicação registrada!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erro ao salvar indicação." });
-  }
-});
-
 app.get('/livros', (req, res) => {
   const sql = `
     SELECT 
@@ -459,55 +430,249 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   });
 });
 
-app.get('/turmas', async (req, res) => {
-  try {
-    const [turmas] = await connection.execute(`
-      SELECT DISTINCT c.id, c.curso, u.serie 
-      FROM curso c 
-      JOIN usuario u ON c.id = u.curso_id 
-      WHERE u.serie IS NOT NULL 
-      ORDER BY c.curso, u.serie
-    `);
-    res.json({ turmas });
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar turmas' });
-  }
-});
+app.delete('/indicacoes-livro/:usuarioId/:livroId', (req, res) => {
+  const usuarioId = parseInt(req.params.usuarioId, 10);
+  const livroId = parseInt(req.params.livroId, 10);
 
-app.get('/indicacoes-livro/:id', async (req, res) => {
-  try {
-    const livroId = req.params.id;
-    const [indicacoes] = await connection.execute(`
-      SELECT * FROM indicacao 
-      WHERE FK_livro_id = ? AND FK_professor_id IS NOT NULL
-    `, [livroId]);
-    res.json({ indicacoes });
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar indicações' });
-  }
-});
+  // 1. Encontrar a indicação para este usuário e livro
+  connection.query(
+    `SELECT i.id as indicacao_id 
+     FROM indicacao i
+     JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
+     WHERE iu.FK_usuario_id = ? AND i.indicacao = ?`,
+    [usuarioId, livroId.toString()],
+    (err, results) => {
+      if (err) {
+        console.error('Erro ao buscar indicação:', err);
+        return res.status(500).json({ error: 'Erro interno no servidor' });
+      }
 
-app.post('/indicar-livro', async (req, res) => {
-  try {
-    const { livro_id, turmas, professor_id } = req.body;
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'Indicação não encontrada' });
+      }
 
-    await connection.execute(
-      'DELETE FROM indicacao WHERE FK_livro_id = ? AND FK_professor_id = ?',
-      [livro_id, professor_id]
-    );
+      const indicacaoId = results[0].indicacao_id;
 
-    for (const turma_id of turmas) {
-      await connection.execute(
-        `INSERT INTO indicacao (FK_livro_id, FK_professor_id, FK_turma_id, data_indicacao) 
-         VALUES (?, ?, ?, NOW())`,
-        [livro_id, professor_id, turma_id]
+      // 2. Deletar a associação usuario-indicação
+      connection.query(
+        'DELETE FROM indicacao_usuario WHERE FK_usuario_id = ? AND FK_indicacao_id = ?',
+        [usuarioId, indicacaoId],
+        (err, result) => {
+          if (err) {
+            console.error('Erro ao deletar associação:', err);
+            return res.status(500).json({ error: 'Erro ao deletar associação' });
+          }
+
+          // 3. Verificar se há outras associações para esta indicação
+          connection.query(
+            'SELECT COUNT(*) as count FROM indicacao_usuario WHERE FK_indicacao_id = ?',
+            [indicacaoId],
+            (err, countResults) => {
+              if (err) {
+                console.error('Erro ao verificar outras associações:', err);
+                return res.status(500).json({ error: 'Erro interno no servidor' });
+              }
+
+              if (countResults[0].count === 0) {
+                // Não há mais associações, pode deletar a indicação
+                connection.query(
+                  'DELETE FROM indicacao WHERE id = ?',
+                  [indicacaoId],
+                  (err) => {
+                    if (err) {
+                      console.error('Erro ao deletar indicação:', err);
+                      return res.status(500).json({ error: 'Erro ao deletar indicação' });
+                    }
+                    res.json({ message: 'Indicação removida com sucesso' });
+                  }
+                );
+              } else {
+                res.json({ message: 'Indicação removida com sucesso' });
+              }
+            }
+          );
+        }
       );
     }
+  );
+});
 
-    res.json({ message: 'Indicações salvas com sucesso' });
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao salvar indicações' });
-  }
+app.get('/turmas', (req, res) => {
+  console.log('=== INICIANDO DEBUG TURMAS ===');
+  
+  // 1. Primeiro, verifica todos os cursos
+  connection.query('SELECT id, curso FROM curso', (err, cursos) => {
+    if (err) {
+      console.error('Erro ao buscar cursos:', err);
+      return res.status(500).json({ error: 'Erro ao buscar cursos', details: err.message });
+    }
+    
+    console.log('Cursos encontrados:', cursos);
+    
+    // 2. Verifica usuários com curso e série
+    connection.query(`
+      SELECT id, nome, curso_id, serie 
+      FROM usuario 
+      WHERE curso_id IS NOT NULL AND serie IS NOT NULL
+      ORDER BY curso_id, serie
+    `, (err, usuarios) => {
+      if (err) {
+        console.error('Erro ao buscar usuários:', err);
+        return res.status(500).json({ error: 'Erro ao buscar usuários', details: err.message });
+      }
+      
+      console.log('Usuários com curso e série:', usuarios);
+      
+      // 3. Agrupa por curso e série
+      const turmasAgrupadas = {};
+      usuarios.forEach(usuario => {
+        const chave = `${usuario.curso_id}-${usuario.serie}`;
+        if (!turmasAgrupadas[chave]) {
+          turmasAgrupadas[chave] = {
+            curso_id: usuario.curso_id,
+            serie: usuario.serie,
+            quantidade: 0
+          };
+        }
+        turmasAgrupadas[chave].quantidade++;
+      });
+      
+      console.log('Turmas agrupadas:', Object.values(turmasAgrupadas));
+      
+      // 4. Testa a query original
+      connection.query(`
+        SELECT DISTINCT c.id, c.curso, u.serie 
+        FROM curso c 
+        JOIN usuario u ON c.id = u.curso_id 
+        WHERE u.serie IS NOT NULL 
+        ORDER BY c.curso, u.serie
+      `, (err, resultadoQuery) => {
+        if (err) {
+          console.error('Erro na query original:', err);
+          return res.status(500).json({ error: 'Erro na query original', details: err.message });
+        }
+        
+        console.log('Resultado da query original:', resultadoQuery);
+        
+        res.json({
+          total_cursos: cursos.length,
+          cursos: cursos,
+          total_usuarios_com_curso: usuarios.length,
+          usuarios: usuarios,
+          turmas_agrupadas: Object.values(turmasAgrupadas),
+          query_original: resultadoQuery
+        });
+      });
+    });
+  });
+});
+
+app.post('/indicacoes', (req, res) => {
+  const { usuarioId, livroId, cursoId, serie } = req.body;
+
+  // 1. Verificar se usuário é professor
+  connection.query(
+    'SELECT FK_tipo_usuario_id FROM usuario WHERE id = ?',
+    [usuarioId],
+    (err, usuarioResults) => {
+      if (err) {
+        console.error('Erro ao buscar usuário:', err);
+        return res.status(500).json({ error: 'Erro interno no servidor' });
+      }
+
+      if (usuarioResults.length === 0 || usuarioResults[0].FK_tipo_usuario_id !== 2) {
+        return res.status(403).json({ error: 'Apenas professores podem indicar livros' });
+      }
+
+      // 2. Verificar se já indicou este livro para a mesma turma
+      connection.query(
+        `SELECT i.id 
+         FROM indicacao i
+         JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
+         WHERE iu.FK_usuario_id = ? AND i.indicacao = ? AND iu.FK_curso_id = ? AND iu.serie = ?`,
+        [usuarioId, livroId.toString(), cursoId, serie],
+        (err, indicacoesResults) => {
+          if (err) {
+            console.error('Erro ao verificar indicações:', err);
+            return res.status(500).json({ error: 'Erro interno no servidor' });
+          }
+
+          if (indicacoesResults.length > 0) {
+            return res.status(409).json({ error: 'Você já indicou este livro para esta turma' });
+          }
+
+          // 3. Criar indicação
+          connection.query(
+            'INSERT INTO indicacao (indicacao, FK_instituicao_id) VALUES (?, ?)',
+            [livroId.toString(), 1],
+            (err, result) => {
+              if (err) {
+                console.error('Erro ao criar indicação:', err);
+                return res.status(500).json({ error: 'Erro interno no servidor' });
+              }
+
+              const indicacaoId = result.insertId;
+
+              // 4. Vincular usuário e turma à indicação
+              connection.query(
+                'INSERT INTO indicacao_usuario (FK_indicacao_id, FK_usuario_id, FK_curso_id, serie) VALUES (?, ?, ?, ?)',
+                [indicacaoId, usuarioId, cursoId, serie],
+                (err) => {
+                  if (err) {
+                    console.error('Erro ao vincular indicação:', err);
+                    return res.status(500).json({ error: 'Erro interno no servidor' });
+                  }
+
+                  res.status(201).json({ message: 'Livro indicado com sucesso para a turma!' });
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
+app.get('/verificar-indicacao/:usuarioId/:livroId', (req, res) => {
+  const { usuarioId, livroId } = req.params;
+
+  // Verifica se o usuário já indicou este livro (em qualquer turma)
+  connection.query(
+    `SELECT i.id 
+     FROM indicacao i
+     JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
+     WHERE iu.FK_usuario_id = ? AND i.indicacao = ?`,
+    [usuarioId, livroId.toString()],
+    (err, results) => {
+      if (err) {
+        console.error('Erro ao verificar indicação:', err);
+        return res.status(500).json({ error: 'Erro interno no servidor' });
+      }
+
+      res.json({ indicado: results.length > 0 });
+    }
+  );
+});
+
+app.get('/indicacoes-professor/:usuarioId', (req, res) => {
+  const { usuarioId } = req.params;
+
+  connection.query(
+    `SELECT i.indicacao as livro_id, i.id as indicacao_id
+     FROM indicacao i
+     JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
+     WHERE iu.FK_usuario_id = ?`,
+    [usuarioId],
+    (err, indicacoes) => {
+      if (err) {
+        console.error('Erro ao buscar indicações:', err);
+        return res.status(500).json({ error: 'Erro interno no servidor' });
+      }
+
+      res.json(indicacoes);
+    }
+  );
 });
 
 //carrega genero dos livros 
