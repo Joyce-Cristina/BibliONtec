@@ -357,6 +357,18 @@
       window.location.href = './index.html';
     }
   </script>
+  <script>
+    function aplicarEspacoNavbar() {
+  const nav = document.querySelector('.navbar-custom');
+  if (!nav) return;
+  const h = nav.offsetHeight;
+  document.body.style.paddingTop = h + 'px';
+}
+
+window.addEventListener('load', aplicarEspacoNavbar);
+window.addEventListener('resize', aplicarEspacoNavbar);
+
+  </script>
   <script src="../java/visLivro.js"></script>
 </body>
 
