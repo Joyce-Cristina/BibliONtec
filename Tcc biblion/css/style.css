@@ -1456,6 +1456,76 @@ form.form-limpo label {
         /* Correções de responsividade extras */
 
 
+        :root {
+          --nav-offset: 110px; /* valor inicial (substituído pelo JS depois) */
+        }
+        
+        body {
+          padding-top: var(--nav-offset);
+          transition: padding-top 120ms ease;
+        }
+        
+        /* Responsividade da section #about */
+        #about .d-flex {
+          flex-direction: row; /* lado a lado no desktop */
+        }
+        
+        @media (max-width: 768px) {
+          #about .d-flex {
+            flex-direction: column; /* empilha no mobile */
+            text-align: center;
+          }
+        
+          #about img {
+            margin-top: 20px;
+          }
+        }
+
+        /* ==== Responsividade exclusiva para biblioteca.html ==== */
+body.biblioteca-page #about {
+  background-color: #ffffff;
+  padding: 60px 20px;
+  margin-top: var(--nav-offset); /* garante que não fique embaixo da navbar */
+}
+
+body.biblioteca-page #about .container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+body.biblioteca-page #about h1 {
+  font-family: 'Georgia', serif;
+  color: #000;
+  font-size: 2.5rem;
+  text-align: center;
+  flex: 1 1 100%;
+}
+
+body.biblioteca-page #about img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  body.biblioteca-page #about .container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  body.biblioteca-page #about h1 {
+    font-size: 1.8rem;
+  }
+
+  body.biblioteca-page #about img {
+    margin-top: 15px;
+  }
+}
 
 
 

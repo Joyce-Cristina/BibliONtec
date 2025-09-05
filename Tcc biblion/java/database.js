@@ -356,10 +356,18 @@ app.get('/funcionario/:id', (req, res) => {
   });
 });
 
+// Rota para buscar dados do usuario logado
 app.get('/usuario/:id', (req, res) => {
   const id = req.params.id;
 
-  const sql = `SELECT id, nome, email FROM usuario WHERE id = ?`;
+  const sql = `
+    SELECT u.id, u.nome, u.email, u.telefone, u.senha, 
+           u.curso_id, u.serie, u.FK_tipo_usuario_id AS tipo,
+           c.curso AS nome_curso
+    FROM usuario u
+    LEFT JOIN curso c ON u.curso_id = c.id
+    WHERE u.id = ?
+  `;
 
   connection.query(sql, [id], (err, results) => {
     if (err) return res.status(500).json({ error: "Erro ao buscar usuário" });
@@ -368,6 +376,43 @@ app.get('/usuario/:id', (req, res) => {
     res.json({ usuario: results[0] });
   });
 });
+
+// Atualizar dados do usuário
+app.put('/usuario/:id', (req, res) => {
+  const id = req.params.id;
+  const { nome, email, telefone, senha, curso_id, serie } = req.body;
+
+  // Monta dinamicamente só os campos que vieram
+  const updates = [];
+  const values = [];
+
+  if (nome !== undefined) { updates.push("nome = ?"); values.push(nome); }
+  if (email !== undefined) { updates.push("email = ?"); values.push(email); }
+  if (telefone !== undefined) { updates.push("telefone = ?"); values.push(telefone); }
+  if (senha !== undefined) { updates.push("senha = ?"); values.push(senha); }
+  if (curso_id !== undefined) { updates.push("curso_id = ?"); values.push(curso_id); }
+  if (serie !== undefined) { updates.push("serie = ?"); values.push(serie); }
+
+  if (updates.length === 0) {
+    return res.status(400).json({ error: "Nenhum campo para atualizar." });
+  }
+
+  const sql = `UPDATE usuario SET ${updates.join(", ")} WHERE id = ?`;
+  values.push(id);
+
+  connection.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Erro ao atualizar usuário:", err);
+      return res.status(500).json({ error: "Erro ao atualizar usuário." });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+    res.json({ message: "Usuário atualizado com sucesso!" });
+  });
+});
+
+
 
 // Cadastro de Livro
 // Cadastro de Livro
