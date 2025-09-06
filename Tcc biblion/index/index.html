@@ -14,6 +14,10 @@
       padding: 0;
       background-color: #7A1600;
       overflow: hidden;
+      flex-direction: column;   /* mantém logo + form em ordem */
+      justify-content: center;  /* centraliza horizontal */
+      align-items: center;
+      height: 55vh; /* ocupa a tela toda */
     }
 
     #animacao-logo {
@@ -41,15 +45,26 @@
       z-index: 1;
       text-align: center;
       margin-top: 150px;
+       display: block;  /* agora aparece */
     }
 
-    .logo-box img {
-      width: 300px;
-      height: 200px;
-      position: absolute;
-      left: 4%;
-      top: 5%;
-    }
+.logo-box {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  width: auto;
+  height: auto;
+}
+
+.logo-box img {
+  width: 12vw;        /* proporcional à tela */
+  min-width: 80px;    /* nunca menor que 80px */
+  max-width: 220px;   /* nunca maior que 220px */
+  height: auto;
+  border-radius: 12px;
+}
+
 
     .password-wrapper {
       position: relative;
@@ -92,7 +107,18 @@
       margin-left: auto;
       margin-right: auto;
     }
+@media (max-width: 768px) {
+  .logo-box {
+    width: 80px;
+    top: 10px;
+    left: 10px;
+  }
 
+  .login-box {
+    margin-top: 100px;
+    padding: 20px;
+  }
+}
   </style>
 </head>
 <body>
