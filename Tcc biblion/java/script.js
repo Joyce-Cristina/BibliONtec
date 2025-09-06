@@ -239,11 +239,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
     // ---------------- Bloqueio de acesso por URL ----------------
-    /*if (!funcionario && !usuario) {
+    if (!funcionario && !usuario) {
       // Não logado, tenta acessar outra página → volta para login
       window.location.href = "index.html";
       return;
-    }*/
+    }
 
     if (funcionario) {
       const funcao = Number(funcionario.funcao_id);
