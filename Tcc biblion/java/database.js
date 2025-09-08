@@ -73,20 +73,79 @@ connection.connect(err => {
 
 async function filtrarComentario(texto) {
   try {
-    const url = `https://www.purgomalum.com/service/json?text=${encodeURIComponent(texto)}`;
-    const resp = await fetch(url);
+    const url = `https://myptify.vercel.app/api/filter?text=${encodeURIComponent(texto)}`;
+    const resp = await fetch(url, { timeout: 5000 }); // 5 segundos de timeout
 
     if (!resp.ok) {
-      console.error("Erro na PurgoMalum API:", await resp.text());
-      return texto; // fallback: salva o comentário original se a API falhar
+      throw new Error(`API status: ${resp.status}`);
     }
 
     const data = await resp.json();
-    return data.result; // texto filtrado
+    return data.filtered_text || texto;
+    
   } catch (err) {
-    console.error("Erro ao acessar PurgoMalum:", err);
-    return texto; // fallback em caso de erro de rede
+    return filtrarPalavroesLocal(texto);
   }
+}
+
+function filtrarPalavroesLocal(texto) {
+  const palavroes = {
+   'porra': '*',
+   'caralho': '*',
+   'merda': '*',
+   'puta': '*',
+   'buceta': '*',
+   'cacete': '*',
+   'viado': '*',
+   'bicha': '*',
+   'cu': '*',
+   'foda': '*',
+   'foder': '*',
+   'puto': '*',
+   'corno': '*',
+   'vadia': '*',
+   'pau': '*',
+   'rola': '*',
+   'bosta': '*',
+   'xota': '*',
+   'caralhos': '*',
+   'porras': '*',
+   'merdas': '*',
+   'putas': '*',
+   'bucetas': '*',
+   'viados': '*',
+   'bichas': '*',
+   'cus': '*',
+   'fodas': '*',
+   'cornos': '*',
+   'vadias': '*',
+   'paus': '*',
+   'rolas': '*',
+   'bostas': '*',
+   'xotas': '*',
+   'p0rr4': '*',
+   'c4r4lh0': '*',
+   'm3rd4': '*',
+   'put4': '*',
+   'buc3t4': '*',
+   'vi4d0': '*',
+   'idiota': '*',
+   'imbecil': '*',
+   'estupido': '*',
+   'burro': '*',
+   'retardado': '*',
+   'demonio': '*',
+   'diabo': '*',
+   'bobão': '*'
+  };
+
+  let textoFiltrado = texto;
+  Object.keys(palavroes).forEach(palavrao => {
+    const regex = new RegExp(palavrao, 'gi');
+    textoFiltrado = textoFiltrado.replace(regex, palavroes[palavrao]);
+  });
+  
+  return textoFiltrado;
 }
 
 // -------------------- UTIL --------------------
@@ -494,69 +553,140 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   });
 });
 
-app.delete('/indicacoes-livro/:usuarioId/:livroId', (req, res) => {
-  const usuarioId = parseInt(req.params.usuarioId, 10);
-  const livroId = parseInt(req.params.livroId, 10);
+// Rota para desfazer uma indicação
+app.delete('/indicacoes/:indicacaoId', (req, res) => {
+  const { indicacaoId } = req.params;
+  const { usuarioId } = req.body;
 
-  // 1. Encontrar a indicação para este usuário e livro
-  connection.query(
-    `SELECT i.id as indicacao_id 
-     FROM indicacao i
-     JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
-     WHERE iu.FK_usuario_id = ? AND i.indicacao = ?`,
-    [usuarioId, livroId.toString()],
-    (err, results) => {
+  // 1. Verificar se o usuário é dono da indicação
+  const sqlCheck = `
+    SELECT iu.FK_usuario_id 
+    FROM indicacao_usuario iu 
+    WHERE iu.FK_indicacao_id = ? AND iu.FK_usuario_id = ?
+  `;
+
+  connection.query(sqlCheck, [indicacaoId, usuarioId], (err, results) => {
+    if (err) {
+      console.error('Erro ao verificar indicação:', err);
+      return res.status(500).json({ error: 'Erro interno no servidor' });
+    }
+
+    if (results.length === 0) {
+      return res.status(403).json({ error: 'Você não tem permissão para desfazer esta indicação' });
+    }
+
+    // 2. Deletar a associação usuário-indicação
+    const sqlDeleteAssoc = 'DELETE FROM indicacao_usuario WHERE FK_indicacao_id = ? AND FK_usuario_id = ?';
+    
+    connection.query(sqlDeleteAssoc, [indicacaoId, usuarioId], (err) => {
       if (err) {
-        console.error('Erro ao buscar indicação:', err);
+        console.error('Erro ao deletar associação:', err);
+        return res.status(500).json({ error: 'Erro ao desfazer indicação' });
+      }
+
+      // 3. Verificar se ainda há outros usuários associados a esta indicação
+      const sqlCheckOtherAssoc = 'SELECT COUNT(*) as count FROM indicacao_usuario WHERE FK_indicacao_id = ?';
+      
+      connection.query(sqlCheckOtherAssoc, [indicacaoId], (err, countResults) => {
+        if (err) {
+          console.error('Erro ao verificar outras associações:', err);
+          return res.status(500).json({ error: 'Erro interno no servidor' });
+        }
+
+        if (countResults[0].count === 0) {
+          // Não há mais associações, pode deletar a indicação
+          const sqlDeleteIndicacao = 'DELETE FROM indicacao WHERE id = ?';
+          
+          connection.query(sqlDeleteIndicacao, [indicacaoId], (err) => {
+            if (err) {
+              console.error('Erro ao deletar indicação:', err);
+              return res.status(500).json({ error: 'Erro ao desfazer indicação' });
+            }
+            res.json({ message: 'Indicação removida com sucesso' });
+          });
+        } else {
+          res.json({ message: 'Indicação removida com sucesso' });
+        }
+      });
+    });
+  });
+});
+
+app.post('/indicacoes/multiplas-turmas', (req, res) => {
+  const { usuarioId, livroId, turmas } = req.body;
+
+  if (!usuarioId || !livroId || !Array.isArray(turmas) || turmas.length === 0) {
+    return res.status(400).json({ error: 'Dados inválidos' });
+  }
+
+  connection.query(
+    'SELECT FK_tipo_usuario_id FROM usuario WHERE id = ?',
+    [usuarioId],
+    (err, usuarioResults) => {
+      if (err) {
+        console.error('Erro ao buscar usuário:', err);
         return res.status(500).json({ error: 'Erro interno no servidor' });
       }
 
-      if (results.length === 0) {
-        return res.status(404).json({ error: 'Indicação não encontrada' });
+      if (usuarioResults.length === 0 || usuarioResults[0].FK_tipo_usuario_id !== 2) {
+        return res.status(403).json({ error: 'Apenas professores podem indicar livros' });
       }
 
-      const indicacaoId = results[0].indicacao_id;
+      const indicacoesPromises = turmas.map(turma => {
+        return new Promise((resolve, reject) => {
+          const { cursoId, serie } = turma;
 
-      // 2. Deletar a associação usuario-indicação
-      connection.query(
-        'DELETE FROM indicacao_usuario WHERE FK_usuario_id = ? AND FK_indicacao_id = ?',
-        [usuarioId, indicacaoId],
-        (err, result) => {
-          if (err) {
-            console.error('Erro ao deletar associação:', err);
-            return res.status(500).json({ error: 'Erro ao deletar associação' });
-          }
-
-          // 3. Verificar se há outras associações para esta indicação
           connection.query(
-            'SELECT COUNT(*) as count FROM indicacao_usuario WHERE FK_indicacao_id = ?',
-            [indicacaoId],
-            (err, countResults) => {
-              if (err) {
-                console.error('Erro ao verificar outras associações:', err);
-                return res.status(500).json({ error: 'Erro interno no servidor' });
+            `SELECT i.id 
+             FROM indicacao i
+             JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
+             WHERE iu.FK_usuario_id = ? AND i.indicacao = ? AND iu.FK_curso_id = ? AND iu.serie = ?`,
+            [usuarioId, livroId.toString(), cursoId, serie],
+            (err, results) => {
+              if (err) return reject(err);
+
+              if (results.length > 0) {
+                return resolve({ cursoId, serie, status: 'já_existe' });
               }
 
-              if (countResults[0].count === 0) {
-                // Não há mais associações, pode deletar a indicação
-                connection.query(
-                  'DELETE FROM indicacao WHERE id = ?',
-                  [indicacaoId],
-                  (err) => {
-                    if (err) {
-                      console.error('Erro ao deletar indicação:', err);
-                      return res.status(500).json({ error: 'Erro ao deletar indicação' });
+              connection.query(
+                'INSERT INTO indicacao (indicacao, FK_instituicao_id) VALUES (?, ?)',
+                [livroId.toString(), 1],
+                (err, result) => {
+                  if (err) return reject(err);
+
+                  const indicacaoId = result.insertId;
+
+                  connection.query(
+                    'INSERT INTO indicacao_usuario (FK_indicacao_id, FK_usuario_id, FK_curso_id, serie) VALUES (?, ?, ?, ?)',
+                    [indicacaoId, usuarioId, cursoId, serie],
+                    (err) => {
+                      if (err) return reject(err);
+                      resolve({ cursoId, serie, status: 'sucesso' });
                     }
-                    res.json({ message: 'Indicação removida com sucesso' });
-                  }
-                );
-              } else {
-                res.json({ message: 'Indicação removida com sucesso' });
-              }
+                  );
+                }
+              );
             }
           );
-        }
-      );
+        });
+      });
+
+      // Executar todas as indicações
+      Promise.all(indicacoesPromises)
+        .then(results => {
+          const sucessos = results.filter(r => r.status === 'sucesso');
+          const jaExistentes = results.filter(r => r.status === 'já_existe');
+
+          res.status(201).json({
+            message: `Indicações processadas: ${sucessos.length} novas, ${jaExistentes.length} já existiam`,
+            detalhes: results
+          });
+        })
+        .catch(error => {
+          console.error('Erro ao processar indicações:', error);
+          res.status(500).json({ error: 'Erro ao processar indicações' });
+        });
     }
   );
 });
@@ -1068,21 +1198,58 @@ app.get('/livros/:id/comentarios', (req, res) => {
 app.post("/livros/:id/comentarios", async (req, res) => {
   try {
     const { usuarioId, comentario } = req.body;
+    const livroId = req.params.id;
+    
     if (!usuarioId || !comentario) {
-      return res.status(400).send("Dados inválidos.");
+      return res.status(400).json({ error: "Dados inválidos." });
     }
 
+    // Filtra o comentário
     const comentarioFiltrado = await filtrarComentario(comentario);
 
-    await db.query(
-      "INSERT INTO comentarios (livro_id, usuario_id, comentario) VALUES (?, ?, ?)",
-      [req.params.id, usuarioId, comentarioFiltrado]
+    // ✅ Usando callback style (consistente com o resto do seu código)
+    connection.query(
+      "INSERT INTO comentario (comentario, data_comentario) VALUES (?, NOW())",
+      [comentarioFiltrado],
+      (err, result) => {
+        if (err) {
+          console.error("Erro ao salvar comentário:", err);
+          return res.status(500).json({ error: "Erro ao salvar comentário." });
+        }
+
+        const comentarioId = result.insertId;
+
+        // Vincular comentário ao usuário
+        connection.query(
+          "INSERT INTO usuario_comentario (FK_usuario_id, FK_comentario_id) VALUES (?, ?)",
+          [usuarioId, comentarioId],
+          (err) => {
+            if (err) {
+              console.error("Erro ao vincular usuário:", err);
+              return res.status(500).json({ error: "Erro ao salvar comentário." });
+            }
+
+            // Vincular comentário ao livro
+            connection.query(
+              "INSERT INTO comentario_livro (FK_comentario_id, FK_livro_id) VALUES (?, ?)",
+              [comentarioId, livroId],
+              (err) => {
+                if (err) {
+                  console.error("Erro ao vincular livro:", err);
+                  return res.status(500).json({ error: "Erro ao salvar comentário." });
+                }
+
+                res.status(201).json({ message: "Comentário salvo com sucesso!" });
+              }
+            );
+          }
+        );
+      }
     );
 
-    res.status(201).send({ mensagem: "Comentário salvo com sucesso!" });
   } catch (err) {
     console.error("Erro ao salvar comentário:", err);
-    res.status(500).send("Erro ao salvar comentário.");
+    res.status(500).json({ error: "Erro ao salvar comentário." });
   }
 });
 
