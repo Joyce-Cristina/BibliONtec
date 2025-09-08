@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
+const fetch = require("node-fetch");
 
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 // database.js
@@ -69,6 +70,24 @@ connection.connect(err => {
   }
   console.log('Conectado ao MySQL');
 });
+
+async function filtrarComentario(texto) {
+  try {
+    const url = `https://www.purgomalum.com/service/json?text=${encodeURIComponent(texto)}`;
+    const resp = await fetch(url);
+
+    if (!resp.ok) {
+      console.error("Erro na PurgoMalum API:", await resp.text());
+      return texto; // fallback: salva o comentário original se a API falhar
+    }
+
+    const data = await resp.json();
+    return data.result; // texto filtrado
+  } catch (err) {
+    console.error("Erro ao acessar PurgoMalum:", err);
+    return texto; // fallback em caso de erro de rede
+  }
+}
 
 // -------------------- UTIL --------------------
 function telefoneValido(telefone) {
@@ -1045,42 +1064,28 @@ app.get('/livros/:id/comentarios', (req, res) => {
   });
 });
 
-// Adicionar comentário em um livro
-app.post('/livros/:id/comentarios', (req, res) => {
-  const { id } = req.params; // id do livro
-  const { usuarioId, comentario } = req.body; // virá do frontend
 
-  if (!usuarioId || !comentario) {
-    return res.status(400).json({ error: "Usuário e comentário são obrigatórios" });
-  }
-
-  const dataComentario = new Date();
-
-  const sqlComentario = `INSERT INTO comentario (comentario, data_comentario) VALUES (?, ?)`;
-
-  connection.query(sqlComentario, [comentario, dataComentario], (err, result) => {
-    if (err) {
-      console.error("Erro ao inserir comentário:", err);
-      return res.status(500).json({ error: "Erro ao salvar comentário" });
+app.post("/livros/:id/comentarios", async (req, res) => {
+  try {
+    const { usuarioId, comentario } = req.body;
+    if (!usuarioId || !comentario) {
+      return res.status(400).send("Dados inválidos.");
     }
 
-    const comentarioId = result.insertId;
+    const comentarioFiltrado = await filtrarComentario(comentario);
 
-    // Relacionar com livro
-    connection.query(
-      `INSERT INTO comentario_livro (FK_comentario_id, FK_livro_id) VALUES (?, ?)`,
-      [comentarioId, id]
+    await db.query(
+      "INSERT INTO comentarios (livro_id, usuario_id, comentario) VALUES (?, ?, ?)",
+      [req.params.id, usuarioId, comentarioFiltrado]
     );
 
-    // Relacionar com usuário
-    connection.query(
-      `INSERT INTO usuario_comentario (FK_usuario_id, FK_comentario_id) VALUES (?, ?)`,
-      [usuarioId, comentarioId]
-    );
-
-    res.status(201).json({ message: "Comentário adicionado com sucesso!" });
-  });
+    res.status(201).send({ mensagem: "Comentário salvo com sucesso!" });
+  } catch (err) {
+    console.error("Erro ao salvar comentário:", err);
+    res.status(500).send("Erro ao salvar comentário.");
+  }
 });
+
 
 
 // Lista tipos de instituição
