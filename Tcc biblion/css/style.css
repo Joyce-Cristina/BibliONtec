@@ -1550,6 +1550,54 @@ body.eventos-page {
   font-weight: bold;
 }
 
+/* aplica quando o body tem a classe etiqueta-page */
+body.etiqueta-page .total-livro {
+  display: inline-block;        /* para padding / bg funcionarem visualmente */
+  color: #ffffff;
+  background-color: #c0392b;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+/* Estilo do checkbox */
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  border-color: #000;
+  /* Adiciona espaço entre a caixa de seleção e o próximo botão */
+}
+
+/* Checkbox base */
+.form-check-input {
+width: 22px;
+height: 22px;
+margin-right: 10px;
+}
+
+/* Quando passar o mouse */
+.form-check-input:hover {
+  border-color: #007bff;
+  border-radius: 2px;
+}
+
+/* Estilo para a caixa de seleção "Organizar por ordem alfabética" */
+.form-check-label {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  padding: auto;
+}
+
+.body.etiqueta-page .card-selecionados {
+  background-color: #bc9a66;
+  padding: 30px 50px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 100%;
+}
 
 
 #configTabsContent .tab-pane { display: none; }
