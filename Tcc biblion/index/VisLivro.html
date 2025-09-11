@@ -289,7 +289,10 @@
     <button class="btn btn-lista">Adicionar na lista de desejos</button>
   </div>
   
-  <button class="btn btn-indicar oculto-professor" id="btnIndicar">Indicar</button>
+  <div class="botoes-livro">
+  <button class="btn btn-indicar oculto-professor" id="btnIndicar" style="position:relative">Indicar</button>
+  <button class="btn btn-secondary oculto-professor" id="btnDesindicar" style="display:none;">Desindicar</button>
+</div>
 
   <div id="usuarioLogado"></div>
 
@@ -304,34 +307,33 @@
     </div>
   </div>
 
-  <div class="modal fade" id="modalTurma" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Selecionar Turma para Indicação</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="selectCurso" class="form-label">Curso:</label>
-            <select class="form-select" id="selectCurso">
-              <option value="">Selecione um curso</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="selectSerie" class="form-label">Série:</label>
-            <select class="form-select" id="selectSerie">
-              <option value="">Selecione uma série</option>
-            </select>
+<div class="modal fade" id="modalTurma" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Selecionar Turmas para Indicação</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="selectTurmas" class="form-label">Turmas (Curso + Série):</label>
+          <select multiple class="form-select" id="selectTurmas">
+            <!-- As opções serão carregadas dinamicamente via JS -->
+          </select>
+          <div class="form-text">
+            Segure <strong>Ctrl</strong> (ou <strong>Cmd</strong> no Mac) para selecionar várias.
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" id="btnConfirmarIndicacao">Confirmar Indicação</button>
-        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmarIndicacao">Confirmar Indicação</button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Footer -->
   <footer class="bg-dark text-light py-4 mt-5">

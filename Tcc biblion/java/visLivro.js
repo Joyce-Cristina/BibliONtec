@@ -45,10 +45,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (respVerificacao.ok) {
           const data = await respVerificacao.json();
           if (data.indicado) {
-            btnIndicar.innerHTML = "✓ Já Indicado";
-            btnIndicar.disabled = true;
-            btnIndicar.style.backgroundColor = "#28a745";
-            btnIndicar.style.cursor = "not-allowed";
+            btnIndicar.style.display = "none";
+            const btnDesindicar = document.getElementById("btnDesindicar");
+            btnDesindicar.style.display = "inline-block";
+          
+            btnDesindicar.addEventListener("click", async () => {
+              if (!confirm("Deseja realmente remover a indicação deste livro?")) return;
+          
+              try {
+                const resp = await fetch(`http://localhost:3000/indicacoes/${usuarioId}/${livroId}`, {
+                  method: "DELETE"
+                });
+          
+                if (resp.ok) {
+                  alert("Indicação removida com sucesso!");
+                  btnDesindicar.style.display = "none";
+                  btnIndicar.style.display = "inline-block";
+                  btnIndicar.disabled = false;
+                  btnIndicar.innerHTML = "Indicar";
+                  btnIndicar.style.backgroundColor = "#7A1600";
+                  btnIndicar.style.cursor = "pointer";
+                } else {
+                  const erro = await resp.text();
+                  console.error("Erro ao remover indicação:", erro);
+                  alert("Erro ao remover indicação.");
+                }
+              } catch (err) {
+                console.error("Erro de conexão:", err);
+                alert("Erro ao tentar remover indicação.");
+              }
+            });
           }
         } else if (respVerificacao.status === 500) {
           console.warn("Servidor retornou erro 500 na verificação de indicação");
@@ -108,22 +134,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
 
-    // --- SISTEMA DE INDICAÇÃO COM MODAL ---
+    // --- SISTEMA DE INDICAÇÃO COM MODAL (MULTI TURMAS) ---
     const modalTurma = new bootstrap.Modal(document.getElementById('modalTurma'));
-    
     let turmasGlobais = [];
-    
+
     if (btnIndicar && isProfessor) {
       btnIndicar.addEventListener("click", async () => {
         if (!usuarioId) return alert("Você precisa estar logado para indicar um livro.");
-      
+
         try {
           const respTurmas = await fetch('http://localhost:3000/turmas');
           if (!respTurmas.ok) throw new Error("Erro ao buscar turmas");
-      
+
           const data = await respTurmas.json();
-      
-          // Combina turmas_agrupadas com cursos para ter nome legível
+
           turmasGlobais = data.turmas_agrupadas.map(turma => {
             const curso = data.cursos.find(c => c.id === turma.curso_id);
             return {
@@ -132,105 +156,69 @@ document.addEventListener("DOMContentLoaded", async () => {
               serie: turma.serie
             };
           });
-      
+
           if (!turmasGlobais.length) {
             alert("Nenhuma turma encontrada.");
             return;
           }
-      
-          // Preenche os selects do modal
-          preencherSelectCursos(turmasGlobais);
-      
+
+          preencherSelectTurmas(turmasGlobais);
           modalTurma.show();
+
         } catch (err) {
           console.error("Erro ao carregar turmas:", err);
           alert("Erro ao carregar turmas.");
         }
       });
-      
-      function preencherSelectCursos(turmas) {
-        const selectCurso = document.getElementById('selectCurso');
-        const selectSerie = document.getElementById('selectSerie');
-      
-        selectCurso.innerHTML = '<option value="">Selecione um curso</option>';
-        selectSerie.innerHTML = '<option value="">Selecione uma série</option>';
-      
-        // Cursos únicos
-        const cursosUnicos = {};
-        turmas.forEach(t => {
-          cursosUnicos[t.curso_id] = t.curso;
-        });
-      
-        Object.entries(cursosUnicos).forEach(([id, nome]) => {
-          const option = document.createElement('option');
-          option.value = id;
-          option.textContent = nome;
-          selectCurso.appendChild(option);
-        });
-      
-        selectCurso.addEventListener('change', function() {
-          const cursoId = this.value;
-          preencherSeries(cursoId, turmas);
-        });
-      }
-      
-      function preencherSeries(cursoId, turmas) {
-        const selectSerie = document.getElementById('selectSerie');
-        selectSerie.innerHTML = '<option value="">Selecione a série</option>';
-        if (!cursoId) return;
-      
-        const seriesDoCurso = turmas
-          .filter(t => t.curso_id == cursoId)
-          .map(t => t.serie);
-      
-        const seriesUnicas = [...new Set(seriesDoCurso)];
-        seriesUnicas.forEach(serie => {
-          const option = document.createElement('option');
-          option.value = serie;
-          option.textContent = `${serie}ª série`;
-          selectSerie.appendChild(option);
-        });
-      }
+    }
+
+    function preencherSelectTurmas(turmas) {
+      const select = document.getElementById('selectTurmas');
+      select.innerHTML = "";
+
+      turmas.forEach(t => {
+        const option = document.createElement('option');
+        option.value = `${t.curso_id}-${t.serie}`;
+        option.textContent = `${t.curso} - ${t.serie}ª série`;
+        select.appendChild(option);
+      });
     }
 
     document.getElementById('btnConfirmarIndicacao').addEventListener('click', async () => {
-      const cursoId = document.getElementById('selectCurso').value;
-      const serie = document.getElementById('selectSerie').value;
-      
-      if (!cursoId || !serie) {
-        alert('Por favor, selecione um curso e uma série');
+      const select = document.getElementById('selectTurmas');
+      const selecionadas = Array.from(select.selectedOptions).map(opt => opt.value);
+
+      if (!selecionadas.length) {
+        alert('Por favor, selecione pelo menos uma turma');
         return;
       }
 
       try {
-        const resp = await fetch("http://localhost:3000/indicacoes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            usuarioId, 
-            livroId,
-            cursoId,
-            serie 
-          })
-        });
+        for (const item of selecionadas) {
+          const [cursoId, serie] = item.split('-');
 
-        if (resp.ok) {
-          const result = await resp.json();
-          btnIndicar.innerHTML = "✓ Já Indicado";
-          btnIndicar.disabled = true;
-          btnIndicar.style.backgroundColor = "#28a745";
-          btnIndicar.style.cursor = "not-allowed";
-          
-          modalTurma.hide();
-          alert("Livro indicado com sucesso para a turma selecionada!");
-        } else {
-          const errorText = await resp.text();
-          console.error("Erro do servidor:", errorText);
-          alert("Erro ao indicar livro. Verifique o console para detalhes.");
+          await fetch("http://localhost:3000/indicacoes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              usuarioId,
+              livroId,
+              cursoId,
+              serie
+            })
+          });
         }
+
+        btnIndicar.innerHTML = "✓ Já Indicado";
+        btnIndicar.disabled = true;
+        btnIndicar.style.backgroundColor = "#28a745";
+        btnIndicar.style.cursor = "not-allowed";
+
+        modalTurma.hide();
+        alert("Livro indicado com sucesso para todas as turmas selecionadas!");
       } catch (err) {
         console.error("Erro ao indicar livro:", err);
-        alert("Erro de conexão com o servidor.");
+        alert("Erro ao salvar indicação.");
       }
     });
 
