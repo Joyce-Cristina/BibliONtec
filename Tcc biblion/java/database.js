@@ -205,6 +205,20 @@ app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
   });
 });
 
+app.post('/indicacoes/multiplas', (req, res) => {
+  const { usuarioId, indicacaoId, cursoId, serie } = req.body;
+
+  const sql = `INSERT INTO indicacao_usuario (FK_usuario_id, FK_indicacao_id, FK_curso_id, serie)
+               VALUES (?, ?, ?, ?)`;
+
+  connection.query(sql, [usuarioId, indicacaoId, cursoId, serie], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Erro ao salvar indicação.' });
+    }
+    res.json({ success: true });
+  });
+});
 
 // Cadastro de funcionário
 app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
@@ -553,61 +567,39 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   });
 });
 
-// Rota para desfazer uma indicação
-app.delete('/indicacoes/:indicacaoId', (req, res) => {
-  const { indicacaoId } = req.params;
-  const { usuarioId } = req.body;
+app.delete('/indicacoes/:usuarioId/:livroId', (req, res) => {
+  const { usuarioId, livroId } = req.params;
 
-  // 1. Verificar se o usuário é dono da indicação
-  const sqlCheck = `
-    SELECT iu.FK_usuario_id 
-    FROM indicacao_usuario iu 
-    WHERE iu.FK_indicacao_id = ? AND iu.FK_usuario_id = ?
+  // Primeiro busca o id da indicação correspondente ao livro
+  const sqlBusca = `
+    SELECT i.id AS indicacao_id
+    FROM indicacao i
+    JOIN indicacao_usuario iu ON iu.FK_indicacao_id = i.id
+    JOIN livro l ON l.id = ?
+    WHERE iu.FK_usuario_id = ?;
   `;
 
-  connection.query(sqlCheck, [indicacaoId, usuarioId], (err, results) => {
+  connection.query(sqlBusca, [livroId, usuarioId], (err, rows) => {
     if (err) {
-      console.error('Erro ao verificar indicação:', err);
-      return res.status(500).json({ error: 'Erro interno no servidor' });
+      console.error(err);
+      return res.status(500).json({ error: "Erro ao buscar indicação." });
     }
 
-    if (results.length === 0) {
-      return res.status(403).json({ error: 'Você não tem permissão para desfazer esta indicação' });
+    if (!rows.length) {
+      return res.status(404).json({ error: "Nenhuma indicação encontrada." });
     }
 
-    // 2. Deletar a associação usuário-indicação
-    const sqlDeleteAssoc = 'DELETE FROM indicacao_usuario WHERE FK_indicacao_id = ? AND FK_usuario_id = ?';
-    
-    connection.query(sqlDeleteAssoc, [indicacaoId, usuarioId], (err) => {
+    const indicacaoId = rows[0].indicacao_id;
+
+    const sqlDelete = `DELETE FROM indicacao_usuario WHERE FK_indicacao_id = ? AND FK_usuario_id = ?`;
+
+    connection.query(sqlDelete, [indicacaoId, usuarioId], (err) => {
       if (err) {
-        console.error('Erro ao deletar associação:', err);
-        return res.status(500).json({ error: 'Erro ao desfazer indicação' });
+        console.error(err);
+        return res.status(500).json({ error: "Erro ao remover indicação." });
       }
 
-      // 3. Verificar se ainda há outros usuários associados a esta indicação
-      const sqlCheckOtherAssoc = 'SELECT COUNT(*) as count FROM indicacao_usuario WHERE FK_indicacao_id = ?';
-      
-      connection.query(sqlCheckOtherAssoc, [indicacaoId], (err, countResults) => {
-        if (err) {
-          console.error('Erro ao verificar outras associações:', err);
-          return res.status(500).json({ error: 'Erro interno no servidor' });
-        }
-
-        if (countResults[0].count === 0) {
-          // Não há mais associações, pode deletar a indicação
-          const sqlDeleteIndicacao = 'DELETE FROM indicacao WHERE id = ?';
-          
-          connection.query(sqlDeleteIndicacao, [indicacaoId], (err) => {
-            if (err) {
-              console.error('Erro ao deletar indicação:', err);
-              return res.status(500).json({ error: 'Erro ao desfazer indicação' });
-            }
-            res.json({ message: 'Indicação removida com sucesso' });
-          });
-        } else {
-          res.json({ message: 'Indicação removida com sucesso' });
-        }
-      });
+      res.json({ success: true });
     });
   });
 });

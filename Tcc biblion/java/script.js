@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const funcao = Number(funcionario.funcao_id);
       const permissoesPaginas = {
         1: ["homepageAdm2.html", "areaAdm2.html", "backup.html", "configAdm2.html", "manutencao.html", "bibliotecarios.html","usuariosAdm2.html", "relatorios.html"],
-        2: ["homepageAdm.html", "areaAdm.html", "cadLivro.html", "cadAluno.html", "cadFunc.html",
+        2: ["homepageAdm.html", "areaAdm.html", "cadLivro.html", "cadAluno.html", "homepageProf.html", "livrosProf.html", "areaProf.html", "visLivro.html", "cadFunc.html",
           "usuarios.html", "funcionarios.html", "emprestimo.html", "etiqueta.html", "acervo.html", "relatorios.html"],
         3: ["homepageAdm.html", "usuarios.html", "emprestimo.html", "acervo.html"],
         4: ["homepageAdm.html", "cadLivro.html", "acervo.html"]
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (usuario) {
       const permissoesUsuario = {
 
-        1: ["homepageAluno.html", "areaAluno.html", "biblioteca.html", "eventos.html", "indicacoes.html", "lista.html", "meusLivros.html", "visLivro.html"],
+        1: ["homepageAluno.html", "areaAluno.html", "biblioteca.html", "eventos.html", "indicacoes.html", "lista.html", "meusLivros.html", "visLivro.html", ],
         2: ["homepageProf.html", "livrosProf.html", "areaProf.html", "visLivro.html"]
       };
       const tipo = Number(usuario.tipo_usuario_id);
