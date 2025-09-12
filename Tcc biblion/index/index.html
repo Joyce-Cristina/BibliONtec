@@ -17,15 +17,15 @@
       flex-direction: column;   /* mantém logo + form em ordem */
       justify-content: center;  /* centraliza horizontal */
       align-items: center;
-      height: 55vh; /* ocupa a tela toda */
+      block-size: 55vh; /* ocupa a tela toda */
     }
 
     #animacao-logo {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      inset-block-start: 0;
+      inset-inline-start: 0;
+      inline-size: 100vw;
+      block-size: 100vh;
       background-color: white;
       display: flex;
       align-items: center;
@@ -34,8 +34,8 @@
     }
 
     #animacao-logo img {
-      width: 100vw;
-      height: 100vh;
+      inline-size: 100vw;
+      block-size: 100vh;
       object-fit: cover;
     }
 
@@ -44,39 +44,39 @@
       position: relative;
       z-index: 1;
       text-align: center;
-      margin-top: 150px;
+      margin-block-start: 150px;
        display: block;  /* agora aparece */
     }
 
 .logo-box {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  inset-block-start: 20px;
+  inset-inline-start: 20px;
   z-index: 100;
-  width: auto;
-  height: auto;
+  inline-size: auto;
+  block-size: auto;
 }
 
 .logo-box img {
-  width: 12vw;        /* proporcional à tela */
-  min-width: 80px;    /* nunca menor que 80px */
-  max-width: 220px;   /* nunca maior que 220px */
-  height: auto;
+  inline-size: 12vw;        /* proporcional à tela */
+  min-inline-size: 80px;    /* nunca menor que 80px */
+  max-inline-size: 220px;   /* nunca maior que 220px */
+  block-size: auto;
   border-radius: 12px;
 }
 
 
     .password-wrapper {
       position: relative;
-      max-width: 300px;
+      max-inline-size: 300px;
       margin: 0 auto 8px auto;
     }
 
     #email,
     #senha {
-      width: 100%;
-      max-width: 300px;
-      height: 44px;
+      inline-size: 100%;
+      max-inline-size: 300px;
+      block-size: 44px;
       border-radius: 12px;
       padding: 0 40px 0 12px;
       font-size: 1rem;
@@ -87,8 +87,8 @@
 
     .password-wrapper .toggle-eye {
       position: absolute;
-      top: 50%;
-      right: 12px;
+      inset-block-start: 50%;
+      inset-inline-end: 12px;
       transform: translateY(-50%);
       cursor: pointer;
       font-size: 1.2rem;
@@ -100,22 +100,22 @@
     #avisoSenha {
       color: red;
       font-size: 0.85rem;
-      margin-top: 8px;
+      margin-block-start: 8px;
       display: none;
-      text-align: left;
-      max-width: 300px;
-      margin-left: auto;
-      margin-right: auto;
+      text-align: start;
+      max-inline-size: 300px;
+      margin-inline-start: auto;
+      margin-inline-end: auto;
     }
 @media (max-width: 768px) {
   .logo-box {
-    width: 80px;
-    top: 10px;
-    left: 10px;
+    inline-size: 80px;
+    inset-block-start: 10px;
+    inset-inline-start: 10px;
   }
 
   .login-box {
-    margin-top: 100px;
+    margin-block-start: 100px;
     padding: 20px;
   }
 }
