@@ -502,7 +502,6 @@
             margin-top: 30px;
             background-color: #fff;
             max-width: 1200px;
-            border: 5px solid #d2b28c;
             /* Borda com a cor #d2b28c */
             margin-left: 1pc;
         }
@@ -936,9 +935,25 @@
   }
 }
 
-/* Ajusta tabelas no mobile */
-.table-responsive {
-  overflow-x: auto;
+        /* Ajusta tabelas no mobile */
+        .table-responsive {
+            margin: 20px auto;
+    max-width: 95%;
+    max-height: 70vh;     /* controla a altura máxima */
+    overflow-x: auto;     /* scroll horizontal */
+    overflow-y: auto;     /* scroll vertical */
+    
+    /* estilo visual uniforme */
+    border: 2px solid #c5a86e;
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.15);
+    padding: 10px;
+        }
+
+        .table-responsive table {
+    margin: 0 auto;        /* centraliza a tabela */
+    width: auto;           /* evita ocupar 100% sempre */
 }
 
 /* Ajusta avatar e botão acessibilidade no mobile */
@@ -1076,6 +1091,83 @@
         width: 100%; /* ocupa toda a largura */
     }
 }
+
+/* opcional: se não quiser a caixa gigante */
+#em .section-box {
+            min-block-size: 420px !important;
+        }
+
+        #configTabsContent .tab-pane {
+            display: none;
+        }
+
+        #configTabsContent .tab-pane.active {
+            display: block;
+        }
+
+        #editarModal .modal-footer {
+    display: flex;
+    flex-wrap: nowrap; /* impede de quebrar linha */
+    gap: 6px; /* espaço entre os botões */
+    justify-content: center; /* centraliza */
+}
+
+/* Responsividade específica para o modal */
+@media (max-width: 768px) {
+    #editarModal .btn {
+        font-size: 12px;   /* diminui a fonte */
+        padding: 6px 8px;  /* diminui o espaçamento interno */
+    }
+
+    #editarModal .modal-footer {
+        gap: 4px; /* diminui ainda mais o espaço entre os botões */
+    }
+}
+
+/* Deixa a tabela responsiva em telas pequenas */
+#lista-usuarios {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* rolagem suave no iOS */
+}
+
+@media (max-width: 768px) {
+    #lista-usuarios th,
+    #lista-usuarios td {
+        font-size: 12px;  /* diminui o texto */
+        padding: 6px;     /* reduz o espaçamento */
+        white-space: nowrap; /* impede quebra feia de texto */
+    }
+}
+/* Botões dentro da tabela - versão desktop */
+#lista-usuarios td .btn {
+    font-size: 12px;
+    padding: 4px 8px;
+    margin: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px; /* espaço entre ícone e texto */
+}
+
+/* Versão mobile - mostra só o ícone */
+@media (max-width: 768px) {
+    #lista-usuarios td .btn {
+        font-size: 0;       /* esconde o texto */
+        padding: 6px;       /* deixa o botão quadradinho */
+        width: 32px;        /* largura fixa */
+        height: 32px;       /* altura fixa */
+        justify-content: center;
+    }
+
+    #lista-usuarios td .btn .bi {
+        font-size: 16px; /* ícone visível */
+        margin: 0;       /* remove espaço do texto */
+    }
+}
         
     </style>
 </head>
@@ -1200,8 +1292,8 @@
             </div>
         </div>
 
-
-        <table class="table table-striped table-bordered">
+        <div class="table-responsive">
+        <table class="table table-striped table-bordered" id="lista-usuarios">
             <thead>
                 <tr>
                     <th>Nome</th>
@@ -1281,6 +1373,7 @@
                 </tr>
             </tbody>
         </table>
+    </div>
     </div>
 
 

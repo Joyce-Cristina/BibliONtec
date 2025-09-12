@@ -1617,6 +1617,7 @@ margin-right: 10px;
 
 
 
+
 /* Correções de responsividade extras */
 /* responsivo */
 @media (max-width: 992px) {
@@ -1712,6 +1713,7 @@ margin-right: 10px;
   width: 100%;
   margin: 0 auto;            /* garante centralização */
 }
+
 
 
 #configTabsContent .tab-pane { display: none; }
