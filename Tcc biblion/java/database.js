@@ -86,7 +86,7 @@ async function filtrarComentario(texto) {
 
     const data = await resp.json();
     return data.filtered_text || texto;
-    
+
   } catch (err) {
     return filtrarPalavroesLocal(texto);
   }
@@ -94,53 +94,53 @@ async function filtrarComentario(texto) {
 
 function filtrarPalavroesLocal(texto) {
   const palavroes = {
-   'porra': '*',
-   'caralho': '*',
-   'merda': '*',
-   'puta': '*',
-   'buceta': '*',
-   'cacete': '*',
-   'viado': '*',
-   'bicha': '*',
-   'cu': '*',
-   'foda': '*',
-   'foder': '*',
-   'puto': '*',
-   'corno': '*',
-   'vadia': '*',
-   'pau': '*',
-   'rola': '*',
-   'bosta': '*',
-   'xota': '*',
-   'caralhos': '*',
-   'porras': '*',
-   'merdas': '*',
-   'putas': '*',
-   'bucetas': '*',
-   'viados': '*',
-   'bichas': '*',
-   'cus': '*',
-   'fodas': '*',
-   'cornos': '*',
-   'vadias': '*',
-   'paus': '*',
-   'rolas': '*',
-   'bostas': '*',
-   'xotas': '*',
-   'p0rr4': '*',
-   'c4r4lh0': '*',
-   'm3rd4': '*',
-   'put4': '*',
-   'buc3t4': '*',
-   'vi4d0': '*',
-   'idiota': '*',
-   'imbecil': '*',
-   'estupido': '*',
-   'burro': '*',
-   'retardado': '*',
-   'demonio': '*',
-   'diabo': '*',
-   'bobão': '*'
+    'porra': '*',
+    'caralho': '*',
+    'merda': '*',
+    'puta': '*',
+    'buceta': '*',
+    'cacete': '*',
+    'viado': '*',
+    'bicha': '*',
+    'cu': '*',
+    'foda': '*',
+    'foder': '*',
+    'puto': '*',
+    'corno': '*',
+    'vadia': '*',
+    'pau': '*',
+    'rola': '*',
+    'bosta': '*',
+    'xota': '*',
+    'caralhos': '*',
+    'porras': '*',
+    'merdas': '*',
+    'putas': '*',
+    'bucetas': '*',
+    'viados': '*',
+    'bichas': '*',
+    'cus': '*',
+    'fodas': '*',
+    'cornos': '*',
+    'vadias': '*',
+    'paus': '*',
+    'rolas': '*',
+    'bostas': '*',
+    'xotas': '*',
+    'p0rr4': '*',
+    'c4r4lh0': '*',
+    'm3rd4': '*',
+    'put4': '*',
+    'buc3t4': '*',
+    'vi4d0': '*',
+    'idiota': '*',
+    'imbecil': '*',
+    'estupido': '*',
+    'burro': '*',
+    'retardado': '*',
+    'demonio': '*',
+    'diabo': '*',
+    'bobão': '*'
   };
 
   let textoFiltrado = texto;
@@ -148,7 +148,7 @@ function filtrarPalavroesLocal(texto) {
     const regex = new RegExp(palavrao, 'gi');
     textoFiltrado = textoFiltrado.replace(regex, palavroes[palavrao]);
   });
-  
+
   return textoFiltrado;
 }
 
@@ -163,22 +163,16 @@ function gerarSenhaSegura() {
 
 // -------------------- ROTAS --------------------
 
-// Cadastro de aluno/professor
+// === CADASTRO ALUNO/PROF ===
 app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
-  const { nome, telefone, email, senha, curso_id, serie, tipo_usuario_id, funcionario_id } = req.body;
+  const { nome, telefone, email, senha, curso_id, serie, tipo_usuario_id, funcionario_id, FK_instituicao_id } = req.body;
   const foto = req.file ? req.file.filename : null;
 
-  if (!nome || !telefone || !email || !tipo_usuario_id) {
+  if (!nome || !telefone || !email || !tipo_usuario_id)
     return res.status(400).json({ error: 'Campos obrigatórios faltando.' });
-  }
 
-  if (!telefoneValido(telefone)) {
-    return res.status(400).json({ error: 'Telefone inválido. Use apenas números com DDD (10 ou 11 dígitos).' });
-  }
-
-  if (Number(tipo_usuario_id) === 1 && (!curso_id || !serie)) {
-    return res.status(400).json({ error: 'Curso e série são obrigatórios para alunos.' });
-  }
+  if (!telefoneValido(telefone))
+    return res.status(400).json({ error: 'Telefone inválido.' });
 
   const checkEmailSql = `SELECT id FROM usuario WHERE email = ?`;
   connection.query(checkEmailSql, [email], (err, results) => {
@@ -188,23 +182,18 @@ app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
     const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
     const sql = `INSERT INTO usuario 
-    (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id, FK_instituicao_id) 
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    connection.query(sql, [nome, telefone, email, senhaFinal, foto, tipo_usuario_id, curso_id || null, serie || null, funcionario_id || null], (err, result) => {
+    connection.query(sql, [
+      nome, telefone, email, senhaFinal, foto, tipo_usuario_id,
+      curso_id || null, serie || null,
+      funcionario_id || null,
+      req.user.FK_instituicao_id   // 👈 puxa do token do funcionário logado
+    ], (err, result) => {
+
       if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
-
-      const usuarioId = result.insertId;
-
-      if (curso_id) {
-        const sqlUsuarioCurso = `INSERT INTO usuario_curso (FK_usuario_id, FK_curso_id) VALUES (?, ?)`;
-        connection.query(sqlUsuarioCurso, [usuarioId, curso_id], (err) => {
-          if (err) return res.status(500).json({ error: 'Erro ao inserir em usuario_curso' });
-          return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
-        });
-      } else {
-        return res.status(200).json({ message: 'Usuário cadastrado com sucesso (sem curso).', senhaGerada: senhaFinal });
-      }
+      return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
     });
   });
 });
@@ -393,37 +382,54 @@ function autenticarToken(req, res, next) {
     next();
   });
 }
+// === CADASTRO LIVRO ===
+app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
+  const {
+    titulo, edicao, paginas, quantidade, local_publicacao, data_publicacao,
+    sinopse, isbn, assunto_discutido, subtitulo, volume,
+    FK_genero_id, FK_funcionario_id, FK_classificacao_id, FK_status_id, FK_instituicao_id
+  } = req.body;
+  const capa = req.file ? req.file.filename : null;
 
+  const sql = `
+    INSERT INTO livro (
+      titulo, edicao, paginas, quantidade, local_publicacao, data_publicacao, 
+      sinopse, isbn, assunto_discutido, subtitulo, volume,
+      FK_genero_id, FK_funcionario_id, FK_classificacao_id, FK_status_id, capa, FK_instituicao_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const values = [
+    titulo, edicao, paginas, quantidade, local_publicacao, data_publicacao,
+    sinopse, isbn, assunto_discutido, subtitulo, volume,
+    FK_genero_id, FK_funcionario_id, FK_classificacao_id, FK_status_id,
+    capa, FK_instituicao_id
+  ];
+
+  connection.query(sql, values, (err) => {
+    if (err) return res.status(500).json({ error: 'Erro ao cadastrar livro' });
+    res.status(200).json({ message: 'Livro cadastrado com sucesso!' });
+  });
+});
+
+// === LISTAR LIVROS (filtrados por instituição) ===
 app.get('/livros', autenticarToken, (req, res) => {
   const sql = `
-    SELECT 
-      l.id,
-      l.titulo,
-      l.sinopse,
-      l.capa,
-      l.paginas,
-      l.isbn,
-      l.FK_genero_id,       -- 👈 ADICIONE ISSO
-      g.genero,
-      e.editora AS editora,
-      GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
-      f.nome AS funcionario_cadastrou
+    SELECT l.id, l.titulo, l.sinopse, l.capa, l.paginas, l.isbn,
+           g.genero, e.editora AS editora,
+           GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
+           f.nome AS funcionario_cadastrou
     FROM livro l
     LEFT JOIN genero g ON l.FK_genero_id = g.id
     LEFT JOIN editora e ON l.FK_editora_id = e.id
     LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
     LEFT JOIN autor a ON la.FK_autor_id = a.id
     LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
+    WHERE l.FK_instituicao_id = ?
     GROUP BY l.id
   `;
-
-
-  connection.query(sql, (err, results) => {  // <-- removi [id]
-    if (err) {
-      console.error('Erro ao buscar livros:', err);
-      return res.status(500).json({ error: 'Erro no servidor' });
-    }
-    res.json(results); // retorna a lista toda
+  connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erro ao buscar livros' });
+    res.json(results);
   });
 });
 
@@ -726,16 +732,16 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
 
 app.get('/turmas', (req, res) => {
   console.log('=== INICIANDO DEBUG TURMAS ===');
-  
+
   // 1. Primeiro, verifica todos os cursos
   connection.query('SELECT id, curso FROM curso', (err, cursos) => {
     if (err) {
       console.error('Erro ao buscar cursos:', err);
       return res.status(500).json({ error: 'Erro ao buscar cursos', details: err.message });
     }
-    
+
     console.log('Cursos encontrados:', cursos);
-    
+
     // 2. Verifica usuários com curso e série
     connection.query(`
       SELECT id, nome, curso_id, serie 
@@ -747,9 +753,9 @@ app.get('/turmas', (req, res) => {
         console.error('Erro ao buscar usuários:', err);
         return res.status(500).json({ error: 'Erro ao buscar usuários', details: err.message });
       }
-      
+
       console.log('Usuários com curso e série:', usuarios);
-      
+
       // 3. Agrupa por curso e série
       const turmasAgrupadas = {};
       usuarios.forEach(usuario => {
@@ -763,9 +769,9 @@ app.get('/turmas', (req, res) => {
         }
         turmasAgrupadas[chave].quantidade++;
       });
-      
+
       console.log('Turmas agrupadas:', Object.values(turmasAgrupadas));
-      
+
       // 4. Testa a query original
       connection.query(`
         SELECT DISTINCT c.id, c.curso, u.serie 
@@ -778,9 +784,9 @@ app.get('/turmas', (req, res) => {
           console.error('Erro na query original:', err);
           return res.status(500).json({ error: 'Erro na query original', details: err.message });
         }
-        
+
         console.log('Resultado da query original:', resultadoQuery);
-        
+
         res.json({
           total_cursos: cursos.length,
           cursos: cursos,
@@ -1232,7 +1238,7 @@ app.post("/livros/:id/comentarios", async (req, res) => {
   try {
     const { usuarioId, comentario } = req.body;
     const livroId = req.params.id;
-    
+
     if (!usuarioId || !comentario) {
       return res.status(400).json({ error: "Dados inválidos." });
     }

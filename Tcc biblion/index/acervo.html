@@ -288,7 +288,22 @@
     min-width: 120px;
   }
 }
+/* Barra de pesquisa */
+.search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
 
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
 
   </style>
 </head>
@@ -360,29 +375,33 @@
     <a class="btn w-100" href="./funcionarios.html" data-permissao="funcionarios">Funcionários</a>
   </div>
 
-  <!-- Conteúdo principal -->
-<!-- Container que une o card e o botão lado a lado -->
-<div class="d-flex justify-content-center align-items-start gap-3 mb-4">
+<!-- Conteúdo principal -->
+<div class="main-container">
 
-  <!-- Card Cabeçalho Centralizado -->
-  <div class="p-4 shadow text-center flex-grow-1"
-    style="background-color: #c7aa74; border-radius: 15px; max-width: 800px;">
-    <h2 style="font-family: Georgia, serif; font-weight: 500;">Seus livros</h2>
-    <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
-    <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
-      <input type="text" id="buscaLivro" class="form-control" placeholder="Buscar livro..."
-        style="max-width: 300px; border-radius: 10px;">
-      <i class="bi bi-search" style="font-size: 1.2rem;"></i>
+  <!-- Container que une o card e o botão lado a lado -->
+  <div class="d-flex justify-content-center align-items-start gap-3 mb-4">
+
+    <!-- Card Cabeçalho Centralizado -->
+    <div class="p-4 shadow text-center flex-grow-1"
+      style="background-color: #c7aa74; border-radius: 15px; max-width: 800px;">
+      <h2 style="font-family: Georgia, serif; font-weight: 500;">Seus livros</h2>
+      <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
+      <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
+        <input type="text" id="buscaLivro" class="form-control" placeholder="Buscar livro..."
+          style="max-width: 300px; border-radius: 10px;">
+        <i class="bi bi-search" style="font-size: 1.2rem;"></i>
+      </div>
+    </div>
+
+    <!-- Botão Novo bibliotecário -->
+    <div>
+      <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
+        <i class="bi bi-arrow-bar-down"></i> Importar Excel
+      </button>
     </div>
   </div>
-
-  <!-- Botão Novo bibliotecário -->
-  <div>
-    <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
-      <i class="bi bi-arrow-bar-up"></i> Exportar Pdf
-    </button>
-  </div>
 </div>
+
 
 
     
