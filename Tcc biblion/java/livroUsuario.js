@@ -1,6 +1,19 @@
 async function carregarLivros() {
   try {
-    const resp = await fetch("http://localhost:3000/livros");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "index.html";
+      return [];
+    }
+
+    const resp = await fetch("http://localhost:3000/livros", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
     if (!resp.ok) throw new Error("Erro ao buscar livros");
     return await resp.json();
   } catch (err) {
@@ -47,15 +60,17 @@ function renderizarLivros(containerId, livros) {
 
     const card = col.querySelector(".card");
 
+    // Clicar no card leva para a página do livro
     card.addEventListener("click", () => {
       localStorage.setItem("livroSelecionado", livro.id);
       window.location.href = "visLivro.html";
     });
 
+    // Botões dentro do card não devem redirecionar
     const botoes = col.querySelectorAll("button");
     botoes.forEach(btn => {
       btn.addEventListener("click", (e) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         console.log(`Botão clicado: ${btn.className}`);
       });
     });
