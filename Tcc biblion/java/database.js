@@ -166,8 +166,8 @@ function gerarSenhaSegura() {
 // -------------------- ROTAS --------------------
 
 // === CADASTRO ALUNO/PROF ===
-app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
-  const { nome, telefone, email, senha, curso_id, serie, tipo_usuario_id, funcionario_id, FK_instituicao_id } = req.body;
+app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) => {
+  const { nome, telefone, email, senha, curso_id, serie, tipo_usuario_id, funcionario_id } = req.body;
   const foto = req.file ? req.file.filename : null;
 
   if (!nome || !telefone || !email || !tipo_usuario_id)
@@ -184,22 +184,22 @@ app.post('/cadastrarAluno', upload.single('foto'), (req, res) => {
     const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
     const sql = `INSERT INTO usuario 
-  (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id, FK_instituicao_id) 
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id, FK_instituicao_id) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     connection.query(sql, [
       nome, telefone, email, senhaFinal, foto, tipo_usuario_id,
       curso_id || null, serie || null,
       funcionario_id || null,
-      req.user.FK_instituicao_id   // 👈 puxa do token do funcionário logado
-    ], (err, result) => {
-
+      req.user.FK_instituicao_id   // 👈 sempre pega do token
+    ], (err) => {
       if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
       return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
     });
   });
 });
 
+//Indicações do professor
 app.post('/indicacoes/multiplas', (req, res) => {
   const { usuarioId, indicacaoId, cursoId, serie } = req.body;
 
@@ -216,13 +216,9 @@ app.post('/indicacoes/multiplas', (req, res) => {
 });
 
 // Cadastro de funcionário
-app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
+app.post('/cadastrarFuncionario', autenticarToken, upload.single('foto'), async (req, res) => {
   try {
-    const nome = req.body.nome;
-    const senha = req.body.senha;
-    const email = req.body.email;
-    const telefone = req.body.telefone || null;
-    const FK_funcao_id = req.body.FK_funcao_id || null;
+    const { nome, senha, email, telefone, FK_funcao_id } = req.body;
     let permissoes = req.body['permissoes[]'] || [];
 
     if (typeof permissoes === "string") {
@@ -233,6 +229,7 @@ app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
 
     if (!nome || !email) return res.status(400).json({ error: 'Campos obrigatórios não preenchidos.' });
     if (telefone && !telefoneValido(telefone)) return res.status(400).json({ error: 'Telefone inválido.' });
+
     if (req.file) {
       foto = Date.now() + '.jpg';
       const uploadDir = path.join(__dirname, '..', 'uploads', foto);
@@ -243,7 +240,7 @@ app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
         .jpeg({ quality: 90 })
         .toFile(uploadDir);
 
-      fs.unlinkSync(req.file.path); // remove o arquivo original salvo pelo multer
+      fs.unlinkSync(req.file.path); // remove original
     }
 
     const checkEmailSql = `SELECT id FROM funcionario WHERE email = ?`;
@@ -253,10 +250,11 @@ app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
 
       const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
-      const sql = `INSERT INTO funcionario (nome, senha, email, foto, telefone, FK_funcao_id)
-                   VALUES (?, ?, ?, ?, ?, ?)`;
+      const sql = `INSERT INTO funcionario 
+        (nome, senha, email, foto, telefone, FK_funcao_id, FK_instituicao_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-      connection.query(sql, [nome, senhaFinal, email, foto, telefone, FK_funcao_id], (err, result) => {
+      connection.query(sql, [nome, senhaFinal, email, foto, telefone, FK_funcao_id, req.user.FK_instituicao_id], (err, result) => {
         if (err) {
           console.error("Erro no INSERT:", err);
           return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
@@ -283,16 +281,14 @@ app.post('/cadastrarFuncionario', upload.single('foto'), async (req, res) => {
 });
 
 
+
+
 // Função para validar senha forte
 function senhaValida(senha) {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
   return regex.test(senha);
 }
-
 //----------------LOGIN DE USUÁRIO E FUNCIONÁRIO----------------
-
-
-
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
 
@@ -312,12 +308,13 @@ app.post('/login', (req, res) => {
         return res.status(401).json({ error: "Senha incorreta" });
       }
 
-      const token = jwt.sign(
-        { id: usuario.id, tipo: usuario.tipo, role: "usuario" },
-        SECRET,
-        { expiresIn: "1h" }
-      );
-
+      // Token do usuário agora leva a instituição
+      const token = jwt.sign({
+        id: usuario.id,
+        tipo_usuario_id: usuario.tipo,              // ✅ corrigido (era undefined antes)
+        FK_instituicao_id: usuario.FK_instituicao_id
+      }, SECRET, { expiresIn: '8h' });
+      
       return res.status(200).json({
         message: 'Login usuário bem-sucedido',
         token,
@@ -349,10 +346,17 @@ app.post('/login', (req, res) => {
       }
 
       const funcionario = results[0];
+
+      // Token do funcionário agora leva a instituição também
       const token = jwt.sign(
-        { id: funcionario.id, role: "funcionario", funcao: funcionario.funcao_id },
+        {
+          id: funcionario.id,
+          role: "funcionario",
+          funcao: funcionario.funcao_id,
+          FK_instituicao_id: funcionario.FK_instituicao_id   // ✅ incluído
+        },
         SECRET,
-        { expiresIn: "1h" }
+        { expiresIn: "8h" }
       );
 
       return res.status(200).json({
@@ -374,46 +378,101 @@ app.post('/login', (req, res) => {
 });
 function autenticarToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // espera formato "Bearer token"
+  const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) return res.status(401).json({ error: "Token não fornecido" });
 
   jwt.verify(token, SECRET, (err, payload) => {
     if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
-    req.user = payload; // salva os dados do usuário no request
+
+    console.log("🔑 Payload do token:", payload); // 👈 LOGA O QUE VEM NO TOKEN
+    req.user = payload;
     next();
   });
 }
-// === CADASTRO LIVRO ===
-app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
-  const {
-    titulo, edicao, paginas, quantidade, local_publicacao, data_publicacao,
-    sinopse, isbn, assunto_discutido, subtitulo, volume,
-    FK_genero_id, FK_funcionario_id, FK_classificacao_id, FK_status_id, FK_instituicao_id
-  } = req.body;
-  const capa = req.file ? req.file.filename : null;
 
-  const sql = `
-    INSERT INTO livro (
-      titulo, edicao, paginas, quantidade, local_publicacao, data_publicacao, 
-      sinopse, isbn, assunto_discutido, subtitulo, volume,
-      FK_genero_id, FK_funcionario_id, FK_classificacao_id, FK_status_id, capa, FK_instituicao_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  const values = [
+// Função de autenticação
+function autenticarToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ error: "Token não fornecido" });
+
+  jwt.verify(token, SECRET, (err, payload) => {
+    if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
+
+    req.user = payload; // 👈 dados do usuário
+    next();
+  });
+}
+
+// === CADASTRO DE LIVRO ===
+app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) => {
+  const { 
     titulo, edicao, paginas, quantidade, local_publicacao, data_publicacao,
     sinopse, isbn, assunto_discutido, subtitulo, volume,
     FK_genero_id, FK_funcionario_id, FK_classificacao_id, FK_status_id,
-    capa, FK_instituicao_id
-  ];
+    FK_editora_id // 👈 adicionar aqui
+  } = req.body;
+
+
+  const capa = req.file ? req.file.filename : null;
+
+  const sql = `
+INSERT INTO livro (
+  edicao,
+  capa,
+  paginas,
+  quantidade,
+  local_publicacao,
+  data_publicacao,
+  sinopse,
+  isbn,
+  titulo,
+  assunto_discutido,
+  subtitulo,
+  volume,
+  FK_funcionario_id,
+  FK_classificacao_id,
+  FK_status_id,
+  FK_instituicao_id,
+  FK_genero_id,
+  FK_editora_id
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
+const values = [
+  edicao || null,
+  capa || null,
+  paginas ? parseInt(paginas) : null,
+  quantidade ? parseInt(quantidade) : null,
+  local_publicacao || null,
+  data_publicacao || null,
+  sinopse || null,
+  isbn || null,
+  titulo || null,
+  assunto_discutido || null,
+  subtitulo || null,
+  volume || null,
+  req.user.id, // 👈 FK_funcionario_id
+  FK_classificacao_id ? parseInt(FK_classificacao_id) : null,
+  FK_status_id ? parseInt(FK_status_id) : null,
+  req.user?.FK_instituicao_id || 1,
+  FK_genero_id ? parseInt(FK_genero_id) : null,
+  FK_editora_id ? parseInt(FK_editora_id) : null
+];
+
 
   connection.query(sql, values, (err) => {
-    if (err) return res.status(500).json({ error: 'Erro ao cadastrar livro' });
+    if (err) {
+      console.error('Erro ao cadastrar livro:', err);
+      return res.status(500).json({ error: 'Erro ao cadastrar livro' });
+    }
     res.status(200).json({ message: 'Livro cadastrado com sucesso!' });
   });
 });
 
-// === LISTAR LIVROS (filtrados por instituição) ===
+// === LISTAR LIVROS ===
 app.get('/livros', autenticarToken, (req, res) => {
   const sql = `
     SELECT l.id, l.titulo, l.sinopse, l.capa, l.paginas, l.isbn,

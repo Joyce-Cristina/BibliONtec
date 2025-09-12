@@ -2,36 +2,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const loadingIsbn = document.getElementById('loadingIsbn');
 
-function mostrarLoading() {
-  loadingIsbn.style.display = 'inline-block';
-}
+  function mostrarLoading() {
+    loadingIsbn.style.display = 'inline-block';
+  }
+  function esconderLoading() {
+    loadingIsbn.style.display = 'none';
+  }
 
-function esconderLoading() {
-  loadingIsbn.style.display = 'none';
-}
+  // Pega o token do login (localStorage ou outro armazenamento)
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Você precisa estar logado para cadastrar livros.');
+    return;
+  }
 
-
-
-
-  const generosExistentes = await carregarGeneros(); // já retorna [{ id, genero }]
+  const generosExistentes = await carregarGeneros();
   const form = document.getElementById('formLivro');
   const inputGeneroTexto = document.getElementById('generoTexto');
   const inputGeneroId = document.getElementById('FK_genero_id');
   const isbnInput = document.querySelector('input[name="isbn"]');
 
-  // Associar input com id
+  // Associa input de gênero ao ID
   inputGeneroTexto.addEventListener('input', () => {
     const texto = inputGeneroTexto.value.trim().toLowerCase();
     const encontrado = generosExistentes.find(g => g.genero.toLowerCase() === texto);
     inputGeneroId.value = encontrado ? encontrado.id : '';
   });
 
-  // Autocompletar dados do livro
+  // Autocompletar dados do livro via ISBN
   isbnInput.addEventListener('blur', async () => {
     const isbn = isbnInput.value.trim();
     if (!isbn) return;
     mostrarLoading();
-
 
     try {
       const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&langRestrict=pt&country=BR`);
@@ -70,7 +72,6 @@ function esconderLoading() {
         document.querySelector('input[name="edicao"]').value = '1ª';
         inputGeneroTexto.value = generoPT;
 
-        // tenta encontrar o ID do gênero
         const generoEncontrado = generosExistentes.find(g => g.genero.toLowerCase() === generoPT.toLowerCase());
         inputGeneroId.value = generoEncontrado ? generoEncontrado.id : '';
       } else {
@@ -83,7 +84,6 @@ function esconderLoading() {
       esconderLoading();
     }
   });
-  
 
   // Submissão do formulário
   form.addEventListener('submit', async (evento) => {
@@ -92,18 +92,20 @@ function esconderLoading() {
     const textoGenero = inputGeneroTexto.value.trim();
     let idGenero = inputGeneroId.value;
 
-    // Se gênero digitado ainda não tem ID, tenta cadastrar
+    // Se gênero não existe, cadastra
     if (!idGenero && textoGenero !== '') {
       try {
         const resp = await fetch('http://localhost:3000/generos', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token // 👈 envia token
+          },
           body: JSON.stringify({ genero: textoGenero })
         });
 
         if (!resp.ok) throw new Error('Erro ao salvar novo gênero');
 
-        // atualiza lista e campo hidden
         const novosGeneros = await carregarGeneros();
         const novo = novosGeneros.find(g => g.genero.toLowerCase() === textoGenero.toLowerCase());
         inputGeneroId.value = novo?.id || '';
@@ -113,11 +115,14 @@ function esconderLoading() {
       }
     }
 
-    // Envia o formulário
+    // Envia formulário do livro
     const formData = new FormData(form);
     try {
       const resposta = await fetch('http://localhost:3000/cadastrarLivro', {
         method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token // 👈 envia token
+        },
         body: formData
       });
 
@@ -134,11 +139,10 @@ function esconderLoading() {
       console.error('Erro na requisição:', erro);
       alert('Erro na conexão com o servidor.');
     }      
-    
   });
 });
 
-// Ajusta data para formato yyyy-mm-dd
+// Ajusta data para yyyy-mm-dd
 function ajustarData(data) {
   if (!data) return '';
   if (/^\d{4}$/.test(data)) return '';
@@ -163,12 +167,9 @@ async function carregarGeneros() {
       datalist.appendChild(option);
     });
 
-    return generos; // com id e genero
+    return generos;
   } catch (error) {
     console.error('Erro ao carregar gêneros:', error);
     return [];
-
   }
-
-
 }
