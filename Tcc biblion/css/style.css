@@ -1714,7 +1714,36 @@ margin-right: 10px;
   margin: 0 auto;            /* garante centralização */
 }
 
+/* Estilo para o botão "Novo bibliotecário" */
+body.acervo-page .btn-new-user {
+  background-color: #7a1600;
+  /* Cor de fundo do botão */
+  color: white;
+  /* Cor do texto */
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+  max-height: 45px;
+  margin-top: 13px;
+  margin-right: 10px;
+}
 
+body.acervo-page .btn-new-user:hover {
+  background-color: #5c0e00;
+  color: rgb(146, 146, 146);
+  /* Cor de fundo ao passar o mouse */
+}
+
+body.acervo-page .btn-new-user i {
+  font-size: 1.4rem;
+  /* Tamanho do ícone */
+}
 
 #configTabsContent .tab-pane { display: none; }
 #configTabsContent .tab-pane.active { display: block; }
