@@ -19,7 +19,7 @@
       padding: 0;
       background-color: #f0e6d2;
       font-family: Arial, sans-serif;
-      height: 100vh;
+      block-size: 100vh;
       display: flex;
       flex-direction: column;
       font-size: 17px;
@@ -57,10 +57,10 @@
 
     .sidebar {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 220px;
-      height: 100vh;
+      inset-block-start: 0;
+      inset-inline-start: 0;
+      inline-size: 220px;
+      block-size: 100vh;
       background-color: #7a1505;
       padding: 76px 20px 20px 20px;
       color: white;
@@ -75,8 +75,8 @@
       display: block;
       background-color: #7a1505;
       color: white;
-      margin-bottom: 10px;
-      text-align: left;
+      margin-block-end: 10px;
+      text-align: start;
       border: none;
       padding: 10px 15px;
       border-radius: 5px;
@@ -99,9 +99,9 @@
 
     .main-container {
       flex: 1;
-      padding-left: 270px;
-      padding-top: 30px;
-      padding-bottom: 100px;
+      padding-inline-start: 270px;
+      padding-block-start: 30px;
+      padding-block-end: 100px;
     }
 
     .content {
@@ -109,7 +109,7 @@
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-      width: 900px;
+      inline-size: 900px;
       margin: 0 auto;
       font-size: 1.2rem;
     }
@@ -128,11 +128,11 @@
       box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
     }
 
-    @media (max-width: 800px) {
+    @media (max-inline-size: 800px) {
       .sidebar {
         position: relative;
-        height: auto;
-        width: 100%;
+        block-size: auto;
+        inline-size: 100%;
         border-radius: 0;
         padding: 10px;
         display: flex;
@@ -142,30 +142,30 @@
 
       .sidebar a,
       .sidebar button.dropdown-toggle {
-        margin-bottom: 0;
+        margin-block-end: 0;
         flex: 1 1 auto;
         text-align: center;
         padding: 8px 5px;
       }
 
       .content {
-        margin-left: 0;
-        width: 100%;
-        max-width: 100%;
-        margin-top: 10px;
+        margin-inline-start: 0;
+        inline-size: 100%;
+        max-inline-size: 100%;
+        margin-block-start: 10px;
       }
     }
 
     .notificacao-dropdown {
       background-color: #ffffff;
-      min-width: 250px;
-      max-width: 100%;
-      max-height: 300px;
+      min-inline-size: 250px;
+      max-inline-size: 100%;
+      max-block-size: 300px;
       overflow-y: auto;
       border-radius: 0px;
       padding: 0;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-left: -20px;
+      margin-inline-start: -20px;
     }
 
     .notificacao-dropdown .dropdown-item {
@@ -173,7 +173,7 @@
       color: #333333;
       padding: 15px 20px;
       border: none;
-      border-bottom: 1px solid #ddd;
+      border-block-end: 1px solid #ddd;
       font-size: 16px;
     }
 
@@ -188,14 +188,14 @@
     /* Avatar flutuante */
 .avatar-container {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  inset-block-end: 20px;
+  inset-inline-start: 20px;
   z-index: 1051;
 }
 
 .avatar-navbar {
-  width: 50px;
-  height: 50px;
+  inline-size: 50px;
+  block-size: 50px;
   border-radius: 10px;
   cursor: pointer;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
@@ -205,13 +205,13 @@
 .menu-perfil {
   display: none;
   position: absolute;
-  bottom: 60px;
-  left: 0;
+  inset-block-end: 60px;
+  inset-inline-start: 0;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  min-width: 200px;
+  min-inline-size: 200px;
 }
 
 .menu-perfil.show {
@@ -234,12 +234,12 @@
 .menu-divider {
   margin: 0;
   border: none;
-  border-top: 1px solid #ccc;
+  border-block-start: 1px solid #ccc;
 }
 /* altura típica da navbar do Bootstrap ~56–60px */
 .main-container,
 .main-container-custom{
-  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+  padding-block-start: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
 }
 
   </style>
@@ -250,7 +250,7 @@
  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid d-flex align-items-center" style="gap: 0;">
       <a class="navbar-brand" href="./homepageAdm.html">
-        <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
+        <img src="../img/logoreta.png" alt="Logo" style="block-size: 50px; inline-size: auto;">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
@@ -316,7 +316,7 @@
   <div class="main-container">
     <!-- Card Central -->
     <div class="content text-center">
-      <h2 style="font-family: Georgia, serif; font-size: 2.5rem; margin-bottom: 30px;">Área do administrador</h2>
+      <h2 style="font-family: Georgia, serif; font-size: 2.5rem; margin-block-end: 30px;">Área do administrador</h2>
       <form>
         <div class="row mb-4 text-start">
           <div class="col-md-6">
@@ -343,7 +343,7 @@
     </span>
   </div>
 
-  <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
+  <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-block-start: 4px; display: none;"></div>
 </div>
 
 
@@ -387,42 +387,42 @@
     <div class="container mt-4">
       <!-- Card: Livros que vão ser entregues hoje -->
       <div class="mb-4"
-        style="background-color: #5a3c24; border-radius: 15px; padding: 0; max-width: 800px; margin: auto;">
+        style="background-color: #5a3c24; border-radius: 15px; padding: 0; max-inline-size: 800px; margin: auto;">
         <div class="d-flex justify-content-between align-items-center p-3"
-          style="background-color: #3b2a1a; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+          style="background-color: #3b2a1a; border-start-start-radius: 15px; border-start-end-radius: 15px;">
           <h5 class="text-white mb-0 fw-bold">Livros que vão ser entregues hoje</h5>
           <button class="btn text-white toggle-button" data-target="entregaHoje" style="font-size: 1.5rem;">^</button>
         </div>
         <div id="entregaHoje" class="p-3 toggle-content" style="background-color: #5a3c24;">
           <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
             <img src="../img/logoquadrada.jpeg" alt="Capa do livro" class="me-3"
-              style="width: 60px; height: auto; border-radius: 5px;" />
+              style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
             <div><strong>O Meu Pé de Laranja Lima</strong> - Guilherme</div>
           </div>
           <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
             <img src="../img/logoquadrada.jpeg" alt="Capa do livro" class="me-3"
-              style="width: 60px; height: auto; border-radius: 5px;" />
+              style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
             <div><strong>Olha os Lírios do Campo</strong> - Mariana</div>
           </div>
         </div>
       </div>
 
       <!-- Card: Livros em atraso -->
-      <div style="background-color: #5a0c00; border-radius: 15px; padding: 0; max-width: 800px; margin: auto;">
+      <div style="background-color: #5a0c00; border-radius: 15px; padding: 0; max-inline-size: 800px; margin: auto;">
         <div class="d-flex justify-content-between align-items-center p-3"
-          style="background-color: #470700; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+          style="background-color: #470700; border-start-start-radius: 15px; border-start-end-radius: 15px;">
           <h5 class="text-white mb-0 fw-bold">Livros em atraso</h5>
           <button class="btn text-white toggle-button" data-target="livrosAtraso" style="font-size: 1.5rem;">^</button>
         </div>
         <div id="livrosAtraso" class="p-3 toggle-content" style="background-color: #5a0c00;">
           <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
             <img src="../img/logoquadrada.jpeg" alt="Cem Anos de Solidão" class="me-3"
-              style="width: 60px; height: auto; border-radius: 5px;" />
+              style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
             <div><strong>Cem Anos de Solidão</strong> - André</div>
           </div>
           <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
             <img src="../img/logoquadrada.jpeg" alt="O Ateneu" class="me-3"
-              style="width: 60px; height: auto; border-radius: 5px;" />
+              style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
             <div><strong>O Ateneu</strong> - Tiago</div>
           </div>
         </div>
@@ -443,8 +443,8 @@
   </div>
 </div>
   <!-- Botão de acessibilidade -->
-  <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
-    <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
+  <div style="position: fixed; inset-block-end: 20px; inset-inline-end: 20px; z-index: 999;">
+    <button class="btn btn-dark rounded-3" style="inline-size: 50px; block-size: 50px;">
       <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
     </button>
   </div>

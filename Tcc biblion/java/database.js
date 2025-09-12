@@ -6,9 +6,13 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const fetch = require("node-fetch");
+const jwt = require("jsonwebtoken");
+
+require("dotenv").config();
+const SECRET = process.env.JWT_SECRET;
 
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-// database.js
+
 const mysqlRaw = require("mysql2/promise");
 
 const pool = mysqlRaw.createPool({
@@ -295,72 +299,102 @@ function senhaValida(senha) {
 }
 
 //----------------LOGIN DE USUÁRIO E FUNCIONÁRIO----------------
+
+
+
 app.post('/login', (req, res) => {
   const { email, senha } = req.body;
 
-  // 🔹 LOGIN DE USUÁRIO
+  // 1) tenta login de usuário
   const sqlUsuario = `
-    SELECT id, nome, FK_tipo_usuario_id AS tipo, foto ,FK_instituicao_id
+    SELECT id, nome, FK_tipo_usuario_id AS tipo, foto, FK_instituicao_id, senha
     FROM usuario 
-    WHERE email = ? AND senha = ?
+    WHERE email = ?
   `;
 
-  connection.query(sqlUsuario, [email, senha], (err, results) => {
+  connection.query(sqlUsuario, [email], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro no servidor' });
 
     if (results.length > 0) {
       const usuario = results[0];
+      if (usuario.senha !== senha) {
+        return res.status(401).json({ error: "Senha incorreta" });
+      }
+
+      const token = jwt.sign(
+        { id: usuario.id, tipo: usuario.tipo, role: "usuario" },
+        SECRET,
+        { expiresIn: "1h" }
+      );
+
       return res.status(200).json({
         message: 'Login usuário bem-sucedido',
+        token,
         usuario: {
           id: usuario.id,
           nome: usuario.nome,
           tipo_usuario_id: usuario.tipo,
-          FK_instituicao_id: results[0].FK_instituicao_id,
+          FK_instituicao_id: usuario.FK_instituicao_id,
           foto: usuario.foto || 'padrao.png'
         }
       });
     }
 
-    // 🔹 LOGIN DE FUNCIONÁRIO
+    // 2) tenta login de funcionário
     const sqlFuncionario = `
       SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto, 
              f.FK_funcao_id AS funcao_id,
-             f.FK_instituicao_id, 
-             fn.funcao AS funcao_nome
+             f.FK_instituicao_id, fn.funcao AS funcao_nome
       FROM funcionario f
       JOIN funcao fn ON f.FK_funcao_id = fn.id
-      WHERE f.email = ? AND f.senha = ?
+      WHERE f.email = ?
     `;
 
-    connection.query(sqlFuncionario, [email, senha], (err, results) => {
+    connection.query(sqlFuncionario, [email], (err, results) => {
       if (err) return res.status(500).json({ error: "Erro no servidor" });
 
-      if (results.length === 0) {
+      if (results.length === 0 || results[0].senha !== senha) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
-      const funcionario = {
-        id: results[0].id,
-        nome: results[0].nome,
-        email: results[0].email,
-        telefone: results[0].telefone,
-        funcao_id: results[0].funcao_id,
-        FK_instituicao_id: results[0].FK_instituicao_id,
-        funcao_nome: results[0].funcao_nome,
-        foto: results[0].foto || "padrao.png"
-      };
-
+      const funcionario = results[0];
+      const token = jwt.sign(
+        { id: funcionario.id, role: "funcionario", funcao: funcionario.funcao_id },
+        SECRET,
+        { expiresIn: "1h" }
+      );
 
       return res.status(200).json({
         message: "Login funcionário bem-sucedido",
-        funcionario
+        token,
+        funcionario: {
+          id: funcionario.id,
+          nome: funcionario.nome,
+          email: funcionario.email,
+          telefone: funcionario.telefone,
+          funcao_id: funcionario.funcao_id,
+          FK_instituicao_id: funcionario.FK_instituicao_id,
+          funcao_nome: funcionario.funcao_nome,
+          foto: funcionario.foto || "padrao.png"
+        }
       });
     });
   });
 });
+function autenticarToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // espera formato "Bearer token"
 
-app.get('/livros', (req, res) => {
+  if (!token) return res.status(401).json({ error: "Token não fornecido" });
+
+  jwt.verify(token, SECRET, (err, payload) => {
+    if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
+    req.user = payload; // salva os dados do usuário no request
+    next();
+  });
+}
+
+app.get('/livros', autenticarToken, (req, res) => {
   const sql = `
     SELECT 
       l.id,
@@ -395,20 +429,27 @@ app.get('/livros', (req, res) => {
 
 /// Atualizar dados do funcionário
 app.put('/funcionario/:id', (req, res) => {
-  const id = req.params.id;
-  const { nome, email, senha, telefone, funcao_id } = req.body;
+  const { id } = req.params;
+  const { nome, email, senha, telefone, FK_funcao_id } = req.body;
 
-  if (!nome || !email || !senha || !telefone || !funcao_id) {
-    return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+  // Monta dinamicamente a query com os campos que vierem
+  let fields = [];
+  let values = [];
+
+  if (nome) { fields.push("nome = ?"); values.push(nome); }
+  if (email) { fields.push("email = ?"); values.push(email); }
+  if (senha) { fields.push("senha = ?"); values.push(senha); }
+  if (telefone) { fields.push("telefone = ?"); values.push(telefone); }
+  if (FK_funcao_id) { fields.push("FK_funcao_id = ?"); values.push(FK_funcao_id); }
+
+  if (fields.length === 0) {
+    return res.status(400).json({ error: "Nenhum campo enviado para atualização." });
   }
 
-  const sql = `
-    UPDATE funcionario
-    SET nome = ?, email = ?, senha = ?, telefone = ?, FK_funcao_id = ?
-    WHERE id = ?
-  `;
+  const sql = `UPDATE funcionario SET ${fields.join(", ")} WHERE id = ?`;
+  values.push(id);
 
-  connection.query(sql, [nome, email, senha, telefone, funcao_id, id], (err, result) => {
+  connection.query(sql, values, (err, result) => {
     if (err) {
       console.error("Erro ao atualizar funcionário:", err);
       return res.status(500).json({ error: "Erro ao atualizar funcionário." });
@@ -1445,6 +1486,25 @@ app.put("/configuracoes-tipo-usuario/:id", (req, res) => {
   connection.query(sql, [maximo_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar, id], (err) => {
     if (err) return res.status(500).json({ error: "Erro ao atualizar configuração" });
     res.json({ mensagem: "Configuração atualizada com sucesso!" });
+  });
+});
+// Lista funcionários por instituição
+app.get('/api/funcionarios/:instituicaoId', (req, res) => {
+  const { instituicaoId } = req.params;
+
+  const sql = `
+    SELECT f.id, f.nome, f.email, f.telefone, f.foto, fun.funcao AS funcao, f.FK_funcao_id
+    FROM funcionario f
+    LEFT JOIN funcao fun ON f.FK_funcao_id = fun.id
+    WHERE f.FK_instituicao_id = ?
+  `;
+
+  connection.query(sql, [instituicaoId], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar funcionários:', err);
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+    res.json(results);
   });
 });
 

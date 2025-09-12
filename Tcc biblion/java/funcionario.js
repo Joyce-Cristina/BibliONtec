@@ -1,53 +1,58 @@
-document.addEventListener('DOMContentLoaded', carregarFuncionarios);
-const API_URL = 'http://localhost:3000/api/funcionarios';
+document.addEventListener("DOMContentLoaded", carregarFuncionarios);
+const API_URL = "http://localhost:3000/api/funcionarios";
 let todosOsFuncionarios = [];
 
-// Só carrega funcionários se o elemento existir
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('lista-funcionarios')) {
-    carregarFuncionarios();
-  }
-});
-
+// Carregar
 async function carregarFuncionarios() {
   try {
     const resposta = await fetch(API_URL);
     todosOsFuncionarios = await resposta.json();
-    exibirFuncionarios(todosOsFuncionarios);
+
+    // Decide o tipo de exibição pela tela
+    if (document.getElementById("lista-funcionarios")) {
+      // Caso seja a tela de FUNCIONÁRIOS (bibliotecário vê) → cards
+      exibirFuncionariosCards(todosOsFuncionarios);
+    }
+    if (document.querySelector("#lista-bibliotecarios tbody")) {
+      // Caso seja a tela de BIBLIOTECÁRIOS (admin vê) → tabela
+      exibirFuncionariosTabela(todosOsFuncionarios);
+    }
+
   } catch (erro) {
     console.error("Erro ao carregar funcionários:", erro);
   }
 }
 
-function exibirFuncionarios(funcionarios) {
-  const container = document.getElementById('lista-funcionarios');
-  if (!container) return; // Se não existir na página, não faz nada
+// Exibir em CARDS (funcionarios.html → bibliotecário vê)
+function exibirFuncionariosCards(funcionarios) {
+  const container = document.getElementById("lista-funcionarios");
+  if (!container) return;
 
-  container.innerHTML = '';
+  container.innerHTML = "";
   let row;
 
   funcionarios.forEach((f, index) => {
     if (index % 3 === 0) {
-      row = document.createElement('div');
-      row.className = 'row mb-4';
+      row = document.createElement("div");
+      row.className = "row mb-4";
       container.appendChild(row);
     }
 
-    const foto = f.foto 
+    const foto = f.foto
       ? `http://localhost:3000/uploads/${f.foto}`
       : `http://localhost:3000/uploads/padrao.jpg`;
 
-    const col = document.createElement('div');
-    col.className = 'col-md-4 d-flex align-items-stretch';
+    const col = document.createElement("div");
+    col.className = "col-md-4 d-flex align-items-stretch";
 
     col.innerHTML = `
       <div class="card h-100" style="background-color: #d6c9b4;">
         <img src="${foto}" class="card-img-top" alt="${f.nome}" style="height: 300px; object-fit: cover;">
         <div class="card-body text-center">
           <h5 class="card-title fw-bold">${f.nome}</h5>
-          <p><strong>Função:</strong> ${f.funcao || 'Não definida'}</p>
+          <p><strong>Função:</strong> ${f.funcao || "Não definida"}</p>
           <p><strong>Email:</strong> ${f.email}</p>
-          <p><strong>Telefone:</strong> ${f.telefone || '—'}</p>
+          <p><strong>Telefone:</strong> ${f.telefone || "—"}</p>
         </div>
         <div class="card-footer text-center">
           <button class="btn btn-danger me-2" onclick="excluirFuncionario(${f.id})">Excluir</button>
@@ -55,78 +60,36 @@ function exibirFuncionarios(funcionarios) {
         </div>
       </div>
     `;
-
     row.appendChild(col);
   });
 }
 
-function abrirModalEdicao(id) {
-  const funcionario = todosOsFuncionarios.find(f => f.id === id);
-  if (!funcionario) return;
+// Exibir em TABELA (bibliotecarios.html → admin vê)
+function exibirFuncionariosTabela(funcionarios) {
+  const tbody = document.querySelector("#lista-bibliotecarios tbody");
+  if (!tbody) return;
 
-  // Só preenche se os campos existirem
-  const idField = document.getElementById('id-funcionario');
-  if (idField) idField.value = funcionario.id;
+  tbody.innerHTML = "";
 
-  const nomeField = document.getElementById('nome-funcionario');
-  if (nomeField) nomeField.value = funcionario.nome;
+  funcionarios.forEach(f => {
+    const statusBadge =
+      f.status === "Ativo"
+        ? '<span class="badge bg-success">Ativo</span>'
+        : '<span class="badge bg-danger">Inativo</span>';
 
-  const emailField = document.getElementById('email-funcionario');
-  if (emailField) emailField.value = funcionario.email;
-
-  const telefoneField = document.getElementById('telefone-funcionario');
-  if (telefoneField) telefoneField.value = funcionario.telefone || '';
-
-  const funcaoField = document.getElementById('funcao-funcionario');
-  if (funcaoField) funcaoField.value = funcionario.funcao || '';
-
-  const modalElement = document.getElementById('modal-editar');
-  if (modalElement) {
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
-  }
-}
-
-function fecharModal() {
-  const modalElement = document.getElementById('modal-editar');
-  if (modalElement) {
-    modalElement.style.display = 'none';
-  }
-}
-
-// Só adiciona evento no formulário se ele existir
-const formEditar = document.getElementById('form-editar');
-if (formEditar) {
-  formEditar.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const id = document.getElementById('id-funcionario')?.value;
-    const dados = {
-      nome: document.getElementById('nome-funcionario')?.value,
-      email: document.getElementById('email-funcionario')?.value,
-      telefone: document.getElementById('telefone-funcionario')?.value,
-      funcao: document.getElementById('funcao-funcionario')?.value
-    };
-    
-    fetch(`${API_URL}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados)
-    }).then(() => {
-      fecharModal();
-      carregarFuncionarios();
-    });
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${f.nome}</td>
+      <td>${f.email}</td>
+      <td>${statusBadge}</td>
+      <td>${f.telefone || "—"}</td>
+      <td>${f.funcao || "—"}</td>
+      <td>
+        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
+        <button class="btn btn-outline-warning btn-sm" onclick="abrirModalEdicao(${f.id})"><i class="bi bi-pencil"></i> Editar</button>
+        <button class="btn btn-outline-danger btn-sm" onclick="excluirFuncionario(${f.id})"><i class="bi bi-trash"></i> Excluir</button>
+      </td>
+    `;
+    tbody.appendChild(row);
   });
-}
-
-// Função para excluir funcionário
-function excluirFuncionario(id) {
-  if (confirm('Tem certeza que deseja excluir este funcionário?')) {
-    fetch(`${API_URL}/${id}`, { method: 'DELETE' })
-      .then(res => {
-        if (res.ok) {
-          carregarFuncionarios(); // Recarrega lista
-        }
-      })
-      .catch(err => console.error('Erro ao excluir funcionário:', err));
-  }
 }

@@ -158,147 +158,169 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ----------- LÓGICA DE LOGIN ------------
-  const formLogin = document.getElementById('formLogin');
-  if (formLogin) {
-    formLogin.addEventListener('submit', async (event) => {
-      event.preventDefault();
+// ----------- LÓGICA DE LOGIN ------------
+const formLogin = document.getElementById('formLogin');
+if (formLogin) {
+  formLogin.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-      const email = document.getElementById('email').value;
-      const senha = document.getElementById('senha').value;
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
 
-      try {
-        const response = await fetch('http://localhost:3000/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, senha }),
-        });
+    try {
+      const response = await fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha }),
+      });
 
-        const data = await response.json();
-        console.log('Resposta do login:', data);
+      const data = await response.json();
+      console.log('Resposta do login:', data);
 
-        if (response.ok) {
-          if (data.usuario) {
-            // Login de usuário comum
-            const usuario = data.usuario;
-            localStorage.setItem("usuario", JSON.stringify(usuario));
-            const tipoUsuario = Number(usuario.tipo_usuario_id);
-            if (tipoUsuario === 1) {
-              window.location.href = './homepageAluno.html';
-            } else if (tipoUsuario === 2) {
-              window.location.href = './homepageProf.html';
-            } else {
-              alert('Tipo de usuário não reconhecido.');
-            }
-
-          } else if (data.funcionario) {
-            // Login de funcionário
-            const funcionarioCorrigido = {
-              ...data.funcionario,
-              funcao_id: Number(data.funcionario.funcao_id),
-              FK_instituicao_id: data.funcionario.FK_instituicao_id  // ✅ adicionar
-            };
-            localStorage.setItem("funcionario", JSON.stringify(funcionarioCorrigido));
-            const funcao = funcionarioCorrigido.funcao_id;
-
-            switch (funcao) {
-              case 1: // Administrador TI
-                window.location.href = './homepageAdm2.html';
-                break;
-              case 2: // Bibliotecário
-              case 3: // Circulação
-              case 4: // Catalogação
-                window.location.href = './homepageAdm.html';
-                break;
-              default:
-                alert("Função não reconhecida! funcao_id: " + funcao);
-            }
-
-          } else {
-            alert('Resposta inesperada do servidor.');
-          }
-
-        } else {
-          alert("Erro ao fazer login: " + data.error);
-        }
-
-      } catch (error) {
-        console.error('Erro ao fazer login:', error);
-        alert("Erro de rede ou servidor!");
+      if (!response.ok) {
+        alert("Erro ao fazer login: " + (data.error || "desconhecido"));
+        return;
       }
-    });
+
+      if (!data.token) {
+        alert("Login falhou: token não recebido.");
+        return;
+      }
+
+      // Salva o token
+      localStorage.setItem("token", data.token);
+
+      // Decide o redirecionamento de acordo com role
+      if (data.usuario) {
+        const tipo = Number(data.usuario.tipo_usuario_id);
+        if (tipo === 1) {
+          window.location.href = './homepageAluno.html';
+        } else if (tipo === 2) {
+          window.location.href = './homepageProf.html';
+        } else {
+          alert('Tipo de usuário não reconhecido.');
+        }
+      } else if (data.funcionario) {
+        const funcao = Number(data.funcionario.funcao_id);
+        switch (funcao) {
+          case 1:
+            window.location.href = './homepageAdm2.html'; // Administrador
+            break;
+          case 2:
+          case 3:
+          case 4:
+            window.location.href = './homepageAdm.html'; // Bibliotecário, Circulação, Catalogação
+            break;
+          default:
+            alert("Função não reconhecida! funcao_id: " + funcao);
+        }
+      } else {
+        alert("Resposta inesperada do servidor.");
+      }
+
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+      alert("Erro de rede ou servidor!");
+    }
+  });
+}
+
+// ----------- VALIDAÇÃO DE TOKEN E ACESSO ------------
+(function () {
+  const pagina = window.location.pathname.split("/").pop();
+
+  // index.html sempre permitido
+  if (pagina === "index.html") return;
+
+  const token = localStorage.getItem("token");
+  if (!token) {
+    // Sem token -> volta para login
+    window.location.href = "index.html";
+    return;
   }
 
-  (function () {
-    const pagina = window.location.pathname.split("/").pop();
+  // Decodificar o payload do JWT
+  function parseJwt(t) {
+    try {
+      return JSON.parse(atob(t.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  }
 
-    // index.html sempre permitido
-    if (pagina === "index.html") return;
+  const payload = parseJwt(token);
+  if (!payload) {
+    alert("Sessão inválida. Faça login novamente.");
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+    return;
+  }
 
-    const funcionario = JSON.parse(localStorage.getItem("funcionario"));
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
+  // Verifica expiração do token
+  const agora = Date.now() / 1000;
+  if (payload.exp && payload.exp < agora) {
+    alert("Sessão expirada. Faça login novamente.");
+    localStorage.removeItem("token");
+    window.location.href = "index.html";
+    return;
+  }
 
-    // ---------------- Bloqueio de acesso por URL ----------------
-    if (!funcionario && !usuario) {
-      // Não logado, tenta acessar outra página → volta para login
+  // ---------------- Controle de Permissões ----------------
+  if (payload.role === "funcionario") {
+    const funcao = Number(payload.funcao);
+    const permissoesPaginas = {
+      1: ["homepageAdm2.html", "areaAdm2.html", "backup.html", "configAdm2.html", "manutencao.html", "bibliotecarios.html","usuariosAdm2.html", "relatorios.html"],
+      2: ["homepageAdm.html", "areaAdm.html", "cadLivro.html", "cadAluno.html", "homepageProf.html", "livrosProf.html", "areaProf.html", "visLivro.html", "cadFunc.html",
+          "usuarios.html", "funcionarios.html", "emprestimo.html", "etiqueta.html", "acervo.html", "relatorios.html"],
+      3: ["homepageAdm.html", "usuarios.html", "emprestimo.html", "acervo.html"],
+      4: ["homepageAdm.html", "cadLivro.html", "acervo.html"]
+    };
+
+    if (!permissoesPaginas[funcao] || !permissoesPaginas[funcao].includes(pagina)) {
+      alert("🚫 Você não tem permissão para acessar esta página!");
       window.location.href = "index.html";
       return;
     }
+  }
 
-    if (funcionario) {
-      const funcao = Number(funcionario.funcao_id);
-      const permissoesPaginas = {
-        1: ["homepageAdm2.html", "areaAdm2.html", "backup.html", "configAdm2.html", "manutencao.html", "bibliotecarios.html","usuariosAdm2.html", "relatorios.html"],
-        2: ["homepageAdm.html", "areaAdm.html", "cadLivro.html", "cadAluno.html", "homepageProf.html", "livrosProf.html", "areaProf.html", "visLivro.html", "cadFunc.html",
-          "usuarios.html", "funcionarios.html", "emprestimo.html", "etiqueta.html", "acervo.html", "relatorios.html"],
-        3: ["homepageAdm.html", "usuarios.html", "emprestimo.html", "acervo.html"],
-        4: ["homepageAdm.html", "cadLivro.html", "acervo.html"]
-      };
+  if (payload.role === "usuario") {
+    const tipo = Number(payload.tipo);
+    const permissoesUsuario = {
+      1: ["homepageAluno.html", "areaAluno.html", "biblioteca.html", "eventos.html", "indicacoes.html", "lista.html", "meusLivros.html", "visLivro.html"],
+      2: ["homepageProf.html", "livrosProf.html", "areaProf.html", "visLivro.html"]
+    };
 
-      if (!permissoesPaginas[funcao].includes(pagina)) {
-        alert("🚫 Você não tem permissão para acessar esta página!");
-        window.location.href = "index.html";
-        return;
-      }
+    if (!permissoesUsuario[tipo] || !permissoesUsuario[tipo].includes(pagina)) {
+      alert("🚫 Você não tem permissão para acessar esta página!");
+      window.location.href = "index.html";
+      return;
     }
-    if (usuario) {
-      const permissoesUsuario = {
+  }
 
-        1: ["homepageAluno.html", "areaAluno.html", "biblioteca.html", "eventos.html", "indicacoes.html", "lista.html", "meusLivros.html", "visLivro.html", ],
-        2: ["homepageProf.html", "livrosProf.html", "areaProf.html", "visLivro.html"]
-      };
-      const tipo = Number(usuario.tipo_usuario_id);
-      if (!permissoesUsuario[tipo].includes(pagina)) {
-        alert("🚫 Você não tem permissão para acessar esta página!");
-        window.location.href = "index.html";
-        return;
-      }
-    }
-    // ---------------- Esconder links da sidebar ----------------
-    if (funcionario) {
-      const funcao = Number(funcionario.funcao_id);
-      const permissoesMenu = {
-        1: ["usuariosAdm2", "configAdm2", "manutencao", "relatorios"],
-        2: ["cadastro", "cadAluno", "cadLivro", "cadFunc", "funcionarios", "usuarios", "emprestimo", "etiqueta", "acervo"],
-        3: ["usuarios", "emprestimo", "acervo"],
-        4: ["cadastro", "cadLivro", "acervo", "etiqueta"]
-      };
+  // ---------------- Esconder links da sidebar ----------------
+  if (payload.role === "funcionario") {
+    const funcao = Number(payload.funcao);
+    const permissoesMenu = {
+      1: ["usuariosAdm2", "configAdm2", "manutencao", "relatorios"],
+      2: ["cadastro", "cadAluno", "cadLivro", "cadFunc", "funcionarios", "usuarios", "emprestimo", "etiqueta", "acervo"],
+      3: ["usuarios", "emprestimo", "acervo"],
+      4: ["cadastro", "cadLivro", "acervo", "etiqueta"]
+    };
 
-      const permitidos = permissoesMenu[funcao];
+    const permitidos = permissoesMenu[funcao] || [];
 
-      document.querySelectorAll("[data-permissao]").forEach(el => {
-        const chave = el.getAttribute("data-permissao");
-        if (!permitidos.includes(chave)) el.style.display = "none";
-      });
+    document.querySelectorAll("[data-permissao]").forEach(el => {
+      const chave = el.getAttribute("data-permissao");
+      if (!permitidos.includes(chave)) el.style.display = "none";
+    });
 
-      document.querySelectorAll(".dropdown").forEach(drop => {
-        const items = drop.querySelectorAll("li a");
-        const todosEscondidos = Array.from(items).every(i => getComputedStyle(i).display === "none");
-        if (todosEscondidos) drop.style.display = "none";
-      });
-    }
-
-  })();
+    document.querySelectorAll(".dropdown").forEach(drop => {
+      const items = drop.querySelectorAll("li a");
+      const todosEscondidos = Array.from(items).every(i => getComputedStyle(i).display === "none");
+      if (todosEscondidos) drop.style.display = "none";
+    });
+  }
+})();
 
 
 
@@ -465,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (path.includes("areaAdm.html")) {
+  if (path.includes("areaAdm.html")|| path.includes("areaAdm2.html")) {
     const funcionarioSalvo = JSON.parse(localStorage.getItem("funcionario"));
     if (!funcionarioSalvo) {
       alert("Usuário não logado!");
@@ -526,7 +548,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Só adiciona função se o campo existir na tela (funcionário)
       const funcaoEl = document.getElementById("funcao");
-      if (funcaoEl) dadosAtualizados.funcao_id = funcaoEl.value;
+      if (funcaoEl) dadosAtualizados.FK_funcao_id = funcaoEl.value;
+
 
 
       try {

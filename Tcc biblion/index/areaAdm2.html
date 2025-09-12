@@ -19,7 +19,7 @@
             padding: 0;
             background-color: #f0e6d2;
             font-family: Arial, sans-serif;
-            height: 100vh;
+            block-size: 100vh;
             display: flex;
             flex-direction: column;
             font-size: 17px;
@@ -40,10 +40,10 @@
         /* Sidebar */
         .sidebar {
             position: fixed;
-            top: 56px;
-            left: 0;
-            width: 220px;
-            height: calc(100vh - 56px);
+            inset-block-start: 56px;
+            inset-inline-start: 0;
+            inline-size: 220px;
+            block-size: calc(100vh - 56px);
             background-color: #7a1505;
             padding: 20px;
             color: white;
@@ -76,8 +76,8 @@
             display: block;
             background-color: #7a1505;
             color: white;
-            margin-bottom: 10px;
-            text-align: left;
+            margin-block-end: 10px;
+            text-align: start;
             border: none;
             padding: 10px 15px;
             border-radius: 5px;
@@ -107,14 +107,14 @@
 
         .main-container {
             flex: 1;
-            padding-left: 270px;
-            padding-top: 20px;
-            padding-bottom: 20px;
+            padding-inline-start: 270px;
+            padding-block-start: 20px;
+            padding-block-end: 20px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             overflow-y: auto;
-            min-height: calc(100vh - 56px);
+            min-block-size: calc(100vh - 56px);
         }
 
 
@@ -123,8 +123,8 @@
     padding: 40px;
     border-radius: 15px;  /* Bordas arredondadas */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 100%; /* A largura será 100% do contêiner pai */
-    max-width: 1000px; /* Limita a largura máxima do card */
+    inline-size: 100%; /* A largura será 100% do contêiner pai */
+    max-inline-size: 1000px; /* Limita a largura máxima do card */
     margin: 0 auto;  /* Centraliza o card */
     font-size: 1.1rem;
 }
@@ -134,14 +134,14 @@
             font-size: 1.5rem;
             /* Tamanho da fonte do título */
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-block-end: 20px;
             /* Ajuste no espaçamento */
         }
 
         .form-label {
             font-size: 1rem;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-block-end: 8px;
         }
 
         .form-control {
@@ -188,19 +188,19 @@
             border: 2px solid #d3c6a1;
             border-radius: 10px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-block-end: 20px;
             text-align: center;
         }
 
         .card-stat i {
             font-size: 2rem;
-            margin-bottom: 10px;
+            margin-block-end: 10px;
         }
 
         .card-stat h5 {
             font-size: 1.2rem;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-block-end: 10px;
         }
 
         .card-stat p {
@@ -214,11 +214,11 @@
             border: 2px solid #d3c6a1;
             border-radius: 10px;
             padding: 20px;
-            margin-bottom: 15px;
+            margin-block-end: 15px;
         }
 
         .card-atividade i {
-            margin-right: 10px;
+            margin-inline-end: 10px;
             font-size: 1.5rem;
         }
 
@@ -242,7 +242,7 @@
         h1 {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-block-end: 20px;
         }
 
         .btn-cadastro {
@@ -260,49 +260,49 @@
         }
 
         /* Responsivo */
-        @media (max-width: 992px) {
+        @media (max-inline-size: 992px) {
   .sidebar {
     position: fixed;
-    top: 56px;
-    left: -220px;
-    width: 220px;
-    height: 100%;
+    inset-block-start: 56px;
+    inset-inline-start: -220px;
+    inline-size: 220px;
+    block-size: 100%;
     transition: left 0.3s ease;
     z-index: 1051;
   }
   .sidebar.show {
-    left: 0;
+    inset-inline-start: 0;
   }
 
             .sidebar a,
             .sidebar button.dropdown-toggle {
-                margin-bottom: 0;
+                margin-block-end: 0;
                 flex: 1 1 auto;
                 text-align: center;
                 padding: 8px 5px;
             }
 
             .main-container {
-                padding-left: 0;
+                padding-inline-start: 0;
             }
 
             .content {
-                width: 100%;
-                max-width: 100%;
-                margin-top: 10px;
+                inline-size: 100%;
+                max-inline-size: 100%;
+                margin-block-start: 10px;
             }
         }
 
         .notificacao-dropdown {
             background-color: #ffffff;
-            min-width: 250px;
-            max-width: 100%;
-            max-height: 300px;
+            min-inline-size: 250px;
+            max-inline-size: 100%;
+            max-block-size: 300px;
             overflow-y: auto;
             border-radius: 0px;
             padding: 0;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-left: -20px;
+            margin-inline-start: -20px;
         }
 
         .notificacao-dropdown .dropdown-item {
@@ -310,7 +310,7 @@
             color: #333333;
             padding: 15px 20px;
             border: none;
-            border-bottom: 1px solid #ddd;
+            border-block-end: 1px solid #ddd;
             font-size: 16px;
         }
 
@@ -326,14 +326,14 @@
         /* Avatar flutuante */
         .avatar-container {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
+            inset-block-end: 20px;
+            inset-inline-start: 20px;
             z-index: 1051;
         }
 
         .avatar-navbar {
-            width: 50px;
-            height: 50px;
+            inline-size: 50px;
+            block-size: 50px;
             border-radius: 10px;
             cursor: pointer;
             box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
@@ -343,13 +343,13 @@
         .menu-perfil {
             display: none;
             position: absolute;
-            bottom: 60px;
-            left: 0;
+            inset-block-end: 60px;
+            inset-inline-start: 0;
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            min-width: 200px;
+            min-inline-size: 200px;
         }
 
         .menu-perfil.show {
@@ -372,31 +372,31 @@
         .menu-divider {
             margin: 0;
             border: none;
-            border-top: 1px solid #ccc;
+            border-block-start: 1px solid #ccc;
         }
         /* responsivo */
 @media (max-width: 992px) {
-  .search-box { width: 300px; }
+  .search-box { inline-size: 300px; }
 }
 
 /* Sidebar some no mobile e vira "menu lateral" */
 @media (max-width: 992px) {
   .sidebar {
     position: fixed;
-    top: 56px;
-    left: -220px;
-    width: 220px;
-    height: 100%;
+    inset-block-start: 56px;
+    inset-inline-start: -220px;
+    inline-size: 220px;
+    block-size: 100%;
     transition: left 0.3s ease;
     z-index: 1051;
   }
   .sidebar.show {
-    left: 0;
+    inset-inline-start: 0;
   }
 
   .main-container-custom {
-    padding-left: 0 !important;
-    padding-top: 80px !important;
+    padding-inline-start: 0 !important;
+    padding-block-start: 80px !important;
   }
 }
 
@@ -414,7 +414,7 @@
 
   .section-box {
     flex: 1 1 100% !important;
-    max-width: 100% !important;
+    max-inline-size: 100% !important;
   }
 
   .d-flex.gap-3.flex-wrap {
@@ -434,22 +434,22 @@
 /* Ajusta avatar e botão acessibilidade no mobile */
 @media (max-width: 576px) {
   .avatar-container {
-    bottom: 70px;
-    left: 10px;
+    inset-block-end: 70px;
+    inset-inline-start: 10px;
   }
-  .btn[style*="width: 50px"] {
-    width: 45px !important;
-    height: 45px !important;
+  .btn[style*="inline-size: 50px"] {
+    inline-size: 45px !important;
+    block-size: 45px !important;
   }
 }
 
 /* Overlay por trás da sidebar no mobile */
 .sidebar-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 100%;
   background: rgba(0,0,0,0.5);
   z-index: 1050;
   display: none;
@@ -459,23 +459,23 @@
 }
 
 /* Responsividade da Sidebar */
-        @media (max-width: 768px) {
+        @media (max-inline-size: 768px) {
             .sidebar {
                 position: absolute;
-                top: 0;
-                left: -220px;
-                width: 220px;
-                height: 100%;
+                inset-block-start: 0;
+                inset-inline-start: -220px;
+                inline-size: 220px;
+                block-size: 100%;
                 transition: left 0.3s ease;
             }
 
             .sidebar.show {
-                left: 0;
+                inset-inline-start: 0;
             }
 
             .main-container-custom {
-                padding-left: 0;
-                margin-top: 10px;
+                padding-inline-start: 0;
+                margin-block-start: 10px;
                 /* Ajusta para não ficar muito colado ao topo */
             }
 
@@ -485,7 +485,7 @@
             }
 
             .navbar-collapse {
-                width: 100%;
+                inline-size: 100%;
                 display: none;
             }
 
@@ -500,13 +500,13 @@
             }
         }
 
-        @media (max-width: 768px) {
+        @media (max-inline-size: 768px) {
     .backup-container {
         flex-direction: column;
     }
 }
 /* opcional: se não quiser a caixa gigante */
-#em .section-box { min-height: 420px !important; }
+#em .section-box { min-block-size: 420px !important; }
 
 #configTabsContent .tab-pane { display: none; }
 #configTabsContent .tab-pane.active { display: block; }
@@ -520,7 +520,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid d-flex align-items-center" style="gap: 0;">
             <a class="navbar-brand" href="./homepageAdm2.html">
-                <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
+                <img src="../img/logoreta.png" alt="Logo" style="block-size: 50px; inline-size: auto;">
             </a>
             <button class="navbar-toggler" type="button" id="sidebarToggle">
               <span class="navbar-toggler-icon"></span>
@@ -598,7 +598,7 @@
 
             <!-- Botões "Editar Senha" e "Excluir Conta" -->
             <div class="d-flex justify-content-center mt-4">
-                <button type="button" class="btn btn-editar px-4 py-2 me-3">Editar Senha</button>
+                <button type="button" id="btnEditar" class="btn btn-editar px-4 py-2 me-3">Editar Senha</button>
                 <button type="button" class="btn btn-excluir px-4 py-2">Excluir Conta</button>
             </div>
         </form>
@@ -682,8 +682,8 @@
 
 
     <!-- Botão de acessibilidade -->
-    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
-        <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
+    <div style="position: fixed; inset-block-end: 20px; inset-inline-end: 20px; z-index: 999;">
+        <button class="btn btn-dark rounded-3" style="inline-size: 50px; block-size: 50px;">
             <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
         </button>
     </div>
