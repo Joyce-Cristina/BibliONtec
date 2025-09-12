@@ -39,11 +39,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// 🔑 Pega token do localStorage
+function getToken() {
+  return localStorage.getItem("token");
+}
+
 // Carregar livros do backend
 async function carregarLivros() {
   try {
-    const resposta = await fetch('http://localhost:3000/livros');
-    todosOsLivros = await resposta.json();
+    const token = getToken();
+    const resposta = await fetch('http://localhost:3000/livros', {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      console.error("Erro do servidor:", data);
+      alert("Erro ao carregar livros: " + (data.error || "Não autorizado"));
+      return;
+    }
+
+    todosOsLivros = data;
     exibirLivros(todosOsLivros);
   } catch (erro) {
     console.error('Erro ao carregar livros:', erro);
@@ -53,7 +70,7 @@ async function carregarLivros() {
 // Exibir livros na tela
 function exibirLivros(livros) {
   const container = document.getElementById('cardsContainer');
-  if (!container) return; // Proteção
+  if (!container) return;
   container.innerHTML = '';
 
   let row;
@@ -89,11 +106,19 @@ function exibirLivros(livros) {
 // Carregar gêneros
 async function carregarGeneros() {
   const lista = document.getElementById('listaGeneros');
-  if (!lista) return; // Proteção
+  if (!lista) return;
 
   try {
-    const resposta = await fetch('http://localhost:3000/generos');
+    const token = getToken();
+    const resposta = await fetch('http://localhost:3000/generos', {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
     const generos = await resposta.json();
+
+    if (!resposta.ok) {
+      console.error("Erro ao carregar gêneros:", generos);
+      return;
+    }
 
     lista.innerHTML = '';
 
@@ -127,7 +152,11 @@ async function carregarGeneros() {
 // Excluir livro
 function excluirLivro(id) {
   if (confirm('Tem certeza que deseja excluir este livro?')) {
-    fetch(`http://localhost:3000/livros/${id}`, { method: 'DELETE' })
+    const token = getToken();
+    fetch(`http://localhost:3000/livros/${id}`, {
+      method: 'DELETE',
+      headers: { "Authorization": `Bearer ${token}` }
+    })
       .then(res => {
         if (res.ok) {
           carregarLivros();
@@ -144,30 +173,32 @@ async function abrirModalEdicaoLivro(id) {
   const livro = todosOsLivros.find(l => l.id === id);
   if (!livro) return;
 
-  // 1️⃣ Carrega todos os gêneros do backend
+  // Carrega gêneros
   let generos = [];
   try {
-    const resposta = await fetch('http://localhost:3000/generos'); // ou /generosFiltro
+    const token = getToken();
+    const resposta = await fetch('http://localhost:3000/generos', {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
     generos = await resposta.json();
   } catch (erro) {
     console.error('Erro ao carregar gêneros:', erro);
   }
 
-  // 2️⃣ Preenche o select de gêneros com todos os gêneros
+  // Preenche select de gêneros
   const selectGenero = document.getElementById('genero-livro');
   if (selectGenero) {
-    selectGenero.innerHTML = ''; // limpa antes
+    selectGenero.innerHTML = '';
     generos.forEach(g => {
       const option = document.createElement('option');
       option.value = g.id;
       option.textContent = g.genero;
-      // ✅ Marca o gênero do livro como selecionado usando FK
       if (g.id === livro.FK_genero_id) option.selected = true;
       selectGenero.appendChild(option);
     });
   }
 
-  // 3️⃣ Preenche os outros campos do modal
+  // Preenche os outros campos do modal
   const campos = [
     'id-livro','titulo-livro','isbn-livro','autores-livro',
     'editora-livro','funcionario-livro','sinopse-livro','paginas-livro'
@@ -180,11 +211,10 @@ async function abrirModalEdicaoLivro(id) {
     }
   });
 
-  // 4️⃣ Abre o modal
+  // Abre modal
   const modalEl = document.getElementById('modal-editar-livro');
   if (modalEl) {
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
   }
 }
-

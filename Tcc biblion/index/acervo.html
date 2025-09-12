@@ -228,10 +228,72 @@
   padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
 }
 
+/* Estilo para o botão "Novo bibliotecário" */
+.btn-new-user {
+            background-color: #7a1600;
+            /* Cor de fundo do botão */
+            color: white;
+            /* Cor do texto */
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+            max-height: 45px;
+            margin-top: 13px;
+            margin-right: 10px;
+        }
+
+        .btn-new-user:hover {
+            background-color: #5c0e00;
+            color: rgb(146, 146, 146);
+            /* Cor de fundo ao passar o mouse */
+        }
+
+        .btn-new-user i {
+            font-size: 1.4rem;
+            /* Tamanho do ícone */
+        }
+
+/* Select status */
+.status-select {
+  font-weight: bold;
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #c8aa78;
+  border-radius: 25px;
+  padding: 10px 20px;
+  min-width: 180px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .side-controls {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .status-select {
+    min-width: 120px;
+  }
+}
+
+
   </style>
 </head>
 
-<body>
+<body class="acervo-page">
   <!-- Navbar -->
  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
 
@@ -297,21 +359,33 @@
     <a class="btn w-100" href="./usuarios.html" data-permissao="usuarios">Usuários</a>
     <a class="btn w-100" href="./funcionarios.html" data-permissao="funcionarios">Funcionários</a>
   </div>
-  
-  <!-- Conteúdo principal -->
-  <div class="main-container">
 
-    <!-- Card Cabeçalho Centralizado -->
-    <div class="text-center mx-auto p-4 mb-4 shadow"
-      style="background-color: #c7aa74; border-radius: 15px; max-width: 800px;">
-      <h2 style="font-family: Georgia, serif; font-weight: 500;">Seus livros</h2>
-      <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
-      <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
-        <input type="text" id="buscaLivro" class="form-control" placeholder="Buscar livro..."
-          style="max-width: 300px; border-radius: 10px;">
-        <i class="bi bi-search" style="font-size: 1.2rem;"></i>
-      </div>
+  <!-- Conteúdo principal -->
+<!-- Container que une o card e o botão lado a lado -->
+<div class="d-flex justify-content-center align-items-start gap-3 mb-4">
+
+  <!-- Card Cabeçalho Centralizado -->
+  <div class="p-4 shadow text-center flex-grow-1"
+    style="background-color: #c7aa74; border-radius: 15px; max-width: 800px;">
+    <h2 style="font-family: Georgia, serif; font-weight: 500;">Seus livros</h2>
+    <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
+    <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
+      <input type="text" id="buscaLivro" class="form-control" placeholder="Buscar livro..."
+        style="max-width: 300px; border-radius: 10px;">
+      <i class="bi bi-search" style="font-size: 1.2rem;"></i>
     </div>
+  </div>
+
+  <!-- Botão Novo bibliotecário -->
+  <div>
+    <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
+      <i class="bi bi-arrow-bar-up"></i> Exportar Pdf
+    </button>
+  </div>
+</div>
+
+
+    
 
     <!-- Filtros -->
     <div class="container my-4">
