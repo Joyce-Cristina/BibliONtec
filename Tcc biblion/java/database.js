@@ -7,11 +7,19 @@ const fs = require('fs');
 const sharp = require('sharp');
 const fetch = require("node-fetch");
 const jwt = require("jsonwebtoken");
+const PDFDocument = require('pdfkit');
+const bwipjs = require('bwip-js');
 
 
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const SECRET = process.env.JWT_SECRET;
 
+const mmToPt = mm => mm * 2.8346456693;
+
+const ETIQUETA_W_MM = 85;
+const ETIQUETA_H_MM = 50;
+const ETIQUETA_W_PT = mmToPt(ETIQUETA_W_MM);
+const ETIQUETA_H_PT = mmToPt(ETIQUETA_H_MM);
 
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
@@ -76,6 +84,16 @@ connection.connect(err => {
   }
   console.log('Conectado ao MySQL');
 });
+
+async function buscarLivroPorId(id) {
+  try {
+    const [rows] = await pool.query('SELECT id, titulo, autores, isbn, editora FROM livro WHERE id = ?', [id]);
+    return rows[0] || null;
+  } catch (err) {
+    console.error('Erro ao buscar livro:', err);
+    return null;
+  }
+}
 
 async function filtrarComentario(texto) {
   try {
@@ -197,6 +215,133 @@ app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) =
       return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
     });
   });
+});
+
+app.get('/etiquetas/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  const livro = await buscarLivroPorId(id);
+  if (!livro) return res.status(404).json({ error: 'Livro não encontrado' });
+
+  try {
+    const doc = new PDFDocument({ size: [ETIQUETA_W_PT, ETIQUETA_H_PT], margin: mmToPt(5) });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename=etiqueta_${livro.id}.pdf`);
+    doc.pipe(res);
+
+    const largura = ETIQUETA_W_PT - mmToPt(10);
+    let y = doc.y;
+
+    doc.fontSize(14).text(livro.titulo || '', { align: 'center', width: largura });
+    y += mmToPt(6);
+
+    doc.moveDown(0.1);
+    doc.fontSize(10).text(livro.autores || '', { align: 'center', width: largura });
+
+    const barcodeBuffer = await bwipjs.toBuffer({
+      bcid: 'code128',     
+      text: (livro.isbn || String(livro.id)), 
+      scale: 2,
+      height: 20,
+      includetext: false
+    });
+
+    const imgWidth = Math.min( mmToPt(60), largura );
+    const imgX = (ETIQUETA_W_PT - imgWidth) / 2;
+    const imgY = doc.y + mmToPt(6);
+    doc.image(barcodeBuffer, imgX, imgY, { width: imgWidth });
+    doc.moveDown(2);
+
+    doc.fontSize(8).text(`ISBN: ${livro.isbn || ''}`, { align: 'center', width: largura });
+
+    doc.fontSize(8).text(livro.editora || '', ETIQUETA_W_PT - mmToPt(5) - mmToPt(30), ETIQUETA_H_PT - mmToPt(12), {
+      width: mmToPt(30),
+      align: 'right'
+    });
+
+    doc.end();
+  } catch (err) {
+    console.error('Erro ao gerar etiqueta:', err);
+    return res.status(500).json({ error: 'Erro ao gerar etiqueta' });
+  }
+});
+
+app.post('/etiquetas/multiple', async (req, res) => {
+  const ids = Array.isArray(req.body.ids) ? req.body.ids.map(Number) : [];
+  if (!ids.length) return res.status(400).json({ error: 'Nenhum id fornecido' });
+
+  try {
+    const livros = [];
+    for (const id of ids) {
+      const l = await buscarLivroPorId(id);
+      if (l) livros.push(l);
+    }
+    if (!livros.length) return res.status(404).json({ error: 'Nenhum livro encontrado' });
+
+    const doc = new PDFDocument({ size: 'A4', margin: mmToPt(10) });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename=etiquetas_multipla.pdf`);
+    doc.pipe(res);
+
+    const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+    const pageHeight = doc.page.height - doc.page.margins.top - doc.page.margins.bottom;
+    const labelW = ETIQUETA_W_PT;
+    const labelH = ETIQUETA_H_PT;
+    const hGap = mmToPt(6); 
+    const vGap = mmToPt(6); 
+
+    const cols = Math.floor( (pageWidth + hGap) / (labelW + hGap) );
+    const rows = Math.floor( (pageHeight + vGap) / (labelH + vGap) );
+    const perPage = Math.max(1, cols * rows);
+
+    let index = 0;
+    for (let p = 0; index < livros.length; p++) {
+      if (p > 0) doc.addPage();
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (index >= livros.length) break;
+          const livro = livros[index++];
+
+          const x = doc.page.margins.left + c * (labelW + hGap);
+          const y = doc.page.margins.top + r * (labelH + vGap);
+
+          doc.rect(x, y, labelW, labelH).strokeOpacity(0.2).stroke();
+
+          const innerX = x + mmToPt(4);
+          const innerW = labelW - mmToPt(8);
+          let cursorY = y + mmToPt(4);
+
+          doc.fontSize(12).text(livro.titulo || '', innerX, cursorY, { width: innerW, align: 'center' });
+          cursorY += mmToPt(8);
+
+          doc.fontSize(9).text(livro.autores || '', innerX, cursorY, { width: innerW, align: 'center' });
+
+          try {
+            const barcodeBuffer = await bwipjs.toBuffer({
+              bcid: 'code128',
+              text: (livro.isbn || String(livro.id)),
+              scale: 2,
+              height: 18,
+              includetext: false
+            });
+            const imgW = Math.min(innerW * 0.9, mmToPt(55));
+            const imgX = x + (labelW - imgW) / 2;
+            const imgY = y + labelH - mmToPt(28);
+            doc.image(barcodeBuffer, imgX, imgY, { width: imgW });
+            doc.fontSize(7).text(`ISBN: ${livro.isbn || ''}`, innerX, imgY + mmToPt(10), { width: innerW, align: 'center' });
+          } catch (err) {
+            console.error('Erro barcode (multiple):', err);
+          }
+
+        }
+        if (index >= livros.length) break;
+      }
+    }
+
+    doc.end();
+  } catch (err) {
+    console.error('Erro ao gerar etiquetas múltiplas:', err);
+    return res.status(500).json({ error: 'Erro ao gerar etiquetas' });
+  }
 });
 
 //Indicações do professor
