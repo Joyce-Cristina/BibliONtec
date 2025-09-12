@@ -8,8 +8,10 @@ const sharp = require('sharp');
 const fetch = require("node-fetch");
 const jwt = require("jsonwebtoken");
 
-require("dotenv").config();
+
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const SECRET = process.env.JWT_SECRET;
+
 
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
