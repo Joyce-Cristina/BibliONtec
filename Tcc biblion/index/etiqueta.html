@@ -116,6 +116,7 @@
       padding-left: 270px;
       padding-top: 20px;
       padding-bottom: 20px;
+      margin-top: 17%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -124,8 +125,11 @@
     }
 
     .card-etiqueta {
-      background-color: #bc9a66;
+      background-color: #ccb182;
+      position: relative;
+      margin-top: 10px;
       padding: 30px 50px;
+      padding-top: 2%;
       border-radius: 10px;
       box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
       max-width: 800px;
@@ -139,7 +143,6 @@
   font-size: 2rem;
   color: #2b1205;
   margin-bottom: 20px;
-  font-weight: bold; /* Adicionado */
 }
 
 .card-etiqueta p {
@@ -178,22 +181,6 @@
 
     .form-row .form-group {
       flex: 1;
-    }
-
-    .btn-imprimir {
-      background-color: #7a1505;
-      color: white;
-      font-weight: bold;
-      padding: 10px 30px;
-      border: none;
-      border-radius: 7px;
-      display: block;
-      margin: 40px auto 0;
-      transition: 0.3s;
-    }
-
-    .btn-imprimir:hover {
-      background-color: #5c0e00;
     }
 
 
@@ -400,7 +387,7 @@
   margin: 0 auto;            /* garante centralização */
 }
 .card-selecionados {
-  background-color: #bc9a66;
+  background-color: #ccb182;
   padding: 30px 50px;
   border-radius: 10px;
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
@@ -410,6 +397,48 @@
   text-align: center;
 }
 
+.card-exemplares {
+  background-color: #ccb182;
+  padding: 30px 50px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  width: 100%;
+  margin-top: 20px; /* espaço entre os dois cards */
+  text-align: center;
+}
+
+.disponibilidade {
+      font-weight: bold;
+      margin-top: 20px;
+       align-items:start; 
+      border-radius: 12px;
+      background-color: #ca5a5a;
+      display: inline-block;
+      border: 2px solid transparent;
+      /*background-color: #bc3210;
+      border: 2px solid #bc3210;*/   /* ocupa só o conteúdo */
+  padding: 3px 7px;       /* diminui o espaço interno */
+    }
+
+.search-box {
+  display: flex;
+  align-items: center;
+  border-radius: 7px;
+  background-color: #fff;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  padding: 0 10px;
+  width: 570px;   /* ocupa 100% da largura do container */
+  max-width: 770px; /* limite opcional */
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 10px;
+  
+}
   </style>
 </head>
 
@@ -488,16 +517,20 @@
     <!-- Conteúdo (Card central) -->
     <div class="card-etiqueta">
       <h3>Etiqueta</h3>
+      <labrl class="form-check-label">Pesquisa bibliográfica</labrl>
       <form>
         <div class="form-row">
-          <div class="form-group">
-            <label>Pesquisa Bibliográfica</label>
+          <div class="form-group flex-grow-1 d-flex align-items-center">
+            <div class="search-actions">
             <div class="search-box">
               <input placeholder="Buscar usuário...">
               <i class="bi bi-search"></i>
             </div>
           </div>
-          <button class="btn btn-imprimir">Pesquisar</button>
+          <div class="info-item">
+          <button class="btn-etiqueta ms-4">Pesquisar</button>
+          </div>
+          </div>
       </form>
     </div>
     <div class="d-flex align-items-center">
@@ -513,30 +546,71 @@
     <Label>Total exibidos</Label> <label class="total-livro">2</label>
   </div>
 
-  <div class="card-selecionados">
+  <section class="card-selecionados">
     <h2>Exemplares selecionadoes</h2>
    <div class="livro-info">
-      <h4>Título do Livro:</h4>
-      <p>[Placeholder do título]</p>
-
-      <h4>Autor:</h4>
-      <p>[Placeholder do autor]</p>
-
-      <h4>Ano de publicação</h4>
-      <p>[Placeholder do autor]</p>
-
-      <h4>Localização</h4>
-      <p>[Placeholder do autor]</p>
-
-      <h4>Assuntos discutidos</h4>
-      <p>[Placeholder do autor]</p>
-
-      <h4>Quantidade</h4>
-      <p>[Placeholder do autor]</p>
-
-      <p class="disponibilidade">Indisponível</p>
-    </div>
+  <div class="info-item">
+    <!--Título do Livro:-->
+    <p>[Placeholder do título]</p>
+    <!--Edição:-->
+    <p>[Placeholder do edição]</p>
+    <!--Editora:-->
+    <p>[Placeholder do editora]</p>
   </div>
+  <button class="btn-etiqueta">Imprimir etiquetas</button>
+</div>
+  </section>
+
+  <section class="card-exemplares">
+    <h2>Exemplares</h2>
+   <div class="livro-info">
+  <div class="info-item">
+    <h4>Título do Livro:</h4>
+    <p>[Placeholder do título]</p>
+  </div>
+
+  <div class="info-item">
+    <h4>Autor:</h4>
+    <p>[Placeholder do autor]</p>
+  </div>
+
+  <div class="info-item">
+    <h4>Ano de publicação:</h4>
+    <p>[Placeholder do ano]</p>
+  </div>
+
+  <div class="info-item">
+    <h4>Localização:</h4>
+    <p>[Placeholder da localização]</p>
+  </div>
+
+  <div class="info-item">
+    <h4>Assuntos discutidos:</h4>
+    <p>[Placeholder dos assuntos]</p>
+  </div>
+
+  <div class="info-item">
+    <h4>Quantidade:</h4>
+    <p>[Placeholder da quantidade]</p>
+  </div>
+
+  <div class="info-item">
+    <h4>Exemplares:</h4>
+    <p>[Placeholder da quantidade]</p>
+    <h4>disponíveis:</h4>
+    <p>[Placeholder da quantidade]</p>
+    <h4>Emprestados:</h4>
+    <p>[Placeholder da quantidade]</p>
+    <h4>Reservados:</h4>
+    <p>[Placeholder da quantidade]</p>
+  </div>
+
+  <div class="botoes">
+  <button class="btn-etiqueta">Selecionar livro</button>
+  <button class="btn-lista">Visualizar livro</button>
+  </div>
+</div>
+  </section>
 
    <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
