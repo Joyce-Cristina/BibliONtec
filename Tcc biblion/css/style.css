@@ -1552,12 +1552,13 @@ body.eventos-page {
 
 /* aplica quando o body tem a classe etiqueta-page */
 body.etiqueta-page .total-livro {
-  display: inline-block;        /* para padding / bg funcionarem visualmente */
+  display: inline;        /* para padding / bg funcionarem visualmente */
   color: #ffffff;
   background-color: #c0392b;
   padding: 6px 10px;
   border-radius: 6px;
   font-weight: 700;
+  justify-items: flex-start;
 }
 
 body.etiqueta-page .card-selecionados h2{
@@ -1565,24 +1566,43 @@ body.etiqueta-page .card-selecionados h2{
   text-align: center;
   color: #2b1205;
   margin-bottom: 20px;
-  font-weight: bold;
+  
+}
+body.etiqueta-page .card-exemplares h2{
+  font-family: Georgia, serif;
+  text-align: center;
+  color: #2b1205;
+  margin-bottom: 20px;
+  
 }
 
     body.etiqueta-page .livro-info {
       flex: 1;
+      display: flex;
+  flex-direction: column; /* empilha itens */
+  align-items: flex-start; /* força tudo pro canto esquerdo */
     }
 
-    body.etiqueta-page .livro-info h4 {
-      font-weight: bold;
-      margin-bottom: 8px;
-      font-size: medium;
-    }
+    body.etiqueta-page .livro-info .info-item {
+  display: flex;              /* coloca h4 e p lado a lado */
+  align-items:start;        /* alinha verticalmente */
+  gap: 10px;                  /* espaço entre h4 e p */
+  margin-bottom: 12px;        /* espaço entre linhas */
+}
 
-    body.etiqueta-page .livro-info p {
-      margin-bottom: 15px;
-      text-align: justify;
-      font-size: small;
-    }
+body.etiqueta-page .livro-info h4 {
+  font-weight: bold;
+  font-size: medium;
+  margin: 0;                  /* remove margens padrão */
+  flex-shrink: 0;             /* impede que o título encolha */
+}
+
+body.etiqueta-page .livro-info p {
+  margin: 0;
+  font-size: small;
+  text-align: left;
+}
+
 
 
 /* Estilo do checkbox */
@@ -1743,6 +1763,119 @@ body.acervo-page .btn-new-user:hover {
 body.acervo-page .btn-new-user i {
   font-size: 1.4rem;
   /* Tamanho do ícone */
+}
+
+body.etiqueta-page .livro-info label {
+  background-color: #c0392b;
+}
+
+body.etiqueta-page .livro-info label {
+  background-color: #444;
+}
+
+body.etiqueta-page .disponibilidade {
+  display: inline-block;
+  margin-top: 20px;
+  font-weight: bold;
+  border-radius: 12px;
+  background-color: #ca5a5a;
+  color: #fff;
+  padding: 3px 7px;
+}
+
+body.etiqueta-page .livro-info .btn-etiqueta{
+            background-color: #7a1600;
+            /* Cor de fundo do botão */
+            color: white;
+            /* Cor do texto */
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-color: transparent;
+            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+            max-height: 45px;
+            margin-top: 13px;
+            margin-right: 10px;
+        }
+
+body.etiqueta-page .livro-info .btn-etiqueta:hover {
+            background-color: #5c0e00;
+            color: rgb(146, 146, 146);
+            /* Cor de fundo ao passar o mouse */
+        }
+
+        body.etiqueta-page .info-item .btn-etiqueta{
+            background-color: #7a1600;
+            /* Cor de fundo do botão */
+            color: white;
+            /* Cor do texto */
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-color: transparent;
+            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+            max-height: 45px;
+            margin-top: 13px;
+            margin-right: 10px;
+        }
+
+body.etiqueta-page .info-item .btn-etiqueta:hover {
+            background-color: #5c0e00;
+            color: rgb(146, 146, 146);
+            /* Cor de fundo ao passar o mouse */
+        }
+
+body.etiqueta-page .botoes .btn-lista:hover {
+      background-color: #d6d6d6;
+      color: #7A1600;
+      border: 2px solid #7A1600;
+    }
+
+    body.etiqueta-page .botoes .btn-lista{
+           background-color: #ffff;
+      border: 2px solid #7A1600;
+      color: #7A1600;
+            border-radius: 50px;
+            padding: 10px 23px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+            margin-left: 10px;
+            max-height: 45px;
+            margin-top: 13px;
+            margin-right: 10px;
+        }
+
+/* Estilo do checkbox */
+body.etiqueta-page .form-check {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  border-color: #443a3a;
+  border-radius: 2px;
+  /* Adiciona espaço entre a caixa de seleção e o próximo botão */
+}
+
+/* Checkbox base */
+body.etiqueta-page .form-check-input {
+width: 22px;
+height: 22px;
+margin-right: 10px;
+border-width: 2px;
+border-color: #443a3a ;
 }
 
 #configTabsContent .tab-pane { display: none; }
