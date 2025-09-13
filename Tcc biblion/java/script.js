@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ----------- LÓGICA DE LOGIN ------------
-  /*const formLogin = document.getElementById('formLogin');
+  const formLogin = document.getElementById('formLogin');
   if (formLogin) {
     formLogin.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = "index.html";
       return;
     }
-  })();*/
+  })();
 
   // ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
   const formFunc = document.getElementById('formFuncionario');
