@@ -199,17 +199,24 @@ async function abrirModalEdicaoLivro(id) {
   }
 
   // Preenche os outros campos do modal
-  const campos = [
-    'id-livro','titulo-livro','isbn-livro','autores-livro',
-    'editora-livro','funcionario-livro','sinopse-livro','paginas-livro'
-  ];
-  campos.forEach(campo => {
-    const el = document.getElementById(campo);
-    if (el) {
-      if (campo === 'id-livro') el.value = livro.id;
-      else el.value = livro[campo.replace('-livro','')] || '';
-    }
-  });
+ const campos = {
+  'id-livro': 'id',
+  'titulo-livro': 'titulo',
+  'isbn-livro': 'isbn',
+  'autores-livro': 'autores',
+  'editora-livro': 'editora',
+  'funcionario-livro': 'funcionario_cadastrou',
+  'sinopse-livro': 'sinopse',
+  'paginas-livro': 'paginas'
+};
+
+for (const campoId in campos) {
+  const el = document.getElementById(campoId);
+  if (el) {
+    el.value = livro[campos[campoId]] || '';
+  }
+}
+
 
   // Abre modal
   const modalEl = document.getElementById('modal-editar-livro');
