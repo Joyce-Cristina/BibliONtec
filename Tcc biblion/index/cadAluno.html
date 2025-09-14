@@ -19,7 +19,7 @@
       padding: 0;
       background-color: #f0e6d2;
       font-family: Arial, sans-serif;
-      height: 100vh;
+      block-size: 100vh;
       display: flex;
       flex-direction: column;
       font-size: 17px;
@@ -40,10 +40,10 @@
     /* Sidebar */
     .sidebar {
       position: fixed;
-      top: 56px;
-      left: 0;
-      width: 220px;
-      height: calc(100vh - 56px);
+      inset-block-start: 56px;
+      inset-inline-start: 0;
+      inline-size: 220px;
+      block-size: calc(100vh - 56px);
       background-color: #7a1505;
       padding: 20px;
       color: white;
@@ -77,8 +77,8 @@
       display: block;
       background-color: #7a1505;
       color: white;
-      margin-bottom: 10px;
-      text-align: left;
+      margin-block-end: 10px;
+      text-align: start;
       border: none;
       padding: 10px 15px;
       border-radius: 5px;
@@ -109,13 +109,13 @@
     /* Conteúdo Central */
     .main-container {
       flex: 1;
-      padding-left: 270px;
-      padding-top: 20px;
-      padding-bottom: 20px;
+      padding-inline-start: 270px;
+      padding-block-start: 20px;
+      padding-block-end: 20px;
       display: flex;
       justify-content: center;
       overflow-y: auto;
-      min-height: calc(100vh - 56px);
+      min-block-size: calc(100vh - 56px);
     }
 
     .content {
@@ -123,7 +123,7 @@
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      width: 900px;
+      inline-size: 900px;
       margin: 0 auto;
       font-size: 1.3rem;
       font-weight: bold;
@@ -134,7 +134,7 @@
       font-size: 2rem;
       font-weight: bold;
       text-align: center;
-      margin-bottom: 30px;
+      margin-block-end: 30px;
     }
 
     .btn-cadastro {
@@ -152,11 +152,11 @@
     }
 
     /* Responsivo */
-    @media (max-width: 800px) {
+    @media (max-inline-size: 800px) {
       .sidebar {
         position: relative;
-        height: auto;
-        width: 100%;
+        block-size: auto;
+        inline-size: 100%;
         border-radius: 0;
         padding: 10px;
         display: flex;
@@ -166,33 +166,33 @@
 
       .sidebar a,
       .sidebar button.dropdown-toggle {
-        margin-bottom: 0;
+        margin-block-end: 0;
         flex: 1 1 auto;
         text-align: center;
         padding: 8px 5px;
       }
 
       .main-container {
-        padding-left: 0;
+        padding-inline-start: 0;
       }
 
       .content {
-        width: 100%;
-        max-width: 100%;
-        margin-top: 10px;
+        inline-size: 100%;
+        max-inline-size: 100%;
+        margin-block-start: 10px;
       }
     }
 
     .notificacao-dropdown {
       background-color: #ffffff;
-      min-width: 250px;
-      max-width: 100%;
-      max-height: 300px;
+      min-inline-size: 250px;
+      max-inline-size: 100%;
+      max-block-size: 300px;
       overflow-y: auto;
       border-radius: 0px;
       padding: 0;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-left: -20px;
+      margin-inline-start: -20px;
     }
 
     .notificacao-dropdown .dropdown-item {
@@ -200,7 +200,7 @@
       color: #333333;
       padding: 15px 20px;
       border: none;
-      border-bottom: 1px solid #ddd;
+      border-block-end: 1px solid #ddd;
       font-size: 16px;
     }
 
@@ -218,14 +218,14 @@
 /* Avatar flutuante */
 .avatar-container {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  inset-block-end: 20px;
+  inset-inline-start: 20px;
   z-index: 1051;
 }
 
 .avatar-navbar {
-  width: 50px;
-  height: 50px;
+  inline-size: 50px;
+  block-size: 50px;
   border-radius: 10px;
   cursor: pointer;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
@@ -235,13 +235,13 @@
 .menu-perfil {
   display: none;
   position: absolute;
-  bottom: 60px;
-  left: 0;
+  inset-block-end: 60px;
+  inset-inline-start: 0;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  min-width: 200px;
+  min-inline-size: 200px;
 }
 
 .menu-perfil.show {
@@ -264,12 +264,12 @@
 .menu-divider {
   margin: 0;
   border: none;
-  border-top: 1px solid #ccc;
+  border-block-start: 1px solid #ccc;
 }
  /* altura típica da navbar do Bootstrap ~56–60px */
 .main-container,
 .main-container-custom{
-  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+  padding-block-start: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
 }
 .form-line {
   display: grid;
@@ -280,7 +280,7 @@
 
 .form-line label {
   margin: 0;
-  text-align: right;
+  text-align: end;
   font-weight: 600;
 }
 
@@ -292,7 +292,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid d-flex align-items-center" style="gap: 0;">
       <a class="navbar-brand" href="./homepageAdm.html">
-        <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;" />
+        <img src="../img/logoreta.png" alt="Logo" style="block-size: 50px; inline-size: auto;" />
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
@@ -364,12 +364,12 @@
       <form id="formCadastro" enctype="multipart/form-data">
         <div class="row mb-3">
           <div class="col-md-6 form-line">
-    <label for="nome" class="me-2" style="width: 100px;">Nome:</label>
+    <label for="nome" class="me-2" style="inline-size: 100px;">Nome:</label>
             <input type="text" class="form-control apenasTexto" id="nome" required>
           </div>
-            <div id="mensagemErroAluno" style="display:none; color:red; margin-bottom:10px;"></div>
+            <div id="mensagemErroAluno" style="display:none; color:red; margin-block-end:10px;"></div>
           <div class="col-md-6 d-flex align-items-center">
-            <label for="senha" class="me-2" style="width: 100px;">Senha:</label>
+            <label for="senha" class="me-2" style="inline-size: 100px;">Senha:</label>
             <input type="password" class="form-control" id="senha" >
           </div>
         </div>
@@ -377,11 +377,11 @@
         <div class="row mb-3">
          <div class="col-md-6 form-line">
 
-            <label for="email" class="me-2" style="width: 100px;">E-mail:</label>
+            <label for="email" class="me-2" style="inline-size: 100px;">E-mail:</label>
             <input type="email" class="form-control" id="email" required>
           </div>
           <div class="col-md-6 d-flex align-items-center" id="cursoGroup">
-            <label for="curso" class="me-2" style="width: 100px;">Curso:</label>
+            <label for="curso" class="me-2" style="inline-size: 100px;">Curso:</label>
             <select class="form-select" id="curso" required>
               <option value="" disabled selected>Selecione o curso</option>
               <option value="Desenvolvimento de Sistemas">Desenvolvimento de Sistemas</option>
@@ -394,13 +394,13 @@
       <div class="row mb-3">
 <div class="col-md-6 form-line">
 
-    <label for="telefone" class="me-2" style="width: 100px;">Telefone:</label>
+    <label for="telefone" class="me-2" style="inline-size: 100px;">Telefone:</label>
     <input type="number" class="form-control" id="telefone"
       pattern="^\d{10,11}$"placeholder="Ex: 11987654321" title="Digite apenas números (DDD + telefone, 10 ou 11 dígitos)"required>
   </div>
 
   <div class="col-md-6 d-flex align-items-center" id="serieGroup">
-    <label for="serie" class="me-2" style="width: 100px;">Série:</label>
+    <label for="serie" class="me-2" style="inline-size: 100px;">Série:</label>
     <select class="form-select" id="serie" required>
       <option value="" disabled selected>Selecione a série</option>
       <option value="1º">1º</option>
@@ -421,7 +421,7 @@
 
          <div class="mb-4 d-flex align-items-center">
   <div id="previewBox"
-       style="width: 100px; height: 150px; background-color: #5d3b1a; border-radius: 6px; margin-right: 20px; background-image: url('http://localhost:3000/uploads/padrao.jpg'); background-size: cover; background-position: center;">
+       style="inline-size: 100px; block-size: 150px; background-color: #5d3b1a; border-radius: 6px; margin-inline-end: 20px; background-image: url('http://localhost:3000/uploads/padrao.jpg'); background-size: cover; background-position: center;">
   </div>
   <div>
     <label class="mb-2">Escolha a foto para o usuário</label>
@@ -437,8 +437,8 @@
   </div>
 
   <!-- Botão de acessibilidade -->
-  <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
-    <button class="btn btn-dark" style="width: 50px; height: 50px;">
+  <div style="position: fixed; inset-block-end: 20px; inset-inline-end: 20px; z-index: 999;">
+    <button class="btn btn-dark" style="inline-size: 50px; block-size: 50px;">
       <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
     </button>
   </div>

@@ -264,13 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const agora = Date.now() / 1000;
-    if (payload.exp && payload.exp < agora) {
-      alert("Sessão expirada. Faça login novamente.");
-      localStorage.removeItem("token");
-      window.location.href = "index.html";
-      return;
-    }
   })();
 
   // ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
@@ -375,194 +368,196 @@ document.addEventListener('DOMContentLoaded', () => {
     preloadImages();
     setTimeout(animar, 300);
   }
+// Função genérica para carregar dados e preencher campos
+async function carregarDados(id, tipo) {
+  try {
+    const endpoint = tipo === "funcionario" ? "funcionario" : "usuario";
+    const token = localStorage.getItem("token");
 
-  // Função genérica para carregar dados e preencher campos
-  async function carregarDados(id, tipo) {
-    try {
-      const endpoint = tipo === "funcionario" ? "funcionario" : "usuario";
-      const res = await fetch(`http://localhost:3000/${endpoint}/${id}`);
+    const res = await fetch(`http://localhost:3000/${endpoint}/${id}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
 
-      if (!res.ok) {
-        throw new Error(`Erro HTTP! status: ${res.status}`);
-      }
-
-      const data = await res.json();
-      const user = tipo === "funcionario" ? data.funcionario : data.usuario;
-
-      if (!user) throw new Error("Usuário não encontrado");
-
-      document.getElementById("fname").value = user.nome || "";
-      document.getElementById("email").value = user.email || "";
-      document.getElementById("phone").value = user.telefone || "";
-      document.getElementById("senha").value = user.senha || "";
-
-      if (tipo === "usuario") {
-        const tipoUsuario = Number(user.tipo); // 👈 1 = aluno, 2 = professor
-
-        if (tipoUsuario === 1) {
-          const cursoEl = document.getElementById("curso");
-          const serieEl = document.getElementById("serie");
-
-          if (cursoEl) cursoEl.value = user.nome_curso || "";
-          if (serieEl) serieEl.value = user.serie || "";
-        }
-      }
-
-      if (tipo === "funcionario") {
-        const funcaoEl = document.getElementById("funcao");
-        if (funcaoEl) funcaoEl.value = user.FK_funcao_id || user.funcao_id || "";
-      }
-
-    } catch (err) {
-      console.error("Erro ao carregar dados:", err);
-      alert("Erro ao carregar dados do usuário: " + err.message);
+    if (!res.ok) {
+      throw new Error(`Erro HTTP! status: ${res.status}`);
     }
-  }
 
+    const data = await res.json();
+    const user = tipo === "funcionario" ? data.funcionario : data.usuario;
 
-  const path = window.location.pathname;
+    if (!user) throw new Error("Usuário não encontrado");
 
-  if (path.includes("areaAluno.html") || path.includes("areaProf.html")) {
-    const usuarioSalvo = JSON.parse(localStorage.getItem("usuario"));
-    if (!usuarioSalvo) {
-      alert("Usuário não logado!");
-      window.location.href = "./index.html";
-    } else {
-      carregarDados(usuarioSalvo.id, "usuario");
-    }
-  }
+    document.getElementById("fname").value = user.nome || "";
+    document.getElementById("email").value = user.email || "";
+    document.getElementById("phone").value = user.telefone || "";
+    document.getElementById("senha").value = user.senha || "";
 
-  if (path.includes("areaAdm.html")|| path.includes("areaAdm2.html")) {
-    const funcionarioSalvo = JSON.parse(localStorage.getItem("funcionario"));
-    if (!funcionarioSalvo) {
-      alert("Usuário não logado!");
-      window.location.href = "./index.html";
-    } else {
-      carregarDados(funcionarioSalvo.id, "funcionario");
-      // Desabilita o campo função para funcionário (mostra só para visualização)
-      const funcaoCampo = document.getElementById("funcao");
-      if (funcaoCampo) {
-        funcaoCampo.disabled = true; // campo visível, mas não editável
+    if (tipo === "usuario") {
+      const tipoUsuario = Number(user.tipo); // 👈 1 = aluno, 2 = professor
+
+      if (tipoUsuario === 1) {
+        const cursoEl = document.getElementById("curso");
+        const serieEl = document.getElementById("serie");
+
+        if (cursoEl) cursoEl.value = user.nome_curso || "";
+        if (serieEl) serieEl.value = user.serie || "";
       }
     }
-  }
 
-  // Salvar alterações - atualiza usuário ou funcionário conforme quem está logado
-  const editarBtn = document.getElementById('btnEditar');
-
-
-
-  if (editarBtn) {
-    editarBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-
-      const usuario = JSON.parse(localStorage.getItem("usuario"));
-      const funcionario = JSON.parse(localStorage.getItem("funcionario"));
-
-      let id, tipo;
-      if (usuario) {
-        id = usuario.id;
-        tipo = "usuario";
-      } else if (funcionario) {
-        id = funcionario.id;
-        tipo = "funcionario";
-      } else {
-        alert("Usuário não logado!");
-        window.location.href = "./login.html";
-        return;
-      }
-
-      const dadosAtualizados = {};
-
-      // Sempre pega telefone e senha se tiverem valores
-      const telefoneEl = document.getElementById("phone");
-      const senhaEl = document.getElementById("senha");
-
-      if (telefoneEl && telefoneEl.value.trim() !== "") {
-        dadosAtualizados.telefone = telefoneEl.value.trim();
-      }
-      if (senhaEl && senhaEl.value.trim() !== "") {
-        dadosAtualizados.senha = senhaEl.value.trim();
-      }
-
-      // Só adiciona nome e email se não for aluno/professor (ex: funcionário)
-      const nomeEl = document.getElementById("fname");
-      const emailEl = document.getElementById("email");
-      if (nomeEl) dadosAtualizados.nome = nomeEl.value.trim();
-      if (emailEl) dadosAtualizados.email = emailEl.value.trim();
-
-      // Só adiciona função se o campo existir na tela (funcionário)
+    if (tipo === "funcionario") {
       const funcaoEl = document.getElementById("funcao");
-      if (funcaoEl) dadosAtualizados.FK_funcao_id = funcaoEl.value;
-
-
-
-      try {
-        const url = `http://localhost:3000/${tipo}/${id}`;
-        const response = await fetch(url, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(dadosAtualizados),
-        });
-
-        const data = await response.json();
-        alert(data.message || "Atualizado com sucesso!");
-      } catch (err) {
-        console.error("Erro ao atualizar:", err);
-        alert("Erro ao atualizar dados.");
-      }
-    });
-  }
-  // Função para gerar senha segura (8 dígitos: A-Z, a-z, 0-9)
-  function gerarSenhaSegura() {
-    const letrasMaiusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const letrasMinusculas = "abcdefghijklmnopqrstuvwxyz";
-    const numeros = "0123456789";
-    const todos = letrasMaiusculas + letrasMinusculas + numeros;
-
-    let senha = "";
-    senha += letrasMaiusculas[Math.floor(Math.random() * letrasMaiusculas.length)];
-    senha += letrasMinusculas[Math.floor(Math.random() * letrasMinusculas.length)];
-    senha += numeros[Math.floor(Math.random() * numeros.length)];
-
-    for (let i = senha.length; i < 8; i++) {
-      senha += todos[Math.floor(Math.random() * todos.length)];
+      if (funcaoEl) funcaoEl.value = user.FK_funcao_id || user.funcao_id || "";
     }
 
-    return senha.split('').sort(() => Math.random() - 0.5).join('');
+  } catch (err) {
+    console.error("Erro ao carregar dados:", err);
+    alert("Erro ao carregar dados do usuário: " + err.message);
   }
+}
 
-  // Validação de senha (exatamente 8 dígitos com A-Z, a-z e número)
-  function validarSenha(senha) {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8}$/;
-    return regex.test(senha);
+const path = window.location.pathname;
+
+if (path.includes("areaAluno.html") || path.includes("areaProf.html")) {
+  const usuarioSalvo = JSON.parse(localStorage.getItem("usuario"));
+  if (!usuarioSalvo) {
+    alert("Usuário não logado!");
+    window.location.href = "./index.html";
+  } else {
+    carregarDados(usuarioSalvo.id, "usuario");
   }
+}
 
-  //Mostrar aviso ao editar a senha 
+if (path.includes("areaAdm.html") || path.includes("areaAdm2.html")) {
+  const funcionarioSalvo = JSON.parse(localStorage.getItem("funcionario"));
+  if (!funcionarioSalvo) {
+    alert("Usuário não logado!");
+    window.location.href = "./index.html";
+  } else {
+    carregarDados(funcionarioSalvo.id, "funcionario");
+    // Desabilita o campo função para funcionário (mostra só para visualização)
+    const funcaoCampo = document.getElementById("funcao");
+    if (funcaoCampo) {
+      funcaoCampo.disabled = true; // campo visível, mas não editável
+    }
+  }
+}
 
-  const senhaInput = document.getElementById('senha');
+// Salvar alterações - atualiza usuário ou funcionário conforme quem está logado
+const editarBtn = document.getElementById('btnEditar');
 
-  if (senhaInput) {
-    let avisoSenha = document.getElementById('avisoSenha');
-    if (!avisoSenha) {
-      avisoSenha = document.createElement('div');
-      avisoSenha.id = 'avisoSenha';
-      avisoSenha.style.color = 'red';
-      avisoSenha.style.fontSize = '0.9em';
-      avisoSenha.style.marginTop = '4px';
-      avisoSenha.style.display = 'none';
-      senhaInput.insertAdjacentElement('afterend', avisoSenha);
+if (editarBtn) {
+  editarBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const funcionario = JSON.parse(localStorage.getItem("funcionario"));
+
+    let id, tipo;
+    if (usuario) {
+      id = usuario.id;
+      tipo = "usuario";
+    } else if (funcionario) {
+      id = funcionario.id;
+      tipo = "funcionario";
+    } else {
+      alert("Usuário não logado!");
+      window.location.href = "./login.html";
+      return;
     }
 
-    senhaInput.addEventListener('focus', () => {
-      avisoSenha.textContent = "A senha deve conter pelo menos 8 caracteres, com pelo menos:\n 1 letra maiúscula (A-Z)\n 1 letra minúscula (a-z)\n 1 número (0-9)";
-      avisoSenha.style.display = 'block';
-    });
+    const dadosAtualizados = {};
 
-    senhaInput.addEventListener('blur', () => {
-      avisoSenha.style.display = 'none';
-    });
+    // Sempre pega telefone e senha se tiverem valores
+    const telefoneEl = document.getElementById("phone");
+    const senhaEl = document.getElementById("senha");
+
+    if (telefoneEl && telefoneEl.value.trim() !== "") {
+      dadosAtualizados.telefone = telefoneEl.value.trim();
+    }
+    if (senhaEl && senhaEl.value.trim() !== "") {
+      dadosAtualizados.senha = senhaEl.value.trim();
+    }
+
+    // Só adiciona nome e email se não for aluno/professor (ex: funcionário)
+    const nomeEl = document.getElementById("fname");
+    const emailEl = document.getElementById("email");
+    if (nomeEl) dadosAtualizados.nome = nomeEl.value.trim();
+    if (emailEl) dadosAtualizados.email = emailEl.value.trim();
+
+    // Só adiciona função se o campo existir na tela (funcionário)
+    const funcaoEl = document.getElementById("funcao");
+    if (funcaoEl) dadosAtualizados.FK_funcao_id = funcaoEl.value;
+
+    try {
+      const token = localStorage.getItem("token");
+      const url = `http://localhost:3000/${tipo}/${id}`;
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(dadosAtualizados),
+      });
+
+      const data = await response.json();
+      alert(data.message || "Atualizado com sucesso!");
+    } catch (err) {
+      console.error("Erro ao atualizar:", err);
+      alert("Erro ao atualizar dados.");
+    }
+  });
+}
+
+// Função para gerar senha segura (8 dígitos: A-Z, a-z, 0-9)
+function gerarSenhaSegura() {
+  const letrasMaiusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const letrasMinusculas = "abcdefghijklmnopqrstuvwxyz";
+  const numeros = "0123456789";
+  const todos = letrasMaiusculas + letrasMinusculas + numeros;
+
+  let senha = "";
+  senha += letrasMaiusculas[Math.floor(Math.random() * letrasMaiusculas.length)];
+  senha += letrasMinusculas[Math.floor(Math.random() * letrasMinusculas.length)];
+  senha += numeros[Math.floor(Math.random() * numeros.length)];
+
+  for (let i = senha.length; i < 8; i++) {
+    senha += todos[Math.floor(Math.random() * todos.length)];
   }
+
+  return senha.split('').sort(() => Math.random() - 0.5).join('');
+}
+
+// Validação de senha (exatamente 8 dígitos com A-Z, a-z e número)
+function validarSenha(senha) {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8}$/;
+  return regex.test(senha);
+}
+
+// Mostrar aviso ao editar a senha 
+const senhaInput = document.getElementById('senha');
+
+if (senhaInput) {
+  let avisoSenha = document.getElementById('avisoSenha');
+  if (!avisoSenha) {
+    avisoSenha = document.createElement('div');
+    avisoSenha.id = 'avisoSenha';
+    avisoSenha.style.color = 'red';
+    avisoSenha.style.fontSize = '0.9em';
+    avisoSenha.style.marginTop = '4px';
+    avisoSenha.style.display = 'none';
+    senhaInput.insertAdjacentElement('afterend', avisoSenha);
+  }
+
+  senhaInput.addEventListener('focus', () => {
+    avisoSenha.textContent = "A senha deve conter exatamente 8 caracteres, incluindo:\n 1 letra maiúscula (A-Z)\n 1 letra minúscula (a-z)\n 1 número (0-9)";
+    avisoSenha.style.display = 'block';
+  });
+
+  senhaInput.addEventListener('blur', () => {
+    avisoSenha.style.display = 'none';
+  });
+}
 
 
 
@@ -619,23 +614,27 @@ if (funcionario && funcionario.foto) { // ← CORRETO
 }
 document.addEventListener("DOMContentLoaded", function () {
   const fotoInput = document.getElementById("foto");
-  const avatar = document.getElementById("avatarPerfil");
+  const previewBox = document.getElementById("previewBox"); // 👈 pega o quadrado
 
-  if (!fotoInput || !avatar) return;
+  if (!fotoInput || !previewBox) return;
 
   fotoInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
 
     if (!file) {
-      avatar.src = "http://localhost:3000/uploads/padrao.jpg"; // volta para padrão
+      // volta para imagem padrão
+      previewBox.style.backgroundImage = "url('http://localhost:3000/uploads/padrao.jpg')";
+      previewBox.style.backgroundSize = "cover";
+      previewBox.style.backgroundPosition = "center";
       return;
     }
 
     const reader = new FileReader();
     reader.onload = function (event) {
-      avatar.src = event.target.result; // mostra a imagem selecionada
+      previewBox.style.backgroundImage = `url('${event.target.result}')`;
+      previewBox.style.backgroundSize = "cover";
+      previewBox.style.backgroundPosition = "center";
     };
-
     reader.readAsDataURL(file);
   });
 });

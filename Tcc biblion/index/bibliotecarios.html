@@ -746,14 +746,14 @@
         }
 
         /* responsivo */
-        @media (max-width: 992px) {
+        @media (max-inline-size: 992px) {
             .search-box {
                 inline-size: 300px;
             }
         }
 
         /* Sidebar some no mobile e vira "menu lateral" */
-        @media (max-width: 992px) {
+        @media (max-inline-size: 992px) {
             .sidebar {
                 position: fixed;
                 inset-block-start: 56px;
@@ -775,7 +775,7 @@
         }
 
         /* Ajusta grid das abas no celular */
-        @media (max-width: 768px) {
+        @media (max-inline-size: 768px) {
             .tab-container {
                 flex-direction: column;
                 gap: 10px;
@@ -803,8 +803,8 @@
         /* Ajusta tabelas no mobile */
         .table-responsive {
             margin: 20px auto;
-    max-width: 95%;
-    max-height: 70vh;     /* controla a altura máxima */
+    max-inline-size: 95%;
+    max-block-size: 70vh;     /* controla a altura máxima */
     overflow-x: auto;     /* scroll horizontal */
     overflow-y: auto;     /* scroll vertical */
     
@@ -818,11 +818,11 @@
 
         .table-responsive table {
     margin: 0 auto;        /* centraliza a tabela */
-    width: auto;           /* evita ocupar 100% sempre */
+    inline-size: auto;           /* evita ocupar 100% sempre */
 }
 
         /* Ajusta avatar e botão acessibilidade no mobile */
-        @media (max-width: 576px) {
+        @media (max-inline-size: 576px) {
             .avatar-container {
                 inset-block-end: 70px;
                 inset-inline-start: 10px;
@@ -932,7 +932,7 @@
 
 /* Deixa a tabela responsiva em telas pequenas */
 #lista-bibliotecarios {
-    width: 100%;
+    inline-size: 100%;
     border-collapse: collapse;
 }
 
@@ -960,8 +960,8 @@
     #lista-bibliotecarios td .btn {
         font-size: 0;       /* esconde o texto */
         padding: 6px;       /* deixa o botão quadradinho */
-        width: 32px;        /* largura fixa */
-        height: 32px;       /* altura fixa */
+        inline-size: 32px;        /* largura fixa */
+        block-size: 32px;       /* altura fixa */
         justify-content: center;
     }
 

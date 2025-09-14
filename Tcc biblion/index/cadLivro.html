@@ -19,7 +19,7 @@
       padding: 0;
       background-color: #f0e6d2;
       font-family: Arial, sans-serif;
-      height: 100vh;
+      block-size: 100vh;
       display: flex;
       flex-direction: column;
       font-size: 17px;
@@ -39,10 +39,10 @@
 
     .sidebar {
       position: fixed;
-      top: 56px;
-      left: 0;
-      width: 220px;
-      height: calc(100vh - 56px);
+      inset-block-start: 56px;
+      inset-inline-start: 0;
+      inline-size: 220px;
+      block-size: calc(100vh - 56px);
       background-color: #7a1505;
       padding: 20px;
       color: white;
@@ -76,8 +76,8 @@
       display: block;
       background-color: #7a1505;
       color: white;
-      margin-bottom: 10px;
-      text-align: left;
+      margin-block-end: 10px;
+      text-align: start;
       border: none;
       padding: 10px 15px;
       border-radius: 5px;
@@ -101,9 +101,9 @@
 
     .main-container {
       flex: 1;
-      padding-left: 270px;
-      padding-top: 20px;
-      padding-bottom: 20px;
+      padding-inline-start: 270px;
+      padding-block-start: 20px;
+      padding-block-end: 20px;
       display: flex;
       justify-content: center;
       overflow-y: auto;
@@ -114,16 +114,16 @@
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-      max-width: 960px;
-      width: 100%;
-      min-height: 950px;
+      max-inline-size: 960px;
+      inline-size: 100%;
+      min-block-size: 950px;
       /* você pode aumentar esse valor */
     }
 
 
     .form-card h1 {
       text-align: center;
-      margin-bottom: 30px;
+      margin-block-end: 30px;
       font-size: 2rem;
     }
 
@@ -153,11 +153,11 @@
       color: red;
     }
 
-    @media (max-width: 800px) {
+    @media (max-inline-size: 800px) {
       .sidebar {
         position: relative;
-        height: auto;
-        width: 100%;
+        block-size: auto;
+        inline-size: 100%;
         border-radius: 0;
         padding: 10px;
         display: flex;
@@ -166,7 +166,7 @@
       }
 
       .main-container {
-        padding-left: 0;
+        padding-inline-start: 0;
       }
 
       .form-card {
@@ -175,14 +175,14 @@
     }
     .notificacao-dropdown {
       background-color: #ffffff;
-      min-width: 250px;
-      max-width: 100%;
-      max-height: 300px;
+      min-inline-size: 250px;
+      max-inline-size: 100%;
+      max-block-size: 300px;
       overflow-y: auto;
       border-radius: 0px;
       padding: 0;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-left: -20px;
+      margin-inline-start: -20px;
     }
 
     .notificacao-dropdown .dropdown-item {
@@ -190,7 +190,7 @@
       color: #333333;
       padding: 15px 20px;
       border: none;
-      border-bottom: 1px solid #ddd;
+      border-block-end: 1px solid #ddd;
       font-size: 16px;
     }
 
@@ -205,14 +205,14 @@
     /* Avatar flutuante */
 .avatar-container {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  inset-block-end: 20px;
+  inset-inline-start: 20px;
   z-index: 1051;
 }
 
 .avatar-navbar {
-  width: 50px;
-  height: 50px;
+  inline-size: 50px;
+  block-size: 50px;
   border-radius: 10px;
   cursor: pointer;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
@@ -222,13 +222,13 @@
 .menu-perfil {
   display: none;
   position: absolute;
-  bottom: 60px;
-  left: 0;
+  inset-block-end: 60px;
+  inset-inline-start: 0;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  min-width: 200px;
+  min-inline-size: 200px;
 }
 
 .menu-perfil.show {
@@ -251,28 +251,28 @@
 .menu-divider {
   margin: 0;
   border: none;
-  border-top: 1px solid #ccc;
+  border-block-start: 1px solid #ccc;
 }
  /* altura típica da navbar do Bootstrap ~56–60px */
 .main-container,
 .main-container-custom{
-  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+  padding-block-start: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
 }
 #isbnWrapper { position: relative; }
 
 #isbnInput {
   /* mantém igual aos outros campos */
   border-radius: 6px !important;
-  padding-right: 40px;            /* espaço para o ícone */
+  padding-inline-end: 40px;            /* espaço para o ícone */
 }
 
 #loadingIsbn.isbn-spinner {
   position: absolute;
-  right: 10px;
-  top: 50%;
+  inset-inline-end: 10px;
+  inset-block-start: 50%;
   transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
+  inline-size: 24px;
+  block-size: 24px;
   display: none;                  /* seu JS mostra/esconde */
   pointer-events: none;           /* não bloqueia clique no input */
   background: transparent;
@@ -287,7 +287,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid d-flex align-items-center">
       <a class="navbar-brand" href="./homepageAdm.html">
-        <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto" />
+        <img src="../img/logoreta.png" alt="Logo" style="block-size: 50px; inline-size: auto" />
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
@@ -462,23 +462,24 @@
   </div>
 
    <!-- Botão de acessibilidade -->
-  <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
-    <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
+  <div style="position: fixed; inset-block-end: 20px; inset-inline-end: 20px; z-index: 999;">
+    <button class="btn btn-dark rounded-3" style="inline-size: 50px; block-size: 50px;">
       <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
     </button>
   </div>
 
-     <!-- Avatar com menu fixado no canto inferior esquerdo -->
-<div class="avatar-container">
-  <img src="http://localhost:3000/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
-  <div id="menuPerfil" class="menu-perfil">
-    <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
-    <hr class="menu-divider">
-    <a href="#" class="dropdown-item">Perguntas Frequentes</a>
-    <hr class="menu-divider">
-    <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+  <!-- Avatar com menu fixado no canto inferior esquerdo -->
+  <div class="avatar-container">
+ <img src="http://localhost:3000/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+
+    <div id="menuPerfil" class="menu-perfil">
+      <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
+      <hr class="menu-divider">
+      <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+      <hr class="menu-divider">
+      <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+    </div>
   </div>
-</div>
       <script src="../java/cadLivro.js"></script>
 </body>
 

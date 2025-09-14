@@ -1,29 +1,67 @@
-document.addEventListener("DOMContentLoaded", carregarFuncionarios);
+document.addEventListener("DOMContentLoaded", () => {
+  carregarFuncionarios();
+  carregarFuncoes(); // já carrega funções no select
+});
+
 const API_URL = "http://localhost:3000/api/funcionarios";
 let todosOsFuncionarios = [];
+let todasAsFuncoes = [];
 
-// Carregar
+// ------------------ CARREGAR FUNCIONÁRIOS ------------------
 async function carregarFuncionarios() {
   try {
-    const resposta = await fetch(API_URL);
+    const token = localStorage.getItem("token");
+    const resposta = await fetch(API_URL, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    if (!resposta.ok) {
+      throw new Error("Erro HTTP " + resposta.status);
+    }
+
     todosOsFuncionarios = await resposta.json();
 
-    // Decide o tipo de exibição pela tela
     if (document.getElementById("lista-funcionarios")) {
-      // Caso seja a tela de FUNCIONÁRIOS (bibliotecário vê) → cards
       exibirFuncionariosCards(todosOsFuncionarios);
     }
     if (document.querySelector("#lista-bibliotecarios tbody")) {
-      // Caso seja a tela de BIBLIOTECÁRIOS (admin vê) → tabela
       exibirFuncionariosTabela(todosOsFuncionarios);
     }
-
   } catch (erro) {
     console.error("Erro ao carregar funcionários:", erro);
   }
 }
 
-// Exibir em CARDS (funcionarios.html → bibliotecário vê)
+// ------------------ CARREGAR FUNÇÕES (cargos) ------------------
+async function carregarFuncoes() {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:3000/funcoes", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro HTTP " + res.status);
+    }
+
+    todasAsFuncoes = await res.json();
+
+    const select = document.getElementById("funcao-funcionario");
+    if (!select) return;
+
+    select.innerHTML = "";
+    todasAsFuncoes.forEach(f => {
+      const option = document.createElement("option");
+      option.value = f.id;
+      option.textContent = f.funcao;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar funções:", err);
+  }
+}
+
+// ------------------ EXIBIR EM CARDS ------------------
 function exibirFuncionariosCards(funcionarios) {
   const container = document.getElementById("lista-funcionarios");
   if (!container) return;
@@ -64,7 +102,7 @@ function exibirFuncionariosCards(funcionarios) {
   });
 }
 
-// Exibir em TABELA (bibliotecarios.html → admin vê)
+// ------------------ EXIBIR EM TABELA ------------------
 function exibirFuncionariosTabela(funcionarios) {
   const tbody = document.querySelector("#lista-bibliotecarios tbody");
   if (!tbody) return;
@@ -85,7 +123,6 @@ function exibirFuncionariosTabela(funcionarios) {
       <td>${f.telefone || "—"}</td>
       <td>${f.funcao || "—"}</td>
       <td>
-        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
         <button class="btn btn-outline-warning btn-sm" onclick="abrirModalEdicao(${f.id})"><i class="bi bi-pencil"></i> Editar</button>
         <button class="btn btn-outline-danger btn-sm" onclick="excluirFuncionario(${f.id})"><i class="bi bi-trash"></i> Excluir</button>
       </td>
@@ -93,3 +130,69 @@ function exibirFuncionariosTabela(funcionarios) {
     tbody.appendChild(row);
   });
 }
+
+// ------------------ ABRIR MODAL DE EDIÇÃO ------------------
+async function abrirModalEdicao(id) {
+  const funcionario = todosOsFuncionarios.find(f => f.id === id);
+  if (!funcionario) return;
+
+  await carregarFuncoes(); // garante que o select está populado
+
+  document.getElementById("id-funcionario").value = funcionario.id;
+  document.getElementById("nome-funcionario").value = funcionario.nome;
+  document.getElementById("email-funcionario").value = funcionario.email;
+  document.getElementById("telefone-funcionario").value = funcionario.telefone || "";
+  document.getElementById("funcao-funcionario").value = funcionario.FK_funcao_id || "";
+
+  const modal = new bootstrap.Modal(document.getElementById("modal-editar"));
+  modal.show();
+}
+
+// ------------------ SALVAR EDIÇÃO ------------------
+document.getElementById("form-editar").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const id = document.getElementById("id-funcionario").value;
+  const dados = {
+    nome: document.getElementById("nome-funcionario").value,
+    email: document.getElementById("email-funcionario").value,
+    telefone: document.getElementById("telefone-funcionario").value,
+    funcao_id: document.getElementById("funcao-funcionario").value
+  };
+
+  fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + localStorage.getItem("token")
+    },
+    body: JSON.stringify(dados)
+  })
+    .then(res => {
+      if (res.ok) {
+        carregarFuncionarios();
+        const modalEl = document.getElementById("modal-editar");
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+      }
+    })
+    .catch(err => console.error("Erro ao editar funcionário:", err));
+});
+
+// ------------------ EXCLUIR ------------------
+function excluirFuncionario(id) {
+  if (confirm("Tem certeza que deseja excluir este funcionário?")) {
+    fetch(`${API_URL}/${id}`, { 
+      method: "DELETE",
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    })
+      .then(res => {
+        if (res.ok) carregarFuncionarios();
+      })
+      .catch(err => console.error("Erro ao excluir funcionário:", err));
+  }
+}
+
+// 🔥 Deixar funções acessíveis ao HTML inline
+window.abrirModalEdicao = abrirModalEdicao;
+window.excluirFuncionario = excluirFuncionario;
