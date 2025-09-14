@@ -266,73 +266,116 @@ document.addEventListener('DOMContentLoaded', () => {
 
   })();
 
-  // ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
-  const formFunc = document.getElementById('formFuncionario');
-  if (formFunc) {
-    formFunc.addEventListener('submit', async function (event) {
-      event.preventDefault();
+// ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
+const formFunc = document.getElementById('formFuncionario');
+if (formFunc) {
+  formFunc.addEventListener('submit', async function (event) {
+    event.preventDefault();
 
-      const nome = document.getElementById('nome').value;
-      const senhaInput = document.getElementById('senha');
-      let senha = senhaInput.value;
+    const nome = document.getElementById('nome').value;
+    const senhaInput = document.getElementById('senha');
+    let senha = senhaInput.value;
 
-      if (!senha) {
-        senha = gerarSenhaSegura();
-        senhaInput.value = senha;
-        alert(`Senha gerada automaticamente: ${senha}`);
-      } else if (!validarSenha(senha)) {
-        alert("Senha inválida! A senha deve conter pelo menos 8 caracteres, com pelo menos:\n- 1 letra maiúscula (A-Z)\n- 1 letra minúscula (a-z)\n- 1 número (0-9)");
+    if (!senha) {
+      senha = gerarSenhaSegura();
+      senhaInput.value = senha;
+      alert(`Senha gerada automaticamente: ${senha}`);
+    } else if (!validarSenha(senha)) {
+      alert("Senha inválida! A senha deve conter pelo menos 8 caracteres, com pelo menos:\n- 1 letra maiúscula\n- 1 letra minúscula\n- 1 número");
+      return;
+    }
+
+    const email = document.getElementById('email').value;
+    const telefone = document.getElementById('telefone').value;
+    const foto = document.getElementById('foto').files[0];
+
+    // funções múltiplas
+    const funcaoSelect = document.getElementById('funcao');
+    const funcoesSelecionadas = [...funcaoSelect.selectedOptions].map(opt => opt.value);
+
+    if (!nome || !senha || !email) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('nome', nome);
+    formData.append('senha', senha);
+    formData.append('email', email);
+    formData.append('telefone', telefone);
+    if (foto) formData.append('foto', foto);
+    funcoesSelecionadas.forEach(f => formData.append('FK_funcao_id[]', f));
+
+    try {
+      const response = await fetch('http://localhost:3000/cadastrarFuncionario', {
+        method: 'POST',
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        body: formData
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const erroDiv = getOrCreateErrorBox('mensagemErroFuncionario', formFunc);
+        erroDiv.innerText = data.error || 'Erro ao cadastrar funcionário.';
+        erroDiv.style.display = 'block';
         return;
       }
 
-      const email = document.getElementById('email').value;
-      const foto = document.getElementById('foto').files[0];
-      const telefone = document.getElementById('telefone').value;
-      const permissoesSelecionadas = [...document.querySelectorAll('input[name="permissao"]:checked')]
-        .map(el => el.value);
-      const funcao_id_el = document.getElementById('funcao');
-      const funcao_id = funcao_id_el ? funcao_id_el.value : null;
+      alert(data.message || 'Funcionário cadastrado com sucesso!');
+      formFunc.reset();
+      atualizarTextoFuncoes();
+    } catch (error) {
+      alert('Erro ao enviar o formulário. Tente novamente.');
+    }
+  });
+}
 
-      if (!nome || !senha || !email) {
-        alert("Preencha todos os campos obrigatórios.");
-        return;
-      }
 
-      const formData = new FormData();
-      formData.append('nome', nome);
-      formData.append('senha', senha);
-      formData.append('email', email);
-      formData.append('telefone', telefone);
-      if (foto) formData.append('foto', foto);
-      if (funcao_id) formData.append('FK_funcao_id', funcao_id);
-
-      permissoesSelecionadas.forEach(p => formData.append('permissoes[]', p));
-
-      try {
-        const response = await fetch('http://localhost:3000/cadastrarFuncionario', {
-          method: 'POST',
-          headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-          },
-          body: formData
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok) {
-          const erroDiv = getOrCreateErrorBox('mensagemErroFuncionario', formFunc);
-          erroDiv.innerText = data.error || 'Erro ao cadastrar funcionário.';
-          erroDiv.style.display = 'block';
-          return;
-        }
-
-        alert(data.message || 'Funcionário cadastrado com sucesso!');
-        formFunc.reset();
-      } catch (error) {
-        alert('Erro ao enviar o formulário. Tente novamente.');
-      }
-    });
+// Funções auxiliares
+function gerarSenhaSegura() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let senha = "";
+  for (let i = 0; i < 10; i++) {
+    senha += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  return senha;
+}
+
+function validarSenha(senha) {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  return regex.test(senha);
+}
+
+function getOrCreateErrorBox(id, form) {
+  let box = document.getElementById(id);
+  if (!box) {
+    box = document.createElement("div");
+    box.id = id;
+    box.style.color = "red";
+    form.prepend(box);
+  }
+  return box;
+}
+
+});
+// Atualiza o texto dentro do botão quando marcar/desmarcar funções
+document.querySelectorAll(".chk-funcao").forEach(chk => {
+  chk.addEventListener("change", () => {
+    const selecionadas = [...document.querySelectorAll(".chk-funcao:checked")]
+      .map(el => el.parentElement.innerText.trim());
+
+    const span = document.getElementById("selectedFuncoes");
+    if (selecionadas.length > 0) {
+      span.innerText = selecionadas.join(", ");
+      span.classList.remove("text-muted");
+    } else {
+      span.innerText = " ";
+      span.classList.add("text-muted");
+    }
+  });
 });
 
   // ----------- ANIMAÇÃO AO CARREGAR O SITE ------------
@@ -368,7 +411,8 @@ document.addEventListener('DOMContentLoaded', () => {
     preloadImages();
     setTimeout(animar, 300);
   }
-// Função genérica para carregar dados e preencher campos
+//================================ Função genérica para carregar dados e preencher campos ====================================
+
 async function carregarDados(id, tipo) {
   try {
     const endpoint = tipo === "funcionario" ? "funcionario" : "usuario";

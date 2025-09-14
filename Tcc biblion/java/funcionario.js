@@ -136,7 +136,7 @@ async function abrirModalEdicao(id) {
   const funcionario = todosOsFuncionarios.find(f => f.id === id);
   if (!funcionario) return;
 
-  await carregarFuncoes(); // garante que o select está populado
+  await carregarFuncoes();
 
   document.getElementById("id-funcionario").value = funcionario.id;
   document.getElementById("nome-funcionario").value = funcionario.nome;
@@ -144,40 +144,64 @@ async function abrirModalEdicao(id) {
   document.getElementById("telefone-funcionario").value = funcionario.telefone || "";
   document.getElementById("funcao-funcionario").value = funcionario.FK_funcao_id || "";
 
+  // 👇 seta foto atual no preview
+  const preview = document.getElementById("previewBox");
+  const fotoAtual = funcionario.foto
+    ? `http://localhost:3000/uploads/${funcionario.foto}`
+    : `http://localhost:3000/uploads/padrao.jpg`;
+  preview.style.backgroundImage = `url('${fotoAtual}')`;
+
   const modal = new bootstrap.Modal(document.getElementById("modal-editar"));
   modal.show();
 }
 
+document.getElementById("foto-funcionario").addEventListener("change", function () {
+  if (this.files && this.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById("previewBox").style.backgroundImage = `url('${e.target.result}')`;
+    };
+    reader.readAsDataURL(this.files[0]);
+  }
+});
+
 // ------------------ SALVAR EDIÇÃO ------------------
-document.getElementById("form-editar").addEventListener("submit", function (e) {
-  e.preventDefault();
+const formEditar = document.getElementById("form-editar");
+if (formEditar) {
+  formEditar.addEventListener("submit", function (e) {
+    e.preventDefault();
 
-  const id = document.getElementById("id-funcionario").value;
-  const dados = {
-    nome: document.getElementById("nome-funcionario").value,
-    email: document.getElementById("email-funcionario").value,
-    telefone: document.getElementById("telefone-funcionario").value,
-    funcao_id: document.getElementById("funcao-funcionario").value
-  };
+    const id = document.getElementById("id-funcionario").value;
 
-  fetch(`${API_URL}/${id}`, {
-    method: "PUT",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + localStorage.getItem("token")
-    },
-    body: JSON.stringify(dados)
-  })
-    .then(res => {
-      if (res.ok) {
-        carregarFuncionarios();
-        const modalEl = document.getElementById("modal-editar");
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
+    const formData = new FormData();
+    formData.append("nome", document.getElementById("nome-funcionario").value);
+    formData.append("email", document.getElementById("email-funcionario").value);
+    formData.append("telefone", document.getElementById("telefone-funcionario").value);
+    formData.append("FK_funcao_id", document.getElementById("funcao-funcionario").value);
+
+    const fotoInput = document.getElementById("foto-funcionario");
+    if (fotoInput && fotoInput.files.length > 0) {
+      formData.append("foto", fotoInput.files[0]);
+    }
+
+    fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
+      body: formData
+    })
+    .then(async res => {
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Erro ao atualizar funcionário");
       }
+      carregarFuncionarios();
+      const modalEl = document.getElementById("modal-editar");
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
     })
     .catch(err => console.error("Erro ao editar funcionário:", err));
-});
+  });
+}
 
 // ------------------ EXCLUIR ------------------
 function excluirFuncionario(id) {

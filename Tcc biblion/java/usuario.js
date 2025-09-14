@@ -96,13 +96,20 @@ async function abrirModalEdicao(id) {
   const usuario = todosOsUsuarios.find(u => u.id === id);
   if (!usuario) return;
 
-  await carregarTiposUsuario(); // garante que o select já está populado
+  await carregarTiposUsuario();
 
   document.getElementById('id-usuario').value = usuario.id;
   document.getElementById('nome-usuario').value = usuario.nome;
   document.getElementById('email-usuario').value = usuario.email;
   document.getElementById('telefone-usuario').value = usuario.telefone || '';
   document.getElementById('tipo-usuario').value = usuario.FK_tipo_usuario_id || '';
+
+  // 👇 seta a imagem atual no preview
+  const previewBox = document.getElementById('previewBox');
+  const fotoAtual = usuario.foto
+    ? `http://localhost:3000/uploads/${usuario.foto}`
+    : `http://localhost:3000/uploads/padrao.jpg`;
+  previewBox.style.backgroundImage = `url('${fotoAtual}')`;
 
   const modal = new bootstrap.Modal(document.getElementById('modal-editar'));
   modal.show();
@@ -121,25 +128,27 @@ const API_URL = 'http://localhost:3000/api/usuarios';
 document.getElementById('form-editar').addEventListener('submit', function(e) {
   e.preventDefault();
   const id = document.getElementById('id-usuario').value;
-  const dados = {
-    nome: document.getElementById('nome-usuario').value,
-    email: document.getElementById('email-usuario').value,
-    telefone: document.getElementById('telefone-usuario').value,
-    FK_tipo_usuario_id: document.getElementById('tipo-usuario').value
-  };
-  
+
+  const formData = new FormData();
+  formData.append("nome", document.getElementById('nome-usuario').value);
+  formData.append("email", document.getElementById('email-usuario').value);
+  formData.append("telefone", document.getElementById('telefone-usuario').value);
+  formData.append("FK_tipo_usuario_id", document.getElementById('tipo-usuario').value);
+
+  const fotoInput = document.getElementById('foto');
+  if (fotoInput && fotoInput.files.length > 0) {
+    formData.append("foto", fotoInput.files[0]);
+  }
+
   fetch(`${API_URL}/${id}`, {
     method: 'PUT',
-    headers: { 
-      'Content-Type': 'application/json',
-      "Authorization": "Bearer " + localStorage.getItem("token")
-    },
-    body: JSON.stringify(dados)
+    headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
+    body: formData
   })
   .then(res => {
     if (res.ok) {
       fecharModal();
-      carregarUsuarios(); // Recarrega a lista de usuários
+      carregarUsuarios();
     }
   })
   .catch(err => console.error('Erro ao editar usuário:', err));

@@ -439,142 +439,148 @@ border-color: #443a3a ;
   
 
     <!-- Conteúdo -->
-    <div class="content">
-      <div class="emprestimo-titulo">
-      <h2 class="mb-4">Empréstimo</h2>
-      </div>
-      <form class="form-container">
-        <div class="usu-info">
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Pesquisar usuário:</label>
-            <div class="search-actions">
-            <div class="search-box">
-              <input placeholder="Buscar usuário...">
-              <i class="bi bi-search"></i>
-            </div>
-            <div class="botoes">
-              <button class="btn-pesquisa">Pesquisar</button>
-           </div>
-          </div>
-          </div>
-        </div>
-        </div>
-        
-
-        <section class="usu-detalhe">
-    <img src="../img/pinkk.jpg" alt="Foto de usuario">
+<div class="content">
+  <div class="emprestimo-titulo">
+    <h2 class="mb-4">Empréstimo</h2>
+  </div>
+  <form class="form-container">
     <div class="usu-info">
-      <h4>Nome:</h4>
-      <p>[Placeholder do nome]</p>
-
-      <h4>Tipo de usuário:</h4>
-      <p>[Placeholder do tipo]</p>
-
-      <h4>Status:</h4>
-      <p>[Placeholder do tipo].</p>
-
-      <h4>Atrasos:</h4>
-      <p>[Placeholder do atrasos].</p>
-
-      <h4>Exemplares emprestados:</h4>
-      <p>[Placeholder do livros].</p>
-    </div>
-  </section>
-      </form>
-    </div>
-
-    <div class="content">
-      <form class="form-container">
-        <div class="usu-info">
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Pesquisar exemplares:</label>
-            <div class="search-actions">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Pesquisar usuário:</label>
+          <div class="search-actions">
             <div class="search-box">
-              <input placeholder="Buscar usuário...">
+              <input id="inputUsuario" placeholder="Buscar usuário...">
               <i class="bi bi-search"></i>
             </div>
             <div class="botoes">
-              <button class="btn-pesquisa">Pesquisar</button>
-           </div>
+              <button type="button" class="btn-pesquisa" onclick="pesquisarUsuario()">Pesquisar</button>
+            </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado do usuário -->
+    <section id="usuarioResultado" class="usu-detalhe" style="display: none;">
+      <img id="usuarioFoto" src="../img/pinkk.jpg" alt="Foto de usuario">
+      <div class="usu-info">
+        <!-- campo oculto para armazenar ID -->
+        <input type="hidden" id="usuarioId">
+
+        <h4>Nome:</h4>
+        <p id="usuarioNome"></p>
+
+        <h4>Tipo de usuário:</h4>
+        <p id="usuarioTipo"></p>
+
+        <h4>Status:</h4>
+        <p id="usuarioStatus"></p>
+
+        <h4>Último login:</h4>
+        <p id="usuarioLogin"></p>
+
+        <h4>Atrasos:</h4>
+        <p id="usuarioAtrasos"></p>
+
+        <h4>Exemplares emprestados:</h4>
+        <p id="usuarioLivros"></p>
+      </div>
+    </section>
+  </form>
+</div>
+
+<div class="content">
+  <form class="form-container">
+    <div class="usu-info">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Pesquisar exemplares:</label>
+          <div class="search-actions">
+            <div class="search-box">
+              <input id="inputLivro" placeholder="Buscar livro...">
+              <i class="bi bi-search"></i>
+            </div>
+            <div class="botoes">
+              <button type="button" class="btn-pesquisa" onclick="pesquisarLivro()">Pesquisar</button>
+            </div>
           </div>
-          
-          <!-- Checkbox "Organizar por ordem alfabética" -->
-      <div class="form-check">
+        </div>
+
+        <!-- Checkbox "Filtrar disponíveis" -->
+        <div class="form-check">
           <input class="form-check-input" type="checkbox" id="organizeAlphabetically">
           <label class="form-check-label" for="organizeAlphabetically">
-              Filtrar livros que estão disponíveis
+            Filtrar livros que estão disponíveis
           </label>
-      </div>
         </div>
-        </div>
-        
-
-        <section class="usu-detalhe">
-    <img src="../img/pinkk.jpg" alt="Foto de usuario">
-    <div class="usu-info">
-      <h4>Título:</h4>
-      <p>[Placeholder do titulo]</p>
-
-      <h4>Tipo de Autor:</h4>
-      <p>[Placeholder do autor]</p>
-
-      <h4>Editora:</h4>
-      <p>[Placeholder do editora].</p>
-
-      <h4>Localização:</h4>
-      <p>[Placeholder do localizacao].</p>
-
-      <h4>disponibilidade:</h4>
-      <p>[Placeholder do disponibilidade].</p>
-
-      <h4>Fila de usuários:</h4>
-      <p>[Placeholder do livros].</p>
-
-      <div class="botoes">
-        <button class="btn-emprestar">Emprestrar</button>
       </div>
     </div>
-  </section>
 
-  <!--caso não esteja disponivel e alguem pegou o livro-->
-<div class="indisponivel-titulo">
+    <!-- Resultado do livro -->
+    <section id="livroResultado" class="usu-detalhe" style="display: none;">
+      <img id="livroCapa" src="../img/pinkk.jpg" alt="Capa do livro">
+      <div class="usu-info">
+        <!-- campo oculto para armazenar ID -->
+        <input type="hidden" id="livroId">
+
+        <h4>Título:</h4>
+        <p id="livroTitulo"></p>
+
+        <h4>Autor:</h4>
+        <p id="livroAutor"></p>
+
+        <h4>Editora:</h4>
+        <p id="livroEditora"></p>
+
+        <h4>Localização:</h4>
+        <p id="livroLocalizacao"></p>
+
+        <h4>Disponibilidade:</h4>
+        <p id="livroDisponibilidade"></p>
+
+        <h4>Fila de usuários:</h4>
+        <p id="livroFila"></p>
+
+        <div class="botoes">
+          <button type="button" class="btn-emprestar" onclick="emprestarLivro()">Emprestar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Caso não esteja disponível -->
+    <div id="livroIndisponivel" class="indisponivel-titulo" style="display: none;">
       <h2 class="mb-4">Indisponível! O livro já foi emprestado</h2>
-      </div>
-  <section class="usu-detalhe-indi">
-    
-    <img src="../img/pinkk.jpg" alt="Foto de usuario">
-    <div class="usu-info">
-      <h4>Nome:</h4>
-      <p>[Placeholder do nome]</p>
-
-      <h4>Tipo de usuário:</h4>
-      <p>[Placeholder do tipo]</p>
-
-      <h4>Status:</h4>
-      <p>[Placeholder do tipo].</p>
-
-      <h4>Data do empréstimo:</h4>
-      <p>[Placeholder do atrasos].</p>
-
-      <h4>Data de devolução:</h4>
-      <p>[Placeholder do livros].</p>
-
-      <h4>Fila de usuários:</h4>
-      <p>[Placeholder do livros].</p>
-      <div class="botoes">
-        <button class="btn-renovar">Renovar</button>
-        <button class="btn-devolver">Devolver</button>
-      </div>
     </div>
-  </section>
-      </form>
-    </div>
-  
+    <section id="livroIndisponivelInfo" class="usu-detalhe-indi" style="display: none;">
+      <img id="livroIndisponivelCapa" src="../img/pinkk.jpg" alt="Capa do livro">
+      <div class="usu-info">
+        <h4>Nome:</h4>
+        <p id="livroEmprestadoNome"></p>
 
-  
+        <h4>Tipo de usuário:</h4>
+        <p id="livroEmprestadoTipo"></p>
+
+        <h4>Status:</h4>
+        <p id="livroEmprestadoStatus"></p>
+
+        <h4>Data do empréstimo:</h4>
+        <p id="livroEmprestadoData"></p>
+
+        <h4>Data de devolução:</h4>
+        <p id="livroEmprestadoDevolucao"></p>
+
+        <h4>Fila de usuários:</h4>
+        <p id="livroEmprestadoFila"></p>
+
+        <div class="botoes">
+          <button type="button" class="btn-renovar">Renovar</button>
+          <button type="button" class="btn-devolver">Devolver</button>
+        </div>
+      </div>
+    </section>
+  </form>
+</div>
 
    <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
@@ -607,6 +613,7 @@ border-color: #443a3a ;
     });
   </script>
   <script src="../java/script.js"></script>
+  <script src="../java/emprestimo.js"></script>
 </body>
 
 </html>

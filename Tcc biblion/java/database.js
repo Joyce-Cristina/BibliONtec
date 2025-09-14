@@ -1055,6 +1055,41 @@ app.get('/api/funcionarios', autenticarToken, (req, res) => {
     res.json(results);
   });
 });
+// ==================== ATUALIZAR FUNCIONÁRIO (com foto) ====================
+// ==================== ATUALIZAR FUNCIONÁRIO (com foto) ====================
+app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, res) => {
+  const id = req.params.id;
+  const { nome, email, telefone, FK_funcao_id } = req.body;
+  const foto = req.file ? req.file.filename : undefined;
+
+  const updates = [];
+  const values = [];
+
+  if (nome !== undefined) { updates.push("nome = ?"); values.push(nome); }
+  if (email !== undefined) { updates.push("email = ?"); values.push(email); }
+  if (telefone !== undefined) { updates.push("telefone = ?"); values.push(telefone); }
+  if (FK_funcao_id !== undefined) { updates.push("FK_funcao_id = ?"); values.push(FK_funcao_id); }
+  if (foto !== undefined) { updates.push("foto = ?"); values.push(foto); }
+
+  if (updates.length === 0) {
+    return res.status(400).json({ error: "Nenhum campo para atualizar." });
+  }
+
+  const sql = `UPDATE funcionario SET ${updates.join(", ")} WHERE id = ? AND FK_instituicao_id = ?`;
+  values.push(id, req.user.FK_instituicao_id);
+
+  connection.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Erro ao atualizar funcionário:", err);
+      return res.status(500).json({ error: "Erro ao atualizar funcionário" });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Funcionário não encontrado" });
+    }
+    res.json({ message: "Funcionário atualizado com sucesso!" });
+  });
+});
+
 
 
 // ================= ROTAS DE USUÁRIO =================
@@ -1141,12 +1176,12 @@ app.get('/verificarNome', (req, res) => {
 });
 
 // ================= Atualizar dados do usuário =================
+app.put('/api/usuarios/:id', upload.single('foto'), (req, res) => {
 
-app.put('/usuario/:id', (req, res) => {
   const id = req.params.id;
   const { nome, email, telefone, senha, curso_id, serie, FK_tipo_usuario_id } = req.body;
+  const foto = req.file ? req.file.filename : undefined;
 
-  // Monta dinamicamente só os campos que vieram
   const updates = [];
   const values = [];
 
@@ -1156,10 +1191,8 @@ app.put('/usuario/:id', (req, res) => {
   if (senha !== undefined) { updates.push("senha = ?"); values.push(senha); }
   if (curso_id !== undefined) { updates.push("curso_id = ?"); values.push(curso_id); }
   if (serie !== undefined) { updates.push("serie = ?"); values.push(serie); }
-  if (FK_tipo_usuario_id !== undefined) {
-    updates.push("FK_tipo_usuario_id = ?");
-    values.push(FK_tipo_usuario_id);
-  }
+  if (FK_tipo_usuario_id !== undefined) { updates.push("FK_tipo_usuario_id = ?"); values.push(FK_tipo_usuario_id); }
+  if (foto !== undefined) { updates.push("foto = ?"); values.push(foto); }
 
   if (updates.length === 0) {
     return res.status(400).json({ error: "Nenhum campo para atualizar." });
@@ -1770,6 +1803,144 @@ app.get('/api/funcionarios/:instituicaoId', (req, res) => {
     res.json(results);
   });
 });
+
+//================= Emprestimo =================
+
+
+// ===== Rota: Pesquisar usuários =====
+app.get("/usuarios", autenticarToken, (req, res) => {
+  const busca = req.query.busca || "";
+
+  const sql = `
+    SELECT u.id, u.nome, u.email,
+           CASE WHEN u.ativo = 1 THEN 'Ativo' ELSE 'Inativo' END as status,
+           u.ultimo_login,
+           0 as atrasos,
+           (SELECT COUNT(*) 
+              FROM emprestimo e
+             WHERE e.FK_usuario_id = u.id
+               AND e.data_real_devolucao IS NULL) as qtd_emprestimos
+    FROM usuario u
+    WHERE u.nome LIKE ? OR u.email LIKE ?
+    LIMIT 10
+  `;
+console.log("SQL USUARIOS:", sql);
+  connection.query(sql, [`%${busca}%`, `%${busca}%`], (err, rows) => {
+    if (err) {
+      console.error("Erro ao buscar usuários:", err);
+      return res.status(500).json({ error: "Erro ao buscar usuários" });
+    }
+    res.json(rows);
+  });
+});
+
+
+// ===== Rota: Pesquisar livros =====
+app.get("/livros", autenticarToken, (req, res) => {
+  const busca = req.query.busca || "";
+
+  const sql = `
+    SELECT id, titulo, autor, editora, localizacao, isbn,
+           CASE WHEN disponivel = 1 THEN 'disponivel' ELSE 'emprestado' END as disponibilidade,
+           0 as fila
+    FROM livro
+    WHERE titulo LIKE ? OR autor LIKE ? OR isbn LIKE ?
+    LIMIT 10
+  `;
+
+  connection.query(sql, [`%${busca}%`, `%${busca}%`, `%${busca}%`], (err, rows) => {
+    if (err) {
+      console.error("Erro ao buscar livros:", err);
+      return res.status(500).json({ error: "Erro ao buscar livros" });
+    }
+    res.json(rows);
+  });
+});
+
+// ===== Rota: Criar empréstimo =====
+app.post("/emprestimos", autenticarToken, (req, res) => {
+  const { usuarioId, livros } = req.body;
+  if (!usuarioId || !livros || livros.length === 0) {
+    return res.status(400).json({ error: "Dados inválidos" });
+  }
+
+  const hoje = new Date();
+  const dataEmprestimo = hoje.toISOString().slice(0, 10);
+  const dataDevolucaoPrevista = new Date(hoje);
+  dataDevolucaoPrevista.setDate(hoje.getDate() + 7);
+  const dataPrevista = dataDevolucaoPrevista.toISOString().slice(0, 10);
+
+  // 1. Criar empréstimo com FK_usuario_id
+  const sqlEmp = `
+    INSERT INTO emprestimo (data_emprestimo, data_devolucao_prevista, FK_instituicao_id, FK_usuario_id)
+    VALUES (?, ?, 1, ?)
+  `;
+
+  connection.query(sqlEmp, [dataEmprestimo, dataPrevista, usuarioId], (err, result) => {
+    if (err) {
+      console.error("Erro ao criar empréstimo:", err);
+      return res.status(500).json({ error: "Erro ao criar empréstimo" });
+    }
+
+    const emprestimoId = result.insertId;
+
+    // 2. Relacionar livros
+    const valores = livros.map(livroId => [emprestimoId, livroId]);
+    const sqlLivros = `INSERT INTO emprestimo_livro (FK_emprestimo_id, FK_livro_id) VALUES ?`;
+
+    connection.query(sqlLivros, [valores], (err2) => {
+      if (err2) {
+        console.error("Erro ao vincular livros:", err2);
+        return res.status(500).json({ error: "Erro ao vincular livros" });
+      }
+
+      // 3. Atualizar disponibilidade
+      const sqlUpdate = `UPDATE livro SET disponivel = 0 WHERE id IN (?)`;
+      connection.query(sqlUpdate, [livros], (err3) => {
+        if (err3) console.error("Erro ao atualizar livros:", err3);
+      });
+
+      res.status(201).json({ message: "Empréstimo criado com sucesso", emprestimoId });
+    });
+  });
+});
+
+// ===== Rota: Listar empréstimos =====
+app.get("/emprestimos", autenticarToken, (req, res) => {
+  const sql = `
+    SELECT e.id, e.data_emprestimo, e.data_devolucao_prevista, e.data_real_devolucao,
+           u.nome as usuario, l.titulo as livro
+    FROM emprestimo e
+    JOIN usuario u ON e.FK_usuario_id = u.id
+    JOIN emprestimo_livro el ON e.id = el.FK_emprestimo_id
+    JOIN livro l ON el.FK_livro_id = l.id
+    ORDER BY e.data_emprestimo DESC
+  `;
+
+  connection.query(sql, (err, rows) => {
+    if (err) {
+      console.error("Erro ao listar empréstimos:", err);
+      return res.status(500).json({ error: "Erro ao listar empréstimos" });
+    }
+    res.json(rows);
+  });
+});
+
+// ===== Rota: Devolver livro =====
+app.put("/emprestimos/:id/devolver", autenticarToken, (req, res) => {
+  const { id } = req.params;
+  const hoje = new Date().toISOString().slice(0, 10);
+
+  const sql = `UPDATE emprestimo SET data_real_devolucao = ? WHERE id = ?`;
+  connection.query(sql, [hoje, id], (err) => {
+    if (err) {
+      console.error("Erro ao devolver:", err);
+      return res.status(500).json({ error: "Erro ao devolver" });
+    }
+    res.json({ message: "Livro devolvido com sucesso" });
+  });
+});
+
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = 3000;
