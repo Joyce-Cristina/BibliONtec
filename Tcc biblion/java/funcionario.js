@@ -136,34 +136,39 @@ async function abrirModalEdicao(id) {
   const funcionario = todosOsFuncionarios.find(f => f.id === id);
   if (!funcionario) return;
 
+  // Carrega todas as funções
   await carregarFuncoes();
 
   document.getElementById("id-funcionario").value = funcionario.id;
   document.getElementById("nome-funcionario").value = funcionario.nome;
   document.getElementById("email-funcionario").value = funcionario.email;
   document.getElementById("telefone-funcionario").value = funcionario.telefone || "";
-  document.getElementById("funcao-funcionario").value = funcionario.FK_funcao_id || "";
 
-  // 👇 seta foto atual no preview
+  // Preenche o select de funções
+  const selectFuncao = document.getElementById("funcao-funcionario");
+  if (selectFuncao) {
+    selectFuncao.innerHTML = ""; // limpa opções
+    todasAsFuncoes.forEach(f => {
+      const option = document.createElement("option");
+      option.value = f.id;
+      option.textContent = f.funcao;
+      if (f.id === funcionario.FK_funcao_id) option.selected = true; // marca função atual
+      selectFuncao.appendChild(option);
+    });
+  }
+
+  // Prepara preview da foto
   const preview = document.getElementById("previewBox");
   const fotoAtual = funcionario.foto
     ? `http://localhost:3000/uploads/${funcionario.foto}`
     : `http://localhost:3000/uploads/padrao.jpg`;
   preview.style.backgroundImage = `url('${fotoAtual}')`;
 
+  // Abre modal
   const modal = new bootstrap.Modal(document.getElementById("modal-editar"));
   modal.show();
 }
 
-document.getElementById("foto-funcionario").addEventListener("change", function () {
-  if (this.files && this.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      document.getElementById("previewBox").style.backgroundImage = `url('${e.target.result}')`;
-    };
-    reader.readAsDataURL(this.files[0]);
-  }
-});
 
 // ------------------ SALVAR EDIÇÃO ------------------
 const formEditar = document.getElementById("form-editar");

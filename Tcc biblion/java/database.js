@@ -347,6 +347,7 @@ app.post('/etiquetas/multiple', async (req, res) => {
     }
 
     doc.end();
+
   } catch (err) {
     console.error('Erro ao gerar etiquetas múltiplas:', err);
     return res.status(500).json({ error: 'Erro ao gerar etiquetas' });
@@ -1833,7 +1834,29 @@ console.log("SQL USUARIOS:", sql);
     res.json(rows);
   });
 });
+// ==================== LISTAR USUÁRIOS ====================
+app.get('/usuarios', autenticarToken, (req, res) => {
+  const busca = req.query.busca || "";
+  const sql = `
+    SELECT u.id, u.nome, u.email, t.tipo, u.foto
+    FROM usuario u
+    LEFT JOIN tipo_usuario t ON u.FK_tipo_usuario_id = t.id
+    WHERE u.FK_instituicao_id = ? 
+      AND (u.nome LIKE ? OR u.email LIKE ?)
+  `;
 
+  connection.query(sql, [
+    req.user.FK_instituicao_id,
+    `%${busca}%`,
+    `%${busca}%`
+  ], (err, results) => {
+    if (err) {
+      console.error("Erro ao buscar usuários:", err);
+      return res.status(500).json({ error: "Erro ao buscar usuários" });
+    }
+    res.json(results);
+  });
+});
 
 // ===== Rota: Pesquisar livros =====
 app.get("/livros", autenticarToken, (req, res) => {
