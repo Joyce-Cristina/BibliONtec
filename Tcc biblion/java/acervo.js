@@ -27,10 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('cardsContainer');
   if (container) {
     container.addEventListener('click', e => {
-      if (e.target.classList.contains('btn-imprimir')) {
-        const id = Number(e.target.dataset.id);
-        imprimirEtiqueta(id);
-      }
       if (e.target.classList.contains('btn-danger')) {
         const id = Number(e.target.dataset.id);
         excluirLivro(id);
@@ -52,10 +48,11 @@ function getToken() {
 async function carregarLivros() {
   try {
     const token = getToken();
-    const resposta = await fetch('http://localhost:3000/livros', {
-      headers: { "Authorization": `Bearer ${token}` }
-    });
+    const response = await fetch("http://localhost:3000/acervo/livros", {
+  headers: { "Authorization": `Bearer ${token}` }
+});
 
+   
     const data = await resposta.json();
 
     if (!resposta.ok) {
@@ -84,28 +81,36 @@ function exibirLivros(livros) {
       row.className = 'row mb-4';
       container.appendChild(row);
     }
+// dentro do forEach (substituir innerHTML atual)
+const disponivel = livro.disponibilidade === "disponivel";
+livros.forEach(livro => {
+  const col = document.createElement("div");   // 👈 cria a div col
+  col.className = "col";
 
-    const col = document.createElement('div');
-    col.className = 'col-md-4 d-flex align-items-stretch';
-    col.innerHTML = `
-      <div class="card h-100" style="background-color: #d6c9b4;">
-        <img src="http://localhost:3000/uploads/${livro.capa}" class="card-img-top" alt="${livro.titulo}" style="height: 300px; object-fit: cover;">
-        <div class="card-body text-center">
-          <h5 class="card-title fw-bold">${livro.titulo}</h5>
-          <h6 class="card-subtitle">${livro.sinopse || ''}</h6>
-        </div>
-        <div class="card-footer text-center">
-          <button class="btn btn-danger me-2" data-id="${livro.id}">Excluir</button>
-          <button class="btn btn-dark" data-id="${livro.id}">Editar</button>
-          <button class="btn btn-secondary btn-imprimir" data-id="${livro.id}">Imprimir etiqueta</button>
-          <div class="mt-2">
-            <span class="badge bg-danger">Indisponível</span>
-          </div>
+  const disponivel = livro.disponibilidade === "disponivel";
+
+  col.innerHTML = `
+    <div class="card h-100" style="background-color: #d6c9b4;">
+      <img src="http://localhost:3000/uploads/${livro.capa || ''}" class="card-img-top" alt="${livro.titulo || ''}" style="height: 300px; object-fit: cover;">
+      <div class="card-body text-center">
+        <h5 class="card-title fw-bold">${livro.titulo || ''}</h5>
+        <h6 class="card-subtitle">${livro.sinopse || ''}</h6>
+      </div>
+      <div class="card-footer text-center">
+        <button class="btn btn-danger me-2" data-id="${livro.id}">Excluir</button>
+        <button class="btn btn-dark" data-id="${livro.id}">Editar</button>
+        <div class="mt-2">
+          <span class="badge ${disponivel ? 'bg-success' : 'bg-danger'}">
+            ${disponivel ? 'Disponível' : 'Indisponível'}
+          </span>
         </div>
       </div>
-    `;
-    row.appendChild(col);
-  });
+    </div>
+  `;
+
+  container.appendChild(col);  // 👈 adiciona na tela
+});
+});
 }
 
 // Carregar gêneros
@@ -229,148 +234,4 @@ for (const campoId in campos) {
     const modal = new bootstrap.Modal(modalEl);
     modal.show();
   }
-}
-
-function imprimirEtiqueta(id) {
-  const livro = todosOsLivros.find(l => l.id === id);
-  if (!livro) return;
-
-  // Função para buscar CDD do seu backend
-  async function buscarCDD(isbn) {
-    try {
-      // Fazer requisição para sua própria API
-      const response = await fetch(`/api/buscar-cdd/${isbn}`);
-      
-      if (!response.ok) {
-        throw new Error(`Erro HTTP: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return data.cdd || "000"; // Assume que a resposta é { cdd: "123" }
-      
-    } catch (error) {
-      console.error("Erro ao buscar CDD:", error);
-      return "000"; // Fallback em caso de erro
-    }
-  }
-
-  // Função para gerar o conteúdo da etiqueta
-  async function gerarConteudoEtiqueta() {
-    // Obter CDD da sua API
-    const cdd = await buscarCDD(livro.isbn || "0000000000000");
-    
-    // Três primeiras letras do título (em maiúsculas)
-    const iniciaisTitulo = livro.titulo.substring(0, 3).toUpperCase();
-    
-    // Primeira letra do gênero (em maiúscula)
-    const genero = livro.genero || livro.FK_genero_id || "";
-    const primeiraLetraGenero = genero ? genero.substring(0, 1).toUpperCase() : "G";
-    
-    // Nome da instituição
-    const instituicao = localStorage.getItem('instituicao_nome') || 'BibliOnTec';
-    
-    // ID formatado para código de barras
-    const idFormatado = livro.id.toString().padStart(6, '0');
-    
-    return `
-      <html>
-      <head>
-        <title>Etiqueta do Livro</title>
-        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 10px;
-            background-color: white;
-          }
-          .etiqueta {
-            border: 1px solid #000;
-            padding: 10px;
-            width: 300px;
-            height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-          }
-          .cabecalho {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-          }
-          .cdd {
-            font-weight: bold;
-            font-size: 16px;
-            border: 1px solid #000;
-            padding: 2px 5px;
-          }
-          .iniciais {
-            font-weight: bold;
-            font-size: 14px;
-          }
-          .genero {
-            font-weight: bold;
-            font-size: 14px;
-            border: 1px solid #000;
-            padding: 2px 5px;
-            display: inline-block;
-          }
-          .titulo {
-            font-weight: bold;
-            font-size: 14px;
-            margin: 5px 0;
-            max-height: 40px;
-            overflow: hidden;
-          }
-          .codigo-barras {
-            margin: 5px 0;
-            height: 40px;
-          }
-          .instituicao {
-            font-size: 10px;
-            margin-top: 5px;
-          }
-          .id {
-            font-size: 10px;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="etiqueta">
-          <div class="cabecalho">
-            <div class="cdd">${cdd}</div>
-            <div class="iniciais">${iniciaisTitulo}</div>
-            <div class="genero">${primeiraLetraGenero}</div>
-          </div>
-          <div class="titulo">${livro.titulo}</div>
-          <div class="codigo-barras">
-            <svg id="barcode-${id}"></svg>
-          </div>
-          <div class="instituicao">${instituicao}</div>
-          <div class="id">ID: ${idFormatado}</div>
-        </div>
-        <script>
-          // Gerar código de barras
-          JsBarcode("#barcode-${id}", "${idFormatado}", {
-            format: "CODE128",
-            width: 1.5,
-            height: 30,
-            displayValue: false,
-            margin: 0
-          });
-          window.print();
-        </script>
-      </body>
-      </html>
-    `;
-  }
-
-  // Abrir janela e escrever o conteúdo
-  const janela = window.open('', '_blank', 'width=400,height=300');
-  
-  gerarConteudoEtiqueta().then(conteudo => {
-    janela.document.write(conteudo);
-    janela.document.close();
-  });
 }
