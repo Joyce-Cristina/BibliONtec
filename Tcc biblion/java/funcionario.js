@@ -66,39 +66,32 @@ function exibirFuncionariosCards(funcionarios) {
   const container = document.getElementById("lista-funcionarios");
   if (!container) return;
 
-  container.innerHTML = "";
-  let row;
+  container.innerHTML = ""; // limpa o container
 
-  funcionarios.forEach((f, index) => {
-    if (index % 3 === 0) {
-      row = document.createElement("div");
-      row.className = "row mb-4";
-      container.appendChild(row);
-    }
-
+  funcionarios.forEach(f => {
     const foto = f.foto
       ? `http://localhost:3000/uploads/${f.foto}`
       : `http://localhost:3000/uploads/padrao.jpg`;
 
-    const col = document.createElement("div");
-    col.className = "col-md-4 d-flex align-items-stretch";
+    const card = document.createElement("div");
+    card.className = "card"; // usa a mesma classe de usuário para uniformidade
+    card.style.maxWidth = "300px"; // opcional: garante tamanho máximo
 
-    col.innerHTML = `
-      <div class="card h-100" style="background-color: #d6c9b4;">
-        <img src="${foto}" class="card-img-top" alt="${f.nome}" style="height: 300px; object-fit: cover;">
-        <div class="card-body text-center">
-          <h5 class="card-title fw-bold">${f.nome}</h5>
-          <p><strong>Função:</strong> ${f.funcao || "Não definida"}</p>
-          <p><strong>Email:</strong> ${f.email}</p>
-          <p><strong>Telefone:</strong> ${f.telefone || "—"}</p>
-        </div>
-        <div class="card-footer text-center">
-          <button class="btn btn-danger me-2" onclick="excluirFuncionario(${f.id})">Excluir</button>
-          <button class="btn btn-dark" onclick="abrirModalEdicao(${f.id})">Editar</button>
-        </div>
+    card.innerHTML = `
+      <img src="${foto}" class="card-img-top" alt="${f.nome}" style="height: 180px; object-fit: cover;">
+      <div class="card-body text-center">
+        <h5 class="card-title fw-bold">${f.nome}</h5>
+        <p><strong>Função:</strong> ${f.funcao || "Não definida"}</p>
+        <p><strong>Email:</strong> ${f.email}</p>
+        <p><strong>Telefone:</strong> ${f.telefone || "—"}</p>
+      </div>
+      <div class="card-footer text-center">
+        <button class="btn btn-danger me-2" onclick="excluirFuncionario(${f.id})">Excluir</button>
+        <button class="btn btn-dark" onclick="abrirModalEdicao(${f.id})">Editar</button>
       </div>
     `;
-    row.appendChild(col);
+
+    container.appendChild(card);
   });
 }
 

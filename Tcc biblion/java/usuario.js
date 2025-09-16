@@ -23,41 +23,33 @@ async function carregarUsuarios() {
     console.error("Erro ao carregar usuários:", err);
   }
 }
-
 function exibirUsuarios(usuarios) {
   const container = document.getElementById('lista-usuarios');
   container.innerHTML = '';
 
-  let row;
-  usuarios.forEach((u, index) => {
-    if (index % 3 === 0) {
-      row = document.createElement('div');
-      row.className = 'row mb-4';
-      container.appendChild(row);
-    }
-
+  usuarios.forEach(u => {
     const foto = u.foto 
       ? `http://localhost:3000/uploads/${u.foto}`
       : `http://localhost:3000/uploads/padrao.jpg`;
 
-    const col = document.createElement('div');
-    col.className = 'col-md-4 d-flex align-items-stretch';
-    col.innerHTML = `
-      <div class="card h-100" style="background-color: #d6c9b4;">
-        <img src="${foto}" class="card-img-top" alt="${u.nome}" style="height: 300px; object-fit: cover;">
-        <div class="card-body text-center">
-          <h5 class="card-title fw-bold">${u.nome}</h5>
-          <p><strong>Tipo:</strong> ${u.tipo || 'Não definido'}</p>
-          <p><strong>Email:</strong> ${u.email}</p>
-          <p><strong>Telefone:</strong> ${u.telefone || '—'}</p>
-        </div>
-        <div class="card-footer text-center">
-          <button class="btn btn-danger me-2" onclick="excluirUsuario(${u.id})">Excluir</button>
-          <button class="btn btn-dark" onclick="abrirModalEdicao(${u.id})">Editar</button>
-        </div>
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <img src="${foto}" class="card-img-top" alt="${u.nome}" style="height:180px; object-fit:cover;">
+      <div class="card-body text-center">
+        <h5 class="card-title fw-bold">${u.nome}</h5>
+        <p><strong>Tipo:</strong> ${u.tipo || 'Não definido'}</p>
+        <p><strong>Email:</strong> ${u.email}</p>
+        <p><strong>Telefone:</strong> ${u.telefone || '—'}</p>
+      </div>
+      <div class="card-footer text-center">
+        <button class="btn btn-danger me-2" onclick="excluirUsuario(${u.id})">Excluir</button>
+        <button class="btn btn-dark" onclick="abrirModalEdicao(${u.id})">Editar</button>
       </div>
     `;
-    row.appendChild(col);
+
+    container.appendChild(card);
   });
 }
 

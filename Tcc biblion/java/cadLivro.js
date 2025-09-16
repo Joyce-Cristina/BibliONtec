@@ -1,21 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const loadingIsbn = document.getElementById('loadingIsbn');
-
-  function mostrarLoading() {
-    if (loadingIsbn) loadingIsbn.style.display = 'inline-block';
-  }
-  function esconderLoading() {
-    if (loadingIsbn) loadingIsbn.style.display = 'none';
-  }
-
   const token = localStorage.getItem('token');
+  const usuarioId = localStorage.getItem('usuarioId'); // Id do funcionário logado
+
   if (!token) {
     alert('Você precisa estar logado para cadastrar livros.');
     return;
   }
 
-  const generosExistentes = await carregarGeneros();
-
+  // Inputs principais
   const form = document.getElementById('formLivro');
   const inputGeneroTexto = document.getElementById('generoTexto');
   const inputGeneroId = document.getElementById('FK_genero_id');
@@ -23,14 +16,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   const autorInput = document.getElementById('autorTexto');
   const editoraInput = document.getElementById('editoraTexto');
 
-  // Associa input de gênero ao ID
+  let autoresExistentes = [];
+  let editorasExistentes = [];
+  let generosExistentes = await carregarGeneros();
+
+  function mostrarLoading() { if (loadingIsbn) loadingIsbn.style.display = 'inline-block'; }
+  function esconderLoading() { if (loadingIsbn) loadingIsbn.style.display = 'none'; }
+
+  // Associar input de gênero ao ID
   inputGeneroTexto.addEventListener('input', () => {
     const texto = inputGeneroTexto.value.trim().toLowerCase();
     const encontrado = generosExistentes.find(g => g.genero.toLowerCase() === texto);
     if (inputGeneroId) inputGeneroId.value = encontrado ? encontrado.id : '';
   });
 
-  // Autocompletar dados do livro via ISBN
+  // Autocomplete autor
+  autorInput.addEventListener('input', () => {
+    const texto = autorInput.value.trim().toLowerCase();
+    const encontrado = autoresExistentes.find(a => a.nome.toLowerCase() === texto);
+    const inputAutorId = document.getElementById('FK_autor_id');
+    if (inputAutorId) inputAutorId.value = encontrado ? encontrado.id : '';
+  });
+
+  // Autocomplete editora
+  editoraInput.addEventListener('input', () => {
+    const texto = editoraInput.value.trim().toLowerCase();
+    const encontrado = editorasExistentes.find(e => e.editora.toLowerCase() === texto);
+    const inputEditoraId = document.getElementById('FK_editora_id');
+    if (inputEditoraId) inputEditoraId.value = encontrado ? encontrado.id : '';
+  });
+
+  // Preenchimento via ISBN
   isbnInput.addEventListener('blur', async () => {
     const isbn = isbnInput.value.trim();
     if (!isbn) return;
@@ -50,26 +66,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             const resp = await fetch(url);
             const traduzido = await resp.json();
             return traduzido[0][0][0];
-          } catch {
-            return texto;
-          }
+          } catch { return texto; }
         };
 
-        const tituloPT = await traduzir(livro.title);
-        const subtituloPT = await traduzir(livro.subtitle);
+        // Preenche campos
+        const tituloInput = document.querySelector('input[name="titulo"]');
+        if (tituloInput) tituloInput.value = await traduzir(livro.title);
+
+        const subtituloInput = document.querySelector('input[name="subtitulo"]');
+        if (subtituloInput) subtituloInput.value = await traduzir(livro.subtitle);
+
         const descricaoPT = await traduzir(livro.description);
         const editoraPT = await traduzir(livro.publisher);
         const generoPT = await traduzir(livro.categories?.join(', ') || '');
 
-        // Preenche campos do formulário
-        const tituloInput = document.querySelector('input[name="titulo"]');
-        if (tituloInput) tituloInput.value = tituloPT;
-
-        const subtituloInput = document.querySelector('input[name="subtitulo"]');
-        if (subtituloInput) subtituloInput.value = subtituloPT;
-
         if (autorInput) autorInput.value = livro.authors?.join(', ') || '';
         if (editoraInput) editoraInput.value = editoraPT;
+        if (inputGeneroTexto) inputGeneroTexto.value = generoPT;
 
         const dataInput = document.querySelector('input[name="data_publicacao"]');
         if (dataInput) dataInput.value = ajustarData(livro.publishedDate);
@@ -86,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const edicaoInput = document.querySelector('input[name="edicao"]');
         if (edicaoInput) edicaoInput.value = '1ª';
 
-        if (inputGeneroTexto) inputGeneroTexto.value = generoPT;
+        // Buscar ID do gênero se existir
         const generoEncontrado = generosExistentes.find(g => g.genero.toLowerCase() === generoPT.toLowerCase());
         if (inputGeneroId) inputGeneroId.value = generoEncontrado ? generoEncontrado.id : '';
 
@@ -113,17 +126,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       try {
         const resp = await fetch('http://localhost:3000/generos', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ genero: textoGenero })
         });
 
         if (!resp.ok) throw new Error('Erro ao salvar novo gênero');
 
-        const novosGeneros = await carregarGeneros();
-        const novo = novosGeneros.find(g => g.genero.toLowerCase() === textoGenero.toLowerCase());
+        generosExistentes = await carregarGeneros();
+        const novo = generosExistentes.find(g => g.genero.toLowerCase() === textoGenero.toLowerCase());
         inputGeneroId.value = novo?.id || '';
       } catch (err) {
         alert('Erro ao salvar gênero: ' + err.message);
@@ -131,14 +141,56 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
+    // Se autor não existe, cadastra
+    let autorId = document.getElementById('FK_autor_id').value;
+    if (!autorId && autorInput.value.trim() !== '') {
+      try {
+        const resp = await fetch('http://localhost:3000/autores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ nome: autorInput.value.trim() })
+        });
+        if (!resp.ok) throw new Error('Erro ao salvar autor');
+        autoresExistentes = await carregarAutores();
+        const novo = autoresExistentes.find(a => a.nome.toLowerCase() === autorInput.value.trim().toLowerCase());
+        autorId = novo?.id;
+      } catch (err) {
+        alert('Erro ao salvar autor: ' + err.message);
+        return;
+      }
+    }
+
+    // Se editora não existe, cadastra
+    let editoraId = document.getElementById('FK_editora_id').value;
+    if (!editoraId && editoraInput.value.trim() !== '') {
+      try {
+        const resp = await fetch('http://localhost:3000/editoras', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ nome: editoraInput.value.trim() })
+        });
+        if (!resp.ok) throw new Error('Erro ao salvar editora');
+        editorasExistentes = await carregarEditoras();
+        const novo = editorasExistentes.find(e => e.editora.toLowerCase() === editoraInput.value.trim().toLowerCase());
+        editoraId = novo?.id;
+      } catch (err) {
+        alert('Erro ao salvar editora: ' + err.message);
+        return;
+      }
+    }
+
     // Envia formulário do livro
     const formData = new FormData(form);
+    // adiciona manualmente os IDs
+    formData.set('FK_genero_id', idGenero);
+    formData.set('FK_autor_id', autorId);
+    formData.set('FK_editora_id', editoraId);
+    formData.set('FK_funcionario_id', usuarioId);
+
     try {
       const resposta = await fetch('http://localhost:3000/cadastrarLivro', {
         method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + token
-        },
+        headers: { 'Authorization': 'Bearer ' + token },
         body: formData
       });
 
@@ -147,7 +199,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (resposta.ok) {
         alert('Livro cadastrado com sucesso!');
         form.reset();
-        if (inputGeneroId) inputGeneroId.value = '';
+        inputGeneroId.value = '';
+        document.getElementById('FK_autor_id').value = '';
+        document.getElementById('FK_editora_id').value = '';
       } else {
         alert('Erro ao cadastrar livro: ' + resultado.error);
       }
@@ -156,6 +210,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert('Erro na conexão com o servidor.');
     }
   });
+
+  // Carrega autores e editoras
+  autoresExistentes = await carregarAutores();
+  editorasExistentes = await carregarEditoras();
 });
 
 // Ajusta data para yyyy-mm-dd
@@ -167,12 +225,11 @@ function ajustarData(data) {
   return '';
 }
 
-// Carrega gêneros com ID e nome
+// Carregar gêneros
 async function carregarGeneros() {
   try {
     const response = await fetch('http://localhost:3000/generos');
     const generos = await response.json();
-
     generos.sort((a, b) => a.genero.localeCompare(b.genero, 'pt', { sensitivity: 'base' }));
 
     const datalist = document.getElementById('listaGeneros');
@@ -190,49 +247,52 @@ async function carregarGeneros() {
   }
 }
 async function carregarAutores() {
+  const token = localStorage.getItem('token');
   try {
-    const token = localStorage.getItem('token');
-    const resp = await fetch('http://localhost:3000/autores', {
+    const response = await fetch('http://localhost:3000/autores', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
-    const autores = await resp.json();
-    
-    const datalistAutores = document.getElementById('listaAutores');
-    datalistAutores.innerHTML = '';
-    
+    if (!response.ok) throw new Error('Não autorizado');
+    const autores = await response.json();
+
+    // Preencher datalist
+    const datalist = document.getElementById('listaAutores');
+    datalist.innerHTML = ''; // limpa antes
     autores.forEach(a => {
       const option = document.createElement('option');
-      option.value = a.nome;  // mostra o nome no input
-      datalistAutores.appendChild(option);
+      option.value = a.nome;
+      datalist.appendChild(option);
     });
+
+    return autores;
   } catch (err) {
     console.error('Erro ao carregar autores:', err);
+    return [];
   }
 }
 
 async function carregarEditoras() {
+  const token = localStorage.getItem('token');
   try {
-    const token = localStorage.getItem('token');
-    const resp = await fetch('http://localhost:3000/editoras', {
+    const response = await fetch('http://localhost:3000/editoras', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
-    const editoras = await resp.json();
-    
-    const datalistEditoras = document.getElementById('listaEditoras');
-    datalistEditoras.innerHTML = '';
-    
+    if (!response.ok) throw new Error('Não autorizado');
+    const editoras = await response.json();
+
+    // Preencher datalist
+    const datalist = document.getElementById('listaEditoras');
+    datalist.innerHTML = ''; // limpa antes
     editoras.forEach(e => {
       const option = document.createElement('option');
-      option.value = e.nome;  // mostra o nome no input
-      datalistEditoras.appendChild(option);
+      option.value = e.editora; // <-- problema aqui: no seu BDD o campo é 'editora'
+      datalist.appendChild(option);
     });
+
+    return editoras;
   } catch (err) {
-    console.error('Erro ao carregar editoras:', err);
+    console.error('Erro ao carregar editoras:', response); // <-- AQUI ESTAVA ERRADO!
+    return [];
   }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  carregarAutores();
-  carregarEditoras();
-});
 

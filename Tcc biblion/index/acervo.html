@@ -102,9 +102,12 @@
     .main-container {
       flex: 1;
       padding-left: 270px;
-      padding-top: 30px;
+      /* espaço para sidebar no desktop */
+      padding-top: 76px;
+      /* ajustado para navbar */
       padding-right: 30px;
     }
+
 
     .filtro-dropdown {
       background-color: #d9d9d9 !important;
@@ -222,180 +225,166 @@
       border: none;
       border-top: 1px solid #ccc;
     }
+
     /* altura típica da navbar do Bootstrap ~56–60px */
-.main-container,
-.main-container-custom{
-  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
-}
+    .main-container,
+    .main-container-custom {
+      padding-top: 76px !important;
+      /* evita que o conteúdo fique escondido sob a navbar */
+    }
 
-/* Estilo para o botão "Novo bibliotecário" */
-.btn-new-user {
-            background-color: #7a1600;
-            /* Cor de fundo do botão */
-            color: white;
-            /* Cor do texto */
-            border-radius: 50px;
-            padding: 10px 20px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
-            margin-left: 10px;
-            max-height: 45px;
-            margin-top: 13px;
-            margin-right: 10px;
-        }
+    /* Estilo para o botão "Novo bibliotecário" */
+    .btn-new-user {
+      background-color: #7a1600;
+      /* Cor de fundo do botão */
+      color: white;
+      /* Cor do texto */
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease;
+      margin-left: 10px;
+      max-height: 45px;
+      margin-top: 13px;
+      margin-right: 10px;
+    }
 
-        .btn-new-user:hover {
-            background-color: #5c0e00;
-            color: rgb(146, 146, 146);
-            /* Cor de fundo ao passar o mouse */
-        }
+    .btn-new-user:hover {
+      background-color: #5c0e00;
+      color: rgb(146, 146, 146);
+      /* Cor de fundo ao passar o mouse */
+    }
 
-        .btn-new-user i {
-            font-size: 1.4rem;
-            /* Tamanho do ícone */
-        }
+    .btn-new-user i {
+      font-size: 1.4rem;
+      /* Tamanho do ícone */
+    }
 
-/* Select status */
-.status-select {
-  font-weight: bold;
-  color: #000;
-  background-color: #fff;
-  border: 1px solid #ccb182;
-  border-radius: 25px;
-  padding: 10px 20px;
-  min-width: 180px;
-}
+    /* Select status */
+    .status-select {
+      font-weight: bold;
+      color: #000;
+      background-color: #fff;
+      border: 1px solid #ccb182;
+      border-radius: 25px;
+      padding: 10px 20px;
+      min-width: 180px;
+    }
 
-/* Responsivo */
-@media (max-width: 768px) {
-  .main-container {
-    flex-direction: column;
-    align-items: center;
-  }
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+        align-items: center;
+      }
 
-  .side-controls {
-    flex-direction: row;
-    justify-content: center;
-    width: 100%;
-    gap: 10px;
-  }
+      .side-controls {
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+        gap: 10px;
+      }
 
-  .status-select {
-    min-width: 120px;
-  }
-}
-/* Barra de pesquisa */
-.search-input {
-            border-radius: 25px;
-            padding-left: 20px;
-            font-size: 16px;
-            flex: 1;
-        }
+      .status-select {
+        min-width: 120px;
+      }
+    }
 
-        /* Estilo do botão de pesquisa */
-        .search-btn {
-            background-color: #fff;
-            border: 1px solid #d2b28c;
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-size: 18px;
-                }
-                
-  .main-container {
-  padding-left: 270px; /* espaço para sidebar no desktop */
-}
+    /* Barra de pesquisa */
+    .search-input {
+      border-radius: 25px;
+      padding-left: 20px;
+      font-size: 16px;
+      flex: 1;
+    }
 
-@media (max-width: 992px) {
-  body.acervo-page .main-container {
-    padding-left: 0 !important; /* remove espaço quando sidebar está oculta */
-  }
-}
+    /* Estilo do botão de pesquisa */
+    .search-btn {
+      background-color: #fff;
+      border: 1px solid #d2b28c;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-size: 18px;
+    }
 
-#cardsContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  justify-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-/* Responsividade da Sidebar */
-@media (max-width: 768px) {
-            .sidebar {
-                position: absolute;
-                top: 0;
-                left: -220px;
-                width: 220px;
-                height: 100%;
-                transition: left 0.3s ease;
-            }
+    .main-container {
+      padding-left: 270px;
+      /* espaço para sidebar no desktop */
+    }
 
-            .sidebar.show {
-                left: 0;
-            }
+    @media (max-width: 992px) {
+      body.acervo-page .main-container {
+        padding-left: 0 !important;
+        /* remove espaço quando sidebar está oculta */
+      }
+    }
 
-            .main-container-custom {
-                padding-left: 0;
-                margin-top: 10px;
-                /* Ajusta para não ficar muito colado ao topo */
-            }
+    #cardsContainer {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      /* sempre 3 por fileira */
+      gap: 20px;
+      justify-items: center;
+      max-width: 1200px;
+      margin: 30px auto 0;
+    }
 
-            /* Botões na navbar para dispositivos móveis */
-            .navbar-toggler {
-                display: block;
-            }
+    /* Responsividade */
+    @media (max-width: 992px) {
+      #cardsContainer {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
 
-            .navbar-collapse {
-                width: 100%;
-                display: none;
-            }
+    @media (max-width: 576px) {
+      #cardsContainer {
+        grid-template-columns: 1fr;
+      }
+    }
 
-            .navbar-collapse.show {
-                display: flex;
-            }
+    /* Estilo dos cards */
+    #cardsContainer .card {
+      width: 100%;
+      max-width: 320px;
+      /* 🔥 mais largura */
+      min-height: 320px;
+      /* 🔥 menos altura */
+      max-height: 360px;
+      background-color: #d6c9b4;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+    }
 
-            /* Ajuste das abas em dispositivos menores */
-            .tab-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
+    #cardsContainer .card-img-top {
+      height: 160px;
+      /* 🔥 antes era 200px, agora menor */
+      object-fit: cover;
+      border-radius: 10px 10px 0 0;
+    }
 
-        /* ===== Sidebar responsiva + backdrop (clica fora e fecha) ===== */
-@media (max-width: 1200px) {
-  .sidebar {
-    position: fixed;
-    top: 56px;                 /* logo abaixo da navbar */
-    left: -240px;              /* escondida por padrão em telas menores */
-    width: 220px;
-    height: calc(100vh - 56px);
-    background-color: #7a1505; /* mantém sua cor */
-    transition: left .3s ease;
-    z-index: 1040;             /* abaixo da navbar, acima do conteúdo */
-  }
-  .sidebar.show { left: 0; }
+    #cardsContainer .card-body {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      overflow: hidden;
+    }
 
-  .main-container-custom {
-    padding-left: 0 !important; /* conteúdo ocupa a largura toda */
-  }
+    #cardsContainer .card-body p {
+      font-size: 14px;
+      margin: 3px 0;
+    }
 
-  /* Backdrop para capturar clique fora */
-  .sidebar-backdrop {
-    display: none;
-    position: fixed;
-    top: 56px;                 /* alinha com a navbar */
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 56px);
-    background: rgba(0,0,0,.35);
-    z-index: 1039;             /* abaixo da sidebar, acima do conteúdo */
-  }
-  .sidebar-backdrop.active { display: block; }
-}
+    #cardsContainer .card-body .text-truncate {
+      max-height: 30px;
+      /* 🔥 limita mais a sinopse */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 
@@ -422,15 +411,19 @@
           </ul>
           <ul class="navbar-nav mb-2 mb-lg-0 me-3">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false" style="color: white;">
                 Atualizações
               </a>
               <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="#">Foi adicionado um <br>elemento novo <br> no sistema</a></li>
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
                 <li><a class="dropdown-item" href="#">Foi excluído um <br> elemento antigo <br> no sistema</a></li>
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
                 <li><a class="dropdown-item" href="#">Foi alterado um <br> elemento no sistema</a></li>
               </ul>
             </li>
@@ -440,7 +433,7 @@
     </div>
   </nav>
 
-  
+
 
   <div class="sidebar">
     <div class="dropdown" data-permissao="cadastro">
@@ -460,232 +453,237 @@
     <a class="btn w-100" href="./funcionarios.html" data-permissao="funcionarios">Funcionários</a>
   </div>
 
-<!-- Conteúdo principal -->
-<div class="main-container">
+  <!-- Conteúdo principal -->
+  <div class="main-container">
 
-  <!-- Container que une o card e o botão lado a lado -->
-  <div class="d-flex justify-content-center align-items-start gap-3 mb-4">
+    <!-- Container que une o card e o botão lado a lado -->
+    <div class="d-flex justify-content-center align-items-start gap-3 mb-4">
 
-    <!-- Card Cabeçalho Centralizado -->
-    <div class="p-4 shadow text-center flex-grow-1"
-      style="background-color: #c7aa74; border-radius: 15px; max-width: 800px;">
-      <h2 style="font-family: Georgia, serif; font-weight: 500;">Seus livros</h2>
-      <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
-      <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
-        <input type="text" id="buscaLivro" class="form-control" placeholder="Buscar livro..."
-          style="max-width: 300px; border-radius: 10px;">
-        <i class="bi bi-search" style="font-size: 1.2rem;"></i>
+      <!-- Card Cabeçalho Centralizado -->
+      <div class="p-4 shadow text-center flex-grow-1"
+        style="background-color: #c7aa74; border-radius: 15px; max-width: 800px;">
+        <h2 style="font-family: Georgia, serif; font-weight: 500;">Seus livros</h2>
+        <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
+        <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
+          <input type="text" id="buscaLivro" class="form-control" placeholder="Buscar livro..."
+            style="max-width: 300px; border-radius: 10px;">
+          <i class="bi bi-search" style="font-size: 1.2rem;"></i>
+        </div>
+      </div>
+
+      <!-- Botão Novo bibliotecário -->
+      <div>
+        <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
+          <i class="bi bi-arrow-bar-down"></i> Importar Excel
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <!-- Filtros -->
+  <div class="container my-4">
+    <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+      <!-- Filtro: Autor -->
+      <div class="dropdown">
+        <button class="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown"
+          style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
+          Autor
+        </button>
+        <ul class="dropdown-menu filtro-dropdown">
+          <li><a class="dropdown-item item-com-linha" href="#">Machado Assis</a></li>
+          <li><a class="dropdown-item item-com-linha" href="#">Junji Ito</a></li>
+          <li><a class="dropdown-item" href="#">José</a></li>
+        </ul>
+      </div>
+
+      <!-- Filtro: Editora -->
+      <div class="dropdown">
+        <button class="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown"
+          style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
+          Editora
+        </button>
+        <ul class="dropdown-menu filtro-dropdown">
+          <li><a class="dropdown-item item-com-linha" href="#">Panini</a></li>
+          <li><a class="dropdown-item item-com-linha" href="#">New Pop</a></li>
+          <li><a class="dropdown-item" href="#">Intrinsica</a></li>
+        </ul>
+      </div>
+
+      <!-- Filtro: Gênero -->
+      <div class="dropdown">
+        <button class="btn dropdown-toggle text-white" type="button" id="btnGenero" data-bs-toggle="dropdown"
+          style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
+          Gênero
+        </button>
+        <ul id="listaGeneros" class="dropdown-menu filtro-dropdown">
+        </ul>
+      </div>
+
+
+
+      <!-- Cards dos Livros -->
+      <section class="page-section text-white mb-0" id="wishlist">
+        <div class="container my-5">
+          <div id="cardsContainer" class="row justify-content-center g-4">
+
+
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+    <!-- Modal Editar Livro -->
+    <div id="modal-editar-livro" class="modal fade" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">Editar Livro</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="form-editar-livro">
+              <input type="hidden" id="id-livro">
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Título</label>
+                  <input type="text" id="titulo-livro" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>ISBN</label>
+                  <input type="text" id="isbn-livro" class="form-control">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label>Autores</label>
+                <select id="autores-livro" class="form-select">
+                  <!-- opções serão carregadas via JS -->
+                </select>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label>Editora</label>
+                  <select id="editora-livro" class="form-select">
+                    <!-- opções serão carregadas via JS -->
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label>Gênero</label>
+                  <!-- 🔥 Alterado de input para select -->
+                  <select id="genero-livro" class="form-select">
+                    <!-- opções vão ser carregadas pelo JS -->
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label>Funcionário que cadastrou</label>
+                <input type="text" id="funcionario-livro" class="form-control" readonly>
+              </div>
+
+              <div class="mb-3">
+                <label>Sinopse</label>
+                <textarea id="sinopse-livro" class="form-control" rows="3"></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label>Número de páginas</label>
+                <input type="number" id="paginas-livro" class="form-control">
+              </div>
+
+              <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </form>
+          </div>
+
+        </div>
       </div>
     </div>
 
-    <!-- Botão Novo bibliotecário -->
-    <div>
-      <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
-        <i class="bi bi-arrow-bar-down"></i> Importar Excel
+
+    <!-- Botão de acessibilidade -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
+      <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
+        <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
       </button>
     </div>
-  </div>
-</div>
 
-
-
-    
-
-    <!-- Filtros -->
-    <div class="container my-4">
-      <div class="d-flex justify-content-center gap-3 flex-wrap">
-
-        <!-- Filtro: Autor -->
-        <div class="dropdown">
-          <button class="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown"
-            style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
-            Autor
-          </button>
-          <ul class="dropdown-menu filtro-dropdown">
-            <li><a class="dropdown-item item-com-linha" href="#">Machado Assis</a></li>
-            <li><a class="dropdown-item item-com-linha" href="#">Junji Ito</a></li>
-            <li><a class="dropdown-item" href="#">José</a></li>
-          </ul>
-        </div>
-
-        <!-- Filtro: Editora -->
-        <div class="dropdown">
-          <button class="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown"
-            style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
-            Editora
-          </button>
-          <ul class="dropdown-menu filtro-dropdown">
-            <li><a class="dropdown-item item-com-linha" href="#">Panini</a></li>
-            <li><a class="dropdown-item item-com-linha" href="#">New Pop</a></li>
-            <li><a class="dropdown-item" href="#">Intrinsica</a></li>
-          </ul>
-        </div>
-
-        <!-- Filtro: Gênero -->
-        <div class="dropdown">
-          <button class="btn dropdown-toggle text-white" type="button" id="btnGenero" data-bs-toggle="dropdown"
-            style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
-            Gênero
-          </button>
-          <ul id="listaGeneros" class="dropdown-menu filtro-dropdown">
-          </ul>
-        </div>
-
-
-     
-    <!-- Cards dos Livros -->
-    <section class="page-section text-white mb-0" id="wishlist">
-      <div class="container my-5">
-        <div id="cardsContainer" class="row justify-content-center g-4">
-
-
-
-        </div>
+    <!-- Avatar com menu fixado no canto inferior esquerdo -->
+    <div class="avatar-container">
+      <img src="http://localhost:3000/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar"
+        alt="Avatar do Usuário" />
+      <div id="menuPerfil" class="menu-perfil">
+        <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
+        <hr class="menu-divider">
+        <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+        <hr class="menu-divider">
+        <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
       </div>
-    </section>
-
-  </div>
- <!-- Modal Editar Livro -->
-<div id="modal-editar-livro" class="modal fade" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      
-      <div class="modal-header">
-        <h5 class="modal-title">Editar Livro</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      
-      <div class="modal-body">
-        <form id="form-editar-livro">
-          <input type="hidden" id="id-livro">
-          
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label>Título</label>
-              <input type="text" id="titulo-livro" class="form-control" required>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>ISBN</label>
-              <input type="text" id="isbn-livro" class="form-control">
-            </div>
-          </div>
-          
-          <div class="mb-3">
-            <label>Autores</label>
-            <input type="text" id="autores-livro" class="form-control">
-          </div>
-          
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label>Editora</label>
-              <input type="text" id="editora-livro" class="form-control">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label>Gênero</label>
-              <!-- 🔥 Alterado de input para select -->
-              <select id="genero-livro" class="form-select">
-                <!-- opções vão ser carregadas pelo JS -->
-              </select>
-            </div>
-          </div>
-          
-          <div class="mb-3">
-            <label>Funcionário que cadastrou</label>
-            <input type="text" id="funcionario-livro" class="form-control" readonly>
-          </div>
-          
-          <div class="mb-3">
-            <label>Sinopse</label>
-            <textarea id="sinopse-livro" class="form-control" rows="3"></textarea>
-          </div>
-          
-          <div class="mb-3">
-            <label>Número de páginas</label>
-            <input type="number" id="paginas-livro" class="form-control">
-          </div>
-          
-          <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-        </form>
-      </div>
-      
     </div>
-  </div>
-</div>
 
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const toggler = document.querySelector(".navbar-toggler");
+        const sidebar = document.querySelector(".sidebar");
+        const backdrop = document.getElementById("sidebar-backdrop");
 
-  <!-- Botão de acessibilidade -->
-  <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
-    <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
-      <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
-    </button>
-  </div>
+        function openSidebar() {
+          sidebar.classList.add("show");
+          if (window.innerWidth <= 1200 && backdrop) backdrop.classList.add("active");
+        }
+        function closeSidebar() {
+          sidebar.classList.remove("show");
+          if (backdrop) backdrop.classList.remove("active");
+        }
 
-  <!-- Avatar com menu fixado no canto inferior esquerdo -->
-  <div class="avatar-container">
-   <img src="http://localhost:3000/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
-    <div id="menuPerfil" class="menu-perfil">
-      <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
-      <hr class="menu-divider">
-      <a href="#" class="dropdown-item">Perguntas Frequentes</a>
-      <hr class="menu-divider">
-      <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
-    </div>
-  </div>
+        if (toggler && sidebar) {
+          toggler.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (sidebar.classList.contains("show")) {
+              closeSidebar();
+            } else {
+              openSidebar();
+            }
+          });
+        }
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const toggler  = document.querySelector(".navbar-toggler");
-      const sidebar  = document.querySelector(".sidebar");
-      const backdrop = document.getElementById("sidebar-backdrop");
-  
-      function openSidebar() {
-        sidebar.classList.add("show");
-        if (window.innerWidth <= 1200 && backdrop) backdrop.classList.add("active");
-      }
-      function closeSidebar() {
-        sidebar.classList.remove("show");
-        if (backdrop) backdrop.classList.remove("active");
-      }
-  
-      if (toggler && sidebar) {
-        toggler.addEventListener("click", function (e) {
-          e.stopPropagation();
-          if (sidebar.classList.contains("show")) {
+        /* Clicar no backdrop fecha */
+        if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+        /* Clicar fora da sidebar fecha */
+        document.addEventListener("click", function (e) {
+          if (
+            window.innerWidth <= 1200 &&
+            sidebar.classList.contains("show") &&
+            !sidebar.contains(e.target) &&
+            !toggler.contains(e.target)
+          ) {
             closeSidebar();
-          } else {
-            openSidebar();
           }
         });
-      }
-  
-      /* Clicar no backdrop fecha */
-      if (backdrop) backdrop.addEventListener("click", closeSidebar);
-  
-      /* Clicar fora da sidebar fecha */
-      document.addEventListener("click", function (e) {
-        if (
-          window.innerWidth <= 1200 &&
-          sidebar.classList.contains("show") &&
-          !sidebar.contains(e.target) &&
-          !toggler.contains(e.target)
-        ) {
-          closeSidebar();
-        }
-      });
-  
-      /* Ao redimensionar, limpa estados para evitar sobreposição */
-      window.addEventListener("resize", function () {
-        if (window.innerWidth > 1200) {
-          if (backdrop) backdrop.classList.remove("active");
-        } else {
-          closeSidebar();
-        }
-      });
-    });
-  </script>
 
-  <script src="../java/acervo.js"></script>
-  <script src="../java/script.js"></script>
+        /* Ao redimensionar, limpa estados para evitar sobreposição */
+        window.addEventListener("resize", function () {
+          if (window.innerWidth > 1200) {
+            if (backdrop) backdrop.classList.remove("active");
+          } else {
+            closeSidebar();
+          }
+        });
+      });
+    </script>
+
+    <script src="../java/acervo.js"></script>
+    <script src="../java/script.js"></script>
 
 </body>
 
