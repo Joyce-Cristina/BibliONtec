@@ -692,6 +692,8 @@ app.post('/login', (req, res) => {
       if (usuario.senha !== senha) {
         return res.status(401).json({ error: "Senha incorreta" });
       }
+       const sqlUpdateLogin = `UPDATE usuario SET ultimo_login = NOW() WHERE id = ?`;
+connection.query(sqlUpdateLogin, [usuario.id]);
 
       // Token do usuário agora leva a instituição
       const token = jwt.sign({
@@ -793,93 +795,6 @@ function autenticarToken(req, res, next) {
 }
 
 
-
-// ==================== CADASTRO LIVRO ====================
-app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) => {
-  const {
-    titulo, edicao, paginas, quantidade, local_publicacao, data_publicacao,
-    sinopse, isbn, assunto_discutido, subtitulo, volume,
-    FK_genero_id, FK_funcionario_id, FK_classificacao_id, FK_status_id,
-    FK_editora_id // 👈 adicionar aqui
-  } = req.body;
-
-
-  const capa = req.file ? req.file.filename : null;
-
-  const sql = `
-INSERT INTO livro (
-  edicao,
-  capa,
-  paginas,
-  quantidade,
-  local_publicacao,
-  data_publicacao,
-  sinopse,
-  isbn,
-  titulo,
-  assunto_discutido,
-  subtitulo,
-  volume,
-  FK_funcionario_id,
-  FK_classificacao_id,
-  FK_status_id,
-  FK_instituicao_id,
-  FK_genero_id,
-  FK_editora_id
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`;
-  const values = [
-    edicao || null,
-    capa || null,
-    paginas ? parseInt(paginas) : null,
-    quantidade ? parseInt(quantidade) : null,
-    local_publicacao || null,
-    data_publicacao || null,
-    sinopse || null,
-    isbn || null,
-    titulo || null,
-    assunto_discutido || null,
-    subtitulo || null,
-    volume || null,
-    req.user.id, // 👈 FK_funcionario_id
-    FK_classificacao_id ? parseInt(FK_classificacao_id) : null,
-    FK_status_id ? parseInt(FK_status_id) : null,
-    req.user?.FK_instituicao_id || 1,
-    FK_genero_id ? parseInt(FK_genero_id) : null,
-    FK_editora_id ? parseInt(FK_editora_id) : null
-  ];
-
-
-  connection.query(sql, values, (err) => {
-    if (err) {
-      console.error('Erro ao cadastrar livro:', err);
-      return res.status(500).json({ error: 'Erro ao cadastrar livro' });
-    }
-    res.status(200).json({ message: 'Livro cadastrado com sucesso!' });
-  });
-});
-
-// ======================= LISTAR LIVROS =======================
-app.get('/livros', autenticarToken, (req, res) => {
-  const sql = `
-    SELECT l.id, l.titulo, l.sinopse, l.capa, l.paginas, l.isbn,
-           g.genero, e.editora AS editora,
-           GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
-           f.nome AS funcionario_cadastrou
-    FROM livro l
-    LEFT JOIN genero g ON l.FK_genero_id = g.id
-    LEFT JOIN editora e ON l.FK_editora_id = e.id
-    LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
-    LEFT JOIN autor a ON la.FK_autor_id = a.id
-    LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
-    WHERE l.FK_instituicao_id = ?
-    GROUP BY l.id
-  `;
-  connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Erro ao buscar livros' });
-    res.json(results);
-  });
-});
 
 
 // ================= ROTAS DE FUNCIONARIO =================
@@ -1261,6 +1176,28 @@ app.delete('/api/usuarios/:id', (req, res) => {
 
 //=================  Cadastro de Livro =================
 
+
+// ======================= LISTAR LIVROS =======================
+app.get('/livros', autenticarToken, (req, res) => {
+  const sql = `
+    SELECT l.id, l.titulo, l.sinopse, l.capa, l.paginas, l.isbn,
+           g.genero, e.editora AS editora,
+           GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
+           f.nome AS funcionario_cadastrou
+    FROM livro l
+    LEFT JOIN genero g ON l.FK_genero_id = g.id
+    LEFT JOIN editora e ON l.FK_editora_id = e.id
+    LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
+    LEFT JOIN autor a ON la.FK_autor_id = a.id
+    LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
+    WHERE l.FK_instituicao_id = ?
+    GROUP BY l.id
+  `;
+  connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erro ao buscar livros' });
+    res.json(results);
+  });
+});
 
 app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
   const {
@@ -1809,47 +1746,52 @@ app.get('/api/funcionarios/:instituicaoId', (req, res) => {
 
 
 // ===== Rota: Pesquisar usuários =====
-app.get("/usuarios", autenticarToken, (req, res) => {
-  const busca = req.query.busca || "";
+app.get('/usuarios', autenticarToken, (req, res) => {
+  const termo = req.query.busca;
 
   const sql = `
-    SELECT u.id, u.nome, u.email,
-           CASE WHEN u.ativo = 1 THEN 'Ativo' ELSE 'Inativo' END as status,
-           u.ultimo_login,
-           0 as atrasos,
-           (SELECT COUNT(*) 
-              FROM emprestimo e
-             WHERE e.FK_usuario_id = u.id
-               AND e.data_real_devolucao IS NULL) as qtd_emprestimos
+    SELECT u.id, u.nome, u.email, u.telefone, u.foto,
+           tu.tipo AS tipo_usuario,
+           u.ativo,
+           u.ultimo_login
     FROM usuario u
+    LEFT JOIN tipo_usuario tu ON u.FK_tipo_usuario_id = tu.id
     WHERE u.nome LIKE ? OR u.email LIKE ?
-    LIMIT 10
   `;
-console.log("SQL USUARIOS:", sql);
-  connection.query(sql, [`%${busca}%`, `%${busca}%`], (err, rows) => {
+
+  connection.query(sql, [`%${termo}%`, `%${termo}%`], (err, results) => {
     if (err) {
-      console.error("Erro ao buscar usuários:", err);
+      console.error(err);
       return res.status(500).json({ error: "Erro ao buscar usuários" });
     }
-    res.json(rows);
+
+    res.json(results.map(u => ({
+      id: u.id,
+      nome: u.nome,
+      tipo: u.tipo_usuario || "Não informado", // 👈 agora vem do JOIN
+      status: u.ativo ? "Ativo" : "Inativo",
+      ultimo_login: u.ultimo_login || "-",
+      foto: u.foto ? `/uploads/${u.foto}` : "/uploads/padrao.png"
+    })));
   });
 });
-// ==================== LISTAR USUÁRIOS ====================
-app.get('/usuarios', autenticarToken, (req, res) => {
-  const busca = req.query.busca || "";
+
+app.get('/api/usuarios', autenticarToken, (req, res) => {
   const sql = `
-    SELECT u.id, u.nome, u.email, t.tipo, u.foto
+    SELECT u.id, u.nome, u.email, u.telefone, 
+           u.foto,
+           u.ultimo_login,       -- 👈 ADICIONAR
+           tu.tipo AS tipo,
+           u.FK_tipo_usuario_id,
+           c.curso AS nome_curso,
+           u.serie
     FROM usuario u
-    LEFT JOIN tipo_usuario t ON u.FK_tipo_usuario_id = t.id
-    WHERE u.FK_instituicao_id = ? 
-      AND (u.nome LIKE ? OR u.email LIKE ?)
+    LEFT JOIN tipo_usuario tu ON u.FK_tipo_usuario_id = tu.id
+    LEFT JOIN curso c ON u.curso_id = c.id
+    WHERE u.FK_instituicao_id = ?
   `;
 
-  connection.query(sql, [
-    req.user.FK_instituicao_id,
-    `%${busca}%`,
-    `%${busca}%`
-  ], (err, results) => {
+  connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuários:", err);
       return res.status(500).json({ error: "Erro ao buscar usuários" });
@@ -1858,27 +1800,55 @@ app.get('/usuarios', autenticarToken, (req, res) => {
   });
 });
 
-// ===== Rota: Pesquisar livros =====
+
+// ===== Rota única: Pesquisar livros =====
 app.get("/livros", autenticarToken, (req, res) => {
   const busca = req.query.busca || "";
 
   const sql = `
-    SELECT id, titulo, autor, editora, localizacao, isbn,
-           CASE WHEN disponivel = 1 THEN 'disponivel' ELSE 'emprestado' END as disponibilidade,
-           0 as fila
-    FROM livro
-    WHERE titulo LIKE ? OR autor LIKE ? OR isbn LIKE ?
-    LIMIT 10
+    SELECT 
+      l.id,
+      l.titulo,
+      l.capa,
+      l.isbn,
+      l.local_publicacao AS localizacao,
+      (SELECT GROUP_CONCAT(a.nome SEPARATOR ', ') 
+         FROM livro_autor la 
+         JOIN autor a ON la.FK_autor_id = a.id 
+        WHERE la.FK_livro_id = l.id) AS autores,
+      ed.editora AS editora,
+      l.disponivel,   -- 👈 usa direto o campo da tabela
+      0 AS fila
+    FROM livro l
+    LEFT JOIN editora ed ON ed.id = l.FK_editora_id
+    WHERE l.titulo LIKE ? OR l.isbn LIKE ?
+    GROUP BY l.id, l.titulo, l.capa, l.isbn, l.local_publicacao, ed.editora
+    LIMIT 10;
   `;
 
-  connection.query(sql, [`%${busca}%`, `%${busca}%`, `%${busca}%`], (err, rows) => {
+  connection.query(sql, [`%${busca}%`, `%${busca}%`], (err, rows) => {
     if (err) {
       console.error("Erro ao buscar livros:", err);
       return res.status(500).json({ error: "Erro ao buscar livros" });
     }
-    res.json(rows);
+
+    const out = rows.map(l => ({
+      id: l.id,
+      titulo: l.titulo,
+      capa: l.capa ? `/uploads/${l.capa}` : null,
+      isbn: l.isbn,
+      localizacao: l.localizacao,
+      autor: l.autores || null,
+      editora: l.editora || null,
+      disponibilidade: l.disponivel == 1 ? "disponivel" : "indisponivel",
+      fila: l.fila
+    }));
+console.log("Resultado da busca de livros:", out);
+
+    res.json(out);
   });
 });
+
 
 // ===== Rota: Criar empréstimo =====
 app.post("/emprestimos", autenticarToken, (req, res) => {
@@ -1893,13 +1863,15 @@ app.post("/emprestimos", autenticarToken, (req, res) => {
   dataDevolucaoPrevista.setDate(hoje.getDate() + 7);
   const dataPrevista = dataDevolucaoPrevista.toISOString().slice(0, 10);
 
-  // 1. Criar empréstimo com FK_usuario_id
   const sqlEmp = `
     INSERT INTO emprestimo (data_emprestimo, data_devolucao_prevista, FK_instituicao_id, FK_usuario_id)
-    VALUES (?, ?, 1, ?)
+    VALUES (?, ?, ?, ?)
   `;
 
-  connection.query(sqlEmp, [dataEmprestimo, dataPrevista, usuarioId], (err, result) => {
+  // Use a instituição do token quando possível
+  const fkInstituicao = req.user && req.user.FK_instituicao_id ? req.user.FK_instituicao_id : 1;
+
+  connection.query(sqlEmp, [dataEmprestimo, dataPrevista, fkInstituicao, usuarioId], (err, result) => {
     if (err) {
       console.error("Erro ao criar empréstimo:", err);
       return res.status(500).json({ error: "Erro ao criar empréstimo" });
@@ -1907,7 +1879,6 @@ app.post("/emprestimos", autenticarToken, (req, res) => {
 
     const emprestimoId = result.insertId;
 
-    // 2. Relacionar livros
     const valores = livros.map(livroId => [emprestimoId, livroId]);
     const sqlLivros = `INSERT INTO emprestimo_livro (FK_emprestimo_id, FK_livro_id) VALUES ?`;
 
@@ -1917,35 +1888,15 @@ app.post("/emprestimos", autenticarToken, (req, res) => {
         return res.status(500).json({ error: "Erro ao vincular livros" });
       }
 
-      // 3. Atualizar disponibilidade
       const sqlUpdate = `UPDATE livro SET disponivel = 0 WHERE id IN (?)`;
       connection.query(sqlUpdate, [livros], (err3) => {
-        if (err3) console.error("Erro ao atualizar livros:", err3);
+        if (err3) {
+          console.error("Erro ao atualizar livros:", err3);
+          // não retorna erro ao usuário aqui porque já criamos o empréstimo; mas loga
+        }
+        return res.status(201).json({ message: "Empréstimo criado com sucesso!", emprestimoId });
       });
-
-      res.status(201).json({ message: "Empréstimo criado com sucesso", emprestimoId });
     });
-  });
-});
-
-// ===== Rota: Listar empréstimos =====
-app.get("/emprestimos", autenticarToken, (req, res) => {
-  const sql = `
-    SELECT e.id, e.data_emprestimo, e.data_devolucao_prevista, e.data_real_devolucao,
-           u.nome as usuario, l.titulo as livro
-    FROM emprestimo e
-    JOIN usuario u ON e.FK_usuario_id = u.id
-    JOIN emprestimo_livro el ON e.id = el.FK_emprestimo_id
-    JOIN livro l ON el.FK_livro_id = l.id
-    ORDER BY e.data_emprestimo DESC
-  `;
-
-  connection.query(sql, (err, rows) => {
-    if (err) {
-      console.error("Erro ao listar empréstimos:", err);
-      return res.status(500).json({ error: "Erro ao listar empréstimos" });
-    }
-    res.json(rows);
   });
 });
 
@@ -1960,10 +1911,21 @@ app.put("/emprestimos/:id/devolver", autenticarToken, (req, res) => {
       console.error("Erro ao devolver:", err);
       return res.status(500).json({ error: "Erro ao devolver" });
     }
-    res.json({ message: "Livro devolvido com sucesso" });
+
+    const sqlLivros = `
+      UPDATE livro 
+      SET disponivel = 1
+      WHERE id IN (SELECT FK_livro_id FROM emprestimo_livro WHERE FK_emprestimo_id = ?)
+    `;
+    connection.query(sqlLivros, [id], (err2) => {
+      if (err2) {
+        console.error("Erro ao atualizar disponibilidade:", err2);
+        return res.status(500).json({ error: "Erro ao atualizar disponibilidade" });
+      }
+      res.json({ message: "Livro devolvido com sucesso" });
+    });
   });
 });
-
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = 3000;
