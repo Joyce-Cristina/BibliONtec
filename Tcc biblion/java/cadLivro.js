@@ -1,15 +1,13 @@
 document.addEventListener('DOMContentLoaded', async () => {
-
   const loadingIsbn = document.getElementById('loadingIsbn');
 
   function mostrarLoading() {
-    loadingIsbn.style.display = 'inline-block';
+    if (loadingIsbn) loadingIsbn.style.display = 'inline-block';
   }
   function esconderLoading() {
-    loadingIsbn.style.display = 'none';
+    if (loadingIsbn) loadingIsbn.style.display = 'none';
   }
 
-  // Pega o token do login (localStorage ou outro armazenamento)
   const token = localStorage.getItem('token');
   if (!token) {
     alert('Você precisa estar logado para cadastrar livros.');
@@ -17,16 +15,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   const generosExistentes = await carregarGeneros();
+
   const form = document.getElementById('formLivro');
   const inputGeneroTexto = document.getElementById('generoTexto');
   const inputGeneroId = document.getElementById('FK_genero_id');
-  const isbnInput = document.querySelector('input[name="isbn"]');
+  const isbnInput = document.getElementById('isbnInput');
+  const autorInput = document.getElementById('autorTexto');
+  const editoraInput = document.getElementById('editoraTexto');
 
   // Associa input de gênero ao ID
   inputGeneroTexto.addEventListener('input', () => {
     const texto = inputGeneroTexto.value.trim().toLowerCase();
     const encontrado = generosExistentes.find(g => g.genero.toLowerCase() === texto);
-    inputGeneroId.value = encontrado ? encontrado.id : '';
+    if (inputGeneroId) inputGeneroId.value = encontrado ? encontrado.id : '';
   });
 
   // Autocompletar dados do livro via ISBN
@@ -38,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&langRestrict=pt&country=BR`);
       const data = await response.json();
-      
+
       if (data.totalItems > 0) {
         const livro = data.items[0].volumeInfo;
 
@@ -46,9 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (!texto) return '';
           try {
             const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=pt&dt=t&q=${encodeURIComponent(texto)}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            return data[0][0][0];
+            const resp = await fetch(url);
+            const traduzido = await resp.json();
+            return traduzido[0][0][0];
           } catch {
             return texto;
           }
@@ -60,20 +61,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         const editoraPT = await traduzir(livro.publisher);
         const generoPT = await traduzir(livro.categories?.join(', ') || '');
 
-        document.querySelector('input[name="titulo"]').value = tituloPT;
-        document.querySelector('input[name="subtitulo"]').value = subtituloPT;
-        document.querySelector('input[name="autor"]').value = livro.authors?.join(', ') || '';
-        document.querySelector('input[name="editora"]').value = editoraPT;
-        document.querySelector('input[name="data_publicacao"]').value = ajustarData(livro.publishedDate);
-        document.querySelector('input[name="sinopse"]').value = descricaoPT;
-        document.querySelector('input[name="paginas"]').value = livro.pageCount || '';
-        document.querySelector('input[name="assunto_discutido"]').value = generoPT;
-        document.querySelector('input[name="volume"]').value = '1';
-        document.querySelector('input[name="edicao"]').value = '1ª';
-        inputGeneroTexto.value = generoPT;
+        // Preenche campos do formulário
+        const tituloInput = document.querySelector('input[name="titulo"]');
+        if (tituloInput) tituloInput.value = tituloPT;
 
+        const subtituloInput = document.querySelector('input[name="subtitulo"]');
+        if (subtituloInput) subtituloInput.value = subtituloPT;
+
+        if (autorInput) autorInput.value = livro.authors?.join(', ') || '';
+        if (editoraInput) editoraInput.value = editoraPT;
+
+        const dataInput = document.querySelector('input[name="data_publicacao"]');
+        if (dataInput) dataInput.value = ajustarData(livro.publishedDate);
+
+        const sinopseInput = document.querySelector('input[name="sinopse"]');
+        if (sinopseInput) sinopseInput.value = descricaoPT;
+
+        const paginasInput = document.querySelector('input[name="paginas"]');
+        if (paginasInput) paginasInput.value = livro.pageCount || '';
+
+        const volumeInput = document.querySelector('input[name="volume"]');
+        if (volumeInput) volumeInput.value = '1';
+
+        const edicaoInput = document.querySelector('input[name="edicao"]');
+        if (edicaoInput) edicaoInput.value = '1ª';
+
+        if (inputGeneroTexto) inputGeneroTexto.value = generoPT;
         const generoEncontrado = generosExistentes.find(g => g.genero.toLowerCase() === generoPT.toLowerCase());
-        inputGeneroId.value = generoEncontrado ? generoEncontrado.id : '';
+        if (inputGeneroId) inputGeneroId.value = generoEncontrado ? generoEncontrado.id : '';
+
       } else {
         alert('Livro não encontrado na API.');
       }
@@ -99,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token // 👈 envia token
+            'Authorization': 'Bearer ' + token
           },
           body: JSON.stringify({ genero: textoGenero })
         });
@@ -121,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const resposta = await fetch('http://localhost:3000/cadastrarLivro', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer ' + token // 👈 envia token
+          'Authorization': 'Bearer ' + token
         },
         body: formData
       });
@@ -131,14 +147,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (resposta.ok) {
         alert('Livro cadastrado com sucesso!');
         form.reset();
-        inputGeneroId.value = '';
+        if (inputGeneroId) inputGeneroId.value = '';
       } else {
         alert('Erro ao cadastrar livro: ' + resultado.error);
       }
     } catch (erro) {
       console.error('Erro na requisição:', erro);
       alert('Erro na conexão com o servidor.');
-    }      
+    }
   });
 });
 
@@ -173,3 +189,50 @@ async function carregarGeneros() {
     return [];
   }
 }
+async function carregarAutores() {
+  try {
+    const token = localStorage.getItem('token');
+    const resp = await fetch('http://localhost:3000/autores', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const autores = await resp.json();
+    
+    const datalistAutores = document.getElementById('listaAutores');
+    datalistAutores.innerHTML = '';
+    
+    autores.forEach(a => {
+      const option = document.createElement('option');
+      option.value = a.nome;  // mostra o nome no input
+      datalistAutores.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar autores:', err);
+  }
+}
+
+async function carregarEditoras() {
+  try {
+    const token = localStorage.getItem('token');
+    const resp = await fetch('http://localhost:3000/editoras', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const editoras = await resp.json();
+    
+    const datalistEditoras = document.getElementById('listaEditoras');
+    datalistEditoras.innerHTML = '';
+    
+    editoras.forEach(e => {
+      const option = document.createElement('option');
+      option.value = e.nome;  // mostra o nome no input
+      datalistEditoras.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar editoras:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  carregarAutores();
+  carregarEditoras();
+});
+

@@ -1,17 +1,14 @@
 let todosOsLivros = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Só carrega livros se o container existir
   if (document.getElementById('cardsContainer')) {
     carregarLivros();
   }
 
-  // Só carrega gêneros se a lista existir
   if (document.getElementById('listaGeneros')) {
     carregarGeneros();
   }
 
-  // Busca por título
   const buscaInput = document.getElementById('buscaLivro');
   if (buscaInput) {
     buscaInput.addEventListener('input', function () {
@@ -23,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Delegação de eventos para Editar e Excluir
   const container = document.getElementById('cardsContainer');
   if (container) {
     container.addEventListener('click', e => {
@@ -39,23 +35,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// 🔑 Pega token do localStorage
+// 🔑 Pega token
 function getToken() {
   return localStorage.getItem("token");
 }
 
-// Carregar livros do backend
+// 📚 Carregar livros do backend
 async function carregarLivros() {
   try {
     const token = getToken();
     const response = await fetch("http://localhost:3000/acervo/livros", {
+<<<<<<< Updated upstream
   headers: { "Authorization": `Bearer ${token}` }
 });
 
    
     const data = await resposta.json();
+=======
+      headers: { "Authorization": `Bearer ${token}` }
+    });
 
-    if (!resposta.ok) {
+    const data = await response.json();
+>>>>>>> Stashed changes
+
+    if (!response.ok) {
       console.error("Erro do servidor:", data);
       alert("Erro ao carregar livros: " + (data.error || "Não autorizado"));
       return;
@@ -63,12 +66,13 @@ async function carregarLivros() {
 
     todosOsLivros = data;
     exibirLivros(todosOsLivros);
+
   } catch (erro) {
     console.error('Erro ao carregar livros:', erro);
   }
 }
 
-// Exibir livros na tela
+// 🎴 Exibir livros
 function exibirLivros(livros) {
   const container = document.getElementById('cardsContainer');
   if (!container) return;
@@ -87,6 +91,7 @@ livros.forEach(livro => {
   const col = document.createElement("div");   // 👈 cria a div col
   col.className = "col";
 
+<<<<<<< Updated upstream
   const disponivel = livro.disponibilidade === "disponivel";
 
   col.innerHTML = `
@@ -111,21 +116,49 @@ livros.forEach(livro => {
   container.appendChild(col);  // 👈 adiciona na tela
 });
 });
+=======
+    const col = document.createElement("div");
+    col.className = "col";
+
+    const disponivel = livro.disponibilidade === "disponivel";
+
+    col.innerHTML = `
+      <div class="card h-100" style="background-color: #d6c9b4;">
+        <img src="http://localhost:3000/uploads/${livro.capa || ''}" class="card-img-top" alt="${livro.titulo || ''}" style="height: 300px; object-fit: cover;">
+        <div class="card-body text-center">
+          <h5 class="card-title fw-bold">${livro.titulo || ''}</h5>
+          <h6 class="card-subtitle">${livro.sinopse || ''}</h6>
+        </div>
+        <div class="card-footer text-center">
+          <button class="btn btn-danger me-2" data-id="${livro.id}">Excluir</button>
+          <button class="btn btn-dark" data-id="${livro.id}">Editar</button>
+          <div class="mt-2">
+            <span class="badge ${disponivel ? 'bg-success' : 'bg-danger'}">
+              ${disponivel ? 'Disponível' : 'Indisponível'}
+            </span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    row.appendChild(col);
+  });
+>>>>>>> Stashed changes
 }
 
-// Carregar gêneros
+// 🎭 Carregar gêneros
 async function carregarGeneros() {
   const lista = document.getElementById('listaGeneros');
   if (!lista) return;
 
   try {
     const token = getToken();
-    const resposta = await fetch('http://localhost:3000/generos', {
+    const response = await fetch('http://localhost:3000/generos', {
       headers: { "Authorization": `Bearer ${token}` }
     });
-    const generos = await resposta.json();
+    const generos = await response.json();
 
-    if (!resposta.ok) {
+    if (!response.ok) {
       console.error("Erro ao carregar gêneros:", generos);
       return;
     }
@@ -159,7 +192,7 @@ async function carregarGeneros() {
   }
 }
 
-// Excluir livro
+// ❌ Excluir livro
 function excluirLivro(id) {
   if (confirm('Tem certeza que deseja excluir este livro?')) {
     const token = getToken();
@@ -178,24 +211,22 @@ function excluirLivro(id) {
   }
 }
 
-// Abrir modal de edição
+// ✏️ Abrir modal de edição
 async function abrirModalEdicaoLivro(id) {
   const livro = todosOsLivros.find(l => l.id === id);
   if (!livro) return;
 
-  // Carrega gêneros
   let generos = [];
   try {
     const token = getToken();
-    const resposta = await fetch('http://localhost:3000/generos', {
+    const response = await fetch('http://localhost:3000/generos', {
       headers: { "Authorization": `Bearer ${token}` }
     });
-    generos = await resposta.json();
+    generos = await response.json();
   } catch (erro) {
     console.error('Erro ao carregar gêneros:', erro);
   }
 
-  // Preenche select de gêneros
   const selectGenero = document.getElementById('genero-livro');
   if (selectGenero) {
     selectGenero.innerHTML = '';
@@ -208,27 +239,24 @@ async function abrirModalEdicaoLivro(id) {
     });
   }
 
-  // Preenche os outros campos do modal
- const campos = {
-  'id-livro': 'id',
-  'titulo-livro': 'titulo',
-  'isbn-livro': 'isbn',
-  'autores-livro': 'autores',
-  'editora-livro': 'editora',
-  'funcionario-livro': 'funcionario_cadastrou',
-  'sinopse-livro': 'sinopse',
-  'paginas-livro': 'paginas'
-};
+  const campos = {
+    'id-livro': 'id',
+    'titulo-livro': 'titulo',
+    'isbn-livro': 'isbn',
+    'autores-livro': 'autores',
+    'editora-livro': 'editora',
+    'funcionario-livro': 'funcionario_cadastrou',
+    'sinopse-livro': 'sinopse',
+    'paginas-livro': 'paginas'
+  };
 
-for (const campoId in campos) {
-  const el = document.getElementById(campoId);
-  if (el) {
-    el.value = livro[campos[campoId]] || '';
+  for (const campoId in campos) {
+    const el = document.getElementById(campoId);
+    if (el) {
+      el.value = livro[campos[campoId]] || '';
+    }
   }
-}
 
-
-  // Abre modal
   const modalEl = document.getElementById('modal-editar-livro');
   if (modalEl) {
     const modal = new bootstrap.Modal(modalEl);

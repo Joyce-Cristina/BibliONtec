@@ -370,19 +370,25 @@
 
   <div class="row mb-3">
     <div class="col-md-6">
-      <label class="form-label">Autor <span class="required">*</span></label>
-      <input type="text" class="form-control apenasTexto" required name="autor" />
-    </div>
+   
+<label for="autorTexto">Autor</label>
+<input list="listaAutores" id="autorTexto" class="form-control" placeholder="Escolha ou digite">
+<input type="hidden" name="FK_autor_id" id="FK_autor_id">
+<datalist id="listaAutores"></datalist>
+
+  </div>
+  </div>
 
   <div class="row mb-3">
     <div class="col-md-6">
       <label class="form-label">Edição <span class="required">*</span></label>
       <input type="text" class="form-control" required name="edicao" />
     </div>
-    <div class="col-md-6">
-      <label class="form-label">Editora</label>
-      <input type="text" class="form-control" name="editora" />
-    </div>
+     <div class="col-md-6">
+    <label for="editoraTexto" class="form-label">Editora</label>
+    <input list="listaEditoras" class="form-control" id="editoraTexto" placeholder="Digite ou escolha" autocomplete="off">
+    <input type="hidden" name="FK_editora_id" id="FK_editora_id">
+    <datalist id="listaEditoras"></datalist>
   </div>
 
   <div class="row mb-3">
