@@ -46,16 +46,22 @@ async function carregarLivros() {
     const token = getToken();
     const response = await fetch("http://localhost:3000/acervo/livros", {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   headers: { "Authorization": `Bearer ${token}` }
 });
 
    
     const data = await resposta.json();
 =======
+=======
+>>>>>>> Stashed changes
       headers: { "Authorization": `Bearer ${token}` }
     });
 
     const data = await response.json();
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
     if (!response.ok) {
@@ -122,6 +128,14 @@ livros.forEach(livro => {
 
     const disponivel = livro.disponibilidade === "disponivel";
 
+<<<<<<< Updated upstream
+=======
+    const col = document.createElement("div");
+    col.className = "col";
+
+    const disponivel = livro.disponibilidade === "disponivel";
+
+>>>>>>> Stashed changes
     col.innerHTML = `
       <div class="card h-100" style="background-color: #d6c9b4;">
         <img src="http://localhost:3000/uploads/${livro.capa || ''}" class="card-img-top" alt="${livro.titulo || ''}" style="height: 300px; object-fit: cover;">
