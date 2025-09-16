@@ -1,16 +1,12 @@
 let todosOsLivros = [];
 
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Só carrega livros se o container existir
-  if (document.getElementById('cardsContainer')) {
-    carregarLivros();
-  }
-
-  // Só carrega gêneros se a lista existir
-  if (document.getElementById('listaGeneros')) {
-    carregarGeneros();
-  }
-
+  // Carrega livros e listas relacionadas
+  if (document.getElementById('cardsContainer')) carregarLivros();
+  if (document.getElementById('listaGeneros')) carregarGeneros();
+  if (document.getElementById('listaAutores')) carregarAutores();
+  if (document.getElementById('listaEditoras')) carregarEditoras();
   // Busca por título
   const buscaInput = document.getElementById('buscaLivro');
   if (buscaInput) {
@@ -57,19 +53,26 @@ async function carregarLivros() {
     });
 
     const data = await resposta.json();
-
     if (!resposta.ok) {
       console.error("Erro do servidor:", data);
       alert("Erro ao carregar livros: " + (data.error || "Não autorizado"));
       return;
     }
 
-    todosOsLivros = data;
+    // Atualiza lista global
+    todosOsLivros = data.map(livro => ({
+      ...livro,
+      autores: livro.autores || '—',
+      editora: livro.editora || '—',
+      funcionario_cadastrou: livro.funcionario_cadastrou || '—'
+    }));
+
     exibirLivros(todosOsLivros);
   } catch (erro) {
     console.error('Erro ao carregar livros:', erro);
   }
 }
+
 
 // Exibir livros na tela
 // Exibir livros na tela
@@ -78,56 +81,40 @@ function exibirLivros(livros) {
   if (!container) return;
   container.innerHTML = '';
 
-  let row;
-  livros.forEach((livro, index) => {
-    if (index % 3 === 0) {
-      row = document.createElement('div');
-      row.className = 'row mb-4';
-      container.appendChild(row);
-    }
+  livros.forEach(livro => {
+    const capaSrc = livro.capa
+      ? `http://localhost:3000/uploads/${livro.capa}`
+      : `http://localhost:3000/uploads/padrao.jpg`;
 
-    // Criar coluna
-    const col = document.createElement('div');
-    col.className = 'col-md-4';
+    // Garantir que campos não fiquem nulos
+    const autores = livro.autores && livro.autores.trim() !== '' ? livro.autores : '—';
+    const editora = livro.editora && livro.editora.trim() !== '' ? livro.editora : '—';
+    const funcionario = livro.funcionario_cadastrou && livro.funcionario_cadastrou.trim() !== '' ? livro.funcionario_cadastrou : '—';
 
-    // Definir capa
-    const capaSrc = livro.capa ? `http://localhost:3000/uploads/${livro.capa}` : 'img/livro-placeholder.png';
+    const card = document.createElement('div');
+    card.className = 'card';
 
-    // Definir disponibilidade (quando tiver sistema de empréstimo, ajustar essa lógica)
-    const disponivel = livro.emprestado ? false : true;
-
-    // Montar card
-    col.innerHTML = `
-      <div class="card h-100 d-flex flex-column" style="background-color: #d6c9b4;">
-        <div style="height: 300px; overflow: hidden;">
-          <img src="${capaSrc}" class="card-img-top w-100" alt="${(livro.titulo || '')}" style="height:100%; object-fit:cover;">
-        </div>
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title fw-bold mb-1" style="font-size:1.05rem;">${livro.titulo || ''}</h5>
-          <p class="card-text text-truncate mb-1" title="${livro.autores || ''}">${livro.autores || ''}</p>
-          <p class="card-text text-muted mb-2" style="font-size:0.9rem;">${livro.editora || ''} ${livro.isbn ? '• ISBN: ' + livro.isbn : ''}</p>
-          <p class="card-text flex-grow-1 text-truncate" style="font-size:0.95rem;">${livro.sinopse || ''}</p>
-        </div>
-        <div class="card-footer bg-transparent border-0 pt-0">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <button class="btn btn-danger btn-sm me-2" data-id="${livro.id}">Excluir</button>
-              <button class="btn btn-dark btn-sm me-2" data-id="${livro.id}">Editar</button>
-              <button class="btn btn-primary btn-sm btn-imprimir" data-id="${livro.id}">Imprimir Etiqueta</button>
-            </div>
-            <div>
-              <span class="badge ${disponivel ? 'bg-success' : 'bg-danger'}">
-                ${disponivel ? 'Disponível' : 'Indisponível'}
-              </span>
-            </div>
-          </div>
-        </div>
+    card.innerHTML = `
+      <img src="${capaSrc}" class="card-img-top" alt="${livro.titulo || ''}">
+      <div class="card-body text-center">
+        <h5 class="card-title fw-bold">${livro.titulo || ''}</h5>
+        <p><strong>Autores:</strong> ${autores}</p>
+        <p><strong>Editora:</strong> ${editora}</p>
+        <p><strong>ISBN:</strong> ${livro.isbn || '—'}</p>
+        <p><strong>Cadastrado por:</strong> ${funcionario}</p>
+        <p class="text-truncate">${livro.sinopse || ''}</p>
+      </div>
+      <div class="card-footer text-center">
+        <button class="btn btn-danger me-2" data-id="${livro.id}">Excluir</button>
+        <button class="btn btn-dark me-2" data-id="${livro.id}">Editar</button>
+        <button class="btn btn-primary btn-imprimir" data-id="${livro.id}">Imprimir</button>
       </div>
     `;
 
-    row.appendChild(col);
+    container.appendChild(card);
   });
 }
+
 
 // Carregar gêneros
 async function carregarGeneros() {
@@ -199,19 +186,12 @@ async function abrirModalEdicaoLivro(id) {
   const livro = todosOsLivros.find(l => l.id === id);
   if (!livro) return;
 
-  // Carrega gêneros
-  let generos = [];
-  try {
-    const token = getToken();
-    const resposta = await fetch('http://localhost:3000/generos', {
-      headers: { "Authorization": `Bearer ${token}` }
-    });
-    generos = await resposta.json();
-  } catch (erro) {
-    console.error('Erro ao carregar gêneros:', erro);
-  }
+  const token = getToken();
 
-  // Preenche select de gêneros
+  // Carregar gêneros
+  const respostaGeneros = await fetch('http://localhost:3000/generos', { headers: { Authorization: `Bearer ${token}` } });
+  const generos = await respostaGeneros.json();
+
   const selectGenero = document.getElementById('genero-livro');
   if (selectGenero) {
     selectGenero.innerHTML = '';
@@ -224,33 +204,120 @@ async function abrirModalEdicaoLivro(id) {
     });
   }
 
-  // Preenche os outros campos do modal
- const campos = {
-  'id-livro': 'id',
-  'titulo-livro': 'titulo',
-  'isbn-livro': 'isbn',
-  'autores-livro': 'autores',
-  'editora-livro': 'editora',
-  'funcionario-livro': 'funcionario_cadastrou',
-  'sinopse-livro': 'sinopse',
-  'paginas-livro': 'paginas'
-};
+  // Carregar autores
+  const respostaAutores = await fetch('http://localhost:3000/autores', { headers: { Authorization: `Bearer ${token}` } });
+  const autores = await respostaAutores.json();
 
-for (const campoId in campos) {
-  const el = document.getElementById(campoId);
-  if (el) {
-    el.value = livro[campos[campoId]] || '';
+  const selectAutores = document.getElementById('autores-livro');
+  if (selectAutores) {
+    selectAutores.innerHTML = '';
+    autores.forEach(a => {
+      const option = document.createElement('option');
+      option.value = a.id;
+      option.textContent = a.nome;
+      if (a.nome === livro.autores) option.selected = true;
+      selectAutores.appendChild(option);
+    });
   }
-}
 
+  // Carregar editoras
+  const respostaEditoras = await fetch('http://localhost:3000/editoras', { headers: { Authorization: `Bearer ${token}` } });
+  const editoras = await respostaEditoras.json();
+
+  const selectEditoras = document.getElementById('editora-livro');
+  if (selectEditoras) {
+    selectEditoras.innerHTML = '';
+    editoras.forEach(e => {
+      const option = document.createElement('option');
+      option.value = e.id;
+      option.textContent = e.editora;
+      if (e.editora === livro.editora) option.selected = true;
+      selectEditoras.appendChild(option);
+    });
+  }
+
+  // Preenche os outros campos
+  const campos = {
+    'id-livro': 'id',
+    'titulo-livro': 'titulo',
+    'isbn-livro': 'isbn',
+    'sinopse-livro': 'sinopse',
+    'paginas-livro': 'paginas',
+    'funcionario-livro': 'funcionario_cadastrou'
+  };
+
+  for (const campoId in campos) {
+    const el = document.getElementById(campoId);
+    if (el) el.value = livro[campos[campoId]] || '';
+  }
 
   // Abre modal
   const modalEl = document.getElementById('modal-editar-livro');
-  if (modalEl) {
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
-  }
+  if (modalEl) new bootstrap.Modal(modalEl).show();
 }
+const formEditarLivro = document.getElementById('form-editar-livro');
+if (formEditarLivro) {
+  formEditarLivro.addEventListener('submit', async (e) => {
+    e.preventDefault(); // evita reload da página
+
+    const id = document.getElementById('id-livro').value;
+    const titulo = document.getElementById('titulo-livro').value;
+    const isbn = document.getElementById('isbn-livro').value;
+    const sinopse = document.getElementById('sinopse-livro').value;
+    const paginas = document.getElementById('paginas-livro').value;
+
+    // Para selects
+    const generoId = parseInt(document.getElementById('genero-livro').value);
+    const editoraId = parseInt(document.getElementById('editora-livro').value);
+
+    // Pega autores selecionados (múltiplos)
+    const selectAutores = document.getElementById('autores-livro');
+    const autoresIds = Array.from(selectAutores.selectedOptions).map(opt => parseInt(opt.value));
+
+    const token = getToken();
+
+    try {
+      // Faz o PUT
+      const resposta = await fetch(`http://localhost:3000/livros/${id}`, {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          titulo,
+          isbn,
+          sinopse,
+          paginas,
+          generoId,
+          editoraId,
+          autoresIds
+        })
+      });
+
+      const data = await resposta.json();
+
+      if (!resposta.ok) {
+        alert('Erro ao salvar livro: ' + (data.error || 'Tente novamente'));
+        return;
+      }
+
+      // Fecha modal
+      const modalEl = document.getElementById('modal-editar-livro');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+
+      // Atualiza lista de livros
+      carregarLivros();
+
+      alert('Livro atualizado com sucesso!');
+    } catch (erro) {
+      console.error('Erro ao salvar livro:', erro);
+      alert('Erro ao salvar livro. Veja console para detalhes.');
+    }
+  });
+}
+
 
 function imprimirEtiqueta(id) {
   const livro = todosOsLivros.find(l => l.id === id);
@@ -394,4 +461,5 @@ function imprimirEtiqueta(id) {
     janela.document.write(conteudo);
     janela.document.close();
   });
+
 }

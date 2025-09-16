@@ -415,10 +415,11 @@ document.querySelectorAll(".chk-funcao").forEach(chk => {
 
 async function carregarDados(id, tipo) {
   try {
-    const endpoint = tipo === "funcionario" ? "funcionario" : "usuario";
+   const endpoint = tipo === "funcionario" ? "funcionarios" : "usuario";
+
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://localhost:3000/${endpoint}/${id}`, {
+    const res = await fetch(`http://localhost:3000/api/${endpoint}/${id}`, {
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -532,27 +533,30 @@ if (editarBtn) {
     const funcaoEl = document.getElementById("funcao");
     if (funcaoEl) dadosAtualizados.FK_funcao_id = funcaoEl.value;
 
-    try {
-      const token = localStorage.getItem("token");
-      const url = `http://localhost:3000/${tipo}/${id}`;
-      const response = await fetch(url, {
-        method: "PUT",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify(dadosAtualizados),
-      });
+   try {
+  const token = localStorage.getItem("token");
 
-      const data = await response.json();
-      alert(data.message || "Atualizado com sucesso!");
-    } catch (err) {
-      console.error("Erro ao atualizar:", err);
-      alert("Erro ao atualizar dados.");
-    }
+  const url = tipo === "funcionario"
+    ? `http://localhost:3000/api/funcionarios/${id}`
+    : `http://localhost:3000/api/usuario/${id}`;
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify(dadosAtualizados),
+  });
+
+  const data = await response.json();
+  alert(data.message || "Atualizado com sucesso!");
+} catch (err) {
+  console.error("Erro ao atualizar:", err);
+  alert("Erro ao atualizar dados.");
+}
   });
 }
-
 // Função para gerar senha segura (8 dígitos: A-Z, a-z, 0-9)
 function gerarSenhaSegura() {
   const letrasMaiusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

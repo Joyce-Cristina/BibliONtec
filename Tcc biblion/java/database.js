@@ -892,7 +892,7 @@ function senhaValida(senha) {
 }
 
 // Buscar funcionário pelo ID (apenas da mesma instituição)
-app.get('/funcionario/:id', autenticarToken, (req, res) => {
+app.get('/api/funcionarios/:id', autenticarToken, (req, res) => {
   const id = req.params.id;
 
   const sql = `
@@ -915,6 +915,7 @@ app.get('/funcionario/:id', autenticarToken, (req, res) => {
     res.json({ funcionario: results[0] });
   });
 });
+
 
 
 
@@ -1029,21 +1030,10 @@ app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, r
 
 
 // Buscar usuário pelo ID (apenas da mesma instituição)
-app.get('/usuario/:id', autenticarToken, (req, res) => {
+app.get('/api/usuario/:id', autenticarToken, (req, res) => {
   const id = req.params.id;
 
-  const sql = `
-    SELECT u.id, u.nome, u.email, u.telefone, u.senha, 
-           u.curso_id, u.serie, 
-           u.FK_tipo_usuario_id, 
-           tu.tipo AS tipo,
-           c.curso AS nome_curso
-    FROM usuario u
-    LEFT JOIN curso c ON u.curso_id = c.id
-    LEFT JOIN tipo_usuario tu ON u.FK_tipo_usuario_id = tu.id
-    WHERE u.id = ? AND u.FK_instituicao_id = ?
-  `;
-
+  const sql = "SELECT * FROM usuario WHERE id = ? AND FK_instituicao_id = ?";
   connection.query(sql, [id, req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuário:", err);
@@ -1225,7 +1215,7 @@ app.get('/acervo/livros', autenticarToken, (req, res) => {
   });
 });
 
-app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
+app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) => {
   const {
     titulo,
     edicao,
@@ -1238,41 +1228,47 @@ app.post('/cadastrarLivro', upload.single('capa'), (req, res) => {
     assunto_discutido,
     subtitulo,
     volume,
-    FK_genero_id,          // <-- aqui pega o id do gênero
+    FK_genero_id,
     FK_funcionario_id,
     FK_classificacao_id,
-    FK_status_id
+    FK_status_id,
+    FK_editora_id,
+    FK_autor_id
   } = req.body;
 
   const capa = req.file ? req.file.filename : null;
 
   const sql = `
-    INSERT INTO livro (
-      titulo, edicao, paginas, quantidade, local_publicacao,
-      data_publicacao, sinopse, isbn, assunto_discutido,
-      subtitulo, volume, FK_genero_id, FK_funcionario_id,
-      FK_classificacao_id, FK_status_id, capa
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+   INSERT INTO livro (
+  titulo, edicao, paginas, quantidade, local_publicacao,
+  data_publicacao, sinopse, isbn, assunto_discutido,
+  subtitulo, volume, FK_genero_id, FK_funcionario_id,
+  FK_classificacao_id, FK_status_id, capa, FK_instituicao_id,
+  FK_editora_id, FK_autor_id
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  const values = [
-    titulo || null,
-    edicao || null,
-    paginas || null,
-    quantidade || null,
-    local_publicacao || null,
-    data_publicacao || null,
-    sinopse || null,
-    isbn || null,
-    assunto_discutido || null,
-    subtitulo || null,
-    volume || null,
-    FK_genero_id || null,      // <-- id do gênero aqui
-    FK_funcionario_id || null,
-    FK_classificacao_id || null,
-    FK_status_id || null,
-    capa || null
-  ];
+const values = [
+  titulo || null,
+  edicao || null,
+  paginas || null,
+  quantidade || null,
+  local_publicacao || null,
+  data_publicacao || null,
+  sinopse || null,
+  isbn || null,
+  assunto_discutido || null,
+  subtitulo || null,
+  volume || null,
+  FK_genero_id || null,
+  req.user.id,  // <-- funcionário logado
+  FK_classificacao_id || null,
+  FK_status_id || null,
+  capa || null,
+  req.user.FK_instituicao_id || null,
+  FK_editora_id || null,
+  FK_autor_id || null
+];
 
   connection.query(sql, values, (err, result) => {
     if (err) {
@@ -1377,17 +1373,17 @@ app.get('/livros/:id', (req, res) => {
 
 app.put('/livros/:id', (req, res) => {
   const { id } = req.params;
-  const { titulo, isbn, autoresIds, editoraId, generoId, funcionarioId, sinopse, paginas } = req.body;
+  const { titulo, isbn, autoresIds, editoraId, generoId, sinopse, paginas } = req.body;
 
   const sqlLivro = `
     UPDATE livro
-    SET titulo = ?, isbn = ?, FK_editora_id = ?, FK_genero_id = ?, FK_funcionario_id = ?, sinopse = ?, paginas = ?
+    SET titulo = ?, isbn = ?, FK_editora_id = ?, FK_genero_id = ?,  sinopse = ?, paginas = ?
     WHERE id = ?
   `;
 
   connection.query(
     sqlLivro,
-    [titulo, isbn, editoraId, generoId, funcionarioId, sinopse, paginas, id],
+    [titulo, isbn, editoraId, generoId,  sinopse, paginas, id,autoresIds],
     (err, result) => {
       if (err) {
         console.error('Erro ao atualizar livro:', err);
@@ -1575,7 +1571,7 @@ app.post('/autores', autenticarToken, (req, res) => {
 // ===== Listar editoras =====
 // ===== Listar editoras =====
 app.get('/editoras', autenticarToken, (req, res) => {
-  const sql = 'SELECT id, editora AS nome FROM editora ORDER BY editora ASC'; // <-- CORRIGIDO
+  const sql = 'SELECT id, editora AS editora FROM editora ORDER BY editora ASC'; // <-- CORRIGIDO
   connection.query(sql, (err, results) => {
     if (err) {
       console.error('Erro ao buscar editoras:', err);
