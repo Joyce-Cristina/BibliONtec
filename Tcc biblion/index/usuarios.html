@@ -292,27 +292,39 @@
   }
   .sidebar-backdrop.active { display: block; }
 }
+
+
 /* -------- Cards de Usuários -------- */
 #lista-usuarios {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
-  justify-items: center;   /* centraliza cada card */
   margin-top: 30px;
+  justify-items: center;
 }
 
-/* -------- Mobile -------- */
+#lista-usuarios .card {
+  width: 100%;
+  max-width: 300px;   /* largura máxima de cada card */
+  min-width: 260px;   /* largura mínima para não ficar estreito */
+  padding: 15px;
+  text-align: center;
+}
+
+
+/* Responsividade */
 @media (max-width: 992px) {
-  .main-content {
-    padding-left: 0 !important; /* remove espaço da sidebar */
-    padding-right: 10px;
-    max-width: 100%;           /* ocupa a tela toda */
-  }
-
   #lista-usuarios {
-    grid-template-columns: 1fr; /* 1 card por linha */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
+
+@media (max-width: 576px) {
+  #lista-usuarios {
+    grid-template-columns: 1fr;
+  }
+}
+
   </style>
 </head>
 
@@ -428,7 +440,7 @@
       </div>
 
       <!-- Cards de Usuários -->
-       <div class="row" id="lista-usuarios"></div>
+      <div class="card-container" id="lista-usuarios"></div>
 
 <!-- Modal -->
 
