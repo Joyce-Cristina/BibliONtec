@@ -246,6 +246,40 @@
       padding-block-start: 76px !important;
       /* evita que o conteúdo fique escondido sob a navbar */
     }
+
+    /* Força data e hora a ficarem iguais ao text */
+input[type="date"].form-control,
+input[type="time"].form-control {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 16px;
+  line-height: 1.5;
+  width: 100%;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.075);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Efeito ao focar */
+input[type="date"].form-control:focus,
+input[type="time"].form-control:focus {
+  border-color: #7a1505; /* mesma cor do seu tema */
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(122, 21, 5, 0.25);
+}
+
+/* Remove ícone nativo do Chrome */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.5);
+  margin-left: 5px;
+}
+
   </style>
 </head>
 
@@ -308,8 +342,8 @@
       <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="./cadAluno.html" data-permissao="cadAluno">Aluno</a></li>
         <li><a class="dropdown-item" href="./cadLivro.html" data-permissao="cadLivro">Livro</a></li>
-        <li><a class="dropdown-item active" href="./cadFunc.html" data-permissao="cadFunc">Funcionário</a></li>
-        <li><a class="dropdown-item" href="./cadEvento.html" data-permissao="cadEvento">Evento</a></li>
+        <li><a class="dropdown-item" href="./cadFunc.html" data-permissao="cadFunc">Funcionário</a></li>
+        <li><a class="dropdown-item active" href="./cadEvento.html" data-permissao="cadEvento">Evento</a></li>
       </ul>
     </div>
     <a class="btn w-100" href="./emprestimo.html" data-permissao="emprestimo">Empréstimo</a>
@@ -324,7 +358,7 @@
   <!-- Conteúdo principal -->
   <div class="main-container">
     <div class="form-card">
-      <h3 class="text-center mb-5">Cadastro de Funcionários</h3>
+      <h3 class="text-center mb-5">Cadastro de Eventos</h3>
       <form id="formFuncionario" enctype="multipart/form-data">
         <div class="row mb-4">
           <div class="col-md-6">
@@ -333,44 +367,40 @@
           </div>
           <div id="mensagemErroFuncionario" style="display:none; color:red; margin-block-end:10px;"></div>
           <div class="col-md-6">
-            <label class="form-label" for="email">E-mail:</label>
-            <input type="email" id="email" name="email" class="form-control" required />
+            <label class="form-label" for="email">Patrocínios:</label>
+            <input type="text" id="patrocinio" name="patrocinio" class="form-control apenasTexto" required />
           </div>
         </div>
 
         <div class="row mb-4">
           <div class="col-md-6">
-            <label class="form-label" for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha" class="form-control" />
+            <label class="form-label" for="senha">Local:</label>
+            <input type="text" id="local" name="local" class="form-control" />
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="funcao">Função:</label>
-            <select id="funcao" name="FK_funcao_id" class="form-select">
-              <option value="">Selecione a função</option>
-              <option value="1">Administrador</option>
-              <option value="2">Bibliotecário</option>
-              <option value="3">Circulação</option>
-              <option value="4">Catalogação</option>
-            </select>
-
+            <label class="form-label" for="senha">Descrição:</label>
+            <input type="text" id="descri" name="descri" class="form-control" />
           </div>
         </div>
 
         <div class="row mb-4">
           <div class="col-md-6">
-            <label class="form-label" for="telefone">Telefone:</label>
-            <input type="number" class="form-control" id="telefone" pattern="^\d{10,11}$"
-              title="Digite apenas números (DDD + telefone, 10 ou 11 dígitos)" required>
+            <label class="form-label" for="hora">Horário:</label>
+            <input type="time" id="hora" name="hora" class="form-control">
+           </div>
+          <div class="col-md-6">
+            <label class="form-label" for="data-evento">Data:</label>
+            <input type="date" id="data-evento" name="data-evento" class="form-control">
           </div>
-
         </div>
+
 
         <div class="mb-4 d-flex align-items-center">
           <div id="previewBox"
             style="inline-size: 100px; block-size: 150px; background-color: #5d3b1a; border-radius: 6px; margin-inline-end: 20px; background-image: url('http://localhost:3000/uploads/padrao.jpg'); background-size: cover; background-position: center;">
           </div>
           <div>
-            <label class="mb-2">Escolha a foto para o usuário</label>
+            <label class="mb-2">Escolha a foto para o evento</label>
             <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
           </div>
         </div>
@@ -380,7 +410,7 @@
         <div class="mb-4"></div>
 
         <div class="text-center">
-          <button type="submit" class="btn btn-custom px-5 py-3">Cadastrar Funcionário</button>
+          <button type="submit" class="btn btn-custom px-5 py-3">Cadastrar Evento</button>
         </div>
 
       </form>
