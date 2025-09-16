@@ -222,6 +222,23 @@ app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) =
   });
 });
 
+app.get('/api/buscar-cdd/:isbn', async (req, res) => {
+  try {
+    const { isbn } = req.params;
+    // Fazer requisição para OCLC API (com chave API se necessário)
+    const response = await fetch(`https://classify.oclc.org/classify2/Classify?isbn=${isbn}&summary=true`);
+    const text = await response.text();
+    
+    // Processar XML e extrair CDD...
+    // ... (lógica de parsing)
+    
+    res.json({ cdd: cddEncontrado });
+  } catch (error) {
+    // Fallback para caso de erro
+    res.json({ cdd: "000" });
+  }
+});
+
 // ==================== ETIQUETAS ====================
 
 app.get('/etiquetas/:id', async (req, res) => {
