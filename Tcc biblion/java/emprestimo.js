@@ -1,4 +1,5 @@
 const token = localStorage.getItem("token"); // token do login
+const backendURL = "http://localhost:3000"; // 🔹 URL do backend
 
 // 🔹 Pesquisar usuário
 async function pesquisarUsuario() {
@@ -26,11 +27,12 @@ document.getElementById("usuarioId").value = u.id;
   document.getElementById("usuarioLogin").textContent = u.ultimo_login || "-";
   document.getElementById("usuarioAtrasos").textContent = u.atrasos || "0";
   document.getElementById("usuarioLivros").textContent = u.qtd_emprestimos || "0";
+document.getElementById("usuarioFoto").src = `${backendURL}${u.foto}`;
+
 
   // Exibir a seção
   document.getElementById("usuarioResultado").style.display = "flex";
 }
-
 // 🔹 Pesquisar livro
 async function pesquisarLivro() {
   const termo = document.querySelector("#inputLivro").value;
@@ -46,12 +48,14 @@ async function pesquisarLivro() {
   }
 
   const l = livros[0]; // pega o primeiro resultado
+  document.getElementById("livroId").value = l.id; // guardar ID
 
-  // Guardar ID oculto
-  document.getElementById("livroId").value = l.id;
+  // Capa do livro (mesma lógica pros dois casos)
+  const capaSrc = l.capa ? `${backendURL}/uploads/${l.capa}` : "../img/pinkk.jpg";
 
   // Se o livro estiver disponível
-  if (l.disponibilidade === "disponivel") {
+   if (l.disponibilidade === "disponivel")  {
+ 
     document.getElementById("livroTitulo").textContent = l.titulo;
     document.getElementById("livroAutor").textContent = l.autor || "-";
     document.getElementById("livroEditora").textContent = l.editora || "-";
@@ -59,25 +63,33 @@ async function pesquisarLivro() {
     document.getElementById("livroDisponibilidade").textContent = "Disponível";
     document.getElementById("livroFila").textContent = l.fila || "0";
 
+    // capa normal
+    document.getElementById("livroCapa").src = capaSrc;
+    document.getElementById("livroCapa").style.opacity = "1";
+
     document.getElementById("livroResultado").style.display = "flex";
     document.getElementById("livroIndisponivel").style.display = "none";
     document.getElementById("livroIndisponivelInfo").style.display = "none";
   } 
   // Se estiver emprestado
   else {
-    document.getElementById("livroIndisponivel").style.display = "block";
-    document.getElementById("livroIndisponivelInfo").style.display = "flex";
-
     document.getElementById("livroEmprestadoNome").textContent = l.usuario_nome || "-";
-    document.getElementById("livroEmprestadoTipo").textContent = l.usuario_tipo || "-";
+    document.getElementById("livroEmprestadoUsuario").textContent = l.usuario_tipo || "-";
     document.getElementById("livroEmprestadoStatus").textContent = "Emprestado";
     document.getElementById("livroEmprestadoData").textContent = l.data_emprestimo || "-";
     document.getElementById("livroEmprestadoDevolucao").textContent = l.data_devolucao_prevista || "-";
     document.getElementById("livroEmprestadoFila").textContent = l.fila || "0";
 
+    // capa apagada
+    document.getElementById("livroIndisponivelCapa").src = capaSrc;
+    document.getElementById("livroIndisponivelCapa").style.opacity = "0.5";
+
+    document.getElementById("livroIndisponivel").style.display = "block";
+    document.getElementById("livroIndisponivelInfo").style.display = "flex";
     document.getElementById("livroResultado").style.display = "none";
   }
 }
+
 
 // 🔹 Fazer o empréstimo
 async function emprestarLivro() {

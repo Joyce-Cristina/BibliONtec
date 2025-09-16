@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 05/09/2025 às 01:07
+-- Tempo de geração: 15/09/2025 às 23:19
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -196,7 +196,8 @@ CREATE TABLE `emprestimo` (
   `data_devolucao_prevista` date DEFAULT NULL,
   `data_real_devolucao` date DEFAULT NULL,
   `id` int(11) NOT NULL,
-  `FK_instituicao_id` int(11) DEFAULT NULL
+  `FK_instituicao_id` int(11) DEFAULT NULL,
+  `FK_usuario_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -254,11 +255,11 @@ CREATE TABLE `funcionario` (
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
 (4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654321', 1),
-(5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', NULL, NULL, '11987654321', 1),
-(8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', 'padrao.jpg', 1, '11999999999', 1),
+(5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1),
+(8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999999', 1),
 (9, 'cletin do pneu ', 'e32zy2mK', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1),
-(10, 'shaulin ', 'YvP4t1Ev', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1),
-(11, 'Joyce C Silva', 's56zlRvO', 'joyce@gmail.com', 'padrao.jpg', 3, '19993592019', 1);
+(10, 'shaulin porco', 'YvP4t1Ev', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1),
+(13, 'fiona', '0Ylb0d5tiR', 'fiona@gmail.com', '1757885183514.jpg', 2, '74859631254', 1);
 
 -- --------------------------------------------------------
 
@@ -270,6 +271,27 @@ CREATE TABLE `funcionario_acessibilidade` (
   `FK_funcionario_id` int(11) DEFAULT NULL,
   `FK_acessibilidade_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `funcionario_funcao`
+--
+
+CREATE TABLE `funcionario_funcao` (
+  `id` int(11) NOT NULL,
+  `FK_funcionario_id` int(11) NOT NULL,
+  `FK_funcao_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `funcionario_funcao`
+--
+
+INSERT INTO `funcionario_funcao` (`id`, `FK_funcionario_id`, `FK_funcao_id`) VALUES
+(1, 8, 1),
+(2, 4, 2),
+(3, 9, 3);
 
 -- --------------------------------------------------------
 
@@ -545,16 +567,19 @@ CREATE TABLE `livro` (
   `FK_status_id` int(11) DEFAULT NULL,
   `FK_instituicao_id` int(11) DEFAULT NULL,
   `FK_genero_id` int(11) DEFAULT NULL,
-  `FK_editora_id` int(11) DEFAULT NULL
+  `FK_editora_id` int(11) DEFAULT NULL,
+  `FK_autor_id` int(11) DEFAULT NULL,
+  `disponivel` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `livro`
 --
 
-INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`, `FK_editora_id`) VALUES
-(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(5, '1ª', '1755263573033.jpg', '31', NULL, NULL, NULL, 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'o Livro Magico', NULL, NULL, '1', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`, `FK_editora_id`, `FK_autor_id`, `disponivel`) VALUES
+(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
+(5, '1ª', '1755263573033.jpg', '31', NULL, NULL, NULL, 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'o Livro Magico', NULL, NULL, '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
+(6, '1ª', '1757811238700.png', '357', '4', NULL, '2018-05-01', 'NESTE LIVRO A AUTORA APRESENTA O FRUTO DE SUAS REFLUSES DESDE que um passageiro da cultura de Massas para a cultura da Míndias Fertilizou o Terreno Sociocultural Para O Surgimento Da Cultura Digital. ', '978-85-349-2101-5', 'Culturas e artes do pós-humano', 'arte,cultura ', 'Da Cultura Das Míndias à Cibcultura', '1', 4, NULL, NULL, 1, 75, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -751,16 +776,17 @@ CREATE TABLE `usuario` (
   `serie` int(11) DEFAULT NULL,
   `FK_instituicao_id` int(11) DEFAULT NULL,
   `codigo_recuperacao` varchar(10) DEFAULT NULL,
-  `expiracao_codigo` datetime DEFAULT NULL
+  `expiracao_codigo` datetime DEFAULT NULL,
+  `ativo` tinyint(1) DEFAULT 1,
+  `ultimo_login` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`) VALUES
-(13, '185749632174', 'joaodograu@gmail.com', '1755198080522.jpg', 'joao pedro silva', '1234Abc@', 1, 4, 1, 3, 1, NULL, NULL),
-(30, '1966258749', 'cleitindopneu@gmail.com', '1756406172119.jpg', 'cletin do pneu ', 'C8uLqyjK', 1, 4, 2, 3, 1, NULL, NULL);
+INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`, `ativo`, `ultimo_login`) VALUES
+(30, '1966258749', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu ', 'C8uLqyjK', 1, 4, 2, 3, 1, NULL, NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -899,7 +925,8 @@ ALTER TABLE `editora`
 --
 ALTER TABLE `emprestimo`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_emprestimo_instituicao` (`FK_instituicao_id`);
+  ADD KEY `FK_emprestimo_instituicao` (`FK_instituicao_id`),
+  ADD KEY `fk_emprestimo_usuario` (`FK_usuario_id`);
 
 --
 -- Índices de tabela `emprestimo_livro`
@@ -928,6 +955,14 @@ ALTER TABLE `funcionario`
 ALTER TABLE `funcionario_acessibilidade`
   ADD KEY `FK_funcionario_acessibilidade_0` (`FK_funcionario_id`),
   ADD KEY `FK_funcionario_acessibilidade_1` (`FK_acessibilidade_id`);
+
+--
+-- Índices de tabela `funcionario_funcao`
+--
+ALTER TABLE `funcionario_funcao`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_funcionario_id` (`FK_funcionario_id`),
+  ADD KEY `FK_funcao_id` (`FK_funcao_id`);
 
 --
 -- Índices de tabela `funcionario_notificacao`
@@ -1019,7 +1054,8 @@ ALTER TABLE `livro`
   ADD KEY `FK_livro_3` (`FK_status_id`),
   ADD KEY `FK_livro_instituicao` (`FK_instituicao_id`),
   ADD KEY `FK_livro_genero` (`FK_genero_id`),
-  ADD KEY `fk_editora` (`FK_editora_id`);
+  ADD KEY `fk_editora` (`FK_editora_id`),
+  ADD KEY `fk_livro_autor` (`FK_autor_id`);
 
 --
 -- Índices de tabela `livro_autor`
@@ -1219,7 +1255,13 @@ ALTER TABLE `funcao`
 -- AUTO_INCREMENT de tabela `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT de tabela `funcionario_funcao`
+--
+ALTER TABLE `funcionario_funcao`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `genero`
@@ -1255,7 +1297,7 @@ ALTER TABLE `lista_desejo`
 -- AUTO_INCREMENT de tabela `livro`
 --
 ALTER TABLE `livro`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `notificacao`
@@ -1338,7 +1380,8 @@ ALTER TABLE `configuracoes_tipo_usuario`
 -- Restrições para tabelas `emprestimo`
 --
 ALTER TABLE `emprestimo`
-  ADD CONSTRAINT `FK_emprestimo_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `FK_emprestimo_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_emprestimo_usuario` FOREIGN KEY (`FK_usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `emprestimo_livro`
@@ -1360,6 +1403,13 @@ ALTER TABLE `funcionario`
 ALTER TABLE `funcionario_acessibilidade`
   ADD CONSTRAINT `FK_funcionario_acessibilidade_0` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_funcionario_acessibilidade_1` FOREIGN KEY (`FK_acessibilidade_id`) REFERENCES `acessibilidade` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `funcionario_funcao`
+--
+ALTER TABLE `funcionario_funcao`
+  ADD CONSTRAINT `funcionario_funcao_ibfk_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `funcionario_funcao_ibfk_2` FOREIGN KEY (`FK_funcao_id`) REFERENCES `funcao` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `funcionario_notificacao`
@@ -1440,7 +1490,8 @@ ALTER TABLE `livro`
   ADD CONSTRAINT `FK_livro_3` FOREIGN KEY (`FK_status_id`) REFERENCES `status` (`id`),
   ADD CONSTRAINT `FK_livro_genero` FOREIGN KEY (`FK_genero_id`) REFERENCES `genero` (`id`),
   ADD CONSTRAINT `FK_livro_instituicao` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_editora` FOREIGN KEY (`FK_editora_id`) REFERENCES `editora` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_editora` FOREIGN KEY (`FK_editora_id`) REFERENCES `editora` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_livro_autor` FOREIGN KEY (`FK_autor_id`) REFERENCES `autor` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `livro_editora`
