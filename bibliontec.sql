@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 15/09/2025 às 23:19
+-- Tempo de geração: 17/09/2025 às 01:50
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -41,10 +41,65 @@ CREATE TABLE `acessibilidade` (
 
 CREATE TABLE `autor` (
   `id` int(11) NOT NULL,
-  `codigo_autor` int(11) NOT NULL,
-  `nome` varchar(255) NOT NULL,
-  `autor` varchar(50) DEFAULT NULL
+  `nome` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `autor`
+--
+
+INSERT INTO `autor` (`id`, `nome`) VALUES
+(1, 'Machado de Assis'),
+(2, 'José de Alencar'),
+(3, 'Monteiro Lobato'),
+(4, 'Carlos Drummond de Andrade'),
+(5, 'Clarice Lispector'),
+(6, 'Graciliano Ramos'),
+(7, 'Jorge Amado'),
+(8, 'Érico Veríssimo'),
+(9, 'Ariano Suassuna'),
+(10, 'Cecília Meireles'),
+(11, 'William Shakespeare'),
+(12, 'Victor Hugo'),
+(13, 'George Orwell'),
+(14, 'Jane Austen'),
+(15, 'Franz Kafka'),
+(16, 'Fiódor Dostoiévski'),
+(17, 'Liev Tolstói'),
+(18, 'Charles Dickens'),
+(19, 'Edgar Allan Poe'),
+(20, 'Gabriel García Márquez'),
+(21, 'Stephen King'),
+(22, 'J.K. Rowling'),
+(23, 'Paulo Coelho'),
+(24, 'Agatha Christie'),
+(25, 'Dan Brown'),
+(26, 'Sun Tzu'),
+(27, 'Platão'),
+(28, 'Aristóteles'),
+(29, 'Jean-Jacques Rousseau'),
+(30, 'Karl Marx'),
+(31, 'H. P. Lovecraft'),
+(32, 'Oscar Wilde'),
+(33, 'Mark Twain'),
+(34, 'Virginia Woolf'),
+(35, 'Emily Brontë'),
+(36, 'Herman Melville'),
+(37, 'Leo Tolstoy'),
+(38, 'Émile Zola'),
+(39, 'Sophocles'),
+(40, 'Homer'),
+(41, 'F. Scott Fitzgerald'),
+(42, 'Ernest Hemingway'),
+(43, 'John Steinbeck'),
+(44, 'Haruki Murakami'),
+(45, 'J.R.R. Tolkien'),
+(46, 'C.S. Lewis'),
+(47, 'Miguel de Cervantes'),
+(48, 'Alexandre Dumas'),
+(49, 'Anne Rice'),
+(50, 'Ralph Ellison'),
+(51, 'K.T. HAO');
 
 -- --------------------------------------------------------
 
@@ -184,6 +239,52 @@ CREATE TABLE `editora` (
   `editora` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `editora`
+--
+
+INSERT INTO `editora` (`id`, `editora`) VALUES
+(1, 'Companhia das Letras'),
+(2, 'Editora Record'),
+(3, 'Saraiva'),
+(4, 'Editora Ática'),
+(5, 'Globo Livros'),
+(6, 'Rocco'),
+(7, 'Objetiva'),
+(8, 'LeYa'),
+(9, 'Principis'),
+(10, 'Leya Brasil'),
+(11, 'Intrínseca'),
+(12, 'BestSeller'),
+(13, 'Alfaguara'),
+(14, 'HarperCollins'),
+(15, 'Penguin Random House'),
+(16, 'Oxford University Press'),
+(17, 'Cambridge University Press'),
+(18, 'Springer'),
+(19, 'Elsevier'),
+(20, 'Wiley'),
+(21, 'Macmillan'),
+(22, 'Simon & Schuster'),
+(23, 'Hachette Livre'),
+(24, 'Bloomsbury'),
+(25, 'Editora Moderna'),
+(26, 'Editora Positivo'),
+(27, 'Scipione'),
+(28, 'Zahar'),
+(29, 'Fundamento'),
+(30, 'Vozes'),
+(31, 'Ediouro'),
+(32, 'Companhia Editora Nacional'),
+(33, 'Editora Martins Fontes'),
+(34, 'Editora Paulus'),
+(35, 'Editora Loyola'),
+(36, 'Editora Cultura'),
+(37, 'Editora Record Juvenil'),
+(38, 'Editora Callis'),
+(39, 'Editora Summus'),
+(40, 'Editora Objetiva Infantil');
+
 -- --------------------------------------------------------
 
 --
@@ -200,6 +301,14 @@ CREATE TABLE `emprestimo` (
   `FK_usuario_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `emprestimo`
+--
+
+INSERT INTO `emprestimo` (`fila`, `data_emprestimo`, `data_devolucao_prevista`, `data_real_devolucao`, `id`, `FK_instituicao_id`, `FK_usuario_id`) VALUES
+(NULL, '2025-09-16', '2025-09-23', '2025-09-16', 1, 1, 30),
+(NULL, '2025-09-16', '2025-09-23', '2025-09-16', 2, NULL, 30);
+
 -- --------------------------------------------------------
 
 --
@@ -210,6 +319,14 @@ CREATE TABLE `emprestimo_livro` (
   `FK_emprestimo_id` int(11) DEFAULT NULL,
   `FK_livro_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `emprestimo_livro`
+--
+
+INSERT INTO `emprestimo_livro` (`FK_emprestimo_id`, `FK_livro_id`) VALUES
+(1, 6),
+(2, 6);
 
 -- --------------------------------------------------------
 
@@ -254,7 +371,7 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
-(4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654321', 1),
+(4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654323', 1),
 (5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1),
 (8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999999', 1),
 (9, 'cletin do pneu ', 'e32zy2mK', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1),
@@ -577,9 +694,10 @@ CREATE TABLE `livro` (
 --
 
 INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`, `FK_editora_id`, `FK_autor_id`, `disponivel`) VALUES
-(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
-(5, '1ª', '1755263573033.jpg', '31', NULL, NULL, NULL, 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'o Livro Magico', NULL, NULL, '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
-(6, '1ª', '1757811238700.png', '357', '4', NULL, '2018-05-01', 'NESTE LIVRO A AUTORA APRESENTA O FRUTO DE SUAS REFLUSES DESDE que um passageiro da cultura de Massas para a cultura da Míndias Fertilizou o Terreno Sociocultural Para O Surgimento Da Cultura Digital. ', '978-85-349-2101-5', 'Culturas e artes do pós-humano', 'arte,cultura ', 'Da Cultura Das Míndias à Cibcultura', '1', 4, NULL, NULL, 1, 75, NULL, NULL, 1);
+(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, 4, NULL, NULL, 1, 1, 13, NULL, 1),
+(6, '1ª', '1757811238700.png', '357', '4', NULL, '2018-05-01', 'NESTE LIVRO A AUTORA APRESENTA O FRUTO DE SUAS REFLUSES DESDE que um passageiro da cultura de Massas para a cultura da Míndias Fertilizou o Terreno Sociocultural Para O Surgimento Da Cultura Digital. ', '978-85-349-2101-5', 'Culturas e artes do pós-humano', 'arte,cultura ', 'Da Cultura Das Míndias à Cibcultura', '1', 4, NULL, NULL, 1, 2, 24, NULL, 1),
+(11, '1ª', '1758059242787.png', '926', '1', 'Rio de Janeiro ', '2012-01-01', 'Este livro se propõe um texto abrangente abrangente o moderno estudo de algoritmos para computadores, inclluindo capítulos, exercícios e problemas, revisão de pseudocódigos e um estilo de Redação Mais Claro.', '978-85-352-3699-6', 'Algoritmos e programação', 'numeros,programação', 'Teoria e Prática', '1', 4, NULL, NULL, 1, 1, 19, NULL, 1),
+(12, '1ª', '1758064651448.png', '31', '1', 'São Paulo', '2022-01-01', 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'Ó Livro Magico', NULL, NULL, '1', 4, NULL, NULL, 1, 1, 26, 51, 1);
 
 -- --------------------------------------------------------
 
@@ -591,6 +709,16 @@ CREATE TABLE `livro_autor` (
   `FK_autor_id` int(11) DEFAULT NULL,
   `FK_livro_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `livro_autor`
+--
+
+INSERT INTO `livro_autor` (`FK_autor_id`, `FK_livro_id`) VALUES
+(10, 1),
+(24, 6),
+(48, 11),
+(51, 12);
 
 -- --------------------------------------------------------
 
@@ -786,7 +914,12 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`, `ativo`, `ultimo_login`) VALUES
-(30, '1966258749', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu ', 'C8uLqyjK', 1, 4, 2, 3, 1, NULL, NULL, 1, NULL);
+(30, '1966258749', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu ', 'C8uLqyjK', 1, 4, 2, 3, 1, NULL, NULL, 1, '2025-09-16 10:16:17'),
+(31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', 'Abc12345', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 12:00:00'),
+(32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', 'SenhaSegur', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-09-16 12:10:00'),
+(33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', 'Teste@2025', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-09-16 12:20:00'),
+(34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', 'Xyz78910', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-09-16 12:30:00'),
+(35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', 'Qwe123Rt', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-16 12:40:00');
 
 -- --------------------------------------------------------
 
@@ -1195,7 +1328,7 @@ ALTER TABLE `acessibilidade`
 -- AUTO_INCREMENT de tabela `autor`
 --
 ALTER TABLE `autor`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT de tabela `classificacao`
@@ -1237,13 +1370,13 @@ ALTER TABLE `curso`
 -- AUTO_INCREMENT de tabela `editora`
 --
 ALTER TABLE `editora`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT de tabela `emprestimo`
 --
 ALTER TABLE `emprestimo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `funcao`
@@ -1297,7 +1430,7 @@ ALTER TABLE `lista_desejo`
 -- AUTO_INCREMENT de tabela `livro`
 --
 ALTER TABLE `livro`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de tabela `notificacao`
@@ -1339,7 +1472,7 @@ ALTER TABLE `tipo_usuario`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- Restrições para tabelas despejadas
