@@ -100,7 +100,6 @@ async function pesquisarLivro() {
     alert("Erro ao pesquisar livro.");
   }
 }
-
 // 🔹 Fazer o empréstimo
 async function emprestarLivro() {
   try {
@@ -112,16 +111,20 @@ async function emprestarLivro() {
       return;
     }
 
+    const payload = {
+      usuarioId: Number(usuarioId),
+      livros: [Number(livroId)]
+    };
+
+    console.log("📤 Enviando payload:", payload);
+
     const resp = await fetch(`${backendURL}/emprestimos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer " + token
       },
-      body: JSON.stringify({
-        usuarioId: usuarioId,
-        livros: [livroId] // manda o ID real do livro
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await resp.json();
@@ -138,6 +141,7 @@ async function emprestarLivro() {
     alert("Erro ao emprestar livro.");
   }
 }
+
 // 🔹 Devolver livro
 async function devolverLivro() {
   try {
@@ -161,18 +165,17 @@ async function devolverLivro() {
     }
 
     alert(data.message || "Livro devolvido com sucesso!");
-    location.reload(); // atualiza a tela para refletir a devolução
+    location.reload();
   } catch (err) {
     console.error("Erro ao devolver livro:", err);
     alert("Erro ao devolver livro.");
   }
 }
+
 document.addEventListener("DOMContentLoaded", () => {
   const btnDevolver = document.querySelector(".btn-devolver");
   if (btnDevolver) {
     btnDevolver.addEventListener("click", devolverLivro);
   }
-   // opcional: também logar ao carregar para garantir token etc.
   console.log("emprestimo.js carregado. token:", !!token);
-
 });
