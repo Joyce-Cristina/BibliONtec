@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17/09/2025 às 01:50
+-- Tempo de geração: 17/09/2025 às 03:15
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -125,6 +125,16 @@ CREATE TABLE `comentario` (
   `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `comentario`
+--
+
+INSERT INTO `comentario` (`id`, `comentario`, `data_comentario`, `FK_instituicao_id`) VALUES
+(1, 'adorei', '2025-09-16', NULL),
+(2, 'adorei', '2025-09-16', NULL),
+(3, 'putta', '2025-09-16', NULL),
+(4, '*', '2025-09-16', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -135,6 +145,16 @@ CREATE TABLE `comentario_livro` (
   `FK_comentario_id` int(11) DEFAULT NULL,
   `FK_livro_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `comentario_livro`
+--
+
+INSERT INTO `comentario_livro` (`FK_comentario_id`, `FK_livro_id`) VALUES
+(1, 11),
+(2, 1),
+(3, 1),
+(4, 1);
 
 -- --------------------------------------------------------
 
@@ -157,7 +177,7 @@ CREATE TABLE `configuracoes_gerais` (
 --
 
 INSERT INTO `configuracoes_gerais` (`id`, `duracao_padrao_emprestimo`, `numero_maximo_renovacoes`, `tempo_retirada_reserva`, `numero_maximo_emprestimos`, `multa_por_atraso`, `FK_instituicao_id`) VALUES
-(12, 4, 2, 1, 2, 1.00, 1);
+(12, 8, 1, 2, 3, 2.00, 1);
 
 -- --------------------------------------------------------
 
@@ -181,7 +201,7 @@ CREATE TABLE `configuracoes_notificacao` (
 --
 
 INSERT INTO `configuracoes_notificacao` (`id`, `lembrete_vencimento`, `dias_antes_vencimento`, `notificacao_atraso`, `notificacao_reserva`, `notificacao_livro_disponivel`, `FK_instituicao_id`, `sms_notificacao`) VALUES
-(4, 1, 5, 1, 1, 1, 1, 1);
+(4, 0, 4, 1, 1, 1, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -204,9 +224,9 @@ CREATE TABLE `configuracoes_tipo_usuario` (
 --
 
 INSERT INTO `configuracoes_tipo_usuario` (`id`, `FK_tipo_usuario_id`, `maximo_emprestimos`, `duracao_emprestimo`, `pode_reservar`, `pode_renovar`, `FK_instituicao_id`) VALUES
-(7, 1, 2, 7, 1, 1, 1),
-(8, 2, 4, 14, 1, 1, 1),
-(9, 3, 4, 14, 1, 1, 1);
+(7, 1, 1, 5, 1, 1, 1),
+(8, 2, 2, 7, 0, 0, 1),
+(9, 3, 2, 7, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -373,10 +393,9 @@ CREATE TABLE `funcionario` (
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
 (4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654323', 1),
 (5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1),
-(8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999999', 1),
+(8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1),
 (9, 'cletin do pneu ', 'e32zy2mK', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1),
-(10, 'shaulin porco', 'YvP4t1Ev', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1),
-(13, 'fiona', '0Ylb0d5tiR', 'fiona@gmail.com', '1757885183514.jpg', 2, '74859631254', 1);
+(10, 'shaulin porco', 'YvP4t1Ev', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1);
 
 -- --------------------------------------------------------
 
@@ -633,7 +652,7 @@ CREATE TABLE `instituicao` (
 --
 
 INSERT INTO `instituicao` (`id`, `nome`, `FK_tipo_instituicao_id`, `email`, `telefone`, `endereco`, `horario_funcionamento`, `website`, `FK_config_gerais_id`, `FK_config_notificacao_id`) VALUES
-(1, 'etec euro albino de souza ', 1, 'eteceuro.com.br', '1985794623', '', '7 as 5', '', NULL, NULL);
+(1, 'teste etec', 3, 'testeeteceuro.com.br', '1985794623', '', '8 as 9', '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -914,8 +933,8 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`, `ativo`, `ultimo_login`) VALUES
-(30, '1966258749', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu ', 'C8uLqyjK', 1, 4, 2, 3, 1, NULL, NULL, 1, '2025-09-16 10:16:17'),
-(31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', 'Abc12345', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 12:00:00'),
+(30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', 'Abc1235', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-09-16 22:11:06'),
+(31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', 'Abc12345', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 21:26:13'),
 (32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', 'SenhaSegur', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-09-16 12:10:00'),
 (33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', 'Teste@2025', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-09-16 12:20:00'),
 (34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', 'Xyz78910', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-09-16 12:30:00'),
@@ -942,6 +961,16 @@ CREATE TABLE `usuario_comentario` (
   `FK_usuario_id` int(11) DEFAULT NULL,
   `FK_comentario_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `usuario_comentario`
+--
+
+INSERT INTO `usuario_comentario` (`FK_usuario_id`, `FK_comentario_id`) VALUES
+(30, 1),
+(30, 2),
+(30, 3),
+(30, 4);
 
 -- --------------------------------------------------------
 
@@ -1340,13 +1369,13 @@ ALTER TABLE `classificacao`
 -- AUTO_INCREMENT de tabela `comentario`
 --
 ALTER TABLE `comentario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `configuracoes_gerais`
 --
 ALTER TABLE `configuracoes_gerais`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de tabela `configuracoes_notificacao`

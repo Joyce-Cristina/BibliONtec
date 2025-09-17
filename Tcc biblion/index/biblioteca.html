@@ -62,17 +62,77 @@
   border-top: 1px solid #ccc;
 }
 
-
-/* Padronizar tamanho dos cards */
+/* ===== Estilo geral dos cards ===== */
 .card,
 .card-livro,
 .grid-cards .card,
 .card-container .card,
 .notifications-container .notification-card {
-  width: 950px !important;  /* ajuste aqui para o tamanho desejado */
-  height: 420px !important; /* altura padronizada */
-  max-width: none !important;
+  width: 320px;          /* largura padronizada igual ao acervo */
+  min-height: 360px;     /* altura mínima */
+  max-height: 420px;     /* altura máxima */
+  background-color: #d6c9b4;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
+
+/* ===== Imagem do card ===== */
+.card .card-img-top {
+  height: 160px;         /* altura da imagem */
+  object-fit: cover;     /* mantém proporção e preenche */
+  border-radius: 10px 10px 0 0;
+}
+
+/* ===== Corpo do card ===== */
+.card .card-body {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.card .card-body h5 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* ===== Footer do card ===== */
+.card .card-footer {
+  text-align: center;
+  padding: 10px;
+  margin-top: auto;
+}
+
+.card .card-footer button {
+  width: 100%;
+  padding: 6px 0;
+  border-radius: 5px;
+}
+
+/* Botões */
+.btn-success {
+  background-color: #28a745;
+  border: none;
+  color: #fff;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border: none;
+  color: #fff;
+}
+
+/* ===== Responsividade ===== */
+@media (max-width: 768px) {
+  .card {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 
   </style>
 </head>
