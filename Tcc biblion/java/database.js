@@ -696,9 +696,11 @@ app.post('/login', (req, res) => {
 
   // 1) tenta login de usuário
   const sqlUsuario = `
-    SELECT id, nome, FK_tipo_usuario_id AS tipo, foto, FK_instituicao_id, senha
-    FROM usuario 
-    WHERE email = ?
+    
+SELECT id, nome, FK_tipo_usuario_id , foto, FK_instituicao_id, senha
+FROM usuario
+WHERE email = ?
+
   `;
 
   connection.query(sqlUsuario, [email], (err, results) => {
@@ -715,7 +717,7 @@ app.post('/login', (req, res) => {
       // Token do usuário agora leva a instituição
       const token = jwt.sign({
         id: usuario.id,
-        tipo_usuario_id: usuario.tipo,              // ✅ corrigido (era undefined antes)
+        tipo_usuario_id:usuario.FK_tipo_usuario_id,             // ✅ corrigido (era undefined antes)
         FK_instituicao_id: usuario.FK_instituicao_id
       }, SECRET, { expiresIn: '8h' });
 
@@ -725,7 +727,7 @@ app.post('/login', (req, res) => {
         usuario: {
           id: usuario.id,
           nome: usuario.nome,
-          tipo_usuario_id: usuario.tipo,
+          tipo_usuario_id: usuario.FK_tipo_usuario_id,
           FK_instituicao_id: usuario.FK_instituicao_id,
           foto: usuario.foto || 'padrao.png'
         }
@@ -796,20 +798,6 @@ function autenticarToken(req, res, next) {
 }
 
 
-// Função de autenticação
-function autenticarToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) return res.status(401).json({ error: "Token não fornecido" });
-
-  jwt.verify(token, SECRET, (err, payload) => {
-    if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
-
-    req.user = payload; // 👈 dados do usuário
-    next();
-  });
-}
 
 
 
@@ -1029,33 +1017,11 @@ app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, r
 // ================= ROTAS DE USUÁRIO =================
 
 
-// Buscar usuário pelo ID (apenas da mesma instituição)
-app.get('/api/usuario/:id', autenticarToken, (req, res) => {
-  const id = req.params.id;
 
-  const sql = "SELECT * FROM usuario WHERE id = ? AND FK_instituicao_id = ?";
-  connection.query(sql, [id, req.user.FK_instituicao_id], (err, results) => {
-    if (err) {
-      console.error("Erro ao buscar usuário:", err);
-      return res.status(500).json({ error: "Erro ao buscar usuário" });
-    }
-
-    if (results.length === 0) {
-      return res.status(404).json({ error: "Usuário não encontrado ou não pertence à sua instituição" });
-    }
-
-    res.json({ usuario: results[0] });
-  });
-});
-
-
-//  =================  Rota para buscar dados do usuário logado pelo ID =================
-
-
-// Listar todos os usuários (apenas da mesma instituição)
+// ================= Rota: listar todos usuários da mesma instituição =================
 app.get('/api/usuarios', autenticarToken, (req, res) => {
   const sql = `
-    SELECT u.id, u.nome, u.email, u.telefone, u.foto,
+    SELECT u.id, u.nome, u.email, u.telefone, u.foto,u.senha,
            tu.tipo AS tipo,
            u.FK_tipo_usuario_id,
            c.curso AS nome_curso,
@@ -1065,7 +1031,6 @@ app.get('/api/usuarios', autenticarToken, (req, res) => {
     LEFT JOIN curso c ON u.curso_id = c.id
     WHERE u.FK_instituicao_id = ?
   `;
-
   connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuários:", err);
@@ -1074,8 +1039,81 @@ app.get('/api/usuarios', autenticarToken, (req, res) => {
     res.json(results);
   });
 });
-// ================= Rota para verificar se o nome já existe em usuário ou funcionário =================
 
+// ================= Rota: buscar usuário pelo ID =================
+app.get('/api/usuario/:id', autenticarToken, (req, res) => {
+  const id = req.params.id;
+  const sql = `
+    SELECT u.id, u.nome, u.email, u.telefone, u.foto,u.senha,
+           tu.tipo AS tipo,
+           u.FK_tipo_usuario_id,
+           c.curso AS nome_curso,
+           u.serie
+    FROM usuario u
+    LEFT JOIN tipo_usuario tu ON u.FK_tipo_usuario_id = tu.id
+    LEFT JOIN curso c ON u.curso_id = c.id
+    WHERE u.id = ? AND u.FK_instituicao_id = ?
+  `;
+  connection.query(sql, [id, req.user.FK_instituicao_id], (err, results) => {
+    if (err) {
+      console.error("Erro ao buscar usuário:", err);
+      return res.status(500).json({ error: "Erro ao buscar usuário" });
+    }
+    if (results.length === 0) return res.status(404).json({ error: "Usuário não encontrado" });
+    res.json({ usuario: results[0] });
+  });
+});
+
+// ================= Rota: atualizar usuário =================
+app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), (req, res) => {
+  const id = req.params.id;
+  const { nome, email, telefone, senha, curso_id, serie, FK_tipo_usuario_id } = req.body;
+  const foto = req.file ? req.file.filename : undefined;
+
+  const updates = [];
+  const values = [];
+
+  if (nome !== undefined) { updates.push("nome = ?"); values.push(nome); }
+  if (email !== undefined) { updates.push("email = ?"); values.push(email); }
+  if (telefone !== undefined) { updates.push("telefone = ?"); values.push(telefone); }
+  if (senha !== undefined) { updates.push("senha = ?"); values.push(senha); } // Pode criptografar se quiser
+  if (curso_id !== undefined) { updates.push("curso_id = ?"); values.push(curso_id); }
+  if (serie !== undefined) { updates.push("serie = ?"); values.push(serie); }
+  if (FK_tipo_usuario_id !== undefined) { updates.push("FK_tipo_usuario_id = ?"); values.push(FK_tipo_usuario_id); }
+  if (foto !== undefined) { updates.push("foto = ?"); values.push(foto); }
+
+  if (updates.length === 0) return res.status(400).json({ error: "Nenhum campo para atualizar." });
+
+  const sql = `UPDATE usuario SET ${updates.join(", ")} WHERE id = ? AND FK_instituicao_id = ?`;
+  values.push(id, req.user.FK_instituicao_id);
+
+  connection.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Erro ao atualizar usuário:", err);
+      return res.status(500).json({ error: "Erro ao atualizar usuário." });
+    }
+    if (result.affectedRows === 0) return res.status(404).json({ error: "Usuário não encontrado." });
+    res.json({ message: "Usuário atualizado com sucesso!" });
+  });
+});
+
+// ================= Rota: deletar usuário =================
+app.delete('/api/usuarios/:id', autenticarToken, (req, res) => {
+  const id = req.params.id;
+
+  const sqlDependencias = 'DELETE FROM usuario_curso WHERE FK_usuario_id = ?';
+  connection.query(sqlDependencias, [id], (err) => {
+    if (err) return res.status(500).json({ error: 'Erro ao deletar dependências' });
+
+    connection.query('DELETE FROM usuario WHERE id = ? AND FK_instituicao_id = ?', [id, req.user.FK_instituicao_id], (err, result) => {
+      if (err) return res.status(500).json({ error: 'Erro ao excluir usuário' });
+      if (result.affectedRows === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
+      res.status(200).json({ message: 'Usuário excluído com sucesso' });
+    });
+  });
+});
+
+// ================= Rota: verificar se nome já existe =================
 app.get('/verificarNome', (req, res) => {
   const { nome } = req.query;
   if (!nome) return res.status(400).json({ error: 'Nome não informado.' });
@@ -1089,55 +1127,13 @@ app.get('/verificarNome', (req, res) => {
     connection.query(sqlFunc, [nome], (err2, funcResult) => {
       if (err2) return res.status(500).json({ error: 'Erro ao verificar funcionário.' });
 
-      if ((alunoResult && alunoResult.length > 0) || (funcResult && funcResult.length > 0)) {
-        return res.json({ exists: true });
-      } else {
-        return res.json({ exists: false });
-      }
+      const exists = (alunoResult.length > 0) || (funcResult.length > 0);
+      res.json({ exists });
     });
   });
 });
 
-// ================= Atualizar dados do usuário =================
-app.put('/api/usuarios/:id', upload.single('foto'), (req, res) => {
-
-  const id = req.params.id;
-  const { nome, email, telefone, senha, curso_id, serie, FK_tipo_usuario_id } = req.body;
-  const foto = req.file ? req.file.filename : undefined;
-
-  const updates = [];
-  const values = [];
-
-  if (nome !== undefined) { updates.push("nome = ?"); values.push(nome); }
-  if (email !== undefined) { updates.push("email = ?"); values.push(email); }
-  if (telefone !== undefined) { updates.push("telefone = ?"); values.push(telefone); }
-  if (senha !== undefined) { updates.push("senha = ?"); values.push(senha); }
-  if (curso_id !== undefined) { updates.push("curso_id = ?"); values.push(curso_id); }
-  if (serie !== undefined) { updates.push("serie = ?"); values.push(serie); }
-  if (FK_tipo_usuario_id !== undefined) { updates.push("FK_tipo_usuario_id = ?"); values.push(FK_tipo_usuario_id); }
-  if (foto !== undefined) { updates.push("foto = ?"); values.push(foto); }
-
-  if (updates.length === 0) {
-    return res.status(400).json({ error: "Nenhum campo para atualizar." });
-  }
-
-  const sql = `UPDATE usuario SET ${updates.join(", ")} WHERE id = ?`;
-  values.push(id);
-
-  connection.query(sql, values, (err, result) => {
-    if (err) {
-      console.error("Erro ao atualizar usuário:", err);
-      return res.status(500).json({ error: "Erro ao atualizar usuário." });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Usuário não encontrado." });
-    }
-    res.json({ message: "Usuário atualizado com sucesso!" });
-  });
-});
-
-// =================  Rota para buscar todos os tipos de usuário=================
-
+// ================= Rota: listar tipos de usuário =================
 app.get("/tipos-usuario", (req, res) => {
   const sql = "SELECT id, tipo FROM tipo_usuario";
   connection.query(sql, (err, results) => {
@@ -1145,41 +1141,6 @@ app.get("/tipos-usuario", (req, res) => {
     res.json(results);
   });
 });
-// Lista todos os usuários
-app.get('/api/usuarios', (req, res) => {
-  const sql = `
-    SELECT u.id, u.nome, u.email, u.telefone, u.foto, u.FK_tipo_usuario_id AS tipo
-    FROM usuario u
-  `;
-
-  connection.query(sql, (err, results) => {
-    if (err) {
-      console.error('Erro ao buscar usuários:', err);
-      return res.status(500).json({ error: 'Erro no servidor' });
-    }
-    res.json(results);
-  });
-});
-
-
-// Apaga usuário
-app.delete('/api/usuarios/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-
-  // Se houver tabelas dependentes (como usuario_curso), deletar antes
-  const sqlDependencias = 'DELETE FROM usuario_curso WHERE FK_usuario_id = ?';
-  connection.query(sqlDependencias, [id], (err) => {
-    if (err) return res.status(500).json({ error: 'Erro ao deletar dependências' });
-
-    // Deletar o usuário
-    connection.query('DELETE FROM usuario WHERE id = ?', [id], (err, result) => {
-      if (err) return res.status(500).json({ error: 'Erro ao excluir usuário' });
-      if (result.affectedRows === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
-      res.status(200).json({ message: 'Usuário excluído com sucesso' });
-    });
-  });
-});
-
 
 //=================  Cadastro de Livro =================
 

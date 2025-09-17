@@ -200,6 +200,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Salva o token
         localStorage.setItem("token", data.token);
 
+           
+// Salva o usuário logado (se for aluno ou professor)
+if (data.usuario) {
+  localStorage.setItem("usuario", JSON.stringify(data.usuario));
+} else {
+  localStorage.removeItem("usuario");
+}
+
+// Salva funcionário (se for o caso)
+if (data.funcionario) {
+  localStorage.setItem("funcionario", JSON.stringify(data.funcionario));
+} else {
+  localStorage.removeItem("funcionario");
+}
+
         // Decide o redirecionamento de acordo com role
         if (data.usuario) {
           const tipo = Number(data.usuario.tipo_usuario_id);
@@ -415,43 +430,40 @@ document.querySelectorAll(".chk-funcao").forEach(chk => {
 
 async function carregarDados(id, tipo) {
   try {
-   const endpoint = tipo === "funcionario" ? "funcionarios" : "usuario";
-
+    const endpoint = tipo === "funcionario" ? "funcionarios" : "usuario";
     const token = localStorage.getItem("token");
 
     const res = await fetch(`http://localhost:3000/api/${endpoint}/${id}`, {
       headers: { "Authorization": "Bearer " + token }
     });
 
-    if (!res.ok) {
-      throw new Error(`Erro HTTP! status: ${res.status}`);
-    }
+    if (!res.ok) throw new Error(`Erro HTTP! status: ${res.status}`);
 
     const data = await res.json();
     const user = tipo === "funcionario" ? data.funcionario : data.usuario;
 
     if (!user) throw new Error("Usuário não encontrado");
 
+    // Preenche campos básicos
     document.getElementById("fname").value = user.nome || "";
     document.getElementById("email").value = user.email || "";
     document.getElementById("phone").value = user.telefone || "";
-    document.getElementById("senha").value = user.senha || "";
+document.getElementById("senha").value = user.senha ?? "";
 
+    // Preenche curso e série para alunos
     if (tipo === "usuario") {
-      const tipoUsuario = Number(user.tipo); // 👈 1 = aluno, 2 = professor
-
-      if (tipoUsuario === 1) {
+      if (user.FK_tipo_usuario_id == 1) { // 1 = aluno
         const cursoEl = document.getElementById("curso");
         const serieEl = document.getElementById("serie");
-
         if (cursoEl) cursoEl.value = user.nome_curso || "";
         if (serieEl) serieEl.value = user.serie || "";
       }
     }
 
+    // Preenche função para funcionário
     if (tipo === "funcionario") {
       const funcaoEl = document.getElementById("funcao");
-      if (funcaoEl) funcaoEl.value = user.FK_funcao_id || user.funcao_id || "";
+      if (funcaoEl) funcaoEl.value = user.FK_funcao_id || "";
     }
 
   } catch (err) {
@@ -460,6 +472,7 @@ async function carregarDados(id, tipo) {
   }
 }
 
+// ================= Inicialização =================
 const path = window.location.pathname;
 
 if (path.includes("areaAluno.html") || path.includes("areaProf.html")) {
@@ -479,15 +492,13 @@ if (path.includes("areaAdm.html") || path.includes("areaAdm2.html")) {
     window.location.href = "./index.html";
   } else {
     carregarDados(funcionarioSalvo.id, "funcionario");
-    // Desabilita o campo função para funcionário (mostra só para visualização)
+
     const funcaoCampo = document.getElementById("funcao");
-    if (funcaoCampo) {
-      funcaoCampo.disabled = true; // campo visível, mas não editável
-    }
+    if (funcaoCampo) funcaoCampo.disabled = true; // Apenas visualização
   }
 }
 
-// Salvar alterações - atualiza usuário ou funcionário conforme quem está logado
+// ================= Salvar alterações =================
 const editarBtn = document.getElementById('btnEditar');
 
 if (editarBtn) {
@@ -498,65 +509,58 @@ if (editarBtn) {
     const funcionario = JSON.parse(localStorage.getItem("funcionario"));
 
     let id, tipo;
-    if (usuario) {
-      id = usuario.id;
-      tipo = "usuario";
-    } else if (funcionario) {
-      id = funcionario.id;
-      tipo = "funcionario";
-    } else {
-      alert("Usuário não logado!");
-      window.location.href = "./login.html";
-      return;
+    if (usuario) { id = usuario.id; tipo = "usuario"; }
+    else if (funcionario) { id = funcionario.id; tipo = "funcionario"; }
+    else { 
+      alert("Usuário não logado!"); 
+      window.location.href = "./login.html"; 
+      return; 
     }
 
     const dadosAtualizados = {};
-
-    // Sempre pega telefone e senha se tiverem valores
     const telefoneEl = document.getElementById("phone");
+    if (telefoneEl && telefoneEl.value.trim() !== "") dadosAtualizados.telefone = telefoneEl.value.trim();
+
     const senhaEl = document.getElementById("senha");
+    if (senhaEl && senhaEl.value.trim() !== "") dadosAtualizados.senha = senhaEl.value.trim();
 
-    if (telefoneEl && telefoneEl.value.trim() !== "") {
-      dadosAtualizados.telefone = telefoneEl.value.trim();
-    }
-    if (senhaEl && senhaEl.value.trim() !== "") {
-      dadosAtualizados.senha = senhaEl.value.trim();
-    }
-
-    // Só adiciona nome e email se não for aluno/professor (ex: funcionário)
     const nomeEl = document.getElementById("fname");
     const emailEl = document.getElementById("email");
     if (nomeEl) dadosAtualizados.nome = nomeEl.value.trim();
     if (emailEl) dadosAtualizados.email = emailEl.value.trim();
 
-    // Só adiciona função se o campo existir na tela (funcionário)
-    const funcaoEl = document.getElementById("funcao");
-    if (funcaoEl) dadosAtualizados.FK_funcao_id = funcaoEl.value;
+    if (tipo === "funcionario") {
+      const funcaoEl = document.getElementById("funcao");
+      if (funcaoEl) dadosAtualizados.FK_funcao_id = funcaoEl.value;
+    }
 
-   try {
-  const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
+      const url = tipo === "funcionario"
+        ? `http://localhost:3000/api/funcionarios/${id}`
+        : `http://localhost:3000/api/usuarios/${id}`;
 
-  const url = tipo === "funcionario"
-    ? `http://localhost:3000/api/funcionarios/${id}`
-    : `http://localhost:3000/api/usuario/${id}`;
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify(dadosAtualizados),
+      });
 
-  const response = await fetch(url, {
-    method: "PUT",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + token
-    },
-    body: JSON.stringify(dadosAtualizados),
+      const data = await response.json();
+      alert(data.message || "Atualizado com sucesso!");
+    } catch (err) {
+      console.error("Erro ao atualizar:", err);
+      alert("Erro ao atualizar dados.");
+    }
   });
+}
 
-  const data = await response.json();
-  alert(data.message || "Atualizado com sucesso!");
-} catch (err) {
-  console.error("Erro ao atualizar:", err);
-  alert("Erro ao atualizar dados.");
-}
-  });
-}
+
+// ------------------ ABRIR MODAL DE EDIÇÃO ------------------
+const API_URL = "http://localhost:3000/api/funcionarios";
 // Função para gerar senha segura (8 dígitos: A-Z, a-z, 0-9)
 function gerarSenhaSegura() {
   const letrasMaiusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -582,30 +586,6 @@ function validarSenha(senha) {
   return regex.test(senha);
 }
 
-// Mostrar aviso ao editar a senha 
-const senhaInput = document.getElementById('senha');
-
-if (senhaInput) {
-  let avisoSenha = document.getElementById('avisoSenha');
-  if (!avisoSenha) {
-    avisoSenha = document.createElement('div');
-    avisoSenha.id = 'avisoSenha';
-    avisoSenha.style.color = 'red';
-    avisoSenha.style.fontSize = '0.9em';
-    avisoSenha.style.marginTop = '4px';
-    avisoSenha.style.display = 'none';
-    senhaInput.insertAdjacentElement('afterend', avisoSenha);
-  }
-
-  senhaInput.addEventListener('focus', () => {
-    avisoSenha.textContent = "A senha deve conter exatamente 8 caracteres, incluindo:\n 1 letra maiúscula (A-Z)\n 1 letra minúscula (a-z)\n 1 número (0-9)";
-    avisoSenha.style.display = 'block';
-  });
-
-  senhaInput.addEventListener('blur', () => {
-    avisoSenha.style.display = 'none';
-  });
-}
 
 
 

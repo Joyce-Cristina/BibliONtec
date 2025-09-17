@@ -7,12 +7,13 @@ async function carregarLivros() {
       return [];
     }
 
-    const resp = await fetch("http://localhost:3000/livros", {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
+const resp = await fetch("http://localhost:3000/acervo/livros", {
+  method: "GET",
+  headers: {
+    "Authorization": `Bearer ${token}`
+  }
+});
+
 
     if (!resp.ok) throw new Error("Erro ao buscar livros");
     return await resp.json();
@@ -28,37 +29,26 @@ function renderizarLivros(containerId, livros) {
 
   container.innerHTML = "";
 
-  let row;
-  livros.forEach((livro, index) => {
-    if (index % 3 === 0) {
-      row = document.createElement("div");
-      row.className = "row mb-4";
-      container.appendChild(row);
-    }
+  livros.forEach(livro => {
+    const capaSrc = livro.capa
+      ? `http://localhost:3000/uploads/${livro.capa}`
+      : `http://localhost:3000/uploads/logoquadrada.jpeg`;
 
-    const col = document.createElement("div");
-    col.className = "col-md-4 d-flex";
+    const card = document.createElement('div');
+    card.className = 'card mb-4 mx-auto'; // CSS igual ao acervo
+    card.style.maxWidth = "320px";
 
-    col.innerHTML = `
-      <div class="card card-livro d-flex flex-column w-100" style="cursor: pointer;">
-        <div class="card-img-container" style="height: 250px; overflow: hidden; display: flex; align-items: center; justify-content: center; background-color: #f5f5f5;">
-          <img src="http://localhost:3000/uploads/${livro.capa || 'logoquadrada.jpeg'}"
-               alt="${livro.titulo}"
-               style="object-fit: contain; max-width: 100%; max-height: 100%;">
-        </div>
-        <div class="card-body d-flex flex-column justify-content-center text-center">
-          <h5 class="card-title fw-bold mb-0">${livro.titulo}</h5>
-        </div>
-        <div class="card-footer text-center mt-auto">
-          ${livro.disponivel
-            ? `<button class="botao-disponivel">Reservar</button>`
-            : `<p>Faltam <span class="dias">${livro.dias_faltando || '?'} </span> dias</p>
-               <button class="botao-indisponivel">Indisponível</button>`}
-        </div>
+    card.innerHTML = `
+      <img src="${capaSrc}" class="card-img-top" alt="${livro.titulo || ''}">
+      <div class="card-body text-center">
+        <h5 class="card-title fw-bold">${livro.titulo || ''}</h5>
+      </div>
+      <div class="card-footer text-center">
+        ${livro.disponivel
+          ? `<button class="btn btn-success reservar-btn" data-id="${livro.id}">Reservar</button>`
+          : `<button class="btn btn-secondary" disabled>Indisponível</button>`}
       </div>
     `;
-
-    const card = col.querySelector(".card");
 
     // Clicar no card leva para a página do livro
     card.addEventListener("click", () => {
@@ -66,19 +56,12 @@ function renderizarLivros(containerId, livros) {
       window.location.href = "visLivro.html";
     });
 
-    // Botões dentro do card não devem redirecionar
-    const botoes = col.querySelectorAll("button");
-    botoes.forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        console.log(`Botão clicado: ${btn.className}`);
-      });
-    });
+    // Evita que clicar no botão dispare o click do card
+    const botoes = card.querySelectorAll("button");
+    botoes.forEach(btn => btn.addEventListener("click", (e) => e.stopPropagation()));
 
-    row.appendChild(col);
+    container.appendChild(card);
   });
-
-  console.log("Número de rows criadas:", document.querySelectorAll("#" + containerId + " > .row").length);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
