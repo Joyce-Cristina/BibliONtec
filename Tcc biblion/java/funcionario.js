@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarFuncoes(); // já carrega funções no select
 });
 
-const API_URL = "http://localhost:3000/api/funcionarios";
+const API_URL_FUNCIONARIOS = "http://localhost:3000/api/funcionarios";
 let todosOsFuncionarios = [];
 let todasAsFuncoes = [];
 
@@ -11,7 +11,7 @@ let todasAsFuncoes = [];
 async function carregarFuncionarios() {
   try {
     const token = localStorage.getItem("token");
-    const resposta = await fetch(API_URL, {
+    const resposta = await fetch(API_URL_FUNCIONARIOS, {
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -162,7 +162,6 @@ async function abrirModalEdicao(id) {
   modal.show();
 }
 
-
 // ------------------ SALVAR EDIÇÃO ------------------
 const formEditar = document.getElementById("form-editar");
 if (formEditar) {
@@ -182,7 +181,7 @@ if (formEditar) {
       formData.append("foto", fotoInput.files[0]);
     }
 
-    fetch(`${API_URL}/${id}`, {
+    fetch(`${API_URL_FUNCIONARIOS}/${id}`, {
       method: "PUT",
       headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
       body: formData
@@ -204,7 +203,7 @@ if (formEditar) {
 // ------------------ EXCLUIR ------------------
 function excluirFuncionario(id) {
   if (confirm("Tem certeza que deseja excluir este funcionário?")) {
-    fetch(`${API_URL}/${id}`, { 
+    fetch(`${API_URL_FUNCIONARIOS}/${id}`, { 
       method: "DELETE",
       headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
     })

@@ -23,6 +23,7 @@ async function carregarUsuarios() {
     console.error("Erro ao carregar usuários:", err);
   }
 }
+
 function exibirUsuarios(usuarios) {
   const container = document.getElementById('lista-usuarios');
   container.innerHTML = '';
@@ -115,7 +116,7 @@ function fecharModal() {
 }
 
 // ------------------ SALVAR EDIÇÃO ------------------
-const API_URL = 'http://localhost:3000/api/usuarios';
+const API_URL_USUARIOS = 'http://localhost:3000/api/usuarios';
 
 document.getElementById('form-editar').addEventListener('submit', function(e) {
   e.preventDefault();
@@ -132,7 +133,7 @@ document.getElementById('form-editar').addEventListener('submit', function(e) {
     formData.append("foto", fotoInput.files[0]);
   }
 
-  fetch(`${API_URL}/${id}`, {
+  fetch(`${API_URL_USUARIOS}/${id}`, {
     method: 'PUT',
     headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
     body: formData
@@ -149,7 +150,7 @@ document.getElementById('form-editar').addEventListener('submit', function(e) {
 // ------------------ EXCLUIR USUÁRIO ------------------
 function excluirUsuario(id) {
   if (confirm('Tem certeza que deseja excluir este usuário?')) {
-    fetch(`${API_URL}/${id}`, { 
+    fetch(`${API_URL_USUARIOS}/${id}`, { 
       method: 'DELETE',
       headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
     })
@@ -161,3 +162,4 @@ function excluirUsuario(id) {
       .catch(err => console.error('Erro ao excluir usuário:', err));
   }
 }
+

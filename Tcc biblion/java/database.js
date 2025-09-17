@@ -1922,78 +1922,51 @@ app.get("/emprestimo/livros", autenticarToken, (req, res) => {
     res.json(out);
   });
 });
-
 // ===== Rota: Criar empréstimo =====
-app.post('/emprestimos', autenticarToken, (req, res) => {
+app.post('/emprestimos', autenticarToken, async (req, res) => {
   const { usuarioId, livros } = req.body;
 
-  if (!usuarioId || !livros || livros.length === 0) {
-    return res.status(400).json({ error: "Usuário e livros são obrigatórios" });
+  if (!usuarioId || !Array.isArray(livros) || livros.length === 0) {
+    return res.status(400).json({ error: "Dados inválidos. Informe usuário e ao menos um livro." });
   }
 
-  /// Primeiro pega quantos dias a instituição dá de prazo
-  const sqlConfig = `
-  SELECT dias_emprestimo 
-  FROM configuracoes_instituicao 
-  WHERE FK_instituicao_id = ?
-`;
+  try {
+    // 1. Pega configuração de prazo da instituição do token
+    const [config] = await pool.query(
+      "SELECT duracao_padrao_emprestimo FROM configuracoes_gerais WHERE FK_instituicao_id = ?",
+      [req.user.FK_instituicao_id]
+    );
+    const dias = config[0]?.duracao_padrao_emprestimo || 7;
 
-  connection.query(sqlConfig, [req.user.FK_instituicao_id], (err, rows) => {
-    if (err) {
-      console.error("Erro ao buscar configuração:", err);
-      return res.status(500).json({ error: "Erro ao buscar configuração da instituição" });
+    const hoje = new Date();
+    const devolucaoPrevista = new Date();
+    devolucaoPrevista.setDate(hoje.getDate() + dias);
+
+    // 2. Insere o empréstimo
+    const [result] = await pool.query(
+      "INSERT INTO emprestimo (data_emprestimo, data_devolucao_prevista, FK_usuario_id, FK_instituicao_id) VALUES (?, ?, ?, ?)",
+      [hoje, devolucaoPrevista, usuarioId, req.user.FK_instituicao_id]
+    );
+    const emprestimoId = result.insertId;
+
+    // 3. Relaciona os livros
+    for (const livroId of livros) {
+      await pool.query("INSERT INTO emprestimo_livro (FK_emprestimo_id, FK_livro_id) VALUES (?, ?)", [emprestimoId, livroId]);
+      await pool.query("UPDATE livro SET disponivel = 0 WHERE id = ?", [livroId]); // marca como indisponível
     }
 
-    const dias = rows.length > 0 ? rows[0].dias_emprestimo : 7; // padrão 7 dias
-
-    const sqlEmprestimo = `
-    INSERT INTO emprestimo (FK_usuario_id, data_emprestimo, data_devolucao_prevista)
-    VALUES (?, NOW(), DATE_ADD(NOW(), INTERVAL ? DAY))
-  `;
-
-    connection.query(sqlEmprestimo, [usuarioId, dias], (err2, result) => {
-      if (err2) {
-        console.error("Erro ao criar empréstimo:", err2);
-        return res.status(500).json({ error: "Erro ao criar empréstimo" });
-      }
-
-      const emprestimoId = result.insertId;
-
-      // ... resto do código igual
-
-      // 2. Vincula livros ao empréstimo
-      const sqlLivros = `
-      INSERT INTO emprestimo_livro (FK_emprestimo_id, FK_livro_id)
-      VALUES ?
-    `;
-      const values = livros.map(livroId => [emprestimoId, livroId]);
-
-      connection.query(sqlLivros, [values], (err2) => {
-        if (err2) {
-          console.error("Erro ao vincular livros:", err2);
-          return res.status(500).json({ error: "Erro ao vincular livros" });
-        }
-
-        // 3. Marca os livros como indisponíveis
-        const sqlUpdate = `UPDATE livro SET disponivel = 0 WHERE id IN (?)`;
-        connection.query(sqlUpdate, [livros], (err3) => {
-          if (err3) {
-            console.error("Erro ao atualizar disponibilidade:", err3);
-            return res.status(500).json({ error: "Erro ao atualizar disponibilidade dos livros" });
-          }
-
-          res.json({ message: "Empréstimo registrado com sucesso!", emprestimoId });
-        });
-      });
-    });
-  });
-
+    res.status(201).json({ message: "Empréstimo registrado com sucesso!", emprestimoId });
+  } catch (err) {
+    console.error("Erro ao registrar empréstimo:", err);
+    res.status(500).json({ error: "Erro ao registrar empréstimo" });
+  }
 });
+
+
 // ===== Rota: Devolver livro =====
 app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {
   const emprestimoId = req.params.id;
 
-  // Atualiza a devolução
   const sql = `
     UPDATE emprestimo 
     SET data_real_devolucao = NOW() 
@@ -2005,16 +1978,15 @@ app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {
       return res.status(500).json({ error: "Erro ao devolver livro" });
     }
 
-    // Também libera o livro
     const sqlLivro = `
       UPDATE livro 
       SET disponivel = 1 
-      WHERE id IN (SELECT FK_livro_id FROM emprestimo_livro WHERE FK_emprestimo_id = ?)`;
+      WHERE id IN (SELECT FK_livro_id FROM emprestimo_livro WHERE FK_emprestimo_id = ?)
+    `;
 
     connection.query(sqlLivro, [emprestimoId], (err2) => {
       if (err2) {
-        console.error("Erro ao liberar livro:", err2);
-        return res.status(500).json({ error: "Erro ao atualizar disponibilidade" });
+        console.warn("⚠️ Coluna 'disponivel' pode não existir na tabela livro");
       }
       res.json({ message: "Livro devolvido com sucesso!" });
     });
