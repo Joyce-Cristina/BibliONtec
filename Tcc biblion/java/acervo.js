@@ -318,6 +318,24 @@ if (formEditarLivro) {
   });
 }
 
+async function buscarCDD(isbn) {
+  try {
+    const isbnLimpo = isbn.replace(/-/g, '');
+    console.log("ISBN limpo:", isbnLimpo);
+
+    const response = await fetch(`http://localhost:3000/api/buscar-cdd/${isbnLimpo}`);
+    
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.cdd || "000";
+  } catch (error) {
+    console.error("Erro ao buscar CDD:", error);
+    return "000";
+  }
+}
 
 function imprimirEtiqueta(id) {
   const livro = todosOsLivros.find(l => l.id === id);
