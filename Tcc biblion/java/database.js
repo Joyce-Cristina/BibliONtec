@@ -11,6 +11,7 @@ const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
 
 
+
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const SECRET = process.env.JWT_SECRET;
 
@@ -223,19 +224,25 @@ app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) =
 });
 
 app.get('/api/buscar-cdd/:isbn', async (req, res) => {
+  const isbn = req.params.isbn;
+
   try {
-    const { isbn } = req.params;
-    // Fazer requisição para OCLC API (com chave API se necessário)
-    const response = await fetch(`https://classify.oclc.org/classify2/Classify?isbn=${isbn}&summary=true`);
-    const text = await response.text();
-    
-    // Processar XML e extrair CDD...
-    // ... (lógica de parsing)
-    
-    res.json({ cdd: cddEncontrado });
-  } catch (error) {
-    // Fallback para caso de erro
-    res.json({ cdd: "000" });
+    const resposta = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+    if (!resposta.ok) {
+      return res.status(404).json({ error: 'Livro não encontrado' });
+    }
+
+    const dados = await resposta.json();
+
+    let cdd = "000";
+    if (dados.classifications && dados.classifications.dewey_decimal_class) {
+      cdd = dados.classifications.dewey_decimal_class[0] || "000";
+    }
+
+    res.json({ cdd });
+  } catch (erro) {
+    console.error('Erro ao buscar CDD:', erro);
+    res.status(500).json({ error: 'Erro ao buscar CDD' });
   }
 });
 
