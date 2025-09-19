@@ -180,7 +180,7 @@ function excluirLivro(id) {
   }
 }
 
-// Abrir modal de edição
+// Abrir modal de edição com preview da capa
 async function abrirModalEdicaoLivro(id) {
   const livro = todosOsLivros.find(l => l.id === id);
   if (!livro) return;
@@ -250,90 +250,115 @@ async function abrirModalEdicaoLivro(id) {
     if (el) el.value = livro[campos[campoId]] || '';
   }
 
+  // 🖼️ Preview da capa atual
+  const preview = document.getElementById('preview-capa');
+  if (preview) {
+    const capaSrc = livro.capa
+      ? `http://localhost:3000/uploads/${livro.capa}`
+      : `http://localhost:3000/uploads/padrao.jpg`;
+    preview.src = capaSrc;
+    preview.style.display = 'block';
+  }
+
+  // 🖼️ Atualizar preview ao escolher nova imagem
+  const inputCapa = document.getElementById('capa-livro');
+  if (inputCapa) {
+    inputCapa.value = '';
+    inputCapa.onchange = () => {
+      const file = inputCapa.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  }
+
   // Abre modal
   const modalEl = document.getElementById('modal-editar-livro');
   if (modalEl) new bootstrap.Modal(modalEl).show();
 }
+
+
+// Atualizar preview quando escolher nova imagem
+const inputCapa = document.getElementById('capa-livro');
+if (inputCapa) {
+  inputCapa.value = ''; // limpa campo anterior
+  inputCapa.onchange = () => {
+    const file = inputCapa.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+}
+
+// Event listener para o formulário de edição
 const formEditarLivro = document.getElementById('form-editar-livro');
 if (formEditarLivro) {
-  formEditarLivro.addEventListener('submit', async (e) => {
-    e.preventDefault(); // evita reload da página
-
+  formEditarLivro.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
     const id = document.getElementById('id-livro').value;
-    const titulo = document.getElementById('titulo-livro').value;
-    const isbn = document.getElementById('isbn-livro').value;
-    const sinopse = document.getElementById('sinopse-livro').value;
-    const paginas = document.getElementById('paginas-livro').value;
-
-    // Para selects
-    const generoId = parseInt(document.getElementById('genero-livro').value);
-    const editoraId = parseInt(document.getElementById('editora-livro').value);
-
-    // Pega autores selecionados (múltiplos)
-    const selectAutores = document.getElementById('autores-livro');
-    const autoresIds = Array.from(selectAutores.selectedOptions).map(opt => parseInt(opt.value));
-
-    const token = getToken();
-
+    const formData = new FormData();
+    
+    // Adicionar campos manualmente para ter controle total
+    formData.append('titulo', document.getElementById('titulo-livro').value);
+    formData.append('isbn', document.getElementById('isbn-livro').value);
+    formData.append('sinopse', document.getElementById('sinopse-livro').value);
+    formData.append('paginas', document.getElementById('paginas-livro').value);
+    formData.append('generoId', document.getElementById('genero-livro').value);
+    formData.append('editoraId', document.getElementById('editora-livro').value);
+    
+    // Processar autores selecionados
+    const autoresSelect = document.getElementById('autores-livro');
+    const autoresSelecionados = Array.from(autoresSelect.selectedOptions).map(option => option.value);
+    autoresSelecionados.forEach(autorId => {
+      formData.append('FK_autor_id', autorId);
+    });
+    
+    // Adicionar arquivo de capa se existir
+    const capaInput = document.getElementById('capa-livro');
+    if (capaInput.files[0]) {
+      formData.append('capa', capaInput.files[0]);
+    }
+    
     try {
-      // Faz o PUT
+      const token = getToken();
       const resposta = await fetch(`http://localhost:3000/livros/${id}`, {
         method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
+          // Não definir Content-Type - o browser fará isso automaticamente com boundary
         },
-        body: JSON.stringify({
-          titulo,
-          isbn,
-          sinopse,
-          paginas,
-          generoId,
-          editoraId,
-          autoresIds
-        })
+        body: formData
       });
-
-      const data = await resposta.json();
-
-      if (!resposta.ok) {
-        alert('Erro ao salvar livro: ' + (data.error || 'Tente novamente'));
-        return;
+      
+      if (resposta.ok) {
+        alert('Livro atualizado com sucesso!');
+        // Fechar modal
+        const modalEl = document.getElementById('modal-editar-livro');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+        // Recarregar lista de livros
+        carregarLivros();
+      } else {
+        const erro = await resposta.json();
+        alert('Erro ao atualizar livro: ' + (erro.error || 'Erro desconhecido'));
+        console.error('Detalhes do erro:', erro);
       }
-
-      // Fecha modal
-      const modalEl = document.getElementById('modal-editar-livro');
-      const modal = bootstrap.Modal.getInstance(modalEl);
-      modal.hide();
-
-      // Atualiza lista de livros
-      carregarLivros();
-
-      alert('Livro atualizado com sucesso!');
     } catch (erro) {
-      console.error('Erro ao salvar livro:', erro);
-      alert('Erro ao salvar livro. Veja console para detalhes.');
+      console.error('Erro ao atualizar livro:', erro);
+      alert('Erro ao conectar com o servidor');
     }
   });
-}
-
-async function buscarCDD(isbn) {
-  try {
-    const isbnLimpo = isbn.replace(/-/g, '');
-    console.log("ISBN limpo:", isbnLimpo);
-
-    const response = await fetch(`http://localhost:3000/api/buscar-cdd/${isbnLimpo}`);
-    
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data.cdd || "000";
-  } catch (error) {
-    console.error("Erro ao buscar CDD:", error);
-    return "000";
-  }
 }
 
 function imprimirEtiqueta(id) {
