@@ -1339,62 +1339,36 @@ app.get('/livros/:id', (req, res) => {
 
 //=================  Atualizar livro com chaves estrangeiras =================
 
-app.put('/livros/:id', (req, res) => {
-  const { id } = req.params;
-  const { titulo, isbn, autoresIds, editoraId, generoId, sinopse, paginas } = req.body;
+app.put('/livros/:id', autenticarToken, upload.single('capa'), (req, res) => {
 
-  const sqlLivro = `
-    UPDATE livro
-    SET titulo = ?, isbn = ?, FK_editora_id = ?, FK_genero_id = ?,  sinopse = ?, paginas = ?
-    WHERE id = ?
-  `;
+  console.log('Dados recebidos:', req.body); // Para debug
+  console.log('Arquivo recebido:', req.file); // Para debug
 
-  connection.query(
-    sqlLivro,
-    [titulo, isbn, editoraId, generoId,  sinopse, paginas, id,autoresIds],
-    (err, result) => {
-      if (err) {
-        console.error('Erro ao atualizar livro:', err);
-        return res.status(500).json({ error: 'Erro no servidor' });
-      }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Livro não encontrado' });
-      }
+  const id = parseInt(req.params.id);
+  const { titulo, isbn, sinopse, paginas, generoId, editoraId } = req.body;
+  const capa = req.file ? req.file.filename : null;
 
-      // Atualiza os autores (livro_autor)
-      if (Array.isArray(autoresIds)) {
-        // Primeiro, deleta os autores antigos
-        connection.query('DELETE FROM livro_autor WHERE FK_livro_id = ?', [id], (err) => {
-          if (err) {
-            console.error('Erro ao deletar autores antigos:', err);
-            return res.status(500).json({ error: 'Erro ao atualizar autores' });
-          }
+  const sql = `
+    UPDATE livro 
+    SET titulo=?, isbn=?, sinopse=?, paginas=?, FK_genero_id=?, FK_editora_id=? ${capa ? ', capa=?' : ''}
+    WHERE id=?`;
 
-          // Insere os novos autores
-          if (autoresIds.length > 0) {
-            const valoresAutores = autoresIds.map(autorId => [id, autorId]);
-            connection.query('INSERT INTO livro_autor (FK_livro_id, FK_autor_id) VALUES ?', [valoresAutores], (err) => {
-              if (err) {
-                console.error('Erro ao inserir autores:', err);
-                return res.status(500).json({ error: 'Erro ao atualizar autores' });
-              }
-              return res.json({ message: 'Livro atualizado com sucesso' });
-            });
-          } else {
-            return res.json({ message: 'Livro atualizado com sucesso' });
-          }
-        });
-      } else {
-        return res.json({ message: 'Livro atualizado com sucesso' });
-      }
+  const values = [titulo, isbn, sinopse, paginas, generoId, editoraId];
+  if (capa) values.push(capa);
+  values.push(id);
+
+  connection.query(sql, values, (err) => {
+    if (err) {
+      console.error('Erro ao atualizar livro:', err);
+      return res.status(500).json({ error: 'Erro ao atualizar livro' });
     }
-  );
+    res.json({ message: 'Livro atualizado com sucesso!' });
+  });
 });
-// Deletar livro com dependências
+
 app.delete('/livros/:id', (req, res) => {
   const { id } = req.params;
 
-  // Primeiro, deletar os autores associados
   connection.query('DELETE FROM livro_autor WHERE FK_livro_id = ?', [id], (err) => {
     if (err) {
       console.error('Erro ao deletar autores do livro:', err);
