@@ -285,6 +285,7 @@
             border-radius: 10px;
             cursor: pointer;
             box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
         }
 
         /* Menu do avatar */
@@ -322,6 +323,14 @@
             border: none;
             border-top: 1px solid #ccc;
         }
+
+        /* Ajusta o dropdown para não sair para fora */
+.navbar .dropdown-menu {
+  right: 0;          /* fixa no lado direito do botão */
+  left: auto;        /* cancela alinhamento automático */
+  max-width: 90vw;   /* limite de largura relativo à tela */
+  word-wrap: break-word; /* quebra texto se necessário */
+}
     </style>
 </head>
 
@@ -396,10 +405,12 @@
             </p>
             <br>
             <p><strong>Contatos:</strong></p>
+            <div style="display: flex; gap: 40px;"></div>
             <p>E-mail: tcc@gmail.com</p>
             <p>Instagram: @BibliONtec</p>
             <div class="text-end">
                 <a href="./index.html" class="btn btn-cadastro">Entrar em outra conta</a>
+            </div>
             </div>
         </div>
 

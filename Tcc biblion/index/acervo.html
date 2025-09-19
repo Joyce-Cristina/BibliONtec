@@ -323,6 +323,38 @@
       }
     }
 
+    /* Responsivo */
+    @media (max-width: 800px) {
+      .sidebar {
+        position: relative;
+        height: auto;
+        width: 100%;
+        border-radius: 0;
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .sidebar a,
+      .sidebar button.dropdown-toggle {
+        margin-bottom: 0;
+        flex: 1 1 auto;
+        text-align: center;
+        padding: 8px 5px;
+      }
+
+      .main-container {
+        padding-left: 0;
+      }
+
+      .content {
+        width: 100%;
+        max-width: 100%;
+        margin-top: 10px;
+      }
+    }
+
     #cardsContainer {
       display: grid;
       grid-template-columns: repeat(3, 1fr);

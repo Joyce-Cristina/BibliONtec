@@ -22,57 +22,112 @@
       font-size: 17px;
     }
 
-    .navbar {
-      background-color: #7a1505;
-      z-index: 1050;
-    }
+    .navbar,
+        .sidebar,
+        .sidebar a,
+        .sidebar button.dropdown-toggle {
+            font-size: 17px;
+        }
 
+        .navbar {
+            background-color: #7a1505;
+            z-index: 1050;
+        }
+
+    /* Sidebar */
     .sidebar {
-      position: absolute;
-      top: 56px;
-      left: 0;
-      width: 170px;
-      background-color: #7a1505;
-      padding: 15px 10px;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      z-index: 1040;
-      border-bottom-right-radius: 10px;
-    }
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 220px;
+            height: calc(100vh - 56px);
+            background-color: #7a1505;
+            padding: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 1040;
+        }
 
-    .sidebar a {
-      display: block;
-      color: white;
-      margin-bottom: 10px;
-      text-align: left;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: 500;
-      background-color: #7a1505;
-      transition: background-color 0.3s ease;
-    }
+        .dropdown-menu {
+            background-color: #691400;
+        }
 
-    .sidebar a:hover {
-      background-color: #a82010;
-    }
+        .dropdown-item {
+            background-color: #691400;
+        }
 
+        .dropdown-item:hover {
+            background-color: #a82010;
+            color: white;
+        }
+
+        .dropdown-item.active {
+            background-color: #4d0f03 !important;
+            color: white !important;
+        }
+
+        .sidebar a,
+        .sidebar button.dropdown-toggle {
+            display: block;
+            background-color: #7a1505;
+            color: white;
+            margin-bottom: 10px;
+            text-align: left;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar button.dropdown-toggle:hover {
+            background-color: #a82010;
+            color: white;
+        }
+
+        .sidebar>a.active {
+            background-color: #4d0f03 !important;
+            color: white !important;
+            box-shadow: none !important;
+        }
+
+        .sidebar>button.dropdown-toggle.active {
+            background-color: #7a1505 !important;
+            color: white !important;
+            box-shadow: none !important;
+        }
+
+    /* Conteúdo Central */
     .main-container {
-      padding: 20px 20px 20px 190px;
-      display: flex;
-      justify-content: center;
-    }
+            flex: 1;
+            padding-left: 270px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column; /* Mudança aqui, agora o layout vai ser em coluna */
+            justify-content: flex-start;
+            overflow-y: auto;
+            min-height: calc(100vh - 56px);
+        }
 
-    .content {
-      background-color: #dab57e;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
-      width: 700px;
-      font-size: 1.2rem;
-    }
+        .content {
+            background-color: #dab57e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 900px;
+            margin: 0 auto;
+            min-height: auto;  /* Remover qualquer valor fixo de altura */
+            height: auto;  /* Garantir que a altura se ajuste automaticamente ao conteúdo */
+            overflow: visible;  /* Certificar-se de que não haverá rolagem interna */
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
 
     .content h1 {
       font-size: 2rem;
@@ -86,32 +141,49 @@
       text-align: justify;
     }
 
+    /* Responsivo */
     @media (max-width: 800px) {
-      .sidebar {
-        position: relative;
-        width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
-        padding: 10px;
-      }
+            .sidebar {
+                position: relative;
+                height: auto;
+                width: 100%;
+                border-radius: 0;
+                padding: 10px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
 
-      .main-container {
-        padding-left: 0;
-      }
+            .sidebar a,
+            .sidebar button.dropdown-toggle {
+                margin-bottom: 0;
+                flex: 1 1 auto;
+                text-align: center;
+                padding: 8px 5px;
+            }
 
-      .content {
-        width: 100%;
-      }
-    }
+            .main-container {
+                padding-left: 0;
+            }
 
-    .notificacao-dropdown {
-      background-color: #ffffff;
-      min-width: 250px;
-      max-height: 300px;
-      overflow-y: auto;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-left: -20px;
-    }
+            .content {
+                width: 100%;
+                max-width: 100%;
+                margin-top: 10px;
+            }
+        }
+
+        .notificacao-dropdown {
+            background-color: #ffffff;
+            min-width: 250px;
+            max-width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            border-radius: 0px;
+            padding: 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-left: -20px;
+        }
 
     .notificacao-dropdown .dropdown-item {
       background-color: #ffffff;
@@ -147,18 +219,18 @@
   cursor: pointer;
 }
 
-/* Menu que aparece ao clicar no avatar */
+/* Menu do avatar */
 .menu-perfil {
-  position: absolute;
-  bottom: 60px;
-  left: 0;
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  display: none;
-  min-width: 150px;
-}
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            min-width: 200px;
+        }
 
 /* Mostrar o menu quando ativado com JS */
 .menu-perfil.show {
@@ -167,22 +239,34 @@
 
 /* Itens do menu */
 .menu-perfil .dropdown-item {
-  display: block;
-  padding: 10px;
-  text-decoration: none;
-  color: #333;
-  border-radius: 5px;
-  transition: background-color 0.2s ease;
-}
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #333;
+            display: block;
+            background-color: #fff;
+            transition: background-color 0.2s;
+        }
 
 .menu-perfil .dropdown-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f5f5f5;
 }
 .menu-perfil hr.menu-divider {
-  margin: 5px 0;
-  border: none;
-  border-top: 1px solid #ccc;
+  margin: 0;
+            border: none;
+            border-top: 1px solid #ccc;
 }
+
+/* Ajusta o dropdown para não sair para fora */
+.navbar .dropdown-menu {
+  max-width: 90vw;   /* limite de largura relativo à tela */
+  word-wrap: break-word; /* quebra texto se necessário */
+}
+/* altura típica da navbar do Bootstrap ~56–60px */
+.main-container,
+    .main-container-custom {
+      padding-top: 100px !important;
+      /* evita que o conteúdo fique escondido sob a navbar */
+    }
 
   </style>
 </head>
@@ -190,10 +274,10 @@
 <body>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid d-flex align-items-center">
+   <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid d-flex align-items-center" style="gap: 0;">
       <a class="navbar-brand" href="./homepageProf.html">
-        <img src="../img/logoreta.png" alt="Logo" style="height: 50px;">
+        <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
@@ -214,7 +298,7 @@
                 data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
                 Atualizações
               </a>
-              <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
+              <ul class="dropdown-menu dropdown-menu-end notificacao-dropdown" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="#">Foi adicionado um <br>elemento novo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
@@ -233,16 +317,17 @@
   </nav>
 
   <!-- Sidebar -->
-  <div class="sidebar">
-    <a href="./livrosProf.html">Livros</a>
-    <a href="./areaProf.html">Perfil</a>
-  </div>
+  <div class="sidebar d-flex flex-column">
+    <a class="btn w-100" href="./livrosProf.html">Livros</a>
+    <a class="btn w-100" href="./areaProf.html">Perfil</a>
+</div>
 
   <!-- Conteúdo Central -->
   <div class="main-container">
     <div class="content">
       <h1>Bem-vindo!</h1>
-      <p>Neste site você poderá visualizar o acervo da biblioteca do seu local de trabalho e indicá-los para seus alunos.</p>
+      <p style="font-size: 20px; text-align: justify;">
+        Neste site você poderá visualizar o acervo da biblioteca do seu local de trabalho e indicá-los para seus alunos.</p>
       <br>
       <p><strong>Contatos:</strong></p>
       <div style="display: flex; gap: 40px;">
