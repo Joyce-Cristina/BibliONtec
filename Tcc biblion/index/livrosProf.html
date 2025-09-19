@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="../css/style.css">
+
 
   <style>
     body {
@@ -46,13 +46,6 @@
       z-index: 1040!important;
     }
 
-    .dropdown-menu {
-      background-color: #691400;
-    }
-
-    .dropdown-item {
-      background-color: #691400;
-    }
 
     .dropdown-item:hover {
       background-color: #a82010;
@@ -60,19 +53,19 @@
     }
 
     .dropdown-item.active {
-      background-color: #4d0f03 !important;
-      color: white !important;
+      background-color: #4d0f03;
+      color: white;
     }
 
 
     .sidebar a,
     .sidebar button.dropdown-toggle {
       display: block!important;
-      background-color: #7a1505!important;
-      color: white!important;
-      margin-bottom: 10px!important;
-      text-align: left!important;
-      border: none!important;
+      background-color: #7a1505;
+      color: white;
+      margin-bottom: 10px;
+      text-align: left;
+      border: none;
       padding: 10px 15px!important;
       border-radius: 5px!important;
       text-decoration: none!important;
@@ -83,20 +76,20 @@
 
     .sidebar a:hover,
     .sidebar button.dropdown-toggle:hover {
-      background-color: #a82010!important;
-      color: white!important;
+      background-color: #a82010;
+      color: white;
     }
 
     .sidebar>a.active {
-      background-color: #4d0f03 !important;
-      color: white !important;
-      box-shadow: none !important;
+      background-color: #4d0f03 ;
+      color: white ;
+      box-shadow: none ;
     }
 
     .sidebar>button.dropdown-toggle.active {
-      background-color: #7a1505 !important;
-      color: white !important;
-      box-shadow: none !important;
+      background-color: #7a1505 ;
+      color: white ;
+      box-shadow: none ;
     }
 
     .main {
@@ -142,26 +135,34 @@
             font-weight: bold;
         }
 
-    .content h2 {
+    .content h1 {
       font-size: 2rem;
       text-align: center;
       margin-bottom: 20px;
       font-weight: bold;
     }
 
+    h1 {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 20px;
+      font-family: Georgia, 'Times New Roman', Times, serif;
+    }
+
     .content p {
       font-size: 1.1rem;
-      text-align: justify;
+      text-align: center;
     }
 
 
     .dropdown-menu {
-      background-color: #d9d9d9;
+      background-color: #ffffff;
       border-radius: 12px;
     }
 
     .dropdown-item:hover {
-      background-color: #c0c0c0;
+      background-color: #e9e9e9;
+      color: #000;
     }
 
    .livro-card {
@@ -292,10 +293,166 @@
       padding-top: 100px !important;
       /* evita que o conteúdo fique escondido sob a navbar */
     }
+
+    /* ===== Grid Cards Biblioteca ===== */
+    .grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* força ocupar o espaço */
+  gap: 30px;
+  justify-items: start;   /* 🔥 itens começam pela esquerda */
+  align-items: start;
+  max-width: 1200px;
+  margin: 30px auto 0;   /* só centraliza o bloco no meio da tela */
+}
+
+
+.grid-cards .card {
+  display: flex;
+  flex-direction: column;
+  width: 100% !important;   /* ocupa a coluna do grid */
+  max-width: 500px;         /* limite de largura */
+  height: auto !important;  /* altura ajusta conforme conteúdo */
+  background-color: #d3d3d3;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+}
+
+.grid-cards .card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+    /* Responsividade */
+    @media (max-width: 992px) {
+      .grid-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 576px) {
+      .grid-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Estilo dos cards */
+    .grid-cards .card {
+      width: 100%;
+      max-width: 320px;
+      /* 🔥 mais largura */
+      min-height: 320px;
+      /* 🔥 menos altura */
+      max-height: 360px;
+      background-color: #d6c9b4;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .grid-cards .card-img-top {
+      height: 160px;
+      /* 🔥 antes era 200px, agora menor */
+      object-fit: cover;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .grid-cards .card-body {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .grid-cards .card-body p {
+      font-size: 14px;
+      margin: 3px 0;
+    }
+
+    .grid-cards .card-body .text-truncate {
+      max-height: 30px;
+      /* 🔥 limita mais a sinopse */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+/* Barra de pesquisa */
+.search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+/* === search-box (igual homepageAluno) === */
+.search-box {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 16px;
+}
+.search-box i {
+  font-size: 18px;
+  color: #000;
+}
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
+
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
+
+/* Sidebar some no mobile e vira "menu lateral" */
+@media (max-width: 992px) {
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    left: -220px;
+    width: 220px;
+    height: 100%;
+    transition: left 0.3s ease;
+    z-index: 1051;
+  }
+  .sidebar.show {
+    left: 0;
+  }
+
+  .main-container-custom {
+    padding-left: 0 !important;
+    padding-top: 80px !important;
+  }
+}
+    
+
   </style>
 </head>
 
-<body class="profAcervo">
+<body>
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
@@ -316,25 +473,22 @@
               </a>
             </li>
           </ul>
-         <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+          <ul class="navbar-nav mb-2 mb-lg-0 me-3">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false" style="color: white;">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
                 Atualizações
               </a>
-              <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">Foi adicionado um 
-                  <br>elemento novo  <br> no sistema</a></li>
+              <ul class="dropdown-menu dropdown-menu-end notificacao-dropdown" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">Foi adicionado um <br>elemento novo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="#">Foi excluído um 
-                 <br> elemento antigo <br> no sistema</a></li>
+                <li><a class="dropdown-item" href="#">Foi excluído um <br> elemento antigo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="#">Foi alterado um
-                  <br> elemento no sistema</a></li>
+                <li><a class="dropdown-item" href="#">Foi alterado um <br> elemento no sistema</a></li>
               </ul>
             </li>
           </ul>
@@ -353,14 +507,18 @@
   <div class="main-container">
     <!-- Card Cabeçalho -->
     <div class="content">
-      <h2>Livros</h2>
-      <p><strong>Esta página é para visualizar todos os livros cadastrados na biblioteca.<br>
-      Nesta página é possível recomendar os livros para os alunos.</strong></p>
-      <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
-        <input type="text" class="form-control" style="max-width: 300px; border-radius: 10px;" placeholder="Buscar livro...">
-        <i class="bi bi-search fs-5"></i>
+      <h1>Livros</h1>
+      <p>Esta página é para visualizar e recomendar todos os livros cadastrados na biblioteca</p>
+      <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center">
+          <div class="search-box">
+          <input type="text" placeholder="Buscar usuário...">
+          <i class="bi bi-search"></i>
+        </div>
       </div>
     </div>
+  </div>
+<br>
 
     <!-- Filtros -->
     <div class="container my-4">
@@ -396,7 +554,7 @@
         </div>
       </div>
     </div>
-
+<br> 
     <!-- Cards dos Livros -->
     <div class="container">
       <div class="row g-4 justify-content-center">

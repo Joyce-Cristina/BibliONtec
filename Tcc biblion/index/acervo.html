@@ -102,15 +102,13 @@
     .main-container {
       flex: 1;
       padding-left: 270px;
-      /* espaço para sidebar no desktop */
-      padding-top: 76px;
       /* ajustado para navbar */
       padding-right: 30px;
     }
 
 
     .filtro-dropdown {
-      background-color: #d9d9d9 !important;
+      background-color: #ffff !important;
       max-height: 300px;
       overflow-y: auto;
       border-radius: 12px;
@@ -124,11 +122,11 @@
     }
 
     .item-com-linha {
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid #c2c2c2;
     }
 
     .filtro-dropdown .dropdown-item:hover {
-      background-color: #c0c0c0 !important;
+      background-color: #e6e6e6 !important;
     }
 
     .filtro-dropdown::-webkit-scrollbar {
@@ -229,7 +227,7 @@
     /* altura típica da navbar do Bootstrap ~56–60px */
     .main-container,
     .main-container-custom {
-      padding-top: 76px !important;
+      padding-top: 50px !important;
       /* evita que o conteúdo fique escondido sob a navbar */
     }
 
@@ -417,6 +415,57 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+/* Barra de pesquisa */
+.search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+/* === search-box (igual homepageAluno) === */
+.search-box {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 16px;
+}
+.search-box i {
+  font-size: 18px;
+  color: #000;
+}
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
+
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
+.main-container .container {
+  margin-top: 10px !important;  /* reduz distância do cabeçalho */
+  margin-bottom: 20px;          /* mantém espaço antes dos cards */
+}
+
   </style>
 </head>
 
@@ -493,13 +542,14 @@
 
       <!-- Card Cabeçalho Centralizado -->
       <div class="p-4 shadow text-center flex-grow-1"
-        style="background-color: #c7aa74; border-radius: 15px; max-width: 800px;">
+        style="background-color: #dab57e; border-radius: 15px; max-width: 800px;">
         <h2 style="font-family: Georgia, serif; font-weight: 500;">Seus livros</h2>
         <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
         <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
-          <input type="text" id="buscaLivro" class="form-control" placeholder="Buscar livro..."
-            style="max-width: 300px; border-radius: 10px;">
-          <i class="bi bi-search" style="font-size: 1.2rem;"></i>
+          <div class="search-box">
+          <input type="text" placeholder="Buscar usuário...">
+          <i class="bi bi-search"></i>
+        </div>
         </div>
       </div>
 
@@ -510,6 +560,7 @@
         </button>
       </div>
     </div>
+    
   </div>
 
 
@@ -572,7 +623,7 @@
     </div>
     <div class="modal fade" id="modal-editar-livro" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content" style="background-color: #ccb182; border-radius: 10px;">
+    <div class="modal-content" style="background-color: #fff; border-radius: 10px;">
       <div class="modal-header">
         <h5 class="modal-title fw-bold">Editar Livro</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

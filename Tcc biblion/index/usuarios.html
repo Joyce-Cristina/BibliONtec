@@ -338,6 +338,80 @@
   #lista-usuarios { grid-template-columns: 1fr; }
 }
 
+/* altura típica da navbar do Bootstrap ~56–60px */
+.main-content,
+    .main-container-custom {
+      padding-top: 50px !important;
+      /* evita que o conteúdo fique escondido sob a navbar */
+    }
+
+    /* Barra de pesquisa */
+.search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #d2b28c;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+/* === search-box (igual homepageAluno) === */
+.search-box {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 16px;
+}
+.search-box i {
+  font-size: 18px;
+  color: #000;
+}
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
+
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
+
+/* Sidebar some no mobile e vira "menu lateral" */
+@media (max-width: 992px) {
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    left: -220px;
+    width: 220px;
+    height: 100%;
+    transition: left 0.3s ease;
+    z-index: 1051;
+  }
+  .sidebar.show {
+    left: 0;
+  }
+
+  .main-container-custom {
+    padding-left: 0 !important;
+    padding-top: 80px !important;
+  }
+}
   </style>
 </head>
 
@@ -420,12 +494,12 @@
           <h2 class="text-center" style="font-family: Georgia, serif; font-weight: 500;">Seus usuários</h2>
           <p class="text-center fw-bold mb-4">Esta página é para visualizar todos os seus usuários cadastrados.</p>
           <div class="d-flex justify-content-center">
-            <div class="input-group" style="max-width: 400px;">
-              <input type="text" class="form-control rounded-start-pill" placeholder="Buscar usuário..." />
-              <button class="btn btn-light rounded-end-pill" type="button">
-                <i class="bi bi-search"></i>
-              </button>
+            <div class="d-flex justify-content-center">
+              <div class="search-box">
+              <input type="text" placeholder="Buscar usuário...">
+              <i class="bi bi-search"></i>
             </div>
+          </div>
           </div>
         </div>
 

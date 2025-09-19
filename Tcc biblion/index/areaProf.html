@@ -21,12 +21,19 @@
             z-index: 1050;
         }
 
+    .navbar,
+    .sidebar,
+    .sidebar a,
+    .sidebar button.dropdown-toggle {
+      font-size: 17px!important;
+    }
+
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             width: 220px;
-            height: auto;
+            height: 100vh!important;
             background-color: #7a1505;
             padding: 76px 20px 20px 20px;
             color: white;
@@ -35,35 +42,81 @@
             z-index: 1040;
         }
 
-        .sidebar a {
-            display: block;
-            background-color: #7a1505;
-            color: white;
-            margin-bottom: 10px;
-            text-align: left;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
 
-        .sidebar a:hover {
-            background-color: #a82010;
-            color: white;
-        }
+    .dropdown-item:hover {
+      background-color: #a82010;
+      color: white;
+    }
 
-        .sidebar>a.active {
-            background-color: #4d0f03 !important;
-            color: white !important;
-            box-shadow: none !important;
-        }
+    .dropdown-item.active {
+      background-color: #4d0f03;
+      color: white;
+    }
+
+    .sidebar a,
+    .sidebar button.dropdown-toggle {
+      display: block!important;
+      background-color: #7a1505!important;
+      color: white!important;
+      margin-bottom: 10px!important;
+      text-align: left!important;
+      border: none!important;
+      padding: 10px 15px!important;
+      border-radius: 5px!important;
+      text-decoration: none!important;
+      font-weight: 500!important;
+      cursor: pointer!important;
+      transition: background-color 0.3s ease!important;
+    }
+
+    .sidebar a:hover,
+    .sidebar button.dropdown-toggle:hover {
+      background-color: #a82010 !important;
+      color: white !important;
+    }
+
+    .sidebar>a.active {
+      background-color: #4d0f03 !important;
+      color: white  !important;
+      box-shadow: none  !important;
+    }
+
+    .sidebar>button.dropdown-toggle.active {
+      background-color: #7a1505  !important;
+      color: white !important ;
+      box-shadow: none  !important;
+    }
+
+    
 
         .main {
-            margin-left: 220px;
-            padding: 20px;
+            flex: 1;
+      padding-left: 270px;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      overflow-y: auto;
+      min-height: calc(100vh - 56px);
+        }
+
+ /* altura típica da navbar do Bootstrap ~56–60px */
+    .main-container,
+    .main-container-custom {
+      padding-top: 100px !important;
+      /* evita que o conteúdo fique escondido sob a navbar */
+    }
+
+    .main-container {
+            flex: 1;
+            padding-left: 270px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column; /* Mudança aqui, agora o layout vai ser em coluna */
+            justify-content: flex-start;
+            overflow-y: auto;
+            min-height: calc(100vh - 56px);
         }
 
         @media (max-width: 768px) {
@@ -86,7 +139,141 @@
                 white-space: nowrap;
             }
         }
-        /* Container do avatar fixado no canto inferior esquerdo */
+        
+
+/* Imagem do avatar */
+.avatar-navbar {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+/* Menu que aparece ao clicar no avatar */
+.menu-perfil {
+    display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            min-width: 200px; 
+}
+
+/* Mostrar o menu quando ativado com JS */
+.menu-perfil.show {
+  display: block;
+}
+
+
+.menu-perfil .dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+.menu-perfil hr.menu-divider {
+  margin: 5px 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+.content {
+            background-color: #dab57e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 900px;
+            margin: 0 auto;
+            min-height: auto;  /* Remover qualquer valor fixo de altura */
+            height: auto;  /* Garantir que a altura se ajuste automaticamente ao conteúdo */
+            overflow: visible;  /* Certificar-se de que não haverá rolagem interna */
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+    .content h2 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    .content p {
+      font-size: 1.1rem;
+      text-align: justify;
+    }
+
+/* Notificações - centraliza e controla espaçamento */
+.notificacoes-container {
+  text-align: center;         /* centraliza o alerta */
+  margin-top: 50px;           /* ajuste aqui a distância vertical (coloque 100px se quiser) */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;                  /* espaço entre o alerta e os cards (diminua se quiser) */
+}
+
+/* Faz o "card" das notificações ter a mesma largura do .content (ou ajustar) */
+.notificacoes-cards {
+  max-width: 900px;           /* mesma largura do .content (900px) */
+  width: 100%;
+  margin: 0 auto;             /* garante alinhamento com .content */
+  background-color: #5a3c24;
+  border-radius: 15px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Ajuste do alerta */
+#notificacoes3 {
+  background-color: #d32600;
+  color: #fff;
+  border-radius: 10px;
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 0;                  /* já usamos gap no container */
+}
+
+/* header interno dos cards */
+.notificacoes-cards .header {
+  background-color: #3b2a1a;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.dropdown-menu {
+      background-color: #ffffff;
+      border-radius: 12px;
+    }
+
+    .dropdown-item:hover {
+      background-color: #e9e9e9;
+      color: #000;
+    }
+
+    .notificacao-dropdown .dropdown-item {
+      background-color: #ffffff;
+      color: #333333;
+      padding: 15px 20px;
+      border: none;
+      border-bottom: 1px solid #ddd;
+      font-size: 16px;
+    }
+
+    .notificacao-dropdown .dropdown-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .notificacao-dropdown .dropdown-item.active {
+      background-color: #a82010;
+      color: white;
+    }
+    /* Container do avatar fixado no canto inferior esquerdo */
 .avatar-container {
   position: fixed;
   bottom: 20px;
@@ -103,18 +290,18 @@
   cursor: pointer;
 }
 
-/* Menu que aparece ao clicar no avatar */
+/* Menu do avatar */
 .menu-perfil {
-  position: absolute;
-  bottom: 60px;
-  left: 0;
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  display: none;
-  min-width: 150px;
-}
+            display: none;
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            min-width: 200px;
+        }
 
 /* Mostrar o menu quando ativado com JS */
 .menu-perfil.show {
@@ -123,28 +310,22 @@
 
 /* Itens do menu */
 .menu-perfil .dropdown-item {
-  display: block;
-  padding: 10px;
-  text-decoration: none;
-  color: #333;
-  border-radius: 5px;
-  transition: background-color 0.2s ease;
-}
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #333;
+            display: block;
+            background-color: #fff;
+            transition: background-color 0.2s;
+        }
 
 .menu-perfil .dropdown-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f5f5f5;
 }
 .menu-perfil hr.menu-divider {
-  margin: 5px 0;
-  border: none;
-  border-top: 1px solid #ccc;
+  margin: 0;
+            border: none;
+            border-top: 1px solid #ccc;
 }
-/* altura típica da navbar do Bootstrap ~56–60px */
-.main-container,
-.main-container-custom{
-  padding-top: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
-}
-
     </style>
 </head>
 
@@ -152,7 +333,7 @@
 
     <!-- Navbar -->
      <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container-fluid d-flex align-items-center">
+        <div class="container-fluid d-flex align-items-center" style="gap: 0;">
             <a class="navbar-brand" href="./homepageProf.html">
                 <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
             </a>
@@ -171,26 +352,24 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
-                                Atualizações
-                            </a>
-                            <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#">Foi adicionado um<br>elemento novo <br> no
-                                        sistema</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="#">Foi excluído um<br> elemento antigo <br> no
-                                        sistema</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="#">Foi alterado um<br> elemento no sistema</a></li>
-                            </ul>
-                        </li>
-                    </ul>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
+                Atualizações
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end notificacao-dropdown" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">Foi adicionado um <br>elemento novo <br> no sistema</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Foi excluído um <br> elemento antigo <br> no sistema</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Foi alterado um <br> elemento no sistema</a></li>
+              </ul>
+            </li>
+          </ul>
                 </form>
             </div>
         </div>
@@ -203,10 +382,9 @@
     </div>
 
     <!-- Conteúdo -->
-    <div class="main">
-        <div class="container mt-5" style="max-width: 900px;">
-            <div class="p-4"
-                style="background-color: #c7aa74; border-radius: 15px; box-shadow: 2px 2px 8px rgba(0,0,0,0.2);">
+    <div class="main-container">
+        <div class="content">
+            <div class="p-4">
                 <h2 class="text-center mb-4" style="font-family: Georgia, serif; font-weight: bold;">Área do professor
                 </h2>
                 <form>
@@ -226,69 +404,62 @@
                             <input type="text" class="form-control shadow-sm" id="phone">
                         </div>
                         <div class="col-md-6">
-  <label for="senha">Senha</label>
-  
-  <div class="input-group shadow-sm">
-    <input type="password" id="senha" class="form-control" autocomplete="current-password" />
-    <span class="input-group-text" onclick="toggleSenha()" style="cursor: pointer;">
-      <i class="bi bi-eye-slash" id="toggleSenha"></i>
-    </span>
-  </div>
-
-  <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
-</div>
-
-
+                            <label for="senha" class="form-label fw-semibold">Senha</label>
+                            <div class="input-group shadow-sm">
+                              <input type="password" id="senha" class="form-control" autocomplete="current-password" />
+                              <span class="input-group-text" onclick="toggleSenha()" style="cursor: pointer;">
+                                <i class="bi bi-eye-slash" id="toggleSenha"></i>
+                              </span>
+                            </div>
+                            <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
+                          </div>
                         </div>
-                    </div>
-                    <div class="text-end mt-4">
-                        <button type="submit" class="btn text-white px-4 py-2 fw-semibold"
+                
+                        <!-- ✅ Botão agora está dentro -->
+                        <div class="text-end mt-4">
+                          <button type="submit" class="btn text-white px-4 py-2 fw-semibold"
                             style="background-color: #5a3c24; box-shadow: 2px 2px 6px rgba(0,0,0,0.3); border-radius: 10px;">
                             Editar Perfil
-                        </button>
+                          </button>
+                        </div>
+                      </form>
                     </div>
-                </form>
-            </div>
-        </div>
+                  </div>
 
+                  <!-- Notificações + Cards de Notificação (coloque DENTRO de .main-container) -->
+<div class="notificacoes-container">
 
-        <!-- Notificações -->
-        <div class="mt-5 text-center">
-            <div class="alert text-white fw-bold" id="notificacoes3"
-                style="background-color: #d32600; border-radius: 10px; display: inline-block; padding: 10px 20px;">
-                Notificações atualizadas!
-            </div>
-        </div>
-
-        <!-- Cards de Notificação -->
-        <div class="container mt-4">
-            <div class="mb-4"
-                style="background-color: #5a3c24; border-radius: 15px; padding: 0; max-width: 800px; margin: auto;">
-                <div class="d-flex justify-content-between align-items-center p-3"
-                    style="background-color: #3b2a1a; border-top-left-radius: 15px; border-top-right-radius: 15px;">
-                    <h5 class="text-white mb-0 fw-bold">Livros que vão ser entregues hoje</h5>
-                    <button class="btn text-white toggle-button" data-target="entregaHoje"
-                        style="font-size: 1.5rem;">^</button>
-                </div>
-                <div id="entregaHoje" class="p-3 toggle-content" style="background-color: #5a3c24;">
-                    <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm"
-                        style="background-color: #f8f8f8;">
-                        <img src="../img/avatar.jpg" alt="Capa do livro" class="me-3"
-                            style="width: 60px; height: auto; border-radius: 5px;" />
-                        <div><strong>Exemplo nome livro</strong> - 03/03/2008 - <strong>Exemplo temas
-                                discutidos</strong></div>
-                    </div>
-                    <div class="d-flex align-items-center border rounded p-2 shadow-sm"
-                        style="background-color: #f8f8f8;">
-                        <img src="../img/avatar.jpg" alt="Capa do livro" class="me-3"
-                            style="width: 60px; height: auto; border-radius: 5px;" />
-                        <div><strong>Exemplo nome livro</strong> - 03/03/2008 - <strong>Exemplo temas
-                                discutidos</strong></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Alerta -->
+    <div id="notificacoes3" class="fw-bold">
+      Notificações atualizadas!
     </div>
+  
+    <!-- Cards de Notificação -->
+    <div class="notificacoes-cards">
+      <div class="header">
+        <h5 class="mb-0 fw-bold">Livros que vão ser entregues hoje</h5>
+        <button class="btn text-white toggle-button" data-target="entregaHoje" style="font-size: 1.2rem;">^</button>
+      </div>
+  
+      <div id="entregaHoje" class="p-3" style="background-color: #5a3c24;">
+        <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
+          <img src="../img/avatar.jpg" alt="Capa do livro" class="me-3" style="width: 60px; height: auto; border-radius: 5px;">
+          <div><strong>Exemplo nome livro</strong> - 03/03/2008 - <strong>Exemplo temas discutidos</strong></div>
+        </div>
+  
+        <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
+          <img src="../img/avatar.jpg" alt="Capa do livro" class="me-3" style="width: 60px; height: auto; border-radius: 5px;">
+          <div><strong>Exemplo nome livro</strong> - 03/03/2008 - <strong>Exemplo temas discutidos</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+                </div>
+
+
+
+
+  
 
     <!-- Botão de acessibilidade -->
     <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
@@ -329,6 +500,7 @@
             el.style.display = 'block';
         });
     </script>
+    
  <script src="../java/script.js"></script>
 </body>
 
