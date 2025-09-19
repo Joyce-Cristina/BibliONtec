@@ -548,72 +548,68 @@
 
       <div class="modal-body">
         <form id="form-editar-livro" enctype="multipart/form-data">
-
           <!-- Linha 1: Título e ISBN -->
           <div class="row mb-3">
             <div class="col-md-6 form-line">
               <label for="titulo-livro">Título:</label>
-              <input type="text" class="form-control" id="titulo-livro" required>
+              <input type="text" class="form-control" id="titulo-livro" name="titulo" required>
             </div>
             <div class="col-md-6 form-line">
               <label for="isbn-livro">ISBN:</label>
-              <input type="text" class="form-control" id="isbn-livro">
+              <input type="text" class="form-control" id="isbn-livro" name="isbn">
             </div>
           </div>
-
+        
           <!-- Linha 2: Gênero e Editora -->
           <div class="row mb-3">
             <div class="col-md-6 form-line">
               <label for="genero-livro">Gênero:</label>
-              <select class="form-select" id="genero-livro" required></select>
+              <select class="form-select" id="genero-livro" name="generoId" required>
+                <!-- options serão preenchidos via JS -->
+              </select>
             </div>
             <div class="col-md-6 form-line">
               <label for="editora-livro">Editora:</label>
-              <select class="form-select" id="editora-livro" required></select>
+              <select class="form-select" id="editora-livro" name="editoraId" required>
+                <!-- options serão preenchidos via JS -->
+              </select>
             </div>
           </div>
-
+        
           <!-- Linha 3: Autores e Páginas -->
           <div class="row mb-3">
             <div class="col-md-6 form-line">
               <label for="autores-livro">Autores:</label>
-              <select multiple class="form-select" id="autores-livro" required></select>
+              <select multiple class="form-select" id="autores-livro" name="autores[]">
+                <!-- options serão preenchidos via JS -->
+              </select>
             </div>
             <div class="col-md-6 form-line">
               <label for="paginas-livro">Páginas:</label>
-              <input type="number" class="form-control" id="paginas-livro">
+              <input type="number" class="form-control" id="paginas-livro" name="paginas">
             </div>
           </div>
-
+        
           <!-- Linha 4: Sinopse -->
           <div class="mb-3">
             <label for="sinopse-livro">Sinopse:</label>
-            <textarea class="form-control" id="sinopse-livro" rows="3"></textarea>
+            <textarea class="form-control" id="sinopse-livro" name="sinopse" rows="3"></textarea>
           </div>
-
-          <!-- Linha 5: Capa (Preview + Upload) -->
-          <div class="mb-4 d-flex align-items-center">
-            <div id="previewCapa"
-                 style="inline-size: 120px; block-size: 170px; background-color: #5d3b1a;
-                        border-radius: 6px; margin-inline-end: 20px;
-                        background-image: url('http://localhost:3000/uploads/padrao.jpg');
-                        background-size: cover; background-position: center;">
-            </div>
-            <div class="flex-grow-1">
-              <label class="mb-2 fw-bold">Capa do Livro</label>
-              <input type="file" class="form-control" id="capa-livro" name="capa" accept="image/*">
-            </div>
+        
+          <!-- Linha 5: Capa -->
+          <div class="mb-3 text-center">
+            <label for="capa-livro" class="form-label">Capa do Livro</label>
+            <input type="file" class="form-control mb-2" id="capa-livro" name="capa" accept="image/*">
+            <img id="preview-capa" src="" alt="Pré-visualização da capa"
+                 style="max-width: 150px; max-height: 200px; display: none; border: 1px solid #ccc; border-radius: 8px;">
           </div>
-
-          <!-- Hidden ID -->
-          <input type="hidden" id="id-livro">
-
-          <!-- Botões -->
+        
+          <input type="hidden" id="id-livro" name="id">
+        
           <div class="text-center">
-            <button type="submit" class="btn btn-cadastro">Salvar Alterações</button>
+            <button type="submit" class="btn btn-primary ms-2">Salvar Alterações</button>
             <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">Cancelar</button>
           </div>
-
         </form>
       </div>
     </div>
