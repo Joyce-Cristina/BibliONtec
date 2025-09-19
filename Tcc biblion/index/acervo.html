@@ -538,77 +538,87 @@
       </section>
 
     </div>
-    <!-- Modal Editar Livro -->
-    <div id="modal-editar-livro" class="modal fade" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+    <div class="modal fade" id="modal-editar-livro" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="background-color: #ccb182; border-radius: 10px;">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Editar Livro</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
 
-          <div class="modal-header">
-            <h5 class="modal-title">Editar Livro</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-body">
+        <form id="form-editar-livro" enctype="multipart/form-data">
+
+          <!-- Linha 1: Título e ISBN -->
+          <div class="row mb-3">
+            <div class="col-md-6 form-line">
+              <label for="titulo-livro">Título:</label>
+              <input type="text" class="form-control" id="titulo-livro" required>
+            </div>
+            <div class="col-md-6 form-line">
+              <label for="isbn-livro">ISBN:</label>
+              <input type="text" class="form-control" id="isbn-livro">
+            </div>
           </div>
 
-          <div class="modal-body">
-            <form id="form-editar-livro">
-              <input type="hidden" id="id-livro">
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label>Título</label>
-                  <input type="text" id="titulo-livro" class="form-control" required>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label>ISBN</label>
-                  <input type="text" id="isbn-livro" class="form-control">
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label>Autores</label>
-                <select id="autores-livro" class="form-select">
-                  <!-- opções serão carregadas via JS -->
-                </select>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label>Editora</label>
-                  <select id="editora-livro" class="form-select">
-                    <!-- opções serão carregadas via JS -->
-                  </select>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label>Gênero</label>
-                  <!-- 🔥 Alterado de input para select -->
-                  <select id="genero-livro" class="form-select">
-                    <!-- opções vão ser carregadas pelo JS -->
-                  </select>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label>Funcionário que cadastrou</label>
-                <input type="text" id="funcionario-livro" class="form-control" readonly>
-              </div>
-
-              <div class="mb-3">
-                <label>Sinopse</label>
-                <textarea id="sinopse-livro" class="form-control" rows="3"></textarea>
-              </div>
-
-              <div class="mb-3">
-                <label>Número de páginas</label>
-                <input type="number" id="paginas-livro" class="form-control">
-              </div>
-
-              <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-            </form>
+          <!-- Linha 2: Gênero e Editora -->
+          <div class="row mb-3">
+            <div class="col-md-6 form-line">
+              <label for="genero-livro">Gênero:</label>
+              <select class="form-select" id="genero-livro" required></select>
+            </div>
+            <div class="col-md-6 form-line">
+              <label for="editora-livro">Editora:</label>
+              <select class="form-select" id="editora-livro" required></select>
+            </div>
           </div>
 
-        </div>
+          <!-- Linha 3: Autores e Páginas -->
+          <div class="row mb-3">
+            <div class="col-md-6 form-line">
+              <label for="autores-livro">Autores:</label>
+              <select multiple class="form-select" id="autores-livro" required></select>
+            </div>
+            <div class="col-md-6 form-line">
+              <label for="paginas-livro">Páginas:</label>
+              <input type="number" class="form-control" id="paginas-livro">
+            </div>
+          </div>
+
+          <!-- Linha 4: Sinopse -->
+          <div class="mb-3">
+            <label for="sinopse-livro">Sinopse:</label>
+            <textarea class="form-control" id="sinopse-livro" rows="3"></textarea>
+          </div>
+
+          <!-- Linha 5: Capa (Preview + Upload) -->
+          <div class="mb-4 d-flex align-items-center">
+            <div id="previewCapa"
+                 style="inline-size: 120px; block-size: 170px; background-color: #5d3b1a;
+                        border-radius: 6px; margin-inline-end: 20px;
+                        background-image: url('http://localhost:3000/uploads/padrao.jpg');
+                        background-size: cover; background-position: center;">
+            </div>
+            <div class="flex-grow-1">
+              <label class="mb-2 fw-bold">Capa do Livro</label>
+              <input type="file" class="form-control" id="capa-livro" name="capa" accept="image/*">
+            </div>
+          </div>
+
+          <!-- Hidden ID -->
+          <input type="hidden" id="id-livro">
+
+          <!-- Botões -->
+          <div class="text-center">
+            <button type="submit" class="btn btn-cadastro">Salvar Alterações</button>
+            <button type="button" class="btn btn-secondary ms-2" data-bs-dismiss="modal">Cancelar</button>
+          </div>
+
+        </form>
       </div>
     </div>
-
+  </div>
+</div>
 
     <!-- Botão de acessibilidade -->
     <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">

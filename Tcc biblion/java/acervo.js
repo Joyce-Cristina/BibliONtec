@@ -2,7 +2,6 @@ let todosOsLivros = [];
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Carrega livros e listas relacionadas
   if (document.getElementById('cardsContainer')) carregarLivros();
   if (document.getElementById('listaGeneros')) carregarGeneros();
   if (document.getElementById('listaAutores')) carregarAutores();
