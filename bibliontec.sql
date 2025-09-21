@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 17/09/2025 às 03:15
+-- Tempo de geração: 21/09/2025 às 02:07
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -99,7 +99,8 @@ INSERT INTO `autor` (`id`, `nome`) VALUES
 (48, 'Alexandre Dumas'),
 (49, 'Anne Rice'),
 (50, 'Ralph Ellison'),
-(51, 'K.T. HAO');
+(51, 'K.T. HAO'),
+(52, 'Nivio Ziviani');
 
 -- --------------------------------------------------------
 
@@ -327,7 +328,9 @@ CREATE TABLE `emprestimo` (
 
 INSERT INTO `emprestimo` (`fila`, `data_emprestimo`, `data_devolucao_prevista`, `data_real_devolucao`, `id`, `FK_instituicao_id`, `FK_usuario_id`) VALUES
 (NULL, '2025-09-16', '2025-09-23', '2025-09-16', 1, 1, 30),
-(NULL, '2025-09-16', '2025-09-23', '2025-09-16', 2, NULL, 30);
+(NULL, '2025-09-16', '2025-09-23', '2025-09-16', 2, NULL, 30),
+(NULL, '2025-09-17', '2025-09-25', '2025-09-17', 3, 1, 30),
+(NULL, '2025-09-18', '2025-09-26', NULL, 4, 1, 30);
 
 -- --------------------------------------------------------
 
@@ -346,7 +349,9 @@ CREATE TABLE `emprestimo_livro` (
 
 INSERT INTO `emprestimo_livro` (`FK_emprestimo_id`, `FK_livro_id`) VALUES
 (1, 6),
-(2, 6);
+(2, 6),
+(3, 1),
+(4, 6);
 
 -- --------------------------------------------------------
 
@@ -391,7 +396,7 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
-(4, 'João Silva', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654323', 1),
+(4, 'João Silva dos santos', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1),
 (5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1),
 (8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1),
 (9, 'cletin do pneu ', 'e32zy2mK', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1),
@@ -407,27 +412,6 @@ CREATE TABLE `funcionario_acessibilidade` (
   `FK_funcionario_id` int(11) DEFAULT NULL,
   `FK_acessibilidade_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `funcionario_funcao`
---
-
-CREATE TABLE `funcionario_funcao` (
-  `id` int(11) NOT NULL,
-  `FK_funcionario_id` int(11) NOT NULL,
-  `FK_funcao_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `funcionario_funcao`
---
-
-INSERT INTO `funcionario_funcao` (`id`, `FK_funcionario_id`, `FK_funcao_id`) VALUES
-(1, 8, 1),
-(2, 4, 2),
-(3, 9, 3);
 
 -- --------------------------------------------------------
 
@@ -567,7 +551,8 @@ INSERT INTO `genero` (`id`, `genero`) VALUES
 (86, 'Coletânea'),
 (87, 'Manual'),
 (88, 'Catálogo'),
-(89, 'Ficção');
+(89, 'Ficção'),
+(90, 'Computadores');
 
 -- --------------------------------------------------------
 
@@ -615,6 +600,15 @@ CREATE TABLE `indicacao` (
   `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `indicacao`
+--
+
+INSERT INTO `indicacao` (`id`, `indicacao`, `FK_instituicao_id`) VALUES
+(1, '11', 1),
+(2, '11', 1),
+(3, '11', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -627,6 +621,14 @@ CREATE TABLE `indicacao_usuario` (
   `FK_curso_id` int(11) DEFAULT NULL,
   `serie` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `indicacao_usuario`
+--
+
+INSERT INTO `indicacao_usuario` (`FK_usuario_id`, `FK_indicacao_id`, `FK_curso_id`, `serie`) VALUES
+(32, 2, 1, 2),
+(32, 3, 2, 2);
 
 -- --------------------------------------------------------
 
@@ -695,6 +697,7 @@ CREATE TABLE `livro` (
   `sinopse` varchar(255) DEFAULT NULL,
   `isbn` varchar(20) NOT NULL,
   `titulo` varchar(200) DEFAULT NULL,
+  `cdd` varchar(20) DEFAULT NULL,
   `assunto_discutido` varchar(200) DEFAULT NULL,
   `subtitulo` varchar(200) DEFAULT NULL,
   `volume` varchar(20) DEFAULT NULL,
@@ -712,11 +715,11 @@ CREATE TABLE `livro` (
 -- Despejando dados para a tabela `livro`
 --
 
-INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`, `FK_editora_id`, `FK_autor_id`, `disponivel`) VALUES
-(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, 4, NULL, NULL, 1, 1, 13, NULL, 1),
-(6, '1ª', '1757811238700.png', '357', '4', NULL, '2018-05-01', 'NESTE LIVRO A AUTORA APRESENTA O FRUTO DE SUAS REFLUSES DESDE que um passageiro da cultura de Massas para a cultura da Míndias Fertilizou o Terreno Sociocultural Para O Surgimento Da Cultura Digital. ', '978-85-349-2101-5', 'Culturas e artes do pós-humano', 'arte,cultura ', 'Da Cultura Das Míndias à Cibcultura', '1', 4, NULL, NULL, 1, 2, 24, NULL, 1),
-(11, '1ª', '1758059242787.png', '926', '1', 'Rio de Janeiro ', '2012-01-01', 'Este livro se propõe um texto abrangente abrangente o moderno estudo de algoritmos para computadores, inclluindo capítulos, exercícios e problemas, revisão de pseudocódigos e um estilo de Redação Mais Claro.', '978-85-352-3699-6', 'Algoritmos e programação', 'numeros,programação', 'Teoria e Prática', '1', 4, NULL, NULL, 1, 1, 19, NULL, 1),
-(12, '1ª', '1758064651448.png', '31', '1', 'São Paulo', '2022-01-01', 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'Ó Livro Magico', NULL, NULL, '1', 4, NULL, NULL, 1, 1, 26, 51, 1);
+INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `cdd`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`, `FK_editora_id`, `FK_autor_id`, `disponivel`) VALUES
+(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', NULL, 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, 4, NULL, NULL, 1, 1, 13, NULL, 1),
+(6, '1ª', '1757811238700.png', '357', '4', NULL, '2018-05-01', 'NESTE LIVRO A AUTORA APRESENTA O FRUTO DE SUAS REFLUSES DESDE que um passageiro da cultura de Massas para a cultura da Míndias Fertilizou o Terreno Sociocultural Para O Surgimento Da Cultura Digital. ', '978-85-349-2101-5', 'Culturas e artes do pós-humano', NULL, 'arte,cultura ', 'Da Cultura Das Míndias à Cibcultura', '1', 4, NULL, NULL, 1, 2, 24, NULL, 0),
+(11, '1ª', '1758059242787.png', '926', '1', 'Rio de Janeiro ', '2012-01-01', 'Este livro se propõe um texto abrangente abrangente o moderno estudo de algoritmos para computadores, inclluindo capítulos, exercícios e problemas, revisão de pseudocódigos e um estilo de Redação Mais Claro.', '978-85-352-3699-6', 'Algoritmos e programação', NULL, 'numeros,programação', 'Teoria e Prática', '1', 4, NULL, NULL, 1, 1, 19, NULL, 1),
+(12, '1ª', '1758064651448.png', '31', '1', 'São Paulo', '2022-01-01', 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'Ó Livro Magico', NULL, NULL, NULL, '1', 4, NULL, NULL, 1, 1, 26, 51, 1);
 
 -- --------------------------------------------------------
 
@@ -933,12 +936,12 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`, `ativo`, `ultimo_login`) VALUES
-(30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', 'Abc1235', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-09-16 22:11:06'),
+(30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', 'Abc1235', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-09-20 12:05:32'),
 (31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', 'Abc12345', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 21:26:13'),
-(32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', 'SenhaSegur', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-09-16 12:10:00'),
+(32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', 'SenhaSegur', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-09-20 12:11:32'),
 (33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', 'Teste@2025', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-09-16 12:20:00'),
 (34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', 'Xyz78910', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-09-16 12:30:00'),
-(35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', 'Qwe123Rt', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-16 12:40:00');
+(35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', 'Qwe123Rt', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-18 19:19:29');
 
 -- --------------------------------------------------------
 
@@ -1117,14 +1120,6 @@ ALTER TABLE `funcionario`
 ALTER TABLE `funcionario_acessibilidade`
   ADD KEY `FK_funcionario_acessibilidade_0` (`FK_funcionario_id`),
   ADD KEY `FK_funcionario_acessibilidade_1` (`FK_acessibilidade_id`);
-
---
--- Índices de tabela `funcionario_funcao`
---
-ALTER TABLE `funcionario_funcao`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `FK_funcionario_id` (`FK_funcionario_id`),
-  ADD KEY `FK_funcao_id` (`FK_funcao_id`);
 
 --
 -- Índices de tabela `funcionario_notificacao`
@@ -1357,7 +1352,7 @@ ALTER TABLE `acessibilidade`
 -- AUTO_INCREMENT de tabela `autor`
 --
 ALTER TABLE `autor`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT de tabela `classificacao`
@@ -1405,7 +1400,7 @@ ALTER TABLE `editora`
 -- AUTO_INCREMENT de tabela `emprestimo`
 --
 ALTER TABLE `emprestimo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `funcao`
@@ -1417,19 +1412,13 @@ ALTER TABLE `funcao`
 -- AUTO_INCREMENT de tabela `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT de tabela `funcionario_funcao`
---
-ALTER TABLE `funcionario_funcao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de tabela `genero`
 --
 ALTER TABLE `genero`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT de tabela `historico`
@@ -1441,7 +1430,7 @@ ALTER TABLE `historico`
 -- AUTO_INCREMENT de tabela `indicacao`
 --
 ALTER TABLE `indicacao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `instituicao`
@@ -1459,7 +1448,7 @@ ALTER TABLE `lista_desejo`
 -- AUTO_INCREMENT de tabela `livro`
 --
 ALTER TABLE `livro`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de tabela `notificacao`
@@ -1501,7 +1490,7 @@ ALTER TABLE `tipo_usuario`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- Restrições para tabelas despejadas
@@ -1565,13 +1554,6 @@ ALTER TABLE `funcionario`
 ALTER TABLE `funcionario_acessibilidade`
   ADD CONSTRAINT `FK_funcionario_acessibilidade_0` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_funcionario_acessibilidade_1` FOREIGN KEY (`FK_acessibilidade_id`) REFERENCES `acessibilidade` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `funcionario_funcao`
---
-ALTER TABLE `funcionario_funcao`
-  ADD CONSTRAINT `funcionario_funcao_ibfk_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `funcionario_funcao_ibfk_2` FOREIGN KEY (`FK_funcao_id`) REFERENCES `funcao` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `funcionario_notificacao`
