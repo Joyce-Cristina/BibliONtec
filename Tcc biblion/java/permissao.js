@@ -2,9 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const salvarBtn = document.querySelector(".btn-save");
   const funcionarioLogado = JSON.parse(localStorage.getItem("funcionario"));
   if (!funcionarioLogado) return console.error("Nenhum funcionário logado.");
-
   const instituicaoId = funcionarioLogado.FK_instituicao_id;
-
   // ---------------- CARREGAR CONFIGURAÇÕES ----------------
   async function carregarTipoUsuario() {
     try {
@@ -37,8 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   console.log(localStorage.getItem("funcionario"));
-
-
   // ---------------- SALVAR CONFIGURAÇÕES ----------------
   async function salvarTipoUsuario() {
     const blocos = document.querySelectorAll(".user-role"); // todos os blocos
