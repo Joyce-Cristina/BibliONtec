@@ -63,7 +63,8 @@ async function carregarLivros() {
       ...livro,
       autores: livro.autores || '—',
       editora: livro.editora || '—',
-      funcionario_cadastrou: livro.funcionario_cadastrou || '—'
+      funcionario_cadastrou: livro.funcionario_cadastrou || '—',
+      cdd: livro.cdd || '000'
     }));
 
     exibirLivros(todosOsLivros);
@@ -365,29 +366,10 @@ function imprimirEtiqueta(id) {
   const livro = todosOsLivros.find(l => l.id === id);
   if (!livro) return;
 
-  // Função para buscar CDD do seu backend
-  async function buscarCDD(isbn) {
-    try {
-      // Fazer requisição para sua própria API
-      const response = await fetch(`/api/buscar-cdd/${isbn}`);
-      
-      if (!response.ok) {
-        throw new Error(`Erro HTTP: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return data.cdd || "000"; // Assume que a resposta é { cdd: "123" }
-      
-    } catch (error) {
-      console.error("Erro ao buscar CDD:", error);
-      return "000"; // Fallback em caso de erro
-    }
-  }
-
   // Função para gerar o conteúdo da etiqueta
   async function gerarConteudoEtiqueta() {
-    // Obter CDD da sua API
-    const cdd = await buscarCDD(livro.isbn || "0000000000000");
+    // 🔑 Agora o CDD vem direto do banco
+    const cdd = livro.cdd || "000";
     
     // Três primeiras letras do título (em maiúsculas)
     const iniciaisTitulo = livro.titulo.substring(0, 3).toUpperCase();
@@ -481,7 +463,6 @@ function imprimirEtiqueta(id) {
           <div class="id">ID: ${idFormatado}</div>
         </div>
         <script>
-          // Gerar código de barras
           JsBarcode("#barcode-${id}", "${idFormatado}", {
             format: "CODE128",
             width: 1.5,
@@ -496,12 +477,10 @@ function imprimirEtiqueta(id) {
     `;
   }
 
-  // Abrir janela e escrever o conteúdo
   const janela = window.open('', '_blank', 'width=400,height=300');
   
   gerarConteudoEtiqueta().then(conteudo => {
     janela.document.write(conteudo);
     janela.document.close();
   });
-
 }
