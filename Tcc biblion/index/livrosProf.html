@@ -299,8 +299,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* força ocupar o espaço */
   gap: 30px;
-  justify-items: start;   /* 🔥 itens começam pela esquerda */
-  align-items: start;
+  justify-items: stretch; /* cada card ocupa toda a coluna */
+  align-items: stretch;   /* força os cards da mesma linha a ficarem com mesma altura */
   max-width: 1200px;
   min-width: 1000px; /*mudei o tamanho para ficar igual ao usuaro bibliotecario*/
   margin: 30px auto 0;   /* só centraliza o bloco no meio da tela */

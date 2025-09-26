@@ -373,8 +373,8 @@
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 3 por fileira */;
       /* sempre 3 por fileira */
       gap: 30px;
-      justify-items: center;
-      align-items: center;
+      justify-items: center; /* cada card ocupa toda a coluna */
+      align-items: stretch;   /* força os cards da mesma linha a ficarem com mesma altura */
       max-width: 1200px;
       min-width: 1000px; /*mudei o tamanho para ficar igual ao usuaro bibliotecario*/
       margin: 30px auto 0;
