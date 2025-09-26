@@ -1067,27 +1067,63 @@ app.get('/lista-desejos/verificar/:usuarioId/:livroId', (req, res) => {
   });
 });
 
-// Remover livro da lista de desejos
+app.get('/lista-desejos/:usuarioId', autenticarToken, (req, res) => {
+  const { usuarioId } = req.params;
+
+  const sql = `
+    SELECT l.id, l.titulo, l.capa, l.disponivel
+    FROM lista_livro ll
+    JOIN lista_desejo ld ON ll.FK_lista_desejo_id = ld.id
+    JOIN livro l ON ll.FK_livro_id = l.id
+    WHERE ld.FK_usuario_id = ?
+  `;
+
+  connection.query(sql, [usuarioId], (err, rows) => {
+    if (err) {
+      console.error('Erro ao buscar lista de desejos:', err.sqlMessage);
+      return res.status(500).json({ error: 'Erro interno no servidor', details: err.sqlMessage });
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.json([]); // retorna array vazio se não houver livros
+    }
+
+    res.json(rows);
+  });
+});
+
 app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
   const { usuarioId, livroId } = req.params;
 
-  const sql = `
-    DELETE ll FROM lista_livro ll
-    JOIN lista_desejo ld ON ll.FK_lista_desejo_id = ld.id
-    WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
-  `;
+  const sqlLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ?';
+  connection.query(sqlLista, [usuarioId], (err, listas) => {
+    if (err) return res.status(500).json({ error: err.sqlMessage });
+    if (listas.length === 0)
+      return res.status(404).json({ error: 'Lista de desejos não encontrada' });
 
-  connection.query(sql, [usuarioId, livroId], (err, result) => {
-    if (err) {
-      console.error('Erro ao remover livro da lista:', err);
-      return res.status(500).json({ error: 'Erro interno no servidor' });
-    }
+    const listaId = listas[0].id;
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Livro não encontrado na lista de desejos' });
-    }
+    const sqlDeleteLivro = 'DELETE FROM lista_livro WHERE FK_lista_desejo_id = ? AND FK_livro_id = ?';
+    connection.query(sqlDeleteLivro, [listaId, livroId], (err2, result) => {
+      if (err2) return res.status(500).json({ error: err2.sqlMessage });
+      if (result.affectedRows === 0)
+        return res.status(404).json({ error: 'Livro não encontrado na lista de desejos' });
 
-    res.json({ message: 'Livro removido da lista de desejos com sucesso!' });
+      const sqlVerifica = 'SELECT COUNT(*) AS total FROM lista_livro WHERE FK_lista_desejo_id = ?';
+      connection.query(sqlVerifica, [listaId], (err3, rows) => {
+        if (err3) return res.status(500).json({ error: err3.sqlMessage });
+
+        if (rows[0].total === 0) {
+          const sqlDeleteLista = 'DELETE FROM lista_desejo WHERE id = ?';
+          connection.query(sqlDeleteLista, [listaId], (err4) => {
+            if (err4) return res.status(500).json({ error: err4.sqlMessage });
+            return res.json({ message: 'Livro removido e lista de desejos deletada (ficou vazia)' });
+          });
+        } else {
+          return res.json({ message: 'Livro removido da lista de desejos com sucesso!' });
+        }
+      });
+    });
   });
 });
 
