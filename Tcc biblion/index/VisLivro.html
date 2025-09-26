@@ -11,6 +11,22 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
   <style>
+    .btn-lista-ativo {
+  background-color: #dc3545 !important;
+  border: 2px solid #dc3545 !important;
+  color: white !important;
+}
+
+.btn-lista-ativo:hover {
+  background-color: #c82333 !important;
+  border-color: #c82333 !important;
+  color: white !important;
+}
+
+.btn-lista i, .btn-lista-ativo i {
+  margin-right: 5px;
+}
+
     .menu-perfil.show {
       display: flex;
     }
@@ -286,7 +302,9 @@
 
   <div class="botoes-livro" id="botoesLivro">
     <button class="btn btn-reservar">Reserve o livro agora</button>
-    <button class="btn btn-lista">Adicionar na lista de desejos</button>
+    <button class="btn btn-lista">
+      <i class="bi bi-heart"></i> Adicionar na lista de desejos
+    </button>
   </div>
   
   <div class="botoes-livro">

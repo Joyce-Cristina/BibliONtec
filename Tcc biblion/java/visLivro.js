@@ -36,6 +36,28 @@ document.addEventListener("DOMContentLoaded", async () => {
       disponibilidadeElem.style.color = "green";
     }
 
+    // --- BOTÃO LISTA DE DESEJOS ---
+    const btnLista = document.querySelector('.btn-lista');
+    if (btnLista && usuarioId) {
+      const naLista = await verificarListaDesejos(usuarioId, livroId);
+      
+      if (naLista) {
+        btnLista.innerHTML = '<i class="bi bi-heart-fill"></i> Remover da lista de desejos';
+        btnLista.classList.remove('btn-lista');
+        btnLista.classList.add('btn-lista-ativo');
+      } else {
+        btnLista.innerHTML = '<i class="bi bi-heart"></i> Adicionar na lista de desejos';
+      }
+      
+      btnLista.addEventListener('click', () => {
+        toggleListaDesejos(usuarioId, livroId, btnLista);
+      });
+    } else if (btnLista && !usuarioId) {
+      btnLista.addEventListener('click', () => {
+        alert('Você precisa estar logado para usar a lista de desejos.');
+      });
+    }
+
     // --- SISTEMA DE INDICAÇÃO - VERIFICAÇÃO INICIAL ---
     const btnIndicar = document.getElementById("btnIndicar");
     if (btnIndicar && isProfessor && usuarioId) {
@@ -51,12 +73,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           
             btnDesindicar.addEventListener("click", async () => {
               if (!confirm("Deseja realmente remover a indicação deste livro?")) return;
-          
               try {
                 const resp = await fetch(`http://localhost:3000/indicacoes/${usuarioId}/${livroId}`, {
                   method: "DELETE"
                 });
-          
                 if (resp.ok) {
                   alert("Indicação removida com sucesso!");
                   btnDesindicar.style.display = "none";
@@ -76,8 +96,6 @@ document.addEventListener("DOMContentLoaded", async () => {
               }
             });
           }
-        } else if (respVerificacao.status === 500) {
-          console.warn("Servidor retornou erro 500 na verificação de indicação");
         }
       } catch (err) {
         console.error("Erro ao verificar indicação:", err);
@@ -225,5 +243,102 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("Erro no visLivro.js:", err);
     alert("Erro ao carregar detalhes do livro.");
+  }
+});
+
+// --- BOTÃO LISTA DE DESEJOS ---
+async function verificarListaDesejos(usuarioId, livroId, token) {
+  try {
+    const resp = await fetch(`http://localhost:3000/lista-desejos/verificar/${usuarioId}/${livroId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      return data.naLista;
+    }
+    return false;
+  } catch (err) {
+    console.error('Erro ao verificar lista de desejos:', err);
+    return false;
+  }
+}
+
+async function toggleListaDesejos(usuarioId, livroId, btnLista, token) {
+  try {
+    const naLista = await verificarListaDesejos(usuarioId, livroId, token);
+
+    if (naLista) {
+      // Remover da lista
+      const resp = await fetch(`http://localhost:3000/lista-desejos/${usuarioId}/${livroId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (resp.ok) {
+        btnLista.innerHTML = '<i class="bi bi-heart"></i> Adicionar na lista de desejos';
+        btnLista.classList.remove('btn-lista-ativo');
+        btnLista.classList.add('btn-lista');
+        alert('Livro removido da lista de desejos!');
+      } else {
+        const erro = await resp.json();
+        alert(erro.error || 'Erro ao remover da lista de desejos.');
+      }
+    } else {
+      // Adicionar à lista
+      const resp = await fetch('http://localhost:3000/lista-desejos', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ usuarioId, livroId })
+      });
+
+      if (resp.ok) {
+        btnLista.innerHTML = '<i class="bi bi-heart-fill"></i> Remover da lista de desejos';
+        btnLista.classList.remove('btn-lista');
+        btnLista.classList.add('btn-lista-ativo');
+        alert('Livro adicionado à lista de desejos!');
+      } else {
+        const erro = await resp.json();
+        if (resp.status === 409) alert('Este livro já está na sua lista de desejos.');
+        else alert(erro.error || 'Erro ao adicionar à lista de desejos.');
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao atualizar lista de desejos:', err);
+    alert('Erro de conexão.');
+  }
+}
+
+// --- Inicialização do botão no DOM ---
+document.addEventListener("DOMContentLoaded", async () => {
+  const usuarioData = JSON.parse(localStorage.getItem("usuario"));
+  const usuarioId = usuarioData ? usuarioData.id : null;
+  const token = localStorage.getItem('token'); // <- JWT salvo ao logar
+  const livroId = localStorage.getItem("livroSelecionado");
+  const btnLista = document.querySelector('.btn-lista');
+
+  if (!btnLista) return;
+
+  if (usuarioId && token) {
+    // Estado inicial
+    const naLista = await verificarListaDesejos(usuarioId, livroId, token);
+    if (naLista) {
+      btnLista.innerHTML = '<i class="bi bi-heart-fill"></i> Remover da lista de desejos';
+      btnLista.classList.remove('btn-lista');
+      btnLista.classList.add('btn-lista-ativo');
+    } else {
+      btnLista.innerHTML = '<i class="bi bi-heart"></i> Adicionar na lista de desejos';
+    }
+
+    btnLista.addEventListener('click', () => {
+      toggleListaDesejos(usuarioId, livroId, btnLista, token);
+    });
+  } else {
+    // Usuário não logado
+    btnLista.addEventListener('click', () => {
+      alert('Você precisa estar logado para usar a lista de desejos.');
+    });
   }
 });
