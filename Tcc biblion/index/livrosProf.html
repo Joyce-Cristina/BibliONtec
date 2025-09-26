@@ -166,7 +166,7 @@
     }
 
    .livro-card {
-  background-color: #d6c9b4;
+  background-color: #f7f5f0;
   padding: 10px;
   border-radius: 10px;
   box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
@@ -302,6 +302,7 @@
   justify-items: start;   /* 🔥 itens começam pela esquerda */
   align-items: start;
   max-width: 1200px;
+  min-width: 1000px; /*mudei o tamanho para ficar igual ao usuaro bibliotecario*/
   margin: 30px auto 0;   /* só centraliza o bloco no meio da tela */
 }
 
@@ -312,17 +313,19 @@
   width: 100% !important;   /* ocupa a coluna do grid */
   max-width: 500px;         /* limite de largura */
   height: auto !important;  /* altura ajusta conforme conteúdo */
-  background-color: #d3d3d3;
-  padding: 15px;
+  background-color: #f7f5f0;
+  padding: 15px; /*coloca aquela bordinha envolta da foto*/
   border-radius: 10px;
   text-align: center;
   box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+  overflow: hidden; /* evita que elementos "vazem" do card */  /*mudei o tamanho para ficar igual ao usuaro bibliotecario*/
 }
 
 .grid-cards .card img {
   width: 100%;
   height: 200px;
   object-fit: cover;
+  object-position: center !important; /* foca no centro */
   border-radius: 6px;
   margin-bottom: 10px;
 }
@@ -348,7 +351,7 @@
       min-height: 320px;
       /* 🔥 menos altura */
       max-height: 360px;
-      background-color: #d6c9b4;
+      background-color: #f7f5f0;
       border-radius: 10px;
       display: flex;
       flex-direction: column;

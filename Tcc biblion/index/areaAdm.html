@@ -105,7 +105,7 @@
     }
 
     .content {
-      background-color: #c7a76c;
+      background-color: #dab57e;
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
@@ -240,6 +240,7 @@
 .main-container,
 .main-container-custom{
   padding-block-start: 76px !important; /* evita que o conteúdo fique escondido sob a navbar */
+  padding-top: 100px !important;
 }
 
 /* Responsividade da Sidebar */
@@ -441,10 +442,8 @@
 
 
         <div class="row mb-4">
-
-
           <div class="col-md-6">
-            <label for="funcao" class="form-label">Função:</label>
+            <label for="funcao" class="form-label mt-3">Função:</label>
             <select id="funcao" class="form-select">
               <option value="">Selecione a função</option>
               <option value="1">Administrador</option>
@@ -467,57 +466,56 @@
         </div>
       </form>
     </div>
+  </div>
+  <!-- Notificações -->
+  <div class="mt-5 text-center">
+    <div class="alert text-white fw-bold" id="notificacoes2"
+      style="background-color: #d32600; border-radius: 10px; display: inline-block; padding: 10px 20px;">
+      Notificações atualizadas!
+    </div>
+  </div>
 
-    <!-- Notificações -->
-    <div class="mt-5 text-center">
-      <div class="alert text-white fw-bold" id="notificacoes2"
-        style="background-color: #d32600; border-radius: 10px; display: inline-block; padding: 10px 20px;">
-        Notificações atualizadas!
+  <!-- Cards de Notificação -->
+  <div class="container mt-4">
+    <!-- Card: Livros que vão ser entregues hoje -->
+    <div class="mb-4"
+      style="background-color: #5a3c24; border-radius: 15px; padding: 0; max-inline-size: 800px; margin: auto;">
+      <div class="d-flex justify-content-between align-items-center p-3"
+        style="background-color: #3b2a1a; border-start-start-radius: 15px; border-start-end-radius: 15px;">
+        <h5 class="text-white mb-0 fw-bold">Livros que vão ser entregues hoje</h5>
+        <button class="btn text-white toggle-button" data-target="entregaHoje" style="font-size: 1.5rem;">^</button>
+      </div>
+      <div id="entregaHoje" class="p-3 toggle-content" style="background-color: #5a3c24;">
+        <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
+          <img src="../img/logoquadrada.jpeg" alt="Capa do livro" class="me-3"
+            style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
+          <div><strong>O Meu Pé de Laranja Lima</strong> - Guilherme</div>
+        </div>
+        <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
+          <img src="../img/logoquadrada.jpeg" alt="Capa do livro" class="me-3"
+            style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
+          <div><strong>Olha os Lírios do Campo</strong> - Mariana</div>
+        </div>
       </div>
     </div>
 
-    <!-- Cards de Notificação -->
-    <div class="container mt-4">
-      <!-- Card: Livros que vão ser entregues hoje -->
-      <div class="mb-4"
-        style="background-color: #5a3c24; border-radius: 15px; padding: 0; max-inline-size: 800px; margin: auto;">
-        <div class="d-flex justify-content-between align-items-center p-3"
-          style="background-color: #3b2a1a; border-start-start-radius: 15px; border-start-end-radius: 15px;">
-          <h5 class="text-white mb-0 fw-bold">Livros que vão ser entregues hoje</h5>
-          <button class="btn text-white toggle-button" data-target="entregaHoje" style="font-size: 1.5rem;">^</button>
-        </div>
-        <div id="entregaHoje" class="p-3 toggle-content" style="background-color: #5a3c24;">
-          <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
-            <img src="../img/logoquadrada.jpeg" alt="Capa do livro" class="me-3"
-              style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
-            <div><strong>O Meu Pé de Laranja Lima</strong> - Guilherme</div>
-          </div>
-          <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
-            <img src="../img/logoquadrada.jpeg" alt="Capa do livro" class="me-3"
-              style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
-            <div><strong>Olha os Lírios do Campo</strong> - Mariana</div>
-          </div>
-        </div>
+    <!-- Card: Livros em atraso -->
+    <div style="background-color: #5a0c00; border-radius: 15px; padding: 0; max-inline-size: 800px; margin: auto;">
+      <div class="d-flex justify-content-between align-items-center p-3"
+        style="background-color: #470700; border-start-start-radius: 15px; border-start-end-radius: 15px;">
+        <h5 class="text-white mb-0 fw-bold">Livros em atraso</h5>
+        <button class="btn text-white toggle-button" data-target="livrosAtraso" style="font-size: 1.5rem;">^</button>
       </div>
-
-      <!-- Card: Livros em atraso -->
-      <div style="background-color: #5a0c00; border-radius: 15px; padding: 0; max-inline-size: 800px; margin: auto;">
-        <div class="d-flex justify-content-between align-items-center p-3"
-          style="background-color: #470700; border-start-start-radius: 15px; border-start-end-radius: 15px;">
-          <h5 class="text-white mb-0 fw-bold">Livros em atraso</h5>
-          <button class="btn text-white toggle-button" data-target="livrosAtraso" style="font-size: 1.5rem;">^</button>
+      <div id="livrosAtraso" class="p-3 toggle-content" style="background-color: #5a0c00;">
+        <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
+          <img src="../img/logoquadrada.jpeg" alt="Cem Anos de Solidão" class="me-3"
+            style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
+          <div><strong>Cem Anos de Solidão</strong> - André</div>
         </div>
-        <div id="livrosAtraso" class="p-3 toggle-content" style="background-color: #5a0c00;">
-          <div class="d-flex align-items-center mb-3 border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
-            <img src="../img/logoquadrada.jpeg" alt="Cem Anos de Solidão" class="me-3"
-              style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
-            <div><strong>Cem Anos de Solidão</strong> - André</div>
-          </div>
-          <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
-            <img src="../img/logoquadrada.jpeg" alt="O Ateneu" class="me-3"
-              style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
-            <div><strong>O Ateneu</strong> - Tiago</div>
-          </div>
+        <div class="d-flex align-items-center border rounded p-2 shadow-sm" style="background-color: #f8f8f8;">
+          <img src="../img/logoquadrada.jpeg" alt="O Ateneu" class="me-3"
+            style="inline-size: 60px; block-size: auto; border-radius: 5px;" />
+          <div><strong>O Ateneu</strong> - Tiago</div>
         </div>
       </div>
     </div>
