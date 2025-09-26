@@ -91,7 +91,10 @@ connection.connect(err => {
 
 async function buscarLivroPorId(id) {
   try {
-    const [rows] = await pool.query('SELECT id, titulo, autores, isbn, editora FROM livro WHERE id = ?', [id]);
+    const [rows] = await pool.query(
+      'SELECT id, titulo, autores, isbn, editora, cdd FROM livro WHERE id = ?', 
+      [id]
+    );
     return rows[0] || null;
   } catch (err) {
     console.error('Erro ao buscar livro:', err);
@@ -283,6 +286,7 @@ app.get('/etiquetas/:id', async (req, res) => {
     doc.moveDown(2);
 
     doc.fontSize(8).text(`ISBN: ${livro.isbn || ''}`, { align: 'center', width: largura });
+    doc.fontSize(8).text(`CDD: ${livro.cdd || ''}`, { align: 'center', width: largura });
 
     doc.fontSize(8).text(livro.editora || '', ETIQUETA_W_PT - mmToPt(5) - mmToPt(30), ETIQUETA_H_PT - mmToPt(12), {
       width: mmToPt(30),
@@ -1155,7 +1159,7 @@ app.get("/tipos-usuario", (req, res) => {
 // ======================= LISTAR LIVROS DO ACERVO =======================
 app.get('/acervo/livros', autenticarToken, (req, res) => {
   const sql = `
-    SELECT l.id, l.titulo, l.sinopse, l.capa, l.paginas, l.isbn,
+    SELECT l.id, l.titulo, l.sinopse, l.capa, l.cdd, l.paginas, l.isbn,
            g.genero, e.editora AS editora,
            GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
            f.nome AS funcionario_cadastrou,
@@ -1191,13 +1195,13 @@ app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) =
     quantidade,
     local_publicacao,
     data_publicacao,
+    cdd,
     sinopse,
     isbn,
     assunto_discutido,
     subtitulo,
     volume,
     FK_genero_id,
-    FK_funcionario_id,
     FK_classificacao_id,
     FK_status_id,
     FK_editora_id,
@@ -1207,43 +1211,43 @@ app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) =
   const capa = req.file ? req.file.filename : null;
 
   const sql = `
-   INSERT INTO livro (
-  titulo, edicao, paginas, quantidade, local_publicacao,
-  data_publicacao, sinopse, isbn, assunto_discutido,
-  subtitulo, volume, FK_genero_id, FK_funcionario_id,
-  FK_classificacao_id, FK_status_id, capa, FK_instituicao_id,
-  FK_editora_id, FK_autor_id
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO livro (
+      titulo, edicao, paginas, quantidade, local_publicacao,
+      data_publicacao, cdd, sinopse, isbn, assunto_discutido,
+      subtitulo, volume, FK_genero_id, FK_funcionario_id,
+      FK_classificacao_id, FK_status_id, capa, FK_instituicao_id,
+      FK_editora_id, FK_autor_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-const values = [
-  titulo || null,
-  edicao || null,
-  paginas || null,
-  quantidade || null,
-  local_publicacao || null,
-  data_publicacao || null,
-  sinopse || null,
-  isbn || null,
-  assunto_discutido || null,
-  subtitulo || null,
-  volume || null,
-  FK_genero_id || null,
-  req.user.id,  // <-- funcionário logado
-  FK_classificacao_id || null,
-  FK_status_id || null,
-  capa || null,
-  req.user.FK_instituicao_id || null,
-  FK_editora_id || null,
-  FK_autor_id || null
-];
+  const values = [
+    titulo || null,
+    edicao || null,
+    paginas || null,
+    quantidade || null,
+    local_publicacao || null,
+    data_publicacao || null,
+    cdd || null,
+    sinopse || null,
+    isbn || null,
+    assunto_discutido || null,
+    subtitulo || null,
+    volume || null,
+    FK_genero_id || null,
+    req.user.id, // funcionario logado
+    FK_classificacao_id || null,
+    FK_status_id || null,
+    capa || null,
+    req.user.FK_instituicao_id || null,
+    FK_editora_id || null,
+    FK_autor_id || null
+  ];
 
   connection.query(sql, values, (err, result) => {
     if (err) {
       console.error('Erro ao cadastrar livro:', err);
       return res.status(500).json({ error: 'Erro ao cadastrar livro' });
     }
-
     res.status(200).json({ message: 'Livro cadastrado com sucesso!' });
   });
 });
