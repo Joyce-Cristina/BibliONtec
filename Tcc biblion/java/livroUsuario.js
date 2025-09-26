@@ -104,6 +104,37 @@ async function carregarIndicacoes() {
   }
 }
 
+async function carregarListaDesejos() {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Sessão expirada. Faça login novamente.");
+      window.location.href = "index.html";
+      return [];
+    }
+
+    const usuarioJSON = localStorage.getItem("usuario");
+    if (!usuarioJSON) throw new Error("Dados do usuário não encontrados");
+    const usuario = JSON.parse(usuarioJSON);
+    const usuarioId = usuario.id;
+
+    const resp = await fetch(`http://localhost:3000/lista-desejos/${usuarioId}`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!resp.ok) throw new Error(`Erro ao buscar lista de desejos: ${resp.status}`);
+
+    const livrosDesejados = await resp.json();
+    console.log("📚 LIVROS NA LISTA DESEJOS:", livrosDesejados);
+
+    renderizarLivros("gridLivros", livrosDesejados, "Nenhum livro na lista de desejos.");
+
+  } catch (err) {
+    console.error("Erro no carregarListaDesejos:", err);
+    renderizarLivros("gridLivros", [], "Erro ao carregar lista de desejos.");
+  }
+}
+
 // ===================== DETECTAR PÁGINA E CARREGAR =====================
 document.addEventListener("DOMContentLoaded", function() {
   console.log("🔍 DETECTANDO PÁGINA...");
@@ -115,7 +146,10 @@ document.addEventListener("DOMContentLoaded", function() {
   if (currentPage === 'indicacoes.html') {
     console.log("🚀 CARREGANDO INDICAÇÕES...");
     carregarIndicacoes();
-  } else {
+  } else if (currentPage === 'lista.html') {    
+    console.log("🚀 CARREGANDO LISTA DESEJOS...");
+    carregarListaDesejos();}
+  else{
     console.log("📖 CARREGANDO TODOS OS LIVROS...");
     carregarLivros().then(livros => {
       renderizarLivros("gridLivros", livros);
