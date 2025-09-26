@@ -353,16 +353,6 @@
       }
     }
 
-    #cardsContainer {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      /* sempre 3 por fileira */
-      gap: 20px;
-      justify-items: center;
-      max-width: 1200px;
-      margin: 30px auto 0;
-    }
-
     /* Responsividade */
     @media (max-width: 992px) {
       #cardsContainer {
@@ -377,17 +367,31 @@
     }
 
     /* Estilo dos cards */
+
+    #cardsContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 3 por fileira */;
+      /* sempre 3 por fileira */
+      gap: 30px;
+      justify-items: center;
+      align-items: center;
+      max-width: 1200px;
+      min-width: 1000px; /*mudei o tamanho para ficar igual ao usuaro bibliotecario*/
+      margin: 30px auto 0;
+    }
+
     #cardsContainer .card {
-      width: 100%;
-      max-width: 320px;
-      /* 🔥 mais largura */
-      min-height: 320px;
-      /* 🔥 menos altura */
-      max-height: 360px;
-      background-color: #d6c9b4;
-      border-radius: 10px;
       display: flex;
-      flex-direction: column;
+  flex-direction: column;
+  width: 100% !important;   /* ocupa a coluna do grid */
+  max-width: 700px;         /* limite de largura */
+  height: auto !important;  /* altura ajusta conforme conteúdo */
+  background-color: #f7f5f0;
+  padding: 15px; /*coloca aquela bordinha envolta da foto*/
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+  overflow: hidden;  /* evita que elementos "vazem" do card */
     }
 
     #cardsContainer .card-img-top {

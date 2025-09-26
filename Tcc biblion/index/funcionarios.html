@@ -72,27 +72,42 @@
       background-color: #7a1505 !important;
     }
 
-    .main-container { 
+    .main-container {
       flex: 1;
-      margin-left: 220px;
-      padding-top: 76px;     /* evita sobreposição da navbar */
-      padding-right: 30px;
-      margin: 0 auto;
-      max-width: 1200px;     /* largura máxima para centralizar */
+  padding-left: 270px;   /* distância da sidebar */
+  padding-top: 20px;
+  padding-bottom: 20px;
+  display: flex;
+  flex-direction: column; 
+  justify-content: flex-start;
+  overflow-y: auto;
+  min-height: calc(100vh - 56px);
+  margin: 0;             /* remove centralização */
+  max-width: 100%;       /* ocupa toda a largura disponível */
+}
+
+
+    .main-container,
+    .header-card{
+     margin-top: 10px !important; /* evita que o conteúdo fique escondido sob a navbar */
     }
 
     /* ===== Cabeçalho ===== */
     .header-card {
-      background-color: #ccb182;
+      background-color: #dab57e;
       border-radius: 15px;
-      padding: 20px;
+      padding: 30px;
+      padding-left: 100px;
+      padding-right: 100px;
       max-width: 800px;
       margin: 0 auto;
       text-align: center;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
     }
     .header-card h2 { 
       font-family: Georgia, serif;
       font-weight: 500; 
+      margin-bottom: 15px;
     }
 
     .filter-container { 
@@ -113,24 +128,30 @@
 /* ===== Cards de Funcionários ===== */
 /* Container de cards */
 #lista-funcionarios {
-  display: grid; /* ativa grid */
-  grid-template-columns: repeat(3, 1fr); /* 3 colunas */
-  gap: 20px; /* espaço entre os cards */
-  justify-items: center; /* centraliza os cards dentro da coluna */
-  margin-top: 30px;
-  padding-bottom: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+  justify-items: stretch; /* cada card ocupa toda a coluna */
+  align-items: stretch;   /* força os cards da mesma linha a ficarem com mesma altura */
+  max-width: 1200px;
+  min-width: 1000px;
+  margin: 30px auto 0;
+
 }
 
 /* Cards */
 #lista-funcionarios .card {
   width: 100%;
-  max-width: 300px;
-  min-height: 340px;
-  background-color: #d6c9b4;
+  max-width: 700px;
+  min-height: 200px;
+  height: 100%;        /* faz o card esticar até a altura da linha */
+  background-color: #f7f5f0;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  padding-top: 10px;
+  overflow: hidden; /* evita que elementos "vazem" do card */
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
 }
 
 /* Corpo do card */
@@ -143,12 +164,12 @@
 #lista-funcionarios .card-footer {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 30px;
   flex-wrap: wrap;
   padding: 10px;
-  background-color: #c0b090;
-  border-top: 1px solid #aaa;
+  background-color: #f7f5f0;
 }
+
 
 /* Responsividade */
 @media (max-width: 992px) {
@@ -343,6 +364,53 @@
     grid-template-columns: 1fr; /* 1 card por linha */
   }
 }
+
+    /* Barra de pesquisa */
+    .search-input {
+            border-radius: 25px;
+            padding-left: 20px;
+            font-size: 16px;
+            flex: 1;
+        }
+
+        /* Estilo do botão de pesquisa */
+        .search-btn {
+            background-color: #fff;
+            border: 1px solid #dab57e;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+
+/* === search-box (igual homepageAluno) === */
+.search-box {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  width: 400px;
+}
+.search-box input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 16px;
+}
+.search-box i {
+  font-size: 18px;
+  color: #000;
+}
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
+
+/* responsivo */
+@media (max-width: 992px) {
+  .search-box { width: 300px; }
+}
   </style>
 </head>
 <body>
@@ -414,30 +482,64 @@
   </div>
   
 
-  <!-- ===== Conteúdo Principal ===== -->
-  <div class="main-container">
+<!-- ===== Conteúdo Principal ===== -->
+<div class="main-container">
 
-    <!-- === Cabeçalho === -->
-    <div class="header-card">
-      <h2>Seus Funcionários</h2>
-      <p style="font-weight:bold;">Esta página é para visualizar todos os seus funcionários cadastrados.</p>
+  <!-- === Cabeçalho === -->
+  <div class="header-card">
+    <h2>Seus Funcionários</h2>
+    <p style="font-weight:bold;">Esta página é para visualizar todos os seus funcionários cadastrados.</p>
 
-      <div class="filter-container">
-        <div class="search-bar">
-          <input type="text" class="form-control" placeholder="Buscar funcionário..." style="border-radius:10px;">
-        </div>
+    <div class="filter-container">
+      <div class="search-box">
+        <input type="text" placeholder="Buscar usuário...">
+        <i class="bi bi-search"></i>
       </div>
     </div>
+  </div>
 
-    <!-- Botão organizar -->
-    <div class="organize-btn-container">
+  <!-- Container central para filtros e lista de funcionários -->
+  <div class="container" style="max-width: 1200px; margin: 20px auto 0;">
+
+    <!-- Filtros: checkbox e dropdown -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="alphabetical" style="transform:scale(1.5);">
-        <label for="alphabetical" class="form-check-label">Organizar por ordem alfabética</label>
+        <input class="form-check-input" type="checkbox" id="ordemAlfabetica"
+          style="transform: scale(1.5); border: 2px solid #7a6956;">
+        <label class="form-check-label ms-2" for="ordemAlfabetica" style="font-size: 17px;">
+          Organizar por ordem alfabética
+        </label>
+      </div>
+
+      <div class="dropdown">
+        <button class="btn rounded-pill text-white" type="button" data-bs-toggle="dropdown"
+          style="background-color: #5a3d2b;">
+          Curso <i class="bi bi-caret-down-fill ms-1"></i>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">Administrador</a></li>
+          <li><a class="dropdown-item" href="#">Bibliotecário</a></li>
+          <li><a class="dropdown-item" href="#">Circulação</a></li>
+          <li><a class="dropdown-item" href="#">Catalogação</a></li>
+          <li><a class="dropdown-item" href="#">Todos</a></li>
+        </ul>
       </div>
     </div>
-    <br>
-<div class="row" id="lista-funcionarios"></div>
+
+    <!-- Lista de funcionários -->
+    <div class="row" id="lista-funcionarios"></div>
+
+  </div>
+</div>
+
+
+  <!-- Container dos cards -->
+  <div class="card-container" style="max-width: 1200px; margin: 0 auto;">
+    <div class="row" id="lista-funcionarios"></div>
+  </div>
+
+</div>
+
 
 <!-- Modal -->
 
