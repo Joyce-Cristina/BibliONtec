@@ -195,39 +195,7 @@ body {
       </div>
       <div class="divider-custom-line" style="display: inline-block; width: 60px; height: 2px; background-color: #000;"></div>
     </div>
-
-    <!-- Cards -->
-    <div class="row justify-content-center">
-      <div class="col-lg-3 me-3 mb-4">
-        <div class="card text-center h-100" style="background-color: #dcc7a1;">
-          <div class="card-body d-flex flex-column">
-            <img src="../img/biba.png" alt="Livro" class="img-fluid mb-3" style="height: 300px; object-fit: cover;">
-            <h5 class="card-title">A Culpa é das Estrelas</h5>
-            <p class="card-text">Um romance comovente sobre amor e superação.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-3 me-3 mb-4">
-        <div class="card text-center h-100" style="background-color: #dcc7a1;">
-          <div class="card-body d-flex flex-column">
-            <img src="../img/biba.png" alt="Livro" class="img-fluid mb-3" style="height: 300px; object-fit: cover;">
-            <h5 class="card-title">Dom Casmurro</h5>
-            <p class="card-text">Um clássico da literatura brasileira.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-3 mb-4">
-        <div class="card text-center h-100" style="background-color: #dcc7a1;">
-          <div class="card-body d-flex flex-column">
-            <img src="../img/biba.png" alt="Livro" class="img-fluid mb-3" style="height: 300px; object-fit: cover;">
-            <h5 class="card-title">1984</h5>
-            <p class="card-text">Uma distopia impactante sobre vigilância e controle.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="gridLivrosIndicacoes" class="grid-cards"></div>
 
     <!-- Botão -->
     <div class="text-center mt-4">
@@ -268,81 +236,9 @@ body {
 <section class="indicacoes">
     <h2 class="titulo-indicacoes" style="color: #000;">Livros disponíveis na biblioteca</h2>
 
-    <div class="grid-cards">
-      <!-- Indisponíveis -->
-      <div class="card indisponivel">
-        <img src="../img/logoquadrada.jpeg" alt="O Cortiço">
-        <h4>Livro 1</h4>
-        <p>Faltam <span class="dias">6</span> dias para ficar disponível</p>
-        <button class="botao-indisponivel">indisponível</button>
-      </div>
-
-      <div class="card indisponivel">
-        <img src="../img/logoquadrada.jpeg" alt="A Mão e a Luva">
-        <h4>Livro 2</h4>
-        <p>Faltam <span class="dias">8</span> dias para ficar disponível</p>
-        <button class="botao-indisponivel">indisponível</button>
-      </div>
-
-      <!-- Disponível -->
-      <div class="card disponivel">
-        <img src="../img/logoquadrada.jpeg" alt="Dom Casmurro">
-        <h4>Livro 3</h4>
-        <div class="espaco-disponivel"></div>
-        <button class="botao-disponivel">disponível</button>
-      </div>
-
-      <div class="card disponivel">
-        <img src="../img/logoquadrada.jpeg" alt="Livro 4">
-        <h4>Livro 4</h4>
-        <div class="espaco-disponivel"></div>
-        <button class="botao-disponivel">disponível</button>
-      </div>
-
-      <!-- Indisponível -->
-      <div class="card indisponivel">
-        <img src="../img/logoquadrada.jpeg" alt="Livro 5">
-        <h4>Livro 5</h4>
-        <p>Faltam <span class="dias">3</span> dias para ficar disponível</p>
-        <button class="botao-indisponivel">indisponível</button>
-      </div>
-
-      <div class="card indisponivel">
-        <img src="../img/logoquadrada.jpeg" alt="Livro 6">
-        <h4>Livro 6</h4>
-        <p>Faltam <span class="dias">2</span> dias para ficar disponível</p>
-        <button class="botao-indisponivel">indisponível</button>
-      </div>
-
-      <!-- Disponível -->
-      <div class="card disponivel">
-        <img src="../img/logoquadrada.jpeg" alt="Livro 7">
-        <h4>Livro 7</h4>
-        <div class="espaco-disponivel"></div>
-        <button class="botao-disponivel">disponível</button>
-      </div>
-
-      <!-- Indisponível -->
-      <div class="card indisponivel">
-        <img src="../img/logoquadrada.jpeg" alt="Livro 8">
-        <h4>Livro 8</h4>
-        <p>Faltam <span class="dias">4</span> dias para ficar disponível</p>
-        <button class="botao-indisponivel">indisponível</button>
-      </div>
-
-      <!-- Disponível -->
-      <div class="card disponivel">
-        <img src="../img/logoquadrada.jpeg" alt="Livro 9">
-        <h4>Livro 9</h4>
-        <div class="espaco-disponivel"></div>
-        <button class="botao-disponivel">disponível</button>
-      </div>
+    <div id="gridLivrosBiblioteca" class="grid-cards"></div>
     </div>
   </section>
-
-
-
-
 
 
 
@@ -401,6 +297,7 @@ body {
       crossorigin="anonymous"></script>
       
   <script src="../java/script.js"></script>
+  <script src="../java/livroUsuario.js"></script>
 </body>
 
 </html>

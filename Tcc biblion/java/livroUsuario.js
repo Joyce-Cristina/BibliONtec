@@ -56,63 +56,76 @@ function renderizarLivros(containerId, livros, mensagemVazia = "Nenhum livro enc
       </div>
     `;
 
+    // Clique no card abre página de detalhes
     card.addEventListener("click", () => {
       localStorage.setItem("livroSelecionado", livro.id);
       window.location.href = "visLivro.html";
     });
 
+    // Evitar que o clique no botão dispare o clique do card
     const botoes = card.querySelectorAll("button");
-    botoes.forEach(btn => btn.addEventListener("click", e => e.stopPropagation()));
+    botoes.forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        if (btn.classList.contains("reservar-btn")) {
+          reservarLivro(livro.id);
+        }
+      });
+    });
 
     container.appendChild(card);
   });
+}
+
+// ===================== RESERVAR LIVRO =====================
+async function reservarLivro(livroId) {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Sessão expirada");
+
+    const resp = await fetch(`http://localhost:3000/reservar/${livroId}`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (!resp.ok) throw new Error("Erro ao reservar livro");
+
+    alert("Livro reservado com sucesso!");
+  } catch (err) {
+    console.error("Erro ao reservar livro:", err);
+    alert("Não foi possível reservar o livro.");
+  }
 }
 
 // ===================== CARREGAR INDICAÇÕES =====================
 async function carregarIndicacoes() {
   try {
     const token = localStorage.getItem("token");
-    
-    // 🔍 CORREÇÃO: Pegar os dados do objeto usuario completo
     const usuarioJSON = localStorage.getItem("usuario");
-    if (!usuarioJSON) {
-      throw new Error("Dados do usuário não encontrados");
-    }
-    
+    if (!usuarioJSON) throw new Error("Dados do usuário não encontrados");
     const usuario = JSON.parse(usuarioJSON);
-    console.log("👤 DADOS DO USUÁRIO:", usuario);
-    
+
     const cursoId = usuario.curso_id;
     const serie = usuario.serie;
-    
-    console.log("🎯 BUSCANDO INDICAÇÕES PARA:", { cursoId, serie });
 
     const resp = await fetch(`http://localhost:3000/indicacoes/${cursoId}/${serie}`, {
       headers: { "Authorization": `Bearer ${token}` }
     });
 
     if (!resp.ok) throw new Error(`Erro: ${resp.status}`);
-
     const livrosIndicados = await resp.json();
-    console.log("📚 LIVROS INDICADOS RECEBIDOS:", livrosIndicados);
 
-    renderizarLivros("gridLivros", livrosIndicados, "Nenhuma indicação disponível.");
-
+    renderizarLivros("gridLivrosIndicacoes", livrosIndicados, "Nenhuma indicação disponível.");
   } catch (err) {
-    console.error("Erro:", err);
-    renderizarLivros("gridLivros", [], "Erro ao carregar indicações.");
+    console.error("Erro ao carregar indicações:", err);
+    renderizarLivros("gridLivrosIndicacoes", [], "Erro ao carregar indicações.");
   }
 }
 
+// ===================== CARREGAR LISTA DESEJOS =====================
 async function carregarListaDesejos() {
   try {
     const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Sessão expirada. Faça login novamente.");
-      window.location.href = "index.html";
-      return [];
-    }
-
     const usuarioJSON = localStorage.getItem("usuario");
     if (!usuarioJSON) throw new Error("Dados do usuário não encontrados");
     const usuario = JSON.parse(usuarioJSON);
@@ -123,36 +136,28 @@ async function carregarListaDesejos() {
     });
 
     if (!resp.ok) throw new Error(`Erro ao buscar lista de desejos: ${resp.status}`);
-
     const livrosDesejados = await resp.json();
-    console.log("📚 LIVROS NA LISTA DESEJOS:", livrosDesejados);
 
-    renderizarLivros("gridLivros", livrosDesejados, "Nenhum livro na lista de desejos.");
-
+    renderizarLivros("gridLivrosListaDesejos", livrosDesejados, "Nenhum livro na lista de desejos.");
   } catch (err) {
     console.error("Erro no carregarListaDesejos:", err);
-    renderizarLivros("gridLivros", [], "Erro ao carregar lista de desejos.");
+    renderizarLivros("gridLivrosListaDesejos", [], "Erro ao carregar lista de desejos.");
   }
 }
 
 // ===================== DETECTAR PÁGINA E CARREGAR =====================
 document.addEventListener("DOMContentLoaded", function() {
-  console.log("🔍 DETECTANDO PÁGINA...");
-  
-  // Método mais direto: verifica o nome do arquivo atual
   const currentPage = window.location.pathname.split('/').pop().toLowerCase();
-  console.log("Página atual:", currentPage);
-  
-  if (currentPage === 'indicacoes.html') {
-    console.log("🚀 CARREGANDO INDICAÇÕES...");
+
+  if (document.getElementById("gridLivrosListaDesejos")) {
+    carregarListaDesejos();
+  }
+  if (document.getElementById("gridLivrosIndicacoes")) {
     carregarIndicacoes();
-  } else if (currentPage === 'lista.html') {    
-    console.log("🚀 CARREGANDO LISTA DESEJOS...");
-    carregarListaDesejos();}
-  else{
-    console.log("📖 CARREGANDO TODOS OS LIVROS...");
+  }
+  if (document.getElementById("gridLivrosBiblioteca")) {
     carregarLivros().then(livros => {
-      renderizarLivros("gridLivros", livros);
+      renderizarLivros("gridLivrosBiblioteca", livros);
     });
   }
 });
