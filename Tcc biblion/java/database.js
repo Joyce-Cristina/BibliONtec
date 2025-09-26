@@ -971,6 +971,126 @@ app.delete('/api/funcionarios/:id', (req, res) => {
     }
   });
 });
+
+app.post('/lista-desejos', autenticarToken, (req, res) => {
+  const { usuarioId, livroId } = req.body;
+
+  if (!usuarioId || !livroId) {
+    return res.status(400).json({ error: 'Usuário e livro são obrigatórios' });
+  }
+
+  // Verificar se já existe na lista de desejos
+  const sqlCheck = `
+    SELECT ld.id 
+    FROM lista_desejo ld
+    JOIN lista_livro ll ON ld.id = ll.FK_lista_desejo_id
+    WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
+  `;
+
+  connection.query(sqlCheck, [usuarioId, livroId], (err, results) => {
+    if (err) {
+      console.error('Erro ao verificar lista de desejos:', err);
+      return res.status(500).json({ error: 'Erro interno no servidor' });
+    }
+
+    if (results.length > 0) {
+      return res.status(409).json({ error: 'Livro já está na lista de desejos' });
+    }
+
+    // Verificar se o usuário já tem uma lista de desejos
+    const sqlFindLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ? LIMIT 1';
+    
+    connection.query(sqlFindLista, [usuarioId], (err, listaResults) => {
+      if (err) {
+        console.error('Erro ao buscar lista de desejos:', err);
+        return res.status(500).json({ error: 'Erro interno no servidor' });
+      }
+
+      let listaId;
+
+      if (listaResults.length > 0) {
+        // Usar lista existente
+        listaId = listaResults[0].id;
+        adicionarLivroLista(listaId, livroId, res);
+      } else {
+        // Criar nova lista de desejos
+        const sqlCreateLista = `
+          INSERT INTO lista_desejo (lista_desejo, FK_usuario_id, FK_instituicao_id) 
+          VALUES (?, ?, ?)
+        `;
+        
+        connection.query(sqlCreateLista, ['Minha Lista', usuarioId, 1], (err, result) => {
+          if (err) {
+            console.error('Erro ao criar lista de desejos:', err);
+            return res.status(500).json({ error: 'Erro interno no servidor' });
+          }
+
+          listaId = result.insertId;
+          adicionarLivroLista(listaId, livroId, res);
+        });
+      }
+    });
+  });
+});
+
+function adicionarLivroLista(listaId, livroId, res) {
+  const sqlInsert = 'INSERT INTO lista_livro (FK_lista_desejo_id, FK_livro_id) VALUES (?, ?)';
+  
+  connection.query(sqlInsert, [listaId, livroId], (err) => {
+    if (err) {
+      console.error('Erro ao adicionar livro à lista:', err);
+      return res.status(500).json({ error: 'Erro ao adicionar livro à lista de desejos' });
+    }
+
+    res.status(201).json({ message: 'Livro adicionado à lista de desejos com sucesso!' });
+  });
+}
+
+// Verificar se livro está na lista de desejos
+app.get('/lista-desejos/verificar/:usuarioId/:livroId', (req, res) => {
+  const { usuarioId, livroId } = req.params;
+
+  const sql = `
+    SELECT ll.FK_livro_id 
+    FROM lista_livro ll
+    JOIN lista_desejo ld ON ll.FK_lista_desejo_id = ld.id
+    WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
+  `;
+
+  connection.query(sql, [usuarioId, livroId], (err, results) => {
+    if (err) {
+      console.error('Erro ao verificar lista de desejos:', err);
+      return res.status(500).json({ error: 'Erro interno no servidor' });
+    }
+
+    res.json({ naLista: results.length > 0 });
+  });
+});
+
+// Remover livro da lista de desejos
+app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
+  const { usuarioId, livroId } = req.params;
+
+  const sql = `
+    DELETE ll FROM lista_livro ll
+    JOIN lista_desejo ld ON ll.FK_lista_desejo_id = ld.id
+    WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
+  `;
+
+  connection.query(sql, [usuarioId, livroId], (err, result) => {
+    if (err) {
+      console.error('Erro ao remover livro da lista:', err);
+      return res.status(500).json({ error: 'Erro interno no servidor' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Livro não encontrado na lista de desejos' });
+    }
+
+    res.json({ message: 'Livro removido da lista de desejos com sucesso!' });
+  });
+});
+
 // Listar funções
 app.get("/funcoes", autenticarToken, (req, res) => {
   const sql = "SELECT id, funcao FROM funcao";
