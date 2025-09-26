@@ -282,16 +282,16 @@ async function carregarEditoras() {
 
     // Preencher datalist
     const datalist = document.getElementById('listaEditoras');
-    datalist.innerHTML = ''; // limpa antes
+    datalist.innerHTML = '';
     editoras.forEach(e => {
       const option = document.createElement('option');
-      option.value = e.editora; // <-- problema aqui: no seu BDD o campo é 'editora'
+      option.value = e.editora;
       datalist.appendChild(option);
     });
 
     return editoras;
   } catch (err) {
-    console.error('Erro ao carregar editoras:', response); // <-- AQUI ESTAVA ERRADO!
+    console.error('Erro ao carregar editoras:', response);
     return [];
   }
 }

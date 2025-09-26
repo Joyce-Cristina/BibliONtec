@@ -707,11 +707,9 @@ app.post('/login', (req, res) => {
 
   // 1) tenta login de usuário
   const sqlUsuario = `
-    
-SELECT id, nome, FK_tipo_usuario_id , foto, FK_instituicao_id, senha
-FROM usuario
-WHERE email = ?
-
+    SELECT id, nome, FK_tipo_usuario_id , foto, FK_instituicao_id, senha, curso_id, serie
+    FROM usuario
+    WHERE email = ?
   `;
 
   connection.query(sqlUsuario, [email], (err, results) => {
@@ -728,8 +726,10 @@ WHERE email = ?
       // Token do usuário agora leva a instituição
       const token = jwt.sign({
         id: usuario.id,
-        tipo_usuario_id:usuario.FK_tipo_usuario_id,             // ✅ corrigido (era undefined antes)
-        FK_instituicao_id: usuario.FK_instituicao_id
+        tipo_usuario_id: usuario.FK_tipo_usuario_id,
+        FK_instituicao_id: usuario.FK_instituicao_id,
+        curso_id: usuario.curso_id,   // ✅ adicionado no token
+        serie: usuario.serie          // ✅ adicionado no token
       }, SECRET, { expiresIn: '8h' });
 
       return res.status(200).json({
@@ -740,6 +740,8 @@ WHERE email = ?
           nome: usuario.nome,
           tipo_usuario_id: usuario.FK_tipo_usuario_id,
           FK_instituicao_id: usuario.FK_instituicao_id,
+          curso_id: usuario.curso_id,    
+          serie: usuario.serie,
           foto: usuario.foto || 'padrao.png'
         }
       });
@@ -770,7 +772,7 @@ WHERE email = ?
           id: funcionario.id,
           role: "funcionario",
           funcao: funcionario.funcao_id,
-          FK_instituicao_id: funcionario.FK_instituicao_id   // ✅ incluído
+          FK_instituicao_id: funcionario.FK_instituicao_id,
         },
         SECRET,
         { expiresIn: "8h" }
@@ -793,6 +795,8 @@ WHERE email = ?
     });
   });
 });
+
+// middleware para validar token
 function autenticarToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -802,15 +806,11 @@ function autenticarToken(req, res, next) {
   jwt.verify(token, SECRET, (err, payload) => {
     if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
 
-    console.log("🔑 Payload do token:", payload); // 👈 LOGA O QUE VEM NO TOKEN
+    console.log("🔑 Payload do token:", payload);
     req.user = payload;
     next();
   });
 }
-
-
-
-
 
 
 // ================= ROTAS DE FUNCIONARIO =================
@@ -915,9 +915,23 @@ app.get('/api/funcionarios/:id', autenticarToken, (req, res) => {
   });
 });
 
+app.get('/indicacoes/:cursoId/:serie', autenticarToken, (req, res) => {
+  const { cursoId, serie } = req.params;
 
+  const sql = `
+    SELECT l.id, l.titulo, l.capa, l.sinopse, c.curso, iu.serie
+    FROM indicacao_usuario iu
+    JOIN indicacao i ON iu.FK_indicacao_id = i.id
+    JOIN livro l ON i.indicacao = l.id
+    JOIN curso c ON iu.FK_curso_id = c.id
+    WHERE iu.FK_curso_id = ? AND iu.serie = ?
+  `;
 
-
+  connection.query(sql, [cursoId, serie], (err, results) => {
+    if (err) return res.status(500).json({ error: 'Erro no servidor' });
+    res.json(results);
+  });
+});
 
 // Apaga funcionário e dependências
 app.delete('/api/funcionarios/:id', (req, res) => {
