@@ -109,6 +109,7 @@
     /* Conteúdo Central */
     .main-container {
       flex: 1;
+      margin-top: 43px;
       padding-inline-start: 270px;
       padding-block-start: 20px;
       padding-block-end: 20px;
@@ -119,12 +120,13 @@
     }
 
     .content {
-      background-color: #ccb182;
+      background-color: #dab57e;
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      max-block-size: 600px; /* altura máxima do conteúdo */
       inline-size: 900px;
-      margin: 0 auto;
+      margin: 0 auto; 
       font-size: 1.3rem;
       font-weight: bold;
     }
@@ -411,14 +413,24 @@
   </div>
 </div>
 
-
-
-        <div class="mb-3">
+<div class="form-check ms-1 mb-3">
+  <input class="form-check-input" type="checkbox" id="aluno"
+    style="transform: scale(1); border: 2px solid #7a6956;">
+  <label class="form-check-label ms-3" for="aluno" style="font-size: 21px;">
+    Usuários comuns/alunos
+  </label><br>
+  <input class="form-check-input" type="checkbox" id="professor"
+    style="transform: scale(1); border: 2px solid #7a6956;">
+  <label class="form-check-label ms-3" for="professor" style="font-size: 21px;">
+    Professores
+  </label>
+</div>
+        <!--<div class="mb-3">
           <input type="checkbox" id="aluno">
           <label for="aluno">Usuários comuns/alunos</label><br>
           <input type="checkbox" id="professor">
           <label for="professor">Professores</label>
-        </div>
+        </div>-->
 
          <div class="mb-4 d-flex align-items-center">
   <div id="previewBox"
