@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 21/09/2025 às 02:07
+-- Tempo de geração: 02/10/2025 às 16:08
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -352,6 +352,23 @@ INSERT INTO `emprestimo_livro` (`FK_emprestimo_id`, `FK_livro_id`) VALUES
 (2, 6),
 (3, 1),
 (4, 6);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `evento`
+--
+
+CREATE TABLE `evento` (
+  `id` int(11) NOT NULL,
+  `titulo` varchar(255) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `data_evento` date NOT NULL,
+  `hora_evento` time DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL,
+  `FK_instituicao_id` int(11) NOT NULL,
+  `FK_funcionario_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -1101,6 +1118,14 @@ ALTER TABLE `emprestimo_livro`
   ADD KEY `FK_emprestimo_livro_id` (`FK_livro_id`);
 
 --
+-- Índices de tabela `evento`
+--
+ALTER TABLE `evento`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_instituicao_id` (`FK_instituicao_id`),
+  ADD KEY `FK_funcionario_id` (`FK_funcionario_id`);
+
+--
 -- Índices de tabela `funcao`
 --
 ALTER TABLE `funcao`
@@ -1403,6 +1428,12 @@ ALTER TABLE `emprestimo`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT de tabela `evento`
+--
+ALTER TABLE `evento`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `funcao`
 --
 ALTER TABLE `funcao`
@@ -1540,6 +1571,13 @@ ALTER TABLE `emprestimo`
 ALTER TABLE `emprestimo_livro`
   ADD CONSTRAINT `FK_emprestimo_livro_1` FOREIGN KEY (`FK_emprestimo_id`) REFERENCES `emprestimo` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `FK_emprestimo_livro_id` FOREIGN KEY (`FK_livro_id`) REFERENCES `livro` (`id`);
+
+--
+-- Restrições para tabelas `evento`
+--
+ALTER TABLE `evento`
+  ADD CONSTRAINT `evento_ibfk_1` FOREIGN KEY (`FK_instituicao_id`) REFERENCES `instituicao` (`id`),
+  ADD CONSTRAINT `evento_ibfk_2` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`);
 
 --
 -- Restrições para tabelas `funcionario`
