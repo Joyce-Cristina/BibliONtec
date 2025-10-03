@@ -112,28 +112,31 @@
     }
 
     .form-card {
-      background-color: #ccb182;
+      background-color: #dab57e;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
       max-inline-size: 960px;
+      max-height: 670px;
       inline-size: 100%;
       font-weight: bold;
       /* <- esta linha faz o texto ficar em negrito */
     }
 
     .btn-custom {
-      background-color: #7a1505;
-      color: white;
-      border: none;
-      transition: 0.3s;
-    }
+  background-color: #7a1505;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  font-size: 17px;
+  border-radius: 50px;
+}
+
 
     .btn-custom:hover {
       background-color: #3f0900;
       color: #dcdcdc;
     }
-
 
     @media (max-inline-size: 800px) {
       .sidebar {
@@ -243,7 +246,7 @@
     /* altura típica da navbar do Bootstrap ~56–60px */
     .main-container,
     .main-container-custom {
-      padding-block-start: 76px !important;
+      padding-block-start: 120px !important;
       /* evita que o conteúdo fique escondido sob a navbar */
     }
   </style>
@@ -324,27 +327,27 @@
   <!-- Conteúdo principal -->
   <div class="main-container">
     <div class="form-card">
-      <h3 class="text-center mb-5">Cadastro de Funcionários</h3>
+      <h2 class="text-center mb-5" style="font-family: Georgia, serif;font-weight: 500px; margin-bottom: 15px;">Cadastro de Funcionários</h2>
       <form id="formFuncionario" enctype="multipart/form-data">
         <div class="row mb-4">
           <div class="col-md-6">
-            <label class="form-label" for="nome">Nome:</label>
+            <label class="form-label" style="font-size: 18px;" for="nome">Nome: <span class="required" style="color: red;">*</span></label>
             <input type="text" id="nome" name="nome" class="form-control apenasTexto" required />
           </div>
           <div id="mensagemErroFuncionario" style="display:none; color:red; margin-block-end:10px;"></div>
           <div class="col-md-6">
-            <label class="form-label" for="email">E-mail:</label>
+            <label class="form-label" style="font-size: 18px;" for="email">E-mail: <span class="required" style="color: red;">*</span></label>
             <input type="email" id="email" name="email" class="form-control" required />
           </div>
         </div>
 
         <div class="row mb-4">
           <div class="col-md-6">
-            <label class="form-label" for="senha">Senha:</label>
+            <label class="form-label" style="font-size: 18px;" for="senha">Senha:</label>
             <input type="password" id="senha" name="senha" class="form-control" />
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="funcao">Função:</label>
+            <label class="form-label" style="font-size: 18px;" for="funcao">Função: <span class="required" style="color: red;">*</span></label>
             <select id="funcao" name="FK_funcao_id" class="form-select">
               <option value="">Selecione a função</option>
               <option value="1">Administrador</option>
@@ -358,7 +361,7 @@
 
         <div class="row mb-4">
           <div class="col-md-6">
-            <label class="form-label" for="telefone">Telefone:</label>
+            <label class="form-label" style="font-size: 18px;" for="telefone">Telefone:</label>
             <input type="number" class="form-control" id="telefone" pattern="^\d{10,11}$"
               title="Digite apenas números (DDD + telefone, 10 ou 11 dígitos)" required>
           </div>
@@ -380,7 +383,7 @@
         <div class="mb-4"></div>
 
         <div class="text-center">
-          <button type="submit" class="btn btn-custom px-5 py-3">Cadastrar Funcionário</button>
+          <button type="submit" class="btn btn-custom btn-sm">Cadastrar Funcionário</button>
         </div>
 
       </form>
