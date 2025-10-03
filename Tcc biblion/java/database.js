@@ -300,6 +300,30 @@ app.get('/etiquetas/:id', async (req, res) => {
   }
 });
 
+app.post('/cadastrarEvento', autenticarToken, upload.single('foto'), (req, res) => {
+  const { nome, patrocinio, local, descri, hora, data_evento } = req.body;
+  const foto = req.file ? req.file.filename : null;
+
+  const sql = `
+    INSERT INTO evento (titulo, descricao, data_evento, hora_evento, foto, FK_instituicao_id, FK_funcionario_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    nome, descri, data_evento, hora, foto,
+    req.user.FK_instituicao_id,
+    req.user.id
+  ];
+
+  connection.query(sql, values, (err) => {
+    if (err) {
+      console.error("Erro ao cadastrar evento:", err);
+      return res.status(500).json({ error: "Erro ao cadastrar evento" });
+    }
+    res.status(200).json({ message: "Evento cadastrado com sucesso!" });
+  });
+});
+
 // ==================== ETIQUETAS MÚLTIPLAS ====================
 
 app.post('/etiquetas/multiple', async (req, res) => {
