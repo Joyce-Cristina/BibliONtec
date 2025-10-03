@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 02/10/2025 às 16:08
+-- Tempo de geração: 03/10/2025 às 15:01
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -953,10 +953,10 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`, `ativo`, `ultimo_login`) VALUES
-(30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', 'Abc1235', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-09-20 12:05:32'),
+(30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', 'Abc1235', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:53'),
 (31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', 'Abc12345', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 21:26:13'),
-(32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', 'SenhaSegur', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-09-20 12:11:32'),
-(33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', 'Teste@2025', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-09-16 12:20:00'),
+(32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', 'SenhaSegur', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-10-03 07:27:56'),
+(33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', 'Teste@2025', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:26'),
 (34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', 'Xyz78910', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-09-16 12:30:00'),
 (35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', 'Qwe123Rt', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-18 19:19:29');
 
