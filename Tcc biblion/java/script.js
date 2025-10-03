@@ -1,4 +1,4 @@
-// Função auxiliar para criar/usar caixa de erro
+// Função auxiliar para criar usar caixa de erro
 function getOrCreateErrorBox(id, form) {
   let box = document.getElementById(id);
   if (!box) {
