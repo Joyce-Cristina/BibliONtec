@@ -371,32 +371,37 @@
 
   <div class="row mb-3">
     <div class="col-md-6">
-   
-<label for="autorTexto">Autor</label>
+<label for="autorTexto" class="form-label">Autor</label>
 <input list="listaAutores" id="autorTexto" class="form-control" placeholder="Escolha ou digite">
 <input type="hidden" name="FK_autor_id" id="FK_autor_id">
 <datalist id="listaAutores"></datalist>
 
   </div>
+  <div class="col-md-6">
+    <label class="form-label">Volume</label>
+    <input type="text" class="form-control" name="volume" />
+  </div>
   </div>
 
   <div class="row mb-3">
+    <!-- Edição menor -->
     <div class="col-md-6">
       <label class="form-label">Edição <span class="required">*</span></label>
       <input type="text" class="form-control" required name="edicao" />
     </div>
-     <div class="col-md-6">
-    <label for="editoraTexto" class="form-label">Editora</label>
-    <input list="listaEditoras" class="form-control" id="editoraTexto" placeholder="Digite ou escolha" autocomplete="off">
-    <input type="hidden" name="FK_editora_id" id="FK_editora_id">
-    <datalist id="listaEditoras"></datalist>
+  
+    <!-- Editora maior -->
+    <div class="col-md-6">
+      <label for="editoraTexto" class="form-label">Editora</label>
+      <input list="listaEditoras" class="form-control" id="editoraTexto" placeholder="Digite ou escolha" autocomplete="off">
+      <input type="hidden" name="FK_editora_id" id="FK_editora_id">
+      <datalist id="listaEditoras"></datalist>
+    </div>
   </div>
+  
 
   <div class="row mb-3">
-    <div class="col-md- 6">
-      <label class="form-label">Sinopse</label>
-      <input type="text" class="form-control" name="sinopse" />
-    </div>
+    
   <div class="col-md-6">
   <label class="form-label">ISBN <span class="required">*</span></label>
 
@@ -422,16 +427,7 @@
   </div>
 </div>
 
-  <div class="row mb-3">
-    <div class="col-md-6">
-      <label class="form-label">Volume</label>
-      <input type="text" class="form-control" name="volume" />
-    </div>
-    <div class="col-md-6">
-      <label class="form-label">Subtítulo</label>
-      <input type="text" class="form-control" name="subtitulo" />
-    </div>
-  </div>
+  
 
   <div class="row mb-3">
     <div class="col-md-6">
@@ -467,6 +463,17 @@
       <input type="file" class="form-control" name="capa" />
     </div>
   </div>
+  
+  <div class="row mb-2">
+    <div class="col-md- 6">
+      <label class="form-label">Sinopse</label>
+      <input type="text" class="form-control" name="sinopse" />
+    </div>
+    <div class="col-md-12">
+      <label class="form-label">Subtítulo</label>
+      <input type="text" class="form-control" name="subtitulo" />
+    </div>
+  </div>
 
   <div class="text-center mt-4">
           <button type="submit" class="btn btn-custom px-5 py-2">Cadastrar Livro</button>
@@ -484,18 +491,20 @@
   </div>
 
 
-  <!-- Avatar com menu fixado no canto inferior esquerdo -->
-  <div class="avatar-container">
-   <img src="http://localhost:3000/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
-    <div id="menuPerfil" class="menu-perfil">
-      <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
-      <hr class="menu-divider">
-      <a href="#" class="dropdown-item">Perguntas Frequentes</a>
-      <hr class="menu-divider">
-      <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
-    </div>
-  </div>
+    <!-- Avatar com menu fixado no canto inferior esquerdo -->
+<div class="avatar-container">
+  <img src="http://localhost:3000/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+   <div id="menuPerfil" class="menu-perfil">
+     <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
+     <hr class="menu-divider">
+     <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+     <hr class="menu-divider">
+     <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+   </div>
+ </div>
 
+   
+<script src="../java/script.js"></script>
       <script src="../java/cadLivro.js"></script>
 </body>
 

@@ -34,14 +34,19 @@
     /* ===== Sidebar ===== */
     .sidebar {
       position: fixed;
-      top: 0; left: 0;
-      width: 220px; height: 100vh;
-      background-color: #7a1505;
-      padding: 76px 20px 20px;
-      color: white;
-      display: flex; flex-direction: column;
-      overflow-y: auto; z-index: 1040;
-    }
+  top: 56px; /* começa abaixo da navbar */
+  left: 0;
+  width: 220px;
+  height: calc(100vh - 56px); /* ocupa o restante da tela */
+   background-color: #7a1505;
+   padding: 20px;
+   color: white;
+   display: flex;
+   flex-direction: column;
+   overflow-y: auto;
+   z-index: 2000;
+}
+
 
     .dropdown-item {
       background-color: #ffffff;
@@ -88,13 +93,13 @@
 
     .main-container {
       flex: 1;
-  padding-left: 270px;   /* distância da sidebar */
-  padding-top: 20px;
+      padding-left: 270px; /* espaço da sidebar */
+  padding-top: 76px;   /* espaço da navbar */
   padding-bottom: 20px;
   display: flex;
   flex-direction: column; 
   justify-content: flex-start;
-  overflow-y: auto;
+  
   min-height: calc(100vh - 56px);
   margin: 0;             /* remove centralização */
   max-width: 100%;       /* ocupa toda a largura disponível */
