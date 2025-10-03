@@ -112,11 +112,12 @@
     }
 
     .form-card {
-      background-color: #ccb182;
+      background-color: #dab57e;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
       max-inline-size: 960px;
+      max-height: 670px;
       inline-size: 100%;
       font-weight: bold;
       /* <- esta linha faz o texto ficar em negrito */
@@ -126,7 +127,9 @@
       background-color: #7a1505;
       color: white;
       border: none;
-      transition: 0.3s;
+      border-radius: 50px;
+      padding: 12px 18px;
+      font-size: 17px;
     }
 
     .btn-custom:hover {
@@ -243,7 +246,7 @@
     /* altura típica da navbar do Bootstrap ~56–60px */
     .main-container,
     .main-container-custom {
-      padding-block-start: 76px !important;
+      padding-block-start: 120px !important;
       /* evita que o conteúdo fique escondido sob a navbar */
     }
 
@@ -358,38 +361,38 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   <!-- Conteúdo principal -->
   <div class="main-container">
     <div class="form-card">
-      <h3 class="text-center mb-5">Cadastro de Eventos</h3>
+      <h2 class="text-center mb-5" style="font-family: Georgia, serif;font-weight: 500px; margin-bottom: 15px;">Cadastro de Eventos</h2>
       <form id="formFuncionario" enctype="multipart/form-data">
         <div class="row mb-4">
           <div class="col-md-6">
-            <label class="form-label" for="nome">Nome:</label>
+            <label class="form-label" style="font-size: 18px;" for="nome">Nome: <span class="required" style="color: red;">*</span></label>
             <input type="text" id="nome" name="nome" class="form-control apenasTexto" required />
           </div>
           <div id="mensagemErroFuncionario" style="display:none; color:red; margin-block-end:10px;"></div>
           <div class="col-md-6">
-            <label class="form-label" for="email">Patrocínios:</label>
+            <label class="form-label" style="font-size: 18px;" for="email">Patrocínios:</label>
             <input type="text" id="patrocinio" name="patrocinio" class="form-control apenasTexto" required />
           </div>
         </div>
 
         <div class="row mb-4">
           <div class="col-md-6">
-            <label class="form-label" for="senha">Local:</label>
+            <label class="form-label" style="font-size: 18px;" for="senha">Local: <span class="required" style="color: red;">*</span></label>
             <input type="text" id="local" name="local" class="form-control" />
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="senha">Descrição:</label>
+            <label class="form-label" style="font-size: 18px;" for="senha">Descrição:</label>
             <input type="text" id="descri" name="descri" class="form-control" />
           </div>
         </div>
 
         <div class="row mb-4">
           <div class="col-md-6">
-            <label class="form-label" for="hora">Horário:</label>
+            <label class="form-label" style="font-size: 18px;" for="hora">Horário: <span class="required" style="color: red;">*</span></label>
             <input type="time" id="hora" name="hora" class="form-control">
            </div>
           <div class="col-md-6">
-            <label class="form-label" for="data-evento">Data:</label>
+            <label class="form-label" style="font-size: 18px;" for="data-evento">Data: <span class="required" style="color: red;">*</span></label>
             <input type="date" id="data-evento" name="data-evento" class="form-control">
           </div>
         </div>
@@ -410,7 +413,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
         <div class="mb-4"></div>
 
         <div class="text-center">
-          <button type="submit" class="btn btn-custom px-5 py-3">Cadastrar Evento</button>
+          <button type="submit" class="btn btn-custom btn-sm">Cadastrar Evento</button>
         </div>
 
       </form>
