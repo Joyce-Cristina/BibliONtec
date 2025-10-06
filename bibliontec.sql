@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 03/10/2025 às 15:01
+-- Tempo de geração: 06/10/2025 às 19:15
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -583,6 +583,13 @@ CREATE TABLE `historico` (
   `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `historico`
+--
+
+INSERT INTO `historico` (`id`, `data_leitura`, `FK_instituicao_id`) VALUES
+(1, '2025-10-06', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -597,6 +604,24 @@ CREATE TABLE `historico_indicacao` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `historico_livro`
+--
+
+CREATE TABLE `historico_livro` (
+  `FK_historico_id` int(11) DEFAULT NULL,
+  `FK_livro_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `historico_livro`
+--
+
+INSERT INTO `historico_livro` (`FK_historico_id`, `FK_livro_id`) VALUES
+(1, 6);
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `historico_usuario`
 --
 
@@ -604,6 +629,13 @@ CREATE TABLE `historico_usuario` (
   `FK_usuario_id` int(11) DEFAULT NULL,
   `FK_historico_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `historico_usuario`
+--
+
+INSERT INTO `historico_usuario` (`FK_usuario_id`, `FK_historico_id`) VALUES
+(34, 1);
 
 -- --------------------------------------------------------
 
@@ -862,6 +894,13 @@ CREATE TABLE `reserva` (
   `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `reserva`
+--
+
+INSERT INTO `reserva` (`id`, `reserva`, `hora_reserva`, `retirada`, `posicao`, `FK_instituicao_id`) VALUES
+(1, 1, '2025-10-06', 0, '1', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -872,6 +911,31 @@ CREATE TABLE `reserva_livro` (
   `FK_reserva_id` int(11) DEFAULT NULL,
   `FK_livro_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `reserva_livro`
+--
+
+INSERT INTO `reserva_livro` (`FK_reserva_id`, `FK_livro_id`) VALUES
+(1, 6);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `reserva_usuario`
+--
+
+CREATE TABLE `reserva_usuario` (
+  `FK_reserva_id` int(11) DEFAULT NULL,
+  `FK_usuario_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `reserva_usuario`
+--
+
+INSERT INTO `reserva_usuario` (`FK_reserva_id`, `FK_usuario_id`) VALUES
+(1, 34);
 
 -- --------------------------------------------------------
 
@@ -957,7 +1021,7 @@ INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_t
 (31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', 'Abc12345', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 21:26:13'),
 (32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', 'SenhaSegur', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-10-03 07:27:56'),
 (33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', 'Teste@2025', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:26'),
-(34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', 'Xyz78910', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-09-16 12:30:00'),
+(34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', 'Xyz78910', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-10-06 13:24:10'),
 (35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', 'Qwe123Rt', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-18 19:19:29');
 
 -- --------------------------------------------------------
@@ -1455,7 +1519,7 @@ ALTER TABLE `genero`
 -- AUTO_INCREMENT de tabela `historico`
 --
 ALTER TABLE `historico`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `indicacao`
@@ -1497,7 +1561,7 @@ ALTER TABLE `permissao`
 -- AUTO_INCREMENT de tabela `reserva`
 --
 ALTER TABLE `reserva`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `status`

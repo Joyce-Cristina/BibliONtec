@@ -406,34 +406,81 @@ app.post('/etiquetas/multiple', async (req, res) => {
   }
 });
 
-// --- REGISTRAR RESERVA ---
+// === ROTA: criar reserva (adaptada ao seu schema) ===
 app.post('/reservas', autenticarToken, (req, res) => {
   const { usuarioId, livroId } = req.body;
-  if (!usuarioId || !livroId) return res.status(400).json({ error: "Dados insuficientes." });
+  if (!usuarioId || !livroId) return res.status(400).json({ error: 'usuarioId e livroId são obrigatórios' });
 
-  const sql = "INSERT INTO reserva (usuario_id, livro_id, data_reserva, status) VALUES (?, ?, NOW(), 'Ativa')";
-  connection.query(sql, [usuarioId, livroId], (err, result) => {
+  const instituicaoId = req.user ? req.user.FK_instituicao_id : null;
+
+  // 1) calcular posição na fila (quantas reservas já existem para este livro)
+  const sqlCount = `
+    SELECT COUNT(*) AS cnt
+    FROM reserva_livro
+    WHERE FK_livro_id = ?
+  `;
+  connection.query(sqlCount, [livroId], (err, rows) => {
     if (err) {
-      console.error("Erro ao registrar reserva:", err);
-      return res.status(500).json({ error: "Erro no servidor." });
+      console.error('Erro ao contar reservas existentes:', err);
+      return res.status(500).json({ error: 'Erro ao processar reserva (count)' });
     }
-    res.status(201).json({ message: "Reserva criada com sucesso!", reservaId: result.insertId });
-  });
-});
+    const posicao = (rows[0].cnt || 0) + 1;
 
+    // 2) inserir na tabela reserva (usa seu schema: reserva, hora_reserva, retirada, posicao, FK_instituicao_id)
+    const sqlInsertReserva = `
+      INSERT INTO reserva (reserva, hora_reserva, retirada, posicao, FK_instituicao_id)
+      VALUES (?, CURDATE(), ?, ?, ?)
+    `;
+    connection.query(sqlInsertReserva, [1, 0, String(posicao), instituicaoId], (err2, result) => {
+      if (err2) {
+        console.error('Erro ao inserir reserva:', err2);
+        return res.status(500).json({ error: err2.sqlMessage || 'Erro ao inserir reserva' });
+      }
+      const reservaId = result.insertId;
 
-// --- REGISTRAR HISTÓRICO ---
-app.post('/historico', autenticarToken, (req, res) => {
-  const { usuarioId, livroId, acao } = req.body;
-  if (!usuarioId || !livroId || !acao) return res.status(400).json({ error: "Dados incompletos." });
+      // 3) vincular livro na reserva (tabela reserva_livro já existe no seu dump)
+      connection.query('INSERT INTO reserva_livro (FK_reserva_id, FK_livro_id) VALUES (?, ?)', [reservaId, livroId], (err3) => {
+        if (err3) {
+          console.error('Erro ao inserir reserva_livro:', err3);
+          return res.status(500).json({ error: 'Erro ao vincular livro à reserva' });
+        }
 
-  const sql = "INSERT INTO historico (usuario_id, livro_id, acao, data_acao) VALUES (?, ?, ?, NOW())";
-  connection.query(sql, [usuarioId, livroId, acao], (err) => {
-    if (err) {
-      console.error("Erro ao registrar histórico:", err);
-      return res.status(500).json({ error: "Erro ao salvar histórico." });
-    }
-    res.status(201).json({ message: "Histórico salvo com sucesso!" });
+        // 4) vincular usuário à reserva (tabela criada por migração acima)
+        connection.query('INSERT INTO reserva_usuario (FK_reserva_id, FK_usuario_id) VALUES (?, ?)', [reservaId, usuarioId], (err4) => {
+          if (err4) {
+            // se der erro aqui (tabela não existe) apenas logamos, mas a reserva já foi criada
+            console.warn('Aviso: erro ao inserir reserva_usuario (pode não existir):', err4.message);
+          }
+
+          // 5) criar histórico (usa sua tabela historico existente)
+          connection.query('INSERT INTO historico (data_leitura, FK_instituicao_id) VALUES (NOW(), ?)', [instituicaoId], (err5, histRes) => {
+            if (err5) {
+              console.error('Erro ao inserir historico:', err5);
+              return res.status(500).json({ error: 'Erro ao criar histórico' });
+            }
+            const historicoId = histRes.insertId;
+
+            // 6) vincular historico ao usuario
+            connection.query('INSERT INTO historico_usuario (FK_usuario_id, FK_historico_id) VALUES (?, ?)', [usuarioId, historicoId], (err6) => {
+              if (err6) console.warn('Erro ao inserir historico_usuario:', err6.message);
+
+              // 7) vincular historico ao livro (precisa da tabela historico_livro criada acima)
+              connection.query('INSERT INTO historico_livro (FK_historico_id, FK_livro_id) VALUES (?, ?)', [historicoId, livroId], (err7) => {
+                if (err7) console.warn('Erro ao inserir historico_livro (pode não existir):', err7.message);
+
+                // tudo ok
+                return res.status(201).json({
+                  message: 'Reserva criada e histórico registrado (onde possível).',
+                  reservaId,
+                  posicao
+                });
+              });
+            });
+          });
+
+        });
+      });
+    });
   });
 });
 
