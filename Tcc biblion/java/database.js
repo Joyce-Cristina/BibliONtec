@@ -406,6 +406,37 @@ app.post('/etiquetas/multiple', async (req, res) => {
   }
 });
 
+// --- REGISTRAR RESERVA ---
+app.post('/reservas', autenticarToken, (req, res) => {
+  const { usuarioId, livroId } = req.body;
+  if (!usuarioId || !livroId) return res.status(400).json({ error: "Dados insuficientes." });
+
+  const sql = "INSERT INTO reserva (usuario_id, livro_id, data_reserva, status) VALUES (?, ?, NOW(), 'Ativa')";
+  connection.query(sql, [usuarioId, livroId], (err, result) => {
+    if (err) {
+      console.error("Erro ao registrar reserva:", err);
+      return res.status(500).json({ error: "Erro no servidor." });
+    }
+    res.status(201).json({ message: "Reserva criada com sucesso!", reservaId: result.insertId });
+  });
+});
+
+
+// --- REGISTRAR HISTÓRICO ---
+app.post('/historico', autenticarToken, (req, res) => {
+  const { usuarioId, livroId, acao } = req.body;
+  if (!usuarioId || !livroId || !acao) return res.status(400).json({ error: "Dados incompletos." });
+
+  const sql = "INSERT INTO historico (usuario_id, livro_id, acao, data_acao) VALUES (?, ?, ?, NOW())";
+  connection.query(sql, [usuarioId, livroId, acao], (err) => {
+    if (err) {
+      console.error("Erro ao registrar histórico:", err);
+      return res.status(500).json({ error: "Erro ao salvar histórico." });
+    }
+    res.status(201).json({ message: "Histórico salvo com sucesso!" });
+  });
+});
+
 // ==================== INDICAÇOES ====================
 
 app.post('/indicacoes/multiplas', (req, res) => {

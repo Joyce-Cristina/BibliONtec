@@ -311,6 +311,62 @@ async function toggleListaDesejos(usuarioId, livroId, btnLista, token) {
   }
 }
 
+// --- SISTEMA DE RESERVA E HISTÓRICO ---
+const btnReservar = document.querySelector('.btn-reservar');
+if (btnReservar) {
+  btnReservar.addEventListener('click', async () => {
+    const usuarioData = JSON.parse(localStorage.getItem('usuario'));
+    const usuarioId = usuarioData ? usuarioData.id : null;
+    const livroId = localStorage.getItem('livroSelecionado');
+    const token = localStorage.getItem('token');
+
+    if (!usuarioId) {
+      alert("Você precisa estar logado para reservar um livro.");
+      return;
+    }
+
+    try {
+      // --- Enviar reserva ---
+      const reservaResp = await fetch('http://localhost:3000/reservas', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ usuarioId, livroId })
+      });
+
+      if (!reservaResp.ok) {
+        const erro = await reservaResp.text();
+        alert("Erro ao reservar o livro: " + erro);
+        return;
+      }
+
+      alert("Livro reservado com sucesso!");
+
+      // --- Registrar histórico ---
+      await fetch('http://localhost:3000/historico', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          usuarioId,
+          livroId,
+          acao: "Reserva de livro"
+        })
+      });
+
+      console.log("Histórico registrado com sucesso.");
+
+    } catch (err) {
+      console.error("Erro ao reservar:", err);
+      alert("Erro ao processar a reserva.");
+    }
+  });
+}
+
 // --- Inicialização do botão no DOM ---
 document.addEventListener("DOMContentLoaded", async () => {
   const usuarioData = JSON.parse(localStorage.getItem("usuario"));
