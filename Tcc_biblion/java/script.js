@@ -13,6 +13,14 @@ function getOrCreateErrorBox(id, form) {
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Script JS carregado!");
+  // ================= CONFIGURAÇÃO AUTOMÁTICA DA API =================
+function apiBase() {
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000';
+  }
+  return 'https://bibliontec.onrender.com'; // substitua pela sua URL do Render
+}
+
 
   // ----------- LÓGICA DE CADASTRO DE ALUNO ------------
   const formCadastro = document.getElementById('formCadastro');
@@ -126,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (foto) formData.append('foto', foto);
 
       try {
-        const response = await fetch('http://localhost:3000/cadastrarAluno', {
+        const response = await fetch(`${apiBase()}/cadastrarUsuario`, {
           method: 'POST',
           headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -178,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const senha = document.getElementById('senha').value;
 
       try {
-        const response = await fetch('http://localhost:3000/login', {
+        const response = await fetch(`${apiBase()}/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, senha }),
@@ -322,7 +330,11 @@ if (formFunc) {
     funcoesSelecionadas.forEach(f => formData.append('FK_funcao_id[]', f));
 
     try {
-      const response = await fetch('http://localhost:3000/cadastrarFuncionario', {
+      
+  
+      const response = await fetch(`${apiBase()}/cadastrarFuncionario`, {
+
+
         method: 'POST',
         headers: {
           "Authorization": "Bearer " + localStorage.getItem("token")
