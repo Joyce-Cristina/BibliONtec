@@ -1990,6 +1990,5 @@ body.empres-page .indisponivel-titulo h2{
   margin-bottom: 20px; /* separa do conteúdo abaixo */
 }
 
-
 #configTabsContent .tab-pane { display: none; }
 #configTabsContent .tab-pane.active { display: block; }
