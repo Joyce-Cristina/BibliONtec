@@ -40,18 +40,30 @@ const pool = mysqlRaw.createPool({
 module.exports = pool;
 
 const app = express();
-app.use(cors());
+// ============ CORS CONFIGURADO ============
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://bibliontec.com.br' // domínio hospedado
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Origem não permitida pelo CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// Servir a pasta uploads
+
+// Servir uploads e HTML
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
-
-// Servir arquivos HTML (supondo que estejam na pasta acima)
 app.use(express.static(path.join(__dirname, '..')));
-
-app.listen(3000, () => {
-  console.log('Servidor rodando na porta 3000');
-});
 
 //================= MULTER=================
 

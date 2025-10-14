@@ -14,12 +14,16 @@ function getOrCreateErrorBox(id, form) {
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Script JS carregado!");
   // ================= CONFIGURAÇÃO AUTOMÁTICA DA API =================
-function apiBase() {
-  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-    return 'http://localhost:3000';
+  function apiBase() {
+    // Detecta se está rodando localmente
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      return 'http://localhost:3000';
+    }
+    // URL do seu backend no Render
+    return 'https://bibliontec-api.onrender.com';
   }
-  return 'https://bibliontec.onrender.com'; // substitua pela sua URL do Render
-}
+
+
 
 
   // ----------- LÓGICA DE CADASTRO DE ALUNO ------------
@@ -208,20 +212,20 @@ function apiBase() {
         // Salva o token
         localStorage.setItem("token", data.token);
 
-           
-// Salva o usuário logado (se for aluno ou professor)
-if (data.usuario) {
-  localStorage.setItem("usuario", JSON.stringify(data.usuario));
-} else {
-  localStorage.removeItem("usuario");
-}
 
-// Salva funcionário (se for o caso)
-if (data.funcionario) {
-  localStorage.setItem("funcionario", JSON.stringify(data.funcionario));
-} else {
-  localStorage.removeItem("funcionario");
-}
+        // Salva o usuário logado (se for aluno ou professor)
+        if (data.usuario) {
+          localStorage.setItem("usuario", JSON.stringify(data.usuario));
+        } else {
+          localStorage.removeItem("usuario");
+        }
+
+        // Salva funcionário (se for o caso)
+        if (data.funcionario) {
+          localStorage.setItem("funcionario", JSON.stringify(data.funcionario));
+        } else {
+          localStorage.removeItem("funcionario");
+        }
 
         // Decide o redirecionamento de acordo com role
         if (data.usuario) {
@@ -289,103 +293,103 @@ if (data.funcionario) {
 
   })();
 
-// ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
-const formFunc = document.getElementById('formFuncionario');
-if (formFunc) {
-  formFunc.addEventListener('submit', async function (event) {
-    event.preventDefault();
+  // ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
+  const formFunc = document.getElementById('formFuncionario');
+  if (formFunc) {
+    formFunc.addEventListener('submit', async function (event) {
+      event.preventDefault();
 
-    const nome = document.getElementById('nome').value;
-    const senhaInput = document.getElementById('senha');
-    let senha = senhaInput.value;
+      const nome = document.getElementById('nome').value;
+      const senhaInput = document.getElementById('senha');
+      let senha = senhaInput.value;
 
-    if (!senha) {
-      senha = gerarSenhaSegura();
-      senhaInput.value = senha;
-      alert(`Senha gerada automaticamente: ${senha}`);
-    } else if (!validarSenha(senha)) {
-      alert("Senha inválida! A senha deve conter pelo menos 8 caracteres, com pelo menos:\n- 1 letra maiúscula\n- 1 letra minúscula\n- 1 número");
-      return;
-    }
-
-    const email = document.getElementById('email').value;
-    const telefone = document.getElementById('telefone').value;
-    const foto = document.getElementById('foto').files[0];
-
-    // funções múltiplas
-    const funcaoSelect = document.getElementById('funcao');
-    const funcoesSelecionadas = [...funcaoSelect.selectedOptions].map(opt => opt.value);
-
-    if (!nome || !senha || !email) {
-      alert("Preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('nome', nome);
-    formData.append('senha', senha);
-    formData.append('email', email);
-    formData.append('telefone', telefone);
-    if (foto) formData.append('foto', foto);
-    funcoesSelecionadas.forEach(f => formData.append('FK_funcao_id[]', f));
-
-    try {
-      
-  
-      const response = await fetch(`${apiBase()}/cadastrarFuncionario`, {
-
-
-        method: 'POST',
-        headers: {
-          "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        body: formData
-      });
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        const erroDiv = getOrCreateErrorBox('mensagemErroFuncionario', formFunc);
-        erroDiv.innerText = data.error || 'Erro ao cadastrar funcionário.';
-        erroDiv.style.display = 'block';
+      if (!senha) {
+        senha = gerarSenhaSegura();
+        senhaInput.value = senha;
+        alert(`Senha gerada automaticamente: ${senha}`);
+      } else if (!validarSenha(senha)) {
+        alert("Senha inválida! A senha deve conter pelo menos 8 caracteres, com pelo menos:\n- 1 letra maiúscula\n- 1 letra minúscula\n- 1 número");
         return;
       }
 
-      alert(data.message || 'Funcionário cadastrado com sucesso!');
-      formFunc.reset();
-      atualizarTextoFuncoes();
-    } catch (error) {
-      alert('Erro ao enviar o formulário. Tente novamente.');
+      const email = document.getElementById('email').value;
+      const telefone = document.getElementById('telefone').value;
+      const foto = document.getElementById('foto').files[0];
+
+      // funções múltiplas
+      const funcaoSelect = document.getElementById('funcao');
+      const funcoesSelecionadas = [...funcaoSelect.selectedOptions].map(opt => opt.value);
+
+      if (!nome || !senha || !email) {
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('nome', nome);
+      formData.append('senha', senha);
+      formData.append('email', email);
+      formData.append('telefone', telefone);
+      if (foto) formData.append('foto', foto);
+      funcoesSelecionadas.forEach(f => formData.append('FK_funcao_id[]', f));
+
+      try {
+
+
+        const response = await fetch(`${apiBase()}/cadastrarFuncionario`, {
+
+
+          method: 'POST',
+          headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+          },
+          body: formData
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          const erroDiv = getOrCreateErrorBox('mensagemErroFuncionario', formFunc);
+          erroDiv.innerText = data.error || 'Erro ao cadastrar funcionário.';
+          erroDiv.style.display = 'block';
+          return;
+        }
+
+        alert(data.message || 'Funcionário cadastrado com sucesso!');
+        formFunc.reset();
+        atualizarTextoFuncoes();
+      } catch (error) {
+        alert('Erro ao enviar o formulário. Tente novamente.');
+      }
+    });
+  }
+
+
+  // Funções auxiliares
+  function gerarSenhaSegura() {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let senha = "";
+    for (let i = 0; i < 10; i++) {
+      senha += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-  });
-}
-
-
-// Funções auxiliares
-function gerarSenhaSegura() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let senha = "";
-  for (let i = 0; i < 10; i++) {
-    senha += chars.charAt(Math.floor(Math.random() * chars.length));
+    return senha;
   }
-  return senha;
-}
 
-function validarSenha(senha) {
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-  return regex.test(senha);
-}
-
-function getOrCreateErrorBox(id, form) {
-  let box = document.getElementById(id);
-  if (!box) {
-    box = document.createElement("div");
-    box.id = id;
-    box.style.color = "red";
-    form.prepend(box);
+  function validarSenha(senha) {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    return regex.test(senha);
   }
-  return box;
-}
+
+  function getOrCreateErrorBox(id, form) {
+    let box = document.getElementById(id);
+    if (!box) {
+      box = document.createElement("div");
+      box.id = id;
+      box.style.color = "red";
+      form.prepend(box);
+    }
+    return box;
+  }
 
 });
 // Atualiza o texto dentro do botão quando marcar/desmarcar funções
@@ -405,39 +409,39 @@ document.querySelectorAll(".chk-funcao").forEach(chk => {
   });
 });
 
-  // ----------- ANIMAÇÃO AO CARREGAR O SITE ------------
-  const frameImg = document.getElementById("frame");
-  const animDiv = document.getElementById("animacao-logo");
-  const loginBox = document.querySelector(".login-box");
+// ----------- ANIMAÇÃO AO CARREGAR O SITE ------------
+const frameImg = document.getElementById("frame");
+const animDiv = document.getElementById("animacao-logo");
+const loginBox = document.querySelector(".login-box");
 
-  if (frameImg && animDiv && loginBox) {
-    const totalFrames = 11;
-    const delay = 200;
-    let atual = 1;
+if (frameImg && animDiv && loginBox) {
+  const totalFrames = 11;
+  const delay = 200;
+  let atual = 1;
 
-    const preloadImages = () => {
-      for (let i = 1; i <= totalFrames; i++) {
-        const img = new Image();
-        img.src = `../img/animacao/${i}.png`;
-      }
-    };
+  const preloadImages = () => {
+    for (let i = 1; i <= totalFrames; i++) {
+      const img = new Image();
+      img.src = `../img/animacao/${i}.png`;
+    }
+  };
 
-    const animar = () => {
-      if (atual > totalFrames) {
-        animDiv.style.display = "none";
-        loginBox.style.display = "block";
-        document.body.style.overflow = "auto";
-        return;
-      }
+  const animar = () => {
+    if (atual > totalFrames) {
+      animDiv.style.display = "none";
+      loginBox.style.display = "block";
+      document.body.style.overflow = "auto";
+      return;
+    }
 
-      frameImg.src = `../img/animacao/${atual}.png`;
-      atual++;
-      setTimeout(animar, delay);
-    };
+    frameImg.src = `../img/animacao/${atual}.png`;
+    atual++;
+    setTimeout(animar, delay);
+  };
 
-    preloadImages();
-    setTimeout(animar, 300);
-  }
+  preloadImages();
+  setTimeout(animar, 300);
+}
 //================================ Função genérica para carregar dados e preencher campos ====================================
 
 async function carregarDados(id, tipo) {
@@ -460,7 +464,7 @@ async function carregarDados(id, tipo) {
     document.getElementById("fname").value = user.nome || "";
     document.getElementById("email").value = user.email || "";
     document.getElementById("phone").value = user.telefone || "";
-document.getElementById("senha").value = user.senha ?? "";
+    document.getElementById("senha").value = user.senha ?? "";
 
     // Preenche curso e série para alunos
     if (tipo === "usuario") {
@@ -523,10 +527,10 @@ if (editarBtn) {
     let id, tipo;
     if (usuario) { id = usuario.id; tipo = "usuario"; }
     else if (funcionario) { id = funcionario.id; tipo = "funcionario"; }
-    else { 
-      alert("Usuário não logado!"); 
-      window.location.href = "./login.html"; 
-      return; 
+    else {
+      alert("Usuário não logado!");
+      window.location.href = "./login.html";
+      return;
     }
 
     const dadosAtualizados = {};
@@ -554,7 +558,7 @@ if (editarBtn) {
 
       const response = await fetch(url, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer " + token
         },
