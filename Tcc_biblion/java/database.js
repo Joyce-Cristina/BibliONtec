@@ -2191,7 +2191,7 @@ app.get("/emprestimo/livros", autenticarToken, (req, res) => {
     res.json(out);
   });
 });
-// ===== Rota: Criar empréstimo =====
+
 app.post('/emprestimos', autenticarToken, async (req, res) => {
   const { usuarioId, livros } = req.body;
 
@@ -2199,11 +2199,12 @@ app.post('/emprestimos', autenticarToken, async (req, res) => {
     return res.status(400).json({ error: "Dados inválidos. Informe usuário e ao menos um livro." });
   }
 
+  const instituicaoId = req.user?.FK_instituicao_id || null;
+
   try {
-    // 1. Pega configuração de prazo da instituição do token
     const [config] = await pool.query(
       "SELECT duracao_padrao_emprestimo FROM configuracoes_gerais WHERE FK_instituicao_id = ?",
-      [req.user.FK_instituicao_id]
+      [instituicaoId]
     );
     const dias = config[0]?.duracao_padrao_emprestimo || 7;
 
@@ -2211,26 +2212,111 @@ app.post('/emprestimos', autenticarToken, async (req, res) => {
     const devolucaoPrevista = new Date();
     devolucaoPrevista.setDate(hoje.getDate() + dias);
 
-    // 2. Insere o empréstimo
     const [result] = await pool.query(
       "INSERT INTO emprestimo (data_emprestimo, data_devolucao_prevista, FK_usuario_id, FK_instituicao_id) VALUES (?, ?, ?, ?)",
-      [hoje, devolucaoPrevista, usuarioId, req.user.FK_instituicao_id]
+      [hoje, devolucaoPrevista, usuarioId, instituicaoId]
     );
     const emprestimoId = result.insertId;
 
-    // 3. Relaciona os livros
     for (const livroId of livros) {
       await pool.query("INSERT INTO emprestimo_livro (FK_emprestimo_id, FK_livro_id) VALUES (?, ?)", [emprestimoId, livroId]);
-      await pool.query("UPDATE livro SET disponivel = 0 WHERE id = ?", [livroId]); // marca como indisponível
+      await pool.query("UPDATE livro SET disponivel = 0 WHERE id = ?", [livroId]);
     }
 
-    res.status(201).json({ message: "Empréstimo registrado com sucesso!", emprestimoId });
+    const [historicoRes] = await pool.query(
+      "INSERT INTO historico (data_leitura, FK_instituicao_id) VALUES (?, ?)",
+      [hoje, instituicaoId]
+    );
+    const historicoId = historicoRes.insertId;
+
+    await pool.query(
+      "INSERT INTO historico_usuario (FK_usuario_id, FK_historico_id) VALUES (?, ?)",
+      [usuarioId, historicoId]
+    );
+
+    for (const livroId of livros) {
+      await pool.query(
+        "INSERT INTO historico_livro (FK_historico_id, FK_livro_id) VALUES (?, ?)",
+        [historicoId, livroId]
+      );
+    }
+
+    res.status(201).json({
+      message: "Empréstimo registrado com sucesso e histórico atualizado!",
+      emprestimoId,
+      historicoId
+    });
+
   } catch (err) {
     console.error("Erro ao registrar empréstimo:", err);
     res.status(500).json({ error: "Erro ao registrar empréstimo" });
   }
 });
 
+app.get('/emprestimos/:usuarioId/historico', autenticarToken, async (req, res) => {
+  const { usuarioId } = req.params;
+
+  try {
+    const [rows] = await pool.query(`
+      SELECT h.id AS historico_id, h.data_leitura, l.titulo, e.data_emprestimo, e.data_devolucao_prevista
+      FROM historico h
+      JOIN historico_usuario hu ON hu.FK_historico_id = h.id
+      JOIN historico_livro hl ON hl.FK_historico_id = h.id
+      JOIN livro l ON l.id = hl.FK_livro_id
+      LEFT JOIN emprestimo_livro el ON el.FK_livro_id = l.id
+      LEFT JOIN emprestimo e ON e.id = el.FK_emprestimo_id
+      WHERE hu.FK_usuario_id = ?
+      ORDER BY h.data_leitura DESC
+    `, [usuarioId]);
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Erro ao buscar histórico do usuário:", err);
+    res.status(500).json({ error: "Erro ao buscar histórico do usuário" });
+  }
+});
+
+app.get('/historico/:usuarioId', (req, res) => {
+  const { usuarioId } = req.params;
+
+  const sql = `
+    SELECT 
+      h.id AS historico_id,
+      h.data_leitura,
+      l.titulo,
+      'emprestimo/reserva' AS tipo
+    FROM historico h
+    JOIN historico_usuario hu ON hu.FK_historico_id = h.id
+    JOIN historico_livro hl ON hl.FK_historico_id = h.id
+    JOIN livro l ON l.id = hl.FK_livro_id
+    WHERE hu.FK_usuario_id = ?
+
+    UNION ALL
+
+    SELECT 
+      h.id AS historico_id,
+      h.data_leitura,
+      l.titulo,
+      'indicacao' AS tipo
+    FROM historico h
+    JOIN historico_usuario hu ON hu.FK_historico_id = h.id
+    JOIN historico_livro hl ON hl.FK_historico_id = h.id
+    JOIN historico_indicacao hi ON hi.FK_historico_id = h.id
+    JOIN indicacao i ON i.id = hi.FK_indicacao_id
+    JOIN livro l ON l.id = i.indicacao
+    WHERE hu.FK_usuario_id = ?
+
+    ORDER BY data_leitura DESC
+  `;
+
+  connection.query(sql, [usuarioId, usuarioId], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar histórico:', err);
+      return res.status(500).json({ error: 'Erro ao buscar histórico.' });
+    }
+    res.json(results);
+  });
+});
 
 // ===== Rota: Devolver livro =====
 app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {

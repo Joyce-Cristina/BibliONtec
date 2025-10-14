@@ -31,9 +31,41 @@ async function pesquisarUsuario() {
 
     // Exibir a seção
     document.getElementById("usuarioResultado").style.display = "flex";
+
+    carregarHistorico(u.id);
+
   } catch (err) {
     console.error("Erro ao pesquisar usuário:", err);
     alert("Erro ao pesquisar usuário.");
+  }
+}
+
+async function carregarHistorico(usuarioId) {
+  try {
+    const resp = await fetch(`${backendURL}/historico/${usuarioId}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const historico = await resp.json();
+
+    const histContainer = document.getElementById("historicoUsuario");
+    histContainer.innerHTML = "";
+
+    if (!historico.length) {
+      histContainer.innerHTML = "<p>Sem histórico recente.</p>";
+      return;
+    }
+
+    historico.forEach(h => {
+      const item = document.createElement("div");
+      item.classList.add("historico-item");
+      item.innerHTML = `
+        <strong>${h.titulo}</strong><br>
+        <small>${new Date(h.data_leitura).toLocaleString()}</small>
+      `;
+      histContainer.appendChild(item);
+    });
+  } catch (err) {
+    console.error("Erro ao carregar histórico:", err);
   }
 }
 
@@ -99,6 +131,7 @@ async function pesquisarLivro() {
     console.error("Erro ao pesquisar livro:", err);
     alert("Erro ao pesquisar livro.");
   }
+
 }
 // 🔹 Fazer o empréstimo
 async function emprestarLivro() {
