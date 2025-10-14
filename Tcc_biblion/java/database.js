@@ -2264,21 +2264,43 @@ app.get('/emprestimos/:usuarioId/historico', autenticarToken, async (req, res) =
   }
 });
 
-app.get('/historico/:usuarioId', autenticarToken, (req, res) => {
+app.get('/historico/:usuarioId', (req, res) => {
   const { usuarioId } = req.params;
+
   const sql = `
-    SELECT h.id, h.data_leitura, l.titulo, l.id AS livro_id
+    SELECT 
+      h.id AS historico_id,
+      h.data_leitura,
+      l.titulo,
+      'emprestimo/reserva' AS tipo
     FROM historico h
     JOIN historico_usuario hu ON hu.FK_historico_id = h.id
     JOIN historico_livro hl ON hl.FK_historico_id = h.id
     JOIN livro l ON l.id = hl.FK_livro_id
     WHERE hu.FK_usuario_id = ?
-    ORDER BY h.data_leitura DESC
+
+    UNION ALL
+
+    SELECT 
+      h.id AS historico_id,
+      h.data_leitura,
+      l.titulo,
+      'indicacao' AS tipo
+    FROM historico h
+    JOIN historico_usuario hu ON hu.FK_historico_id = h.id
+    JOIN historico_livro hl ON hl.FK_historico_id = h.id
+    JOIN historico_indicacao hi ON hi.FK_historico_id = h.id
+    JOIN indicacao i ON i.id = hi.FK_indicacao_id
+    JOIN livro l ON l.id = i.indicacao
+    WHERE hu.FK_usuario_id = ?
+
+    ORDER BY data_leitura DESC
   `;
-  connection.query(sql, [usuarioId], (err, results) => {
+
+  connection.query(sql, [usuarioId, usuarioId], (err, results) => {
     if (err) {
       console.error('Erro ao buscar histórico:', err);
-      return res.status(500).json({ error: 'Erro ao buscar histórico' });
+      return res.status(500).json({ error: 'Erro ao buscar histórico.' });
     }
     res.json(results);
   });
