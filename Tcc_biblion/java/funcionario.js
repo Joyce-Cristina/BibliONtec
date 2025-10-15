@@ -78,8 +78,8 @@ function exibirFuncionariosCards(funcionarios) {
 
   funcionarios.forEach(f => {
     const foto = f.foto
-      ? `${apiBase()}/uploads/${f.foto}`
-: `${apiBase()}/uploads/padrao.jpg`;
+     ? `${apiBase()}/uploads/${f.foto}`
+      : `${apiBase()}/uploads/padrao.jpg`;
 
     const card = document.createElement("div");
     card.className = "card"; // usa a mesma classe de usuário para uniformidade
@@ -102,6 +102,18 @@ function exibirFuncionariosCards(funcionarios) {
     container.appendChild(card);
   });
 }
+// Atualiza o avatar de perfil na barra inferior
+document.addEventListener("DOMContentLoaded", () => {
+  const avatar = document.getElementById("avatarPerfil");
+  if (!avatar) return;
+
+  const funcionario = JSON.parse(localStorage.getItem("funcionario"));
+  const foto = funcionario?.foto
+    ? `${apiBase()}/uploads/${funcionario.foto}`
+    : `${apiBase()}/uploads/padrao.jpg`;
+
+  avatar.src = foto;
+});
 
 // ------------------ EXIBIR EM TABELA ------------------
 function exibirFuncionariosTabela(funcionarios) {
@@ -222,6 +234,7 @@ function excluirFuncionario(id) {
       .catch(err => console.error("Erro ao excluir funcionário:", err));
   }
 }
+
 
 // 🔥 Deixar funções acessíveis ao HTML inline
 window.abrirModalEdicao = abrirModalEdicao;
