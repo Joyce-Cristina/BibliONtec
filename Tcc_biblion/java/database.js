@@ -110,7 +110,6 @@ connection.connect(err => {
   }
   console.log('Conectado ao MySQL');
 });
-
 async function buscarLivroPorId(id) {
   try {
     const [rows] = await pool.query(
@@ -226,7 +225,7 @@ app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) =
     return res.status(400).json({ error: 'Telefone inválido.' });
 
   const checkEmailSql = `SELECT id FROM usuario WHERE email = ?`;
-  connection.query(checkEmailSql, [email], (err, results) => {
+  queryCallback(checkEmailSql, [email], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
     if (results.length > 0) return res.status(400).json({ error: 'E-mail já cadastrado.' });
 
@@ -236,7 +235,7 @@ app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) =
       (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id, FK_instituicao_id) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    connection.query(sql, [
+    queryCallback(sql, [
       nome, telefone, email, senhaFinal, foto, tipo_usuario_id,
       curso_id || null, serie || null,
       funcionario_id || null,
@@ -337,7 +336,7 @@ app.post('/cadastrarEvento', autenticarToken, upload.single('foto'), (req, res) 
     req.user.id
   ];
 
-  connection.query(sql, values, (err) => {
+  queryCallback(sql, values, (err) => {
     if (err) {
       console.error("Erro ao cadastrar evento:", err);
       return res.status(500).json({ error: "Erro ao cadastrar evento" });
@@ -441,7 +440,7 @@ app.post('/reservas', autenticarToken, (req, res) => {
     FROM reserva_livro
     WHERE FK_livro_id = ?
   `;
-  connection.query(sqlCount, [livroId], (err, rows) => {
+  queryCallback(sqlCount, [livroId], (err, rows) => {
     if (err) {
       console.error('Erro ao contar reservas existentes:', err);
       return res.status(500).json({ error: 'Erro ao processar reserva (count)' });
@@ -453,7 +452,7 @@ app.post('/reservas', autenticarToken, (req, res) => {
       INSERT INTO reserva (reserva, hora_reserva, retirada, posicao, FK_instituicao_id)
       VALUES (?, CURDATE(), ?, ?, ?)
     `;
-    connection.query(sqlInsertReserva, [1, 0, String(posicao), instituicaoId], (err2, result) => {
+    queryCallback(sqlInsertReserva, [1, 0, String(posicao), instituicaoId], (err2, result) => {
       if (err2) {
         console.error('Erro ao inserir reserva:', err2);
         return res.status(500).json({ error: err2.sqlMessage || 'Erro ao inserir reserva' });
@@ -461,21 +460,21 @@ app.post('/reservas', autenticarToken, (req, res) => {
       const reservaId = result.insertId;
 
       // 3) vincular livro na reserva (tabela reserva_livro já existe no seu dump)
-      connection.query('INSERT INTO reserva_livro (FK_reserva_id, FK_livro_id) VALUES (?, ?)', [reservaId, livroId], (err3) => {
+      queryCallback('INSERT INTO reserva_livro (FK_reserva_id, FK_livro_id) VALUES (?, ?)', [reservaId, livroId], (err3) => {
         if (err3) {
           console.error('Erro ao inserir reserva_livro:', err3);
           return res.status(500).json({ error: 'Erro ao vincular livro à reserva' });
         }
 
         // 4) vincular usuário à reserva (tabela criada por migração acima)
-        connection.query('INSERT INTO reserva_usuario (FK_reserva_id, FK_usuario_id) VALUES (?, ?)', [reservaId, usuarioId], (err4) => {
+        queryCallback('INSERT INTO reserva_usuario (FK_reserva_id, FK_usuario_id) VALUES (?, ?)', [reservaId, usuarioId], (err4) => {
           if (err4) {
             // se der erro aqui (tabela não existe) apenas logamos, mas a reserva já foi criada
             console.warn('Aviso: erro ao inserir reserva_usuario (pode não existir):', err4.message);
           }
 
           // 5) criar histórico (usa sua tabela historico existente)
-          connection.query('INSERT INTO historico (data_leitura, FK_instituicao_id) VALUES (NOW(), ?)', [instituicaoId], (err5, histRes) => {
+          queryCallback('INSERT INTO historico (data_leitura, FK_instituicao_id) VALUES (NOW(), ?)', [instituicaoId], (err5, histRes) => {
             if (err5) {
               console.error('Erro ao inserir historico:', err5);
               return res.status(500).json({ error: 'Erro ao criar histórico' });
@@ -483,11 +482,11 @@ app.post('/reservas', autenticarToken, (req, res) => {
             const historicoId = histRes.insertId;
 
             // 6) vincular historico ao usuario
-            connection.query('INSERT INTO historico_usuario (FK_usuario_id, FK_historico_id) VALUES (?, ?)', [usuarioId, historicoId], (err6) => {
+            queryCallback('INSERT INTO historico_usuario (FK_usuario_id, FK_historico_id) VALUES (?, ?)', [usuarioId, historicoId], (err6) => {
               if (err6) console.warn('Erro ao inserir historico_usuario:', err6.message);
 
               // 7) vincular historico ao livro (precisa da tabela historico_livro criada acima)
-              connection.query('INSERT INTO historico_livro (FK_historico_id, FK_livro_id) VALUES (?, ?)', [historicoId, livroId], (err7) => {
+              queryCallback('INSERT INTO historico_livro (FK_historico_id, FK_livro_id) VALUES (?, ?)', [historicoId, livroId], (err7) => {
                 if (err7) console.warn('Erro ao inserir historico_livro (pode não existir):', err7.message);
 
                 // tudo ok
@@ -514,7 +513,7 @@ app.post('/indicacoes/multiplas', (req, res) => {
   const sql = `INSERT INTO indicacao_usuario (FK_usuario_id, FK_indicacao_id, FK_curso_id, serie)
                VALUES (?, ?, ?, ?)`;
 
-  connection.query(sql, [usuarioId, indicacaoId, cursoId, serie], (err, result) => {
+  queryCallback(sql, [usuarioId, indicacaoId, cursoId, serie], (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: 'Erro ao salvar indicação.' });
@@ -535,7 +534,7 @@ app.delete('/indicacoes/:usuarioId/:livroId', (req, res) => {
     WHERE iu.FK_usuario_id = ?;
   `;
 
-  connection.query(sqlBusca, [livroId, usuarioId], (err, rows) => {
+  queryCallback(sqlBusca, [livroId, usuarioId], (err, rows) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Erro ao buscar indicação." });
@@ -549,7 +548,7 @@ app.delete('/indicacoes/:usuarioId/:livroId', (req, res) => {
 
     const sqlDelete = `DELETE FROM indicacao_usuario WHERE FK_indicacao_id = ? AND FK_usuario_id = ?`;
 
-    connection.query(sqlDelete, [indicacaoId, usuarioId], (err) => {
+    queryCallback(sqlDelete, [indicacaoId, usuarioId], (err) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ error: "Erro ao remover indicação." });
@@ -569,7 +568,7 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
     return res.status(400).json({ error: 'Dados inválidos' });
   }
 
-  connection.query(
+  queryCallback(
     'SELECT FK_tipo_usuario_id FROM usuario WHERE id = ?',
     [usuarioId],
     (err, usuarioResults) => {
@@ -586,7 +585,7 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
         return new Promise((resolve, reject) => {
           const { cursoId, serie } = turma;
 
-          connection.query(
+          queryCallback(
             `SELECT i.id 
              FROM indicacao i
              JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
@@ -599,7 +598,7 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
                 return resolve({ cursoId, serie, status: 'já_existe' });
               }
 
-              connection.query(
+              queryCallback(
                 'INSERT INTO indicacao (indicacao, FK_instituicao_id) VALUES (?, ?)',
                 [livroId.toString(), 1],
                 (err, result) => {
@@ -607,7 +606,7 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
 
                   const indicacaoId = result.insertId;
 
-                  connection.query(
+                  queryCallback(
                     'INSERT INTO indicacao_usuario (FK_indicacao_id, FK_usuario_id, FK_curso_id, serie) VALUES (?, ?, ?, ?)',
                     [indicacaoId, usuarioId, cursoId, serie],
                     (err) => {
@@ -645,7 +644,7 @@ app.get('/turmas', (req, res) => {
   console.log('=== INICIANDO DEBUG TURMAS ===');
 
   // 1. Primeiro, verifica todos os cursos
-  connection.query('SELECT id, curso FROM curso', (err, cursos) => {
+  queryCallback('SELECT id, curso FROM curso', (err, cursos) => {
     if (err) {
       console.error('Erro ao buscar cursos:', err);
       return res.status(500).json({ error: 'Erro ao buscar cursos', details: err.message });
@@ -654,7 +653,7 @@ app.get('/turmas', (req, res) => {
     console.log('Cursos encontrados:', cursos);
 
     // 2. Verifica usuários com curso e série
-    connection.query(`
+    queryCallback(`
       SELECT id, nome, curso_id, serie 
       FROM usuario 
       WHERE curso_id IS NOT NULL AND serie IS NOT NULL
@@ -684,7 +683,7 @@ app.get('/turmas', (req, res) => {
       console.log('Turmas agrupadas:', Object.values(turmasAgrupadas));
 
       // 4. Testa a query original
-      connection.query(`
+      queryCallback(`
         SELECT DISTINCT c.id, c.curso, u.serie 
         FROM curso c 
         JOIN usuario u ON c.id = u.curso_id 
@@ -716,7 +715,7 @@ app.post('/indicacoes', (req, res) => {
   const { usuarioId, livroId, cursoId, serie } = req.body;
 
   // 1. Verificar se usuário é professor
-  connection.query(
+  queryCallback(
     'SELECT FK_tipo_usuario_id FROM usuario WHERE id = ?',
     [usuarioId],
     (err, usuarioResults) => {
@@ -730,7 +729,7 @@ app.post('/indicacoes', (req, res) => {
       }
 
       // 2. Verificar se já indicou este livro para a mesma turma
-      connection.query(
+      queryCallback(
         `SELECT i.id 
          FROM indicacao i
          JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
@@ -747,7 +746,7 @@ app.post('/indicacoes', (req, res) => {
           }
 
           // 3. Criar indicação
-          connection.query(
+          queryCallback(
             'INSERT INTO indicacao (indicacao, FK_instituicao_id) VALUES (?, ?)',
             [livroId.toString(), 1],
             (err, result) => {
@@ -759,7 +758,7 @@ app.post('/indicacoes', (req, res) => {
               const indicacaoId = result.insertId;
 
               // 4. Vincular usuário e turma à indicação
-              connection.query(
+              queryCallback(
                 'INSERT INTO indicacao_usuario (FK_indicacao_id, FK_usuario_id, FK_curso_id, serie) VALUES (?, ?, ?, ?)',
                 [indicacaoId, usuarioId, cursoId, serie],
                 (err) => {
@@ -785,7 +784,7 @@ app.get('/verificar-indicacao/:usuarioId/:livroId', (req, res) => {
   const { usuarioId, livroId } = req.params;
 
   // Verifica se o usuário já indicou este livro (em qualquer turma)
-  connection.query(
+  queryCallback(
     `SELECT i.id 
      FROM indicacao i
      JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
@@ -805,7 +804,7 @@ app.get('/verificar-indicacao/:usuarioId/:livroId', (req, res) => {
 app.get('/indicacoes-professor/:usuarioId', (req, res) => {
   const { usuarioId } = req.params;
 
-  connection.query(
+  queryCallback(
     `SELECT i.indicacao as livro_id, i.id as indicacao_id
      FROM indicacao i
      JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
@@ -962,7 +961,7 @@ app.post('/cadastrarFuncionario', autenticarToken, upload.single('foto'), async 
     }
 
     const checkEmailSql = `SELECT id FROM funcionario WHERE email = ?`;
-    connection.query(checkEmailSql, [email], (err, results) => {
+    queryCallback(checkEmailSql, [email], (err, results) => {
       if (err) return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
       if (results.length > 0) return res.status(400).json({ error: 'E-mail já cadastrado.' });
 
@@ -972,7 +971,7 @@ app.post('/cadastrarFuncionario', autenticarToken, upload.single('foto'), async 
         (nome, senha, email, foto, telefone, FK_funcao_id, FK_instituicao_id)
         VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-      connection.query(sql, [nome, senhaFinal, email, foto, telefone, FK_funcao_id, req.user.FK_instituicao_id], (err, result) => {
+      queryCallback(sql, [nome, senhaFinal, email, foto, telefone, FK_funcao_id, req.user.FK_instituicao_id], (err, result) => {
         if (err) {
           console.error("Erro no INSERT:", err);
           return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
@@ -983,7 +982,7 @@ app.post('/cadastrarFuncionario', autenticarToken, upload.single('foto'), async 
         if (permissoes.length > 0) {
           const values = permissoes.map(p => [p, funcionarioId]);
           const permSql = `INSERT INTO funcionario_permissao (FK_permissao_id, FK_funcionario_id) VALUES ?`;
-          connection.query(permSql, [values], (err) => {
+          queryCallback(permSql, [values], (err) => {
             if (err) return res.status(500).json({ error: 'Funcionário criado, mas erro nas permissões.', senhaGerada: senhaFinal });
             return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!', senhaGerada: senhaFinal });
           });
@@ -1018,7 +1017,7 @@ app.get('/api/funcionarios/:id', autenticarToken, (req, res) => {
     WHERE f.id = ? AND f.FK_instituicao_id = ?
   `;
 
-  connection.query(sql, [id, req.user.FK_instituicao_id], (err, results) => {
+  queryCallback(sql, [id, req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar funcionário:", err);
       return res.status(500).json({ error: "Erro ao buscar funcionário" });
@@ -1044,7 +1043,7 @@ app.get('/indicacoes/:cursoId/:serie', autenticarToken, (req, res) => {
     WHERE iu.FK_curso_id = ? AND iu.serie = ?
   `;
 
-  connection.query(sql, [cursoId, serie], (err, results) => {
+  queryCallback(sql, [cursoId, serie], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro no servidor' });
     res.json(results);
   });
@@ -1056,22 +1055,22 @@ app.delete('/api/funcionarios/:id', (req, res) => {
 
   // 1. Buscar todos os usuários desse funcionário
   const sqlUsuarios = 'SELECT id FROM usuario WHERE FK_funcionario_id = ?';
-  connection.query(sqlUsuarios, [id], (err, usuarios) => {
+  queryCallback(sqlUsuarios, [id], (err, usuarios) => {
     if (err) return res.status(500).json({ error: 'Erro ao buscar usuários' });
 
     const usuarioIds = usuarios.map(u => u.id);
 
     if (usuarioIds.length > 0) {
       // 2. Deletar registros em usuario_curso desses usuários
-      connection.query('DELETE FROM usuario_curso WHERE FK_usuario_id IN (?)', [usuarioIds], (err) => {
+      queryCallback('DELETE FROM usuario_curso WHERE FK_usuario_id IN (?)', [usuarioIds], (err) => {
         if (err) return res.status(500).json({ error: 'Erro ao deletar usuario_curso' });
 
         // 3. Deletar os usuários
-        connection.query('DELETE FROM usuario WHERE id IN (?)', [usuarioIds], (err) => {
+        queryCallback('DELETE FROM usuario WHERE id IN (?)', [usuarioIds], (err) => {
           if (err) return res.status(500).json({ error: 'Erro ao deletar usuários' });
 
           // 4. Deletar o funcionário
-          connection.query('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
+          queryCallback('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
             if (err) return res.status(500).json({ error: 'Erro ao excluir funcionário' });
             if (result.affectedRows === 0) return res.status(404).json({ error: 'Funcionário não encontrado' });
             res.status(200).json({ message: 'Funcionário excluído com sucesso' });
@@ -1080,7 +1079,7 @@ app.delete('/api/funcionarios/:id', (req, res) => {
       });
     } else {
       // Nenhum usuário vinculado, pode apagar direto
-      connection.query('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
+      queryCallback('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
         if (err) return res.status(500).json({ error: 'Erro ao excluir funcionário' });
         if (result.affectedRows === 0) return res.status(404).json({ error: 'Funcionário não encontrado' });
         res.status(200).json({ message: 'Funcionário excluído com sucesso' });
@@ -1104,7 +1103,7 @@ app.post('/lista-desejos', autenticarToken, (req, res) => {
     WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
   `;
 
-  connection.query(sqlCheck, [usuarioId, livroId], (err, results) => {
+  queryCallback(sqlCheck, [usuarioId, livroId], (err, results) => {
     if (err) {
       console.error('Erro ao verificar lista de desejos:', err);
       return res.status(500).json({ error: 'Erro interno no servidor' });
@@ -1117,7 +1116,7 @@ app.post('/lista-desejos', autenticarToken, (req, res) => {
     // Verificar se o usuário já tem uma lista de desejos
     const sqlFindLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ? LIMIT 1';
     
-    connection.query(sqlFindLista, [usuarioId], (err, listaResults) => {
+    queryCallback(sqlFindLista, [usuarioId], (err, listaResults) => {
       if (err) {
         console.error('Erro ao buscar lista de desejos:', err);
         return res.status(500).json({ error: 'Erro interno no servidor' });
@@ -1136,7 +1135,7 @@ app.post('/lista-desejos', autenticarToken, (req, res) => {
           VALUES (?, ?, ?)
         `;
         
-        connection.query(sqlCreateLista, ['Minha Lista', usuarioId, 1], (err, result) => {
+        queryCallback(sqlCreateLista, ['Minha Lista', usuarioId, 1], (err, result) => {
           if (err) {
             console.error('Erro ao criar lista de desejos:', err);
             return res.status(500).json({ error: 'Erro interno no servidor' });
@@ -1153,7 +1152,7 @@ app.post('/lista-desejos', autenticarToken, (req, res) => {
 function adicionarLivroLista(listaId, livroId, res) {
   const sqlInsert = 'INSERT INTO lista_livro (FK_lista_desejo_id, FK_livro_id) VALUES (?, ?)';
   
-  connection.query(sqlInsert, [listaId, livroId], (err) => {
+  queryCallback(sqlInsert, [listaId, livroId], (err) => {
     if (err) {
       console.error('Erro ao adicionar livro à lista:', err);
       return res.status(500).json({ error: 'Erro ao adicionar livro à lista de desejos' });
@@ -1174,7 +1173,7 @@ app.get('/lista-desejos/verificar/:usuarioId/:livroId', (req, res) => {
     WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
   `;
 
-  connection.query(sql, [usuarioId, livroId], (err, results) => {
+  queryCallback(sql, [usuarioId, livroId], (err, results) => {
     if (err) {
       console.error('Erro ao verificar lista de desejos:', err);
       return res.status(500).json({ error: 'Erro interno no servidor' });
@@ -1195,7 +1194,7 @@ app.get('/lista-desejos/:usuarioId', autenticarToken, (req, res) => {
     WHERE ld.FK_usuario_id = ?
   `;
 
-  connection.query(sql, [usuarioId], (err, rows) => {
+  queryCallback(sql, [usuarioId], (err, rows) => {
     if (err) {
       console.error('Erro ao buscar lista de desejos:', err.sqlMessage);
       return res.status(500).json({ error: 'Erro interno no servidor', details: err.sqlMessage });
@@ -1213,7 +1212,7 @@ app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
   const { usuarioId, livroId } = req.params;
 
   const sqlLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ?';
-  connection.query(sqlLista, [usuarioId], (err, listas) => {
+  queryCallback(sqlLista, [usuarioId], (err, listas) => {
     if (err) return res.status(500).json({ error: err.sqlMessage });
     if (listas.length === 0)
       return res.status(404).json({ error: 'Lista de desejos não encontrada' });
@@ -1221,18 +1220,18 @@ app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
     const listaId = listas[0].id;
 
     const sqlDeleteLivro = 'DELETE FROM lista_livro WHERE FK_lista_desejo_id = ? AND FK_livro_id = ?';
-    connection.query(sqlDeleteLivro, [listaId, livroId], (err2, result) => {
+    queryCallback(sqlDeleteLivro, [listaId, livroId], (err2, result) => {
       if (err2) return res.status(500).json({ error: err2.sqlMessage });
       if (result.affectedRows === 0)
         return res.status(404).json({ error: 'Livro não encontrado na lista de desejos' });
 
       const sqlVerifica = 'SELECT COUNT(*) AS total FROM lista_livro WHERE FK_lista_desejo_id = ?';
-      connection.query(sqlVerifica, [listaId], (err3, rows) => {
+      queryCallback(sqlVerifica, [listaId], (err3, rows) => {
         if (err3) return res.status(500).json({ error: err3.sqlMessage });
 
         if (rows[0].total === 0) {
           const sqlDeleteLista = 'DELETE FROM lista_desejo WHERE id = ?';
-          connection.query(sqlDeleteLista, [listaId], (err4) => {
+          queryCallback(sqlDeleteLista, [listaId], (err4) => {
             if (err4) return res.status(500).json({ error: err4.sqlMessage });
             return res.json({ message: 'Livro removido e lista de desejos deletada (ficou vazia)' });
           });
@@ -1247,7 +1246,7 @@ app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
 // Listar funções
 app.get("/funcoes", autenticarToken, (req, res) => {
   const sql = "SELECT id, funcao FROM funcao";
-  connection.query(sql, (err, results) => {
+  queryCallback(sql, (err, results) => {
     if (err) {
       console.error("Erro ao buscar funções:", err);
       return res.status(500).json({ error: "Erro no servidor" });
@@ -1267,7 +1266,7 @@ app.get('/api/funcionarios', autenticarToken, (req, res) => {
     WHERE f.FK_instituicao_id = ?
   `;
 
-  connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
+  queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error('Erro ao buscar funcionários:', err);
       return res.status(500).json({ error: 'Erro no servidor' });
@@ -1298,7 +1297,7 @@ app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, r
   const sql = `UPDATE funcionario SET ${updates.join(", ")} WHERE id = ? AND FK_instituicao_id = ?`;
   values.push(id, req.user.FK_instituicao_id);
 
-  connection.query(sql, values, (err, result) => {
+  queryCallback(sql, values, (err, result) => {
     if (err) {
       console.error("Erro ao atualizar funcionário:", err);
       return res.status(500).json({ error: "Erro ao atualizar funcionário" });
@@ -1329,7 +1328,7 @@ app.get('/api/usuarios', autenticarToken, (req, res) => {
     LEFT JOIN curso c ON u.curso_id = c.id
     WHERE u.FK_instituicao_id = ?
   `;
-  connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
+  queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuários:", err);
       return res.status(500).json({ error: "Erro ao buscar usuários" });
@@ -1352,7 +1351,7 @@ app.get('/api/usuario/:id', autenticarToken, (req, res) => {
     LEFT JOIN curso c ON u.curso_id = c.id
     WHERE u.id = ? AND u.FK_instituicao_id = ?
   `;
-  connection.query(sql, [id, req.user.FK_instituicao_id], (err, results) => {
+  queryCallback(sql, [id, req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuário:", err);
       return res.status(500).json({ error: "Erro ao buscar usuário" });
@@ -1385,7 +1384,7 @@ app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), (req, res) 
   const sql = `UPDATE usuario SET ${updates.join(", ")} WHERE id = ? AND FK_instituicao_id = ?`;
   values.push(id, req.user.FK_instituicao_id);
 
-  connection.query(sql, values, (err, result) => {
+  queryCallback(sql, values, (err, result) => {
     if (err) {
       console.error("Erro ao atualizar usuário:", err);
       return res.status(500).json({ error: "Erro ao atualizar usuário." });
@@ -1400,10 +1399,10 @@ app.delete('/api/usuarios/:id', autenticarToken, (req, res) => {
   const id = req.params.id;
 
   const sqlDependencias = 'DELETE FROM usuario_curso WHERE FK_usuario_id = ?';
-  connection.query(sqlDependencias, [id], (err) => {
+  queryCallback(sqlDependencias, [id], (err) => {
     if (err) return res.status(500).json({ error: 'Erro ao deletar dependências' });
 
-    connection.query('DELETE FROM usuario WHERE id = ? AND FK_instituicao_id = ?', [id, req.user.FK_instituicao_id], (err, result) => {
+    queryCallback('DELETE FROM usuario WHERE id = ? AND FK_instituicao_id = ?', [id, req.user.FK_instituicao_id], (err, result) => {
       if (err) return res.status(500).json({ error: 'Erro ao excluir usuário' });
       if (result.affectedRows === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
       res.status(200).json({ message: 'Usuário excluído com sucesso' });
@@ -1419,10 +1418,10 @@ app.get('/verificarNome', (req, res) => {
   const sqlAluno = 'SELECT id FROM usuario WHERE nome = ? LIMIT 1';
   const sqlFunc = 'SELECT id FROM funcionario WHERE nome = ? LIMIT 1';
 
-  connection.query(sqlAluno, [nome], (err, alunoResult) => {
+  queryCallback(sqlAluno, [nome], (err, alunoResult) => {
     if (err) return res.status(500).json({ error: 'Erro ao verificar aluno.' });
 
-    connection.query(sqlFunc, [nome], (err2, funcResult) => {
+    queryCallback(sqlFunc, [nome], (err2, funcResult) => {
       if (err2) return res.status(500).json({ error: 'Erro ao verificar funcionário.' });
 
       const exists = (alunoResult.length > 0) || (funcResult.length > 0);
@@ -1434,7 +1433,7 @@ app.get('/verificarNome', (req, res) => {
 // ================= Rota: listar tipos de usuário =================
 app.get("/tipos-usuario", (req, res) => {
   const sql = "SELECT id, tipo FROM tipo_usuario";
-  connection.query(sql, (err, results) => {
+  queryCallback(sql, (err, results) => {
     if (err) return res.status(500).json({ error: "Erro ao buscar tipos de usuário" });
     res.json(results);
   });
@@ -1461,7 +1460,7 @@ app.get('/acervo/livros', autenticarToken, (req, res) => {
     GROUP BY l.id
   `;
 
-  connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
+  queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro ao buscar livros do acervo' });
 
     // garante que venha o campo "disponibilidade"
@@ -1530,7 +1529,7 @@ app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) =
     FK_autor_id || null
   ];
 
-  connection.query(sql, values, (err, result) => {
+  queryCallback(sql, values, (err, result) => {
     if (err) {
       console.error('Erro ao cadastrar livro:', err);
       return res.status(500).json({ error: 'Erro ao cadastrar livro' });
@@ -1544,7 +1543,7 @@ app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) =
 app.get('/generos', (req, res) => {
   const sql = 'SELECT id, genero FROM genero';  // ajuste o nome da tabela se necessário
 
-  connection.query(sql, (err, results) => {
+  queryCallback(sql, (err, results) => {
     if (err) {
       console.error('Erro ao buscar gêneros:', err);
       return res.status(500).json({ error: 'Erro ao buscar gêneros' });
@@ -1562,12 +1561,12 @@ app.post('/generos', (req, res) => {
 
   // Verifica se já existe (opcional, para evitar duplicidade)
   const sqlCheck = 'SELECT * FROM genero WHERE LOWER(genero) = LOWER(?) LIMIT 1';
-  connection.query(sqlCheck, [genero], (err, results) => {
+  queryCallback(sqlCheck, [genero], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro no banco' });
     if (results.length > 0) return res.status(409).json({ error: 'Gênero já existe' });
 
     const sqlInsert = 'INSERT INTO genero (genero) VALUES (?)';
-    connection.query(sqlInsert, [genero], (err2) => {
+    queryCallback(sqlInsert, [genero], (err2) => {
       if (err2) return res.status(500).json({ error: 'Erro ao salvar gênero' });
       res.status(201).json({ message: 'Gênero salvo com sucesso' });
     });
@@ -1577,7 +1576,7 @@ app.post('/generos', (req, res) => {
 
 app.get('/generosFiltro', (req, res) => {
   const sql = 'SELECT * FROM genero ORDER BY genero ASC';
-  connection.query(sql, (err, result) => {
+  queryCallback(sql, (err, result) => {
     if (err) {
       console.error('Erro ao buscar gêneros:', err);
       return res.status(500).json({ erro: 'Erro ao buscar gêneros' });
@@ -1614,7 +1613,7 @@ app.get('/livros/:id', (req, res) => {
   WHERE l.id = ?
 `;
 
-  connection.query(sql, [id], (err, results) => {
+  queryCallback(sql, [id], (err, results) => {
     if (err) {
       console.error('Erro ao buscar livro:', err);
       return res.status(500).json({ error: 'Erro no servidor' });
@@ -1648,7 +1647,7 @@ app.put('/livros/:id', autenticarToken, upload.single('capa'), (req, res) => {
   if (capa) values.push(capa);
   values.push(id);
 
-  connection.query(sql, values, (err) => {
+  queryCallback(sql, values, (err) => {
     if (err) {
       console.error('Erro ao atualizar livro:', err);
       return res.status(500).json({ error: 'Erro ao atualizar livro' });
@@ -1660,14 +1659,14 @@ app.put('/livros/:id', autenticarToken, upload.single('capa'), (req, res) => {
 app.delete('/livros/:id', (req, res) => {
   const { id } = req.params;
 
-  connection.query('DELETE FROM livro_autor WHERE FK_livro_id = ?', [id], (err) => {
+  queryCallback('DELETE FROM livro_autor WHERE FK_livro_id = ?', [id], (err) => {
     if (err) {
       console.error('Erro ao deletar autores do livro:', err);
       return res.status(500).json({ error: 'Erro ao deletar autores do livro' });
     }
 
     // Depois, deletar o livro
-    connection.query('DELETE FROM livro WHERE id = ?', [id], (err, result) => {
+    queryCallback('DELETE FROM livro WHERE id = ?', [id], (err, result) => {
       if (err) {
         console.error('Erro ao deletar livro:', err);
         return res.status(500).json({ error: 'Erro ao deletar livro' });
@@ -1701,7 +1700,7 @@ app.get('/livros/:id/comentarios', (req, res) => {
     ORDER BY c.data_comentario DESC
   `;
 
-  connection.query(sql, [id], (err, results) => {
+  queryCallback(sql, [id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar comentários:", err);
       return res.status(500).json({ error: "Erro no servidor" });
@@ -1724,7 +1723,7 @@ app.post("/livros/:id/comentarios", async (req, res) => {
     const comentarioFiltrado = await filtrarComentario(comentario);
 
     // ✅ Usando callback style (consistente com o resto do seu código)
-    connection.query(
+    queryCallback(
       "INSERT INTO comentario (comentario, data_comentario) VALUES (?, NOW())",
       [comentarioFiltrado],
       (err, result) => {
@@ -1736,7 +1735,7 @@ app.post("/livros/:id/comentarios", async (req, res) => {
         const comentarioId = result.insertId;
 
         // Vincular comentário ao usuário
-        connection.query(
+        queryCallback(
           "INSERT INTO usuario_comentario (FK_usuario_id, FK_comentario_id) VALUES (?, ?)",
           [usuarioId, comentarioId],
           (err) => {
@@ -1746,7 +1745,7 @@ app.post("/livros/:id/comentarios", async (req, res) => {
             }
 
             // Vincular comentário ao livro
-            connection.query(
+            queryCallback(
               "INSERT INTO comentario_livro (FK_comentario_id, FK_livro_id) VALUES (?, ?)",
               [comentarioId, livroId],
               (err) => {
@@ -1772,7 +1771,7 @@ app.post("/livros/:id/comentarios", async (req, res) => {
 // ===== Listar autores =====
 app.get('/autores', autenticarToken, (req, res) => {
   const sql = 'SELECT id, nome FROM autor ORDER BY nome ASC';
-  connection.query(sql, (err, results) => {
+  queryCallback(sql, (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro ao buscar autores' });
     res.json(results);
   });
@@ -1788,13 +1787,13 @@ app.post('/autores', autenticarToken, (req, res) => {
 
   // Verifica se já existe
   const sqlCheck = 'SELECT * FROM autor WHERE LOWER(nome) = LOWER(?) LIMIT 1';
-  connection.query(sqlCheck, [nome.trim()], (err, results) => {
+  queryCallback(sqlCheck, [nome.trim()], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro no banco ao verificar autor' });
     if (results.length > 0) return res.status(409).json({ error: 'Autor já existe' });
 
     // Insere novo autor
     const sqlInsert = 'INSERT INTO autor (nome) VALUES (?)';
-    connection.query(sqlInsert, [nome.trim()], (err2) => {
+    queryCallback(sqlInsert, [nome.trim()], (err2) => {
       if (err2) return res.status(500).json({ error: 'Erro ao salvar autor' });
       res.status(201).json({ message: 'Autor cadastrado com sucesso' });
     });
@@ -1805,7 +1804,7 @@ app.post('/autores', autenticarToken, (req, res) => {
 // ===== Listar editoras =====
 app.get('/editoras', autenticarToken, (req, res) => {
   const sql = 'SELECT id, editora AS editora FROM editora ORDER BY editora ASC'; // <-- CORRIGIDO
-  connection.query(sql, (err, results) => {
+  queryCallback(sql, (err, results) => {
     if (err) {
       console.error('Erro ao buscar editoras:', err);
       return res.status(500).json({ error: 'Erro ao buscar editoras' });
@@ -1823,12 +1822,12 @@ app.post('/editoras', autenticarToken, (req, res) => {
   }
 
   const sqlCheck = 'SELECT * FROM editora WHERE LOWER(editora) = LOWER(?) LIMIT 1'; // <-- CORRIGIDO
-  connection.query(sqlCheck, [nome.trim()], (err, results) => {
+  queryCallback(sqlCheck, [nome.trim()], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro no banco ao verificar editora' });
     if (results.length > 0) return res.status(409).json({ error: 'Editora já existe' });
 
     const sqlInsert = 'INSERT INTO editora (editora) VALUES (?)'; // <-- CORRIGIDO
-    connection.query(sqlInsert, [nome.trim()], (err2) => {
+    queryCallback(sqlInsert, [nome.trim()], (err2) => {
       if (err2) return res.status(500).json({ error: 'Erro ao salvar editora' });
       res.status(201).json({ message: 'Editora cadastrada com sucesso' });
     });
@@ -1840,7 +1839,7 @@ app.post('/editoras', autenticarToken, (req, res) => {
 
 app.get("/tipos-instituicao", (req, res) => {
   const sql = "SELECT * FROM tipo_instituicao";
-  connection.query(sql, (err, results) => {
+  queryCallback(sql, (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ mensagem: "Erro ao carregar tipos de instituição" });
@@ -1852,7 +1851,7 @@ app.get("/tipos-instituicao", (req, res) => {
 // Buscar dados da instituição
 app.get("/instituicao", (req, res) => {
   const sql = "SELECT * FROM instituicao LIMIT 1";
-  connection.query(sql, (err, results) => {
+  queryCallback(sql, (err, results) => {
     if (err) {
       console.error("Erro ao buscar instituição:", err);
       return res.status(500).json({ mensagem: "Erro ao buscar instituição" });
@@ -1879,7 +1878,7 @@ app.post("/instituicao", (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
-  connection.query(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id], (err, result) => {
+  queryCallback(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id], (err, result) => {
     if (err) {
       console.error("Erro ao cadastrar instituição:", err);
       return res.status(500).json({ mensagem: "Erro ao cadastrar instituição" });
@@ -1899,7 +1898,7 @@ app.put("/instituicao/:id", (req, res) => {
     WHERE id = ?
   `;
 
-  connection.query(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id, id], (err) => {
+  queryCallback(sql, [nome, email, horario_funcionamento, telefone, website, endereco, FK_tipo_instituicao_id, id], (err) => {
     if (err) {
       console.error("Erro ao atualizar instituição:", err);
       return res.status(500).json({ mensagem: "Erro ao atualizar instituição" });
@@ -1912,7 +1911,7 @@ app.put("/instituicao/:id", (req, res) => {
 app.get("/configuracoes-gerais/:instituicaoId", (req, res) => {
   const instituicaoId = req.params.instituicaoId;
   const sql = "SELECT * FROM configuracoes_gerais WHERE FK_instituicao_id = ? LIMIT 1";
-  connection.query(sql, [instituicaoId], (err, results) => {
+  queryCallback(sql, [instituicaoId], (err, results) => {
     if (err) return res.status(500).json({ error: "Erro ao buscar configurações gerais", details: err });
     res.json(results[0] || null);
   });
@@ -1933,7 +1932,7 @@ app.post("/configuracoes-gerais", (req, res) => {
       multa_por_atraso = VALUES(multa_por_atraso)
   `;
 
-  connection.query(sql, [
+  queryCallback(sql, [
     duracao_padrao_emprestimo,
     numero_maximo_renovacoes,
     tempo_retirada_reserva,
@@ -1954,7 +1953,7 @@ app.post("/configuracoes-gerais", (req, res) => {
 app.get("/configuracoes-notificacao/:instituicaoId", (req, res) => {
   const { instituicaoId } = req.params;
   const sql = "SELECT * FROM configuracoes_notificacao WHERE FK_instituicao_id = ? LIMIT 1";
-  connection.query(sql, [instituicaoId], (err, results) => {
+  queryCallback(sql, [instituicaoId], (err, results) => {
     if (err) {
       console.error("Erro ao buscar notificações:", err);
       return res.status(500).json({ mensagem: "Erro ao buscar notificações" });
@@ -1976,7 +1975,7 @@ app.post("/configuracoes-notificacao", (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
-  connection.query(sql, [lembrete_vencimento, dias_antes_vencimento, notificacao_atraso, notificacao_reserva, notificacao_livro_disponivel, sms_notificacao, FK_instituicao_id], (err, result) => {
+  queryCallback(sql, [lembrete_vencimento, dias_antes_vencimento, notificacao_atraso, notificacao_reserva, notificacao_livro_disponivel, sms_notificacao, FK_instituicao_id], (err, result) => {
     if (err) {
       console.error("Erro ao cadastrar notificações:", err);
       return res.status(500).json({ mensagem: "Erro ao cadastrar notificações" });
@@ -1996,7 +1995,7 @@ app.put("/configuracoes-notificacao/:id", (req, res) => {
     WHERE id = ?
   `;
 
-  connection.query(sql, [lembrete_vencimento, dias_antes_vencimento, notificacao_atraso, notificacao_reserva, notificacao_livro_disponivel, sms_notificacao, id], (err) => {
+  queryCallback(sql, [lembrete_vencimento, dias_antes_vencimento, notificacao_atraso, notificacao_reserva, notificacao_livro_disponivel, sms_notificacao, id], (err) => {
     if (err) {
       console.error("Erro ao atualizar notificações:", err);
       return res.status(500).json({ mensagem: "Erro ao atualizar notificações" });
@@ -2011,7 +2010,7 @@ app.put("/configuracoes-notificacao/:id", (req, res) => {
 app.get("/configuracoes-tipo-usuario/:instituicaoId", (req, res) => {
   const { instituicaoId } = req.params;
   const sql = "SELECT * FROM configuracoes_tipo_usuario WHERE FK_instituicao_id = ? OR FK_instituicao_id IS NULL";
-  connection.query(sql, [instituicaoId], (err, results) => {
+  queryCallback(sql, [instituicaoId], (err, results) => {
     if (err) return res.status(500).json({ error: "Erro ao buscar tipos de usuário" });
     res.json(results);
   });
@@ -2023,7 +2022,7 @@ app.post("/configuracoes-tipo-usuario", (req, res) => {
   const sql = `INSERT INTO configuracoes_tipo_usuario 
     (FK_tipo_usuario_id, maximo_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar, FK_instituicao_id) 
     VALUES (?, ?, ?, ?, ?, ?)`;
-  connection.query(sql, [FK_tipo_usuario_id, maximo_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar, FK_instituicao_id], (err) => {
+  queryCallback(sql, [FK_tipo_usuario_id, maximo_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar, FK_instituicao_id], (err) => {
     if (err) return res.status(500).json({ error: "Erro ao salvar configuração" });
     res.json({ mensagem: "Configuração salva com sucesso!" });
   });
@@ -2036,7 +2035,7 @@ app.put("/configuracoes-tipo-usuario/:id", (req, res) => {
   const sql = `UPDATE configuracoes_tipo_usuario 
                SET maximo_emprestimos=?, duracao_emprestimo=?, pode_reservar=?, pode_renovar=? 
                WHERE id=?`;
-  connection.query(sql, [maximo_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar, id], (err) => {
+  queryCallback(sql, [maximo_emprestimos, duracao_emprestimo, pode_reservar, pode_renovar, id], (err) => {
     if (err) return res.status(500).json({ error: "Erro ao atualizar configuração" });
     res.json({ mensagem: "Configuração atualizada com sucesso!" });
   });
@@ -2053,7 +2052,7 @@ app.get('/api/funcionarios/:instituicaoId', (req, res) => {
     WHERE f.FK_instituicao_id = ?
   `;
 
-  connection.query(sql, [instituicaoId], (err, results) => {
+  queryCallback(sql, [instituicaoId], (err, results) => {
     if (err) {
       console.error('Erro ao buscar funcionários:', err);
       return res.status(500).json({ error: 'Erro no servidor' });
@@ -2092,7 +2091,7 @@ app.get('/usuarios', autenticarToken, (req, res) => {
     WHERE u.nome LIKE ? OR u.email LIKE ?
   `;
 
-  connection.query(sql, [`%${termo}%`, `%${termo}%`], (err, results) => {
+  queryCallback(sql, [`%${termo}%`, `%${termo}%`], (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Erro ao buscar usuários" });
@@ -2126,7 +2125,7 @@ app.get('/api/usuarios', autenticarToken, (req, res) => {
     WHERE u.FK_instituicao_id = ?
   `;
 
-  connection.query(sql, [req.user.FK_instituicao_id], (err, results) => {
+  queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuários:", err);
       return res.status(500).json({ error: "Erro ao buscar usuários" });
@@ -2170,7 +2169,7 @@ app.get("/emprestimo/livros", autenticarToken, (req, res) => {
     LIMIT 10;
   `;
 
-  connection.query(sql, [busca, busca, busca], (err, rows) => {
+  queryCallback(sql, [busca, busca, busca], (err, rows) => {
     if (err) {
       console.error("Erro ao buscar livros:", err);
       return res.status(500).json({ error: "Erro ao buscar livros" });
@@ -2312,7 +2311,7 @@ app.get('/historico/:usuarioId', (req, res) => {
     ORDER BY data_leitura DESC
   `;
 
-  connection.query(sql, [usuarioId, usuarioId], (err, results) => {
+  queryCallback(sql, [usuarioId, usuarioId], (err, results) => {
     if (err) {
       console.error('Erro ao buscar histórico:', err);
       return res.status(500).json({ error: 'Erro ao buscar histórico.' });
@@ -2330,7 +2329,7 @@ app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {
     SET data_real_devolucao = NOW() 
     WHERE id = ?`;
 
-  connection.query(sql, [emprestimoId], (err) => {
+  queryCallback(sql, [emprestimoId], (err) => {
     if (err) {
       console.error("Erro ao devolver:", err);
       return res.status(500).json({ error: "Erro ao devolver livro" });
@@ -2342,7 +2341,7 @@ app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {
       WHERE id IN (SELECT FK_livro_id FROM emprestimo_livro WHERE FK_emprestimo_id = ?)
     `;
 
-    connection.query(sqlLivro, [emprestimoId], (err2) => {
+    queryCallback(sqlLivro, [emprestimoId], (err2) => {
       if (err2) {
         console.warn("⚠️ Coluna 'disponivel' pode não existir na tabela livro");
       }
@@ -2357,6 +2356,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
-
-
 
