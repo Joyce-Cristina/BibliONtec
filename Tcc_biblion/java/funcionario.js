@@ -1,14 +1,14 @@
-document.addEventListener("DOMContentLoaded", () => {
-  carregarFuncionarios();
-  carregarFuncoes(); // já carrega funções no select
-});
+
 function apiBase() {
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
     return "http://localhost:3000";
   }
   return "https://bibliontec.onrender.com"; // backend hospedado
 }
-
+document.addEventListener("DOMContentLoaded", () => {
+  carregarFuncionarios();
+  carregarFuncoes(); // já carrega funções no select
+});
 const API_URL_FUNCIONARIOS = `${apiBase()}/api/funcionarios`;
 
 let todosOsFuncionarios = [];
