@@ -1,5 +1,11 @@
 const token = localStorage.getItem("token"); // token do login
-const backendURL = "http://localhost:3000"; // 🔹 URL do backend
+const backendURL = apiBase(); // 🔹 URL do backend
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
 
 // 🔹 Pesquisar usuário
 async function pesquisarUsuario() {

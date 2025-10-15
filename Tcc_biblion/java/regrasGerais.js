@@ -1,3 +1,10 @@
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const salvarBtn = document.querySelector(".btn-save");
   const inputsPrazos = document.querySelectorAll("#prazos .form-control");
@@ -12,7 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function carregarConfiguracoesGerais() {
     try {
-      const resposta = await fetch(`http://localhost:3000/configuracoes-gerais/${instituicaoId}`);
+    const resposta = await fetch(`${apiBase()}/configuracoes-gerais/${instituicaoId}`);
+
       if (!resposta.ok) throw new Error("Erro ao carregar configurações gerais");
       const config = await resposta.json();
 
@@ -39,7 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      const resposta = await fetch("http://localhost:3000/configuracoes-gerais", {
+     const resposta = await fetch(`${apiBase()}/configuracoes-gerais`, {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados),

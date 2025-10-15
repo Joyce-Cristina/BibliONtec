@@ -1,3 +1,10 @@
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
+
 // ===================== CARREGAR TODOS OS LIVROS =====================
 async function carregarLivros() {
   try {
@@ -8,7 +15,7 @@ async function carregarLivros() {
       return [];
     }
 
-    const resp = await fetch("http://localhost:3000/acervo/livros", {
+    const resp = await fetch(`${apiBase()}/acervo/livros`, {
       method: "GET",
       headers: { "Authorization": `Bearer ${token}` }
     });
@@ -37,8 +44,9 @@ function renderizarLivros(containerId, livros, mensagemVazia = "Nenhum livro enc
 
   livros.forEach(livro => {
     const capaSrc = livro.capa
-      ? `http://localhost:3000/uploads/${livro.capa}`
-      : `http://localhost:3000/uploads/logoquadrada.jpeg`;
+      ? `${apiBase()}/uploads/${livro.capa}`
+      : `${apiBase()}/uploads/logoquadrada.jpeg`;
+
 
     const card = document.createElement('div');
     card.className = 'card mb-4 mx-auto';
@@ -51,8 +59,8 @@ function renderizarLivros(containerId, livros, mensagemVazia = "Nenhum livro enc
       </div>
       <div class="card-footer text-center">
         ${livro.disponivel
-          ? `<button class="btn btn-success reservar-btn" data-id="${livro.id}">Reservar</button>`
-          : `<button class="btn btn-secondary" disabled>Indisponível</button>`}
+        ? `<button class="btn btn-success reservar-btn" data-id="${livro.id}">Reservar</button>`
+        : `<button class="btn btn-secondary" disabled>Indisponível</button>`}
       </div>
     `;
 
@@ -83,7 +91,7 @@ async function reservarLivro(livroId) {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("Sessão expirada");
 
-    const resp = await fetch(`http://localhost:3000/reservar/${livroId}`, {
+    const resp = await fetch(`${apiBase()}/reservar/${livroId}`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${token}` }
     });
@@ -108,7 +116,7 @@ async function carregarIndicacoes() {
     const cursoId = usuario.curso_id;
     const serie = usuario.serie;
 
-    const resp = await fetch(`http://localhost:3000/indicacoes/${cursoId}/${serie}`, {
+    const resp = await fetch(`${apiBase()}/indicacoes/${cursoId}/${serie}`, {
       headers: { "Authorization": `Bearer ${token}` }
     });
 
@@ -131,7 +139,7 @@ async function carregarListaDesejos() {
     const usuario = JSON.parse(usuarioJSON);
     const usuarioId = usuario.id;
 
-    const resp = await fetch(`http://localhost:3000/lista-desejos/${usuarioId}`, {
+    const resp = await fetch(`${apiBase()}/lista-desejos/${usuarioId}`, {
       headers: { "Authorization": `Bearer ${token}` }
     });
 
@@ -146,7 +154,7 @@ async function carregarListaDesejos() {
 }
 
 // ===================== DETECTAR PÁGINA E CARREGAR =====================
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   const currentPage = window.location.pathname.split('/').pop().toLowerCase();
 
   if (document.getElementById("gridLivrosListaDesejos")) {

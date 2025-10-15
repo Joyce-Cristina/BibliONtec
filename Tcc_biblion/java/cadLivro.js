@@ -2,6 +2,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const loadingIsbn = document.getElementById('loadingIsbn');
   const token = localStorage.getItem('token');
   const usuarioId = localStorage.getItem('usuarioId'); // Id do funcionário logado
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
 
   if (!token) {
     alert('Você precisa estar logado para cadastrar livros.');
@@ -124,7 +130,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Se gênero não existe, cadastra
     if (!idGenero && textoGenero !== '') {
       try {
-        const resp = await fetch('http://localhost:3000/generos', {
+      const resp = await fetch(`${apiBase()}/generos`, {
+
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ genero: textoGenero })
@@ -145,7 +152,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let autorId = document.getElementById('FK_autor_id').value;
     if (!autorId && autorInput.value.trim() !== '') {
       try {
-        const resp = await fetch('http://localhost:3000/autores', {
+     const resp = await fetch(`${apiBase()}/autores`, {
+
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ nome: autorInput.value.trim() })
@@ -164,7 +172,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let editoraId = document.getElementById('FK_editora_id').value;
     if (!editoraId && editoraInput.value.trim() !== '') {
       try {
-        const resp = await fetch('http://localhost:3000/editoras', {
+       const resp = await fetch(`${apiBase()}/editoras`, {
+
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ nome: editoraInput.value.trim() })
@@ -188,7 +197,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     formData.set('FK_funcionario_id', usuarioId);
 
     try {
-      const resposta = await fetch('http://localhost:3000/cadastrarLivro', {
+     const resposta = await fetch(`${apiBase()}/cadastrarLivro`, {
+
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + token },
         body: formData
@@ -228,7 +238,8 @@ function ajustarData(data) {
 // Carregar gêneros
 async function carregarGeneros() {
   try {
-    const response = await fetch('http://localhost:3000/generos');
+    const response = await fetch(`${apiBase()}/generos`);
+
     const generos = await response.json();
     generos.sort((a, b) => a.genero.localeCompare(b.genero, 'pt', { sensitivity: 'base' }));
 
@@ -249,7 +260,8 @@ async function carregarGeneros() {
 async function carregarAutores() {
   const token = localStorage.getItem('token');
   try {
-    const response = await fetch('http://localhost:3000/autores', {
+const response = await fetch(`${apiBase()}/autores`, {
+
       headers: { 'Authorization': 'Bearer ' + token }
     });
     if (!response.ok) throw new Error('Não autorizado');
@@ -274,7 +286,8 @@ async function carregarAutores() {
 async function carregarEditoras() {
   const token = localStorage.getItem('token');
   try {
-    const response = await fetch('http://localhost:3000/editoras', {
+    const response = await fetch(`${apiBase()}/editoras`, {
+
       headers: { 'Authorization': 'Bearer ' + token }
     });
     if (!response.ok) throw new Error('Não autorizado');

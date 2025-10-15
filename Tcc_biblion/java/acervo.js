@@ -1,5 +1,11 @@
 let todosOsLivros = [];
 
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('cardsContainer')) carregarLivros();
@@ -47,7 +53,8 @@ function getToken() {
 async function carregarLivros() {
   try {
     const token = getToken();
-    const resposta = await fetch('http://localhost:3000/acervo/livros', {
+   const resposta = await fetch(`${apiBase()}/acervo/livros`, {
+
       headers: { "Authorization": `Bearer ${token}` }
     });
 
@@ -83,8 +90,8 @@ function exibirLivros(livros) {
 
   livros.forEach(livro => {
     const capaSrc = livro.capa
-      ? `http://localhost:3000/uploads/${livro.capa}`
-      : `http://localhost:3000/uploads/padrao.jpg`;
+  ? `${apiBase()}/uploads/${livro.capa}`
+  : `${apiBase()}/uploads/padrao.jpg`;
 
     // Garantir que campos não fiquem nulos
     const autores = livro.autores && livro.autores.trim() !== '' ? livro.autores : '—';
@@ -123,7 +130,8 @@ async function carregarGeneros() {
 
   try {
     const token = getToken();
-    const resposta = await fetch('http://localhost:3000/generos', {
+   const resposta = await fetch(`${apiBase()}/generos`, {
+
       headers: { "Authorization": `Bearer ${token}` }
     });
     const generos = await resposta.json();
@@ -166,7 +174,8 @@ async function carregarGeneros() {
 function excluirLivro(id) {
   if (confirm('Tem certeza que deseja excluir este livro?')) {
     const token = getToken();
-    fetch(`http://localhost:3000/livros/${id}`, {
+    fetch(`${apiBase()}/livros/${id}`, {
+
       method: 'DELETE',
       headers: { "Authorization": `Bearer ${token}` }
     })
@@ -189,7 +198,7 @@ async function abrirModalEdicaoLivro(id) {
   const token = getToken();
 
   // Carregar gêneros
-  const respostaGeneros = await fetch('http://localhost:3000/generos', { headers: { Authorization: `Bearer ${token}` } });
+  const respostaGeneros = await fetch(`${apiBase()}/generos`, { headers: { Authorization: `Bearer ${token}` } });
   const generos = await respostaGeneros.json();
 
   const selectGenero = document.getElementById('genero-livro');
@@ -205,7 +214,7 @@ async function abrirModalEdicaoLivro(id) {
   }
 
   // Carregar autores
-  const respostaAutores = await fetch('http://localhost:3000/autores', { headers: { Authorization: `Bearer ${token}` } });
+  const respostaAutores = await fetch(`${apiBase()}/autores`, { headers: { Authorization: `Bearer ${token}` } });
   const autores = await respostaAutores.json();
 
   const selectAutores = document.getElementById('autores-livro');
@@ -221,7 +230,7 @@ async function abrirModalEdicaoLivro(id) {
   }
 
   // Carregar editoras
-  const respostaEditoras = await fetch('http://localhost:3000/editoras', { headers: { Authorization: `Bearer ${token}` } });
+  const respostaEditoras = await fetch(`${apiBase()}/editoras`,  { headers: { Authorization: `Bearer ${token}` } });
   const editoras = await respostaEditoras.json();
 
   const selectEditoras = document.getElementById('editora-livro');
@@ -254,9 +263,10 @@ async function abrirModalEdicaoLivro(id) {
   // 🖼️ Preview da capa atual
   const preview = document.getElementById('preview-capa');
   if (preview) {
-    const capaSrc = livro.capa
-      ? `http://localhost:3000/uploads/${livro.capa}`
-      : `http://localhost:3000/uploads/padrao.jpg`;
+ const capaSrc = livro.capa
+  ? `${apiBase()}/uploads/${livro.capa}`
+  : `${apiBase()}/uploads/padrao.jpg`;
+
     preview.src = capaSrc;
     preview.style.display = 'block';
   }
@@ -333,7 +343,8 @@ if (formEditarLivro) {
     
     try {
       const token = getToken();
-      const resposta = await fetch(`http://localhost:3000/livros/${id}`, {
+     const resposta = await fetch(`${apiBase()}/livros/${id}`, {
+
         method: 'PUT',
         headers: {
           "Authorization": `Bearer ${token}`

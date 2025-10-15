@@ -20,10 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return 'http://localhost:3000';
     }
     // URL do seu backend no Render
-    return 'https://bibliontec-api.onrender.com';
+    return 'https://bibliontec.onrender.com';
   }
 
 
+document.getElementById("avatarPerfil").src = `${apiBase()}/uploads/padrao.jpg`;
 
 
   // ----------- LÓGICA DE CADASTRO DE ALUNO ------------
@@ -449,7 +450,7 @@ async function carregarDados(id, tipo) {
     const endpoint = tipo === "funcionario" ? "funcionarios" : "usuario";
     const token = localStorage.getItem("token");
 
-    const res = await fetch(`http://localhost:3000/api/${endpoint}/${id}`, {
+    const res = await fetch(`${apiBase()}/api/${endpoint}/${id}`, {
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -553,8 +554,8 @@ if (editarBtn) {
     try {
       const token = localStorage.getItem("token");
       const url = tipo === "funcionario"
-        ? `http://localhost:3000/api/funcionarios/${id}`
-        : `http://localhost:3000/api/usuarios/${id}`;
+        ? `${apiBase()}/api/funcionarios/${id}`
+        : `${apiBase()}/api/usuarios/${id}`;
 
       const response = await fetch(url, {
         method: "PUT",
@@ -576,7 +577,8 @@ if (editarBtn) {
 
 
 // ------------------ ABRIR MODAL DE EDIÇÃO ------------------
-const API_URL = "http://localhost:3000/api/funcionarios";
+const API_URL = `${apiBase()}/api/funcionarios`;
+
 // Função para gerar senha segura (8 dígitos: A-Z, a-z, 0-9)
 function gerarSenhaSegura() {
   const letrasMaiusculas = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

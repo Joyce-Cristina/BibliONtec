@@ -1,3 +1,10 @@
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   carregarUsuarios();
   carregarTiposUsuario(); // carrega os tipos logo ao abrir
@@ -9,7 +16,8 @@ let todosOsUsuarios = [];
 async function carregarUsuarios() {
   try {
     const token = localStorage.getItem("token");
-    const res = await fetch('http://localhost:3000/api/usuarios', {
+    const res = await fetch(`${apiBase()}/api/usuarios`, {
+
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -29,9 +37,9 @@ function exibirUsuarios(usuarios) {
   container.innerHTML = '';
 
   usuarios.forEach(u => {
-    const foto = u.foto 
-      ? `http://localhost:3000/uploads/${u.foto}`
-      : `http://localhost:3000/uploads/padrao.jpg`;
+    const foto = u.foto
+      ? `${apiBase()}/uploads/${u.foto}`
+      : `${apiBase()}/uploads/padrao.jpg`;
 
     const card = document.createElement('div');
     card.className = 'card';
@@ -58,7 +66,8 @@ function exibirUsuarios(usuarios) {
 async function carregarTiposUsuario() {
   try {
     const token = localStorage.getItem("token");
-    const res = await fetch('http://localhost:3000/tipos-usuario', {
+    const res = await fetch(`${apiBase()}/tipos-usuario`, {
+
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -100,8 +109,9 @@ async function abrirModalEdicao(id) {
   // 👇 seta a imagem atual no preview
   const previewBox = document.getElementById('previewBox');
   const fotoAtual = usuario.foto
-    ? `http://localhost:3000/uploads/${usuario.foto}`
-    : `http://localhost:3000/uploads/padrao.jpg`;
+    ? `${apiBase()}/uploads/${usuario.foto}`
+    : `${apiBase()}/uploads/padrao.jpg`;
+
   previewBox.style.backgroundImage = `url('${fotoAtual}')`;
 
   const modal = new bootstrap.Modal(document.getElementById('modal-editar'));
@@ -116,9 +126,10 @@ function fecharModal() {
 }
 
 // ------------------ SALVAR EDIÇÃO ------------------
-const API_URL_USUARIOS = 'http://localhost:3000/api/usuarios';
+const API_URL_USUARIOS = `${apiBase()}/api/usuarios`;
 
-document.getElementById('form-editar').addEventListener('submit', function(e) {
+
+document.getElementById('form-editar').addEventListener('submit', function (e) {
   e.preventDefault();
   const id = document.getElementById('id-usuario').value;
 
@@ -138,19 +149,19 @@ document.getElementById('form-editar').addEventListener('submit', function(e) {
     headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
     body: formData
   })
-  .then(res => {
-    if (res.ok) {
-      fecharModal();
-      carregarUsuarios();
-    }
-  })
-  .catch(err => console.error('Erro ao editar usuário:', err));
+    .then(res => {
+      if (res.ok) {
+        fecharModal();
+        carregarUsuarios();
+      }
+    })
+    .catch(err => console.error('Erro ao editar usuário:', err));
 });
 
 // ------------------ EXCLUIR USUÁRIO ------------------
 function excluirUsuario(id) {
   if (confirm('Tem certeza que deseja excluir este usuário?')) {
-    fetch(`${API_URL_USUARIOS}/${id}`, { 
+    fetch(`${API_URL_USUARIOS}/${id}`, {
       method: 'DELETE',
       headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
     })

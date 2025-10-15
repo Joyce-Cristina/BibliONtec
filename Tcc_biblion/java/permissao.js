@@ -1,3 +1,10 @@
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const salvarBtn = document.querySelector(".btn-save");
   const funcionarioLogado = JSON.parse(localStorage.getItem("funcionario"));
@@ -6,7 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------- CARREGAR CONFIGURAÇÕES ----------------
   async function carregarTipoUsuario() {
     try {
-      const res = await fetch(`http://localhost:3000/configuracoes-tipo-usuario/${instituicaoId}`);
+  const res = await fetch(`${apiBase()}/configuracoes-tipo-usuario/${instituicaoId}`);
+
       const configs = await res.json();
 
       const blocos = document.querySelectorAll(".user-role"); // todos os blocos: Aluno, Professor, Funcionários
@@ -58,9 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         const resposta = await fetch(
-          id
-            ? `http://localhost:3000/configuracoes-tipo-usuario/${id}`
-            : "http://localhost:3000/configuracoes-tipo-usuario",
+        id
+  ? `${apiBase()}/configuracoes-tipo-usuario/${id}`
+  : `${apiBase()}/configuracoes-tipo-usuario`,
+
           {
             method: id ? "PUT" : "POST",
             headers: { "Content-Type": "application/json" },

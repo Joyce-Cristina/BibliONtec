@@ -1,7 +1,14 @@
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
+
 // Carregar os tipos de instituição no select
 async function carregarTiposInstituicao() {
     try {
-      const resposta = await fetch("http://localhost:3000/tipos-instituicao");
+      const resposta = await fetch(`${apiBase()}/tipos-instituicao`);
       if (!resposta.ok) throw new Error("Falha ao buscar tipos de instituição");
   
       const tipos = await resposta.json();
@@ -24,7 +31,7 @@ async function carregarTiposInstituicao() {
   // Carregar instituição existente
   async function carregarInstituicao() {
     try {
-      const resposta = await fetch("http://localhost:3000/instituicao");
+      const resposta = await fetch(`${apiBase()}/instituicao`);
       const instituicao = await resposta.json();
   
       if (instituicao) {
@@ -67,14 +74,14 @@ async function carregarTiposInstituicao() {
         let resposta;
         if (id) {
           // Atualizar
-          resposta = await fetch(`http://localhost:3000/instituicao/${id}`, {
+          resposta = await fetch(`${apiBase()}/instituicao/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(dados)
           });
         } else {
           // Cadastrar
-          resposta = await fetch("http://localhost:3000/instituicao", {
+          resposta = await fetch(`${apiBase()}/instituicao`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(dados)
