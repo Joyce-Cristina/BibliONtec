@@ -26,7 +26,6 @@ const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
 const mysqlRaw = require("mysql2/promise");
 
-
 const pool = mysqlRaw.createPool({
   host: process.env.DB_HOST || "127.0.0.1",
   user: process.env.DB_USER || "root",
@@ -37,7 +36,7 @@ const pool = mysqlRaw.createPool({
   queueLimit: 0
 });
 
-// Essa função usa o pool e automaticamente recria conexões se uma cair
+// Testa conexão inicial
 (async () => {
   try {
     const conn = await pool.getConnection();
@@ -47,6 +46,7 @@ const pool = mysqlRaw.createPool({
     console.error("❌ Erro inicial ao conectar ao MySQL:", err.message);
   }
 })();
+
 
 
 const app = express();
@@ -825,38 +825,33 @@ app.get('/indicacoes-professor/:usuarioId', (req, res) => {
 
 
 //=================LOGIN DE USUÁRIO E FUNCIONÁRIO=================
-
-app.post('/login', (req, res) => {
+// LOGIN USUÁRIO E FUNCIONÁRIO
+app.post('/login', async (req, res) => {
   const { email, senha } = req.body;
 
-  // 1) tenta login de usuário
-  const sqlUsuario = `
-    SELECT id, nome, FK_tipo_usuario_id , foto, FK_instituicao_id, senha, curso_id, serie
-    FROM usuario
-    WHERE email = ?
-  `;
+  try {
+    // 1) Login usuário
+    const [users] = await pool.query(`
+      SELECT id, nome, FK_tipo_usuario_id, foto, FK_instituicao_id, senha, curso_id, serie
+      FROM usuario
+      WHERE email = ?
+    `, [email]);
 
-  connection.query(sqlUsuario, [email], (err, results) => {
-  if (err) {
-    console.error("❌ ERRO NO LOGIN (usuário):", err.sqlMessage || err.message);
-    return res.status(500).json({ error: err.sqlMessage || 'Erro no servidor' });
-  }
+    if (users.length > 0) {
+      const usuario = users[0];
 
-    if (results.length > 0) {
-      const usuario = results[0];
       if (usuario.senha !== senha) {
         return res.status(401).json({ error: "Senha incorreta" });
       }
-      const sqlUpdateLogin = `UPDATE usuario SET ultimo_login = NOW() WHERE id = ?`;
-      connection.query(sqlUpdateLogin, [usuario.id]);
 
-      // Token do usuário agora leva a instituição
+      await pool.query(`UPDATE usuario SET ultimo_login = NOW() WHERE id = ?`, [usuario.id]);
+
       const token = jwt.sign({
         id: usuario.id,
         tipo_usuario_id: usuario.FK_tipo_usuario_id,
         FK_instituicao_id: usuario.FK_instituicao_id,
-        curso_id: usuario.curso_id,   // ✅ adicionado no token
-        serie: usuario.serie          // ✅ adicionado no token
+        curso_id: usuario.curso_id,
+        serie: usuario.serie
       }, SECRET, { expiresIn: '8h' });
 
       return res.status(200).json({
@@ -867,63 +862,55 @@ app.post('/login', (req, res) => {
           nome: usuario.nome,
           tipo_usuario_id: usuario.FK_tipo_usuario_id,
           FK_instituicao_id: usuario.FK_instituicao_id,
-          curso_id: usuario.curso_id,    
+          curso_id: usuario.curso_id,
           serie: usuario.serie,
           foto: usuario.foto || 'padrao.png'
         }
       });
     }
 
-    // 2) tenta login de funcionário
-    const sqlFuncionario = `
+    // 2) Login funcionário
+    const [funcionarios] = await pool.query(`
       SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto, 
              f.FK_funcao_id AS funcao_id,
              f.FK_instituicao_id, fn.funcao AS funcao_nome
       FROM funcionario f
       JOIN funcao fn ON f.FK_funcao_id = fn.id
       WHERE f.email = ?
-    `;
+    `, [email]);
 
-    if (err) {
-  console.error("❌ ERRO NO LOGIN (funcionário):", err.sqlMessage || err.message);
-  return res.status(500).json({ error: err.sqlMessage || 'Erro no servidor' });
-}
-    connection.query(sqlFuncionario, [email], (err, results) => {
+    if (funcionarios.length === 0 || funcionarios[0].senha !== senha) {
+      return res.status(401).json({ error: "Email ou senha inválidos" });
+    }
 
-      if (results.length === 0 || results[0].senha !== senha) {
-        return res.status(401).json({ error: "Email ou senha inválidos" });
+    const funcionario = funcionarios[0];
+
+    const token = jwt.sign({
+      id: funcionario.id,
+      role: "funcionario",
+      funcao: funcionario.funcao_id,
+      FK_instituicao_id: funcionario.FK_instituicao_id,
+    }, SECRET, { expiresIn: '8h' });
+
+    return res.status(200).json({
+      message: "Login funcionário bem-sucedido",
+      token,
+      funcionario: {
+        id: funcionario.id,
+        nome: funcionario.nome,
+        email: funcionario.email,
+        telefone: funcionario.telefone,
+        funcao_id: funcionario.funcao_id,
+        FK_instituicao_id: funcionario.FK_instituicao_id,
+        funcao_nome: funcionario.funcao_nome,
+        foto: funcionario.foto || "padrao.png"
       }
-
-      const funcionario = results[0];
-
-      // Token do funcionário agora leva a instituição também
-      const token = jwt.sign(
-        {
-          id: funcionario.id,
-          role: "funcionario",
-          funcao: funcionario.funcao_id,
-          FK_instituicao_id: funcionario.FK_instituicao_id,
-        },
-        SECRET,
-        { expiresIn: "8h" }
-      );
-
-      return res.status(200).json({
-        message: "Login funcionário bem-sucedido",
-        token,
-        funcionario: {
-          id: funcionario.id,
-          nome: funcionario.nome,
-          email: funcionario.email,
-          telefone: funcionario.telefone,
-          funcao_id: funcionario.funcao_id,
-          FK_instituicao_id: funcionario.FK_instituicao_id,
-          funcao_nome: funcionario.funcao_nome,
-          foto: funcionario.foto || "padrao.png"
-        }
-      });
     });
-  });
+
+  } catch (err) {
+    console.error("❌ ERRO NO LOGIN:", err.message);
+    return res.status(500).json({ error: "Erro no servidor" });
+  }
 });
 
 // middleware para validar token
