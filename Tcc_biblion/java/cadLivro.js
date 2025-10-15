@@ -1,14 +1,14 @@
-document.addEventListener('DOMContentLoaded', async () => {
-  const loadingIsbn = document.getElementById('loadingIsbn');
-  const token = localStorage.getItem('token');
-  const usuarioId = localStorage.getItem('usuarioId'); // Id do funcionário logado
+
 function apiBase() {
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
     return "http://localhost:3000";
   }
   return "https://bibliontec.onrender.com"; // backend hospedado
 }
-
+document.addEventListener('DOMContentLoaded', async () => {
+  const loadingIsbn = document.getElementById('loadingIsbn');
+  const token = localStorage.getItem('token');
+  const usuarioId = localStorage.getItem('usuarioId'); // Id do funcionário logado
   if (!token) {
     alert('Você precisa estar logado para cadastrar livros.');
     return;

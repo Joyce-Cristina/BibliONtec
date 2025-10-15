@@ -1,4 +1,3 @@
-let todosOsLivros = [];
 
 function apiBase() {
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
@@ -7,6 +6,7 @@ function apiBase() {
   return "https://bibliontec.onrender.com"; // backend hospedado
 }
 
+let todosOsLivros = [];
 document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('cardsContainer')) carregarLivros();
   if (document.getElementById('listaGeneros')) carregarGeneros();
