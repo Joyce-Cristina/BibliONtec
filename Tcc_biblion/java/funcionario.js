@@ -2,8 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarFuncionarios();
   carregarFuncoes(); // já carrega funções no select
 });
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
 
-const API_URL_FUNCIONARIOS = "http://localhost:3000/api/funcionarios";
+const API_URL_FUNCIONARIOS = `${apiBase()}/api/funcionarios`;
+
 let todosOsFuncionarios = [];
 let todasAsFuncoes = [];
 
@@ -36,7 +43,8 @@ async function carregarFuncionarios() {
 async function carregarFuncoes() {
   try {
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:3000/funcoes", {
+   const res = await fetch(`${apiBase()}/funcoes`, {
+
       headers: { "Authorization": "Bearer " + token }
     });
 
@@ -70,8 +78,8 @@ function exibirFuncionariosCards(funcionarios) {
 
   funcionarios.forEach(f => {
     const foto = f.foto
-      ? `http://localhost:3000/uploads/${f.foto}`
-      : `http://localhost:3000/uploads/padrao.jpg`;
+      ? `${apiBase()}/uploads/${f.foto}`
+: `${apiBase()}/uploads/padrao.jpg`;
 
     const card = document.createElement("div");
     card.className = "card"; // usa a mesma classe de usuário para uniformidade
@@ -153,8 +161,9 @@ async function abrirModalEdicao(id) {
   // Prepara preview da foto
   const preview = document.getElementById("previewBox");
   const fotoAtual = funcionario.foto
-    ? `http://localhost:3000/uploads/${funcionario.foto}`
-    : `http://localhost:3000/uploads/padrao.jpg`;
+  ? `${apiBase()}/uploads/${funcionario.foto}`
+  : `${apiBase()}/uploads/padrao.jpg`;
+
   preview.style.backgroundImage = `url('${fotoAtual}')`;
 
   // Abre modal

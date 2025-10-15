@@ -1,3 +1,10 @@
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     // --- Carregar usuário logado ---
@@ -5,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const usuarioId = usuarioData ? usuarioData.id : null;
     const usuarioNome = usuarioData ? usuarioData.nome : "Você";
     const usuarioFoto = usuarioData && usuarioData.foto 
-      ? `http://localhost:3000/uploads/${usuarioData.foto}` 
+      ? `${apiBase()}/uploads/${usuarioData.foto}` 
       : "../img/avatar.jpg";
     const isProfessor = usuarioData && usuarioData.tipo_usuario_id == 2;
 
@@ -13,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const livroId = localStorage.getItem("livroSelecionado");
     if (!livroId) throw new Error("Nenhum livro selecionado.");
 
-    const respLivro = await fetch(`http://localhost:3000/livros/${livroId}`);
+    const respLivro = await fetch(`${apiBase()}/livros/${livroId}`);
     if (!respLivro.ok) throw new Error("Erro ao buscar livro.");
 
     const livro = await respLivro.json();
@@ -21,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Atualizar HTML do livro
     document.querySelector(".livro-detalhe img").src = livro.capa
-      ? `http://localhost:3000/uploads/${livro.capa}`
+      ? `${apiBase()}/uploads/${livro.capa}`
       : "https://via.placeholder.com/320x450";
     document.querySelector(".livro-info h4:nth-of-type(1) + p").textContent = livro.titulo || "Título não disponível";
     document.querySelector(".livro-info h4:nth-of-type(2) + p").textContent = livro.autores || "Autor não informado";
@@ -62,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnIndicar = document.getElementById("btnIndicar");
     if (btnIndicar && isProfessor && usuarioId) {
       try {
-        const respVerificacao = await fetch(`http://localhost:3000/verificar-indicacao/${usuarioId}/${livroId}`);
+        const respVerificacao = await fetch(`${apiBase()}/verificar-indicacao/${usuarioId}/${livroId}`);
         
         if (respVerificacao.ok) {
           const data = await respVerificacao.json();
@@ -74,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             btnDesindicar.addEventListener("click", async () => {
               if (!confirm("Deseja realmente remover a indicação deste livro?")) return;
               try {
-                const resp = await fetch(`http://localhost:3000/indicacoes/${usuarioId}/${livroId}`, {
+                const resp = await fetch(`${apiBase()}/indicacoes/${usuarioId}/${livroId}`, {
                   method: "DELETE"
                 });
                 if (resp.ok) {
@@ -113,7 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const div = document.createElement("div");
         div.classList.add("comentario");
         div.innerHTML = `
-          <img src="${c.foto ? `http://localhost:3000/uploads/${c.foto}` : '../img/avatar.jpg'}" 
+          <img src="${c.foto ? `${apiBase()}/uploads/${c.foto}` : '../img/avatar.jpg'}" 
                class="comentario-avatar">
           <div class="comentario-conteudo">
             <strong>${c.nome}</strong>
@@ -126,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
 
     const carregarComentarios = async () => {
-      const respComentarios = await fetch(`http://localhost:3000/livros/${livroId}/comentarios`);
+      const respComentarios = await fetch(`${apiBase()}/livros/${livroId}/comentarios`);
       if (!respComentarios.ok) throw new Error("Erro ao buscar comentários");
       const comentarios = await respComentarios.json();
       renderComentarios(comentarios);
@@ -140,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const texto = novoComentarioInput.value.trim();
         if (!texto) return alert("Digite um comentário.");
 
-        const resp = await fetch(`http://localhost:3000/livros/${livroId}/comentarios`, {
+        const resp = await fetch(`${apiBase()}/livros/${livroId}/comentarios`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ usuarioId, comentario: texto })
@@ -161,7 +168,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!usuarioId) return alert("Você precisa estar logado para indicar um livro.");
 
         try {
-          const respTurmas = await fetch('http://localhost:3000/turmas');
+          const respTurmas = await fetch(`${apiBase()}/turmas`);
           if (!respTurmas.ok) throw new Error("Erro ao buscar turmas");
 
           const data = await respTurmas.json();
@@ -215,7 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         for (const item of selecionadas) {
           const [cursoId, serie] = item.split('-');
 
-          await fetch("http://localhost:3000/indicacoes", {
+          await fetch(`${apiBase()}/indicacoes`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -249,7 +256,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // --- BOTÃO LISTA DE DESEJOS ---
 async function verificarListaDesejos(usuarioId, livroId, token) {
   try {
-    const resp = await fetch(`http://localhost:3000/lista-desejos/verificar/${usuarioId}/${livroId}`, {
+    const resp = await fetch(`${apiBase()}/lista-desejos/verificar/${usuarioId}/${livroId}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (resp.ok) {
@@ -269,7 +276,7 @@ async function toggleListaDesejos(usuarioId, livroId, btnLista, token) {
 
     if (naLista) {
       // Remover da lista
-      const resp = await fetch(`http://localhost:3000/lista-desejos/${usuarioId}/${livroId}`, {
+      const resp = await fetch(`${apiBase()}/lista-desejos/${usuarioId}/${livroId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -285,7 +292,7 @@ async function toggleListaDesejos(usuarioId, livroId, btnLista, token) {
       }
     } else {
       // Adicionar à lista
-      const resp = await fetch('http://localhost:3000/lista-desejos', {
+      const resp = await fetch(`${apiBase()}/lista-desejos/`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -327,7 +334,7 @@ if (btnReservar) {
 
     try {
       // --- Enviar reserva ---
-      const reservaResp = await fetch('http://localhost:3000/reservas', {
+      const reservaResp = await fetch(`${apiBase()}/reservas`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -345,7 +352,7 @@ if (btnReservar) {
       alert("Livro reservado com sucesso!");
 
       // --- Registrar histórico ---
-      await fetch('http://localhost:3000/historico', {
+      await fetch(`${apiBase()}/historico`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

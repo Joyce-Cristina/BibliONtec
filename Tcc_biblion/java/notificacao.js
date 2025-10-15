@@ -1,3 +1,10 @@
+function apiBase() {
+  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+    return "http://localhost:3000";
+  }
+  return "https://bibliontec.onrender.com"; // backend hospedado
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const salvarBtn = document.querySelector(".btn-save");
   const funcionarioLogado = JSON.parse(localStorage.getItem("funcionario"));
@@ -7,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function carregarNotificacoes() {
     try {
-      const res = await fetch(`http://localhost:3000/configuracoes-notificacao/${instituicaoId}`);
+      const res = await fetch(`${apiBase()}/configuracoes-notificacao/${instituicaoId}`);
       const config = await res.json();
 
       const email = document.getElementById("emailNotifications");
@@ -61,8 +68,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const resposta = await fetch(
         id
-          ? `http://localhost:3000/configuracoes-notificacao/${id}`
-          : "http://localhost:3000/configuracoes-notificacao",
+          ? `${apiBase()}/configuracoes-notificacao/${id}`
+          : `${apiBase()}/configuracoes-notificacao`,
         {
           method: id ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
