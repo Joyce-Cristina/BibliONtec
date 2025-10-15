@@ -26,6 +26,7 @@ const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
 const mysqlRaw = require("mysql2/promise");
 
+
 const pool = mysqlRaw.createPool({
   host: process.env.DB_HOST || "127.0.0.1",
   user: process.env.DB_USER || "root",
@@ -33,11 +34,20 @@ const pool = mysqlRaw.createPool({
   database: process.env.DB_NAME || "bibliontec",
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-  charset: "utf8mb4"
+  queueLimit: 0
 });
 
-module.exports = pool;
+// Essa função usa o pool e automaticamente recria conexões se uma cair
+(async () => {
+  try {
+    const conn = await pool.getConnection();
+    console.log("✅ Conexão inicial ao MySQL testada com sucesso!");
+    conn.release();
+  } catch (err) {
+    console.error("❌ Erro inicial ao conectar ao MySQL:", err.message);
+  }
+})();
+
 
 const app = express();
 // ============ CORS CONFIGURADO ============
