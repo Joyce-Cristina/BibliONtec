@@ -24,7 +24,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-document.getElementById("avatarPerfil").src = `${apiBase()}/uploads/padrao.jpg`;
+document.addEventListener("DOMContentLoaded", () => {
+  const avatar = document.getElementById("avatarPerfil");
+  if (!avatar) return;
+
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const funcionario = JSON.parse(localStorage.getItem("funcionario"));
+  
+  let foto = "padrao.jpg"; // valor padrão
+  
+  if (usuario?.foto) {
+    foto = usuario.foto;
+  } else if (funcionario?.foto) {
+    foto = funcionario.foto;
+  }
+
+  avatar.src = `${apiBase()}/uploads/${foto}`;
+});
 
 
   // ----------- LÓGICA DE CADASTRO DE ALUNO ------------
