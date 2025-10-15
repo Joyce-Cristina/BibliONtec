@@ -827,7 +827,10 @@ app.post('/login', (req, res) => {
   `;
 
   connection.query(sqlUsuario, [email], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Erro no servidor' });
+  if (err) {
+    console.error("❌ ERRO NO LOGIN (usuário):", err.sqlMessage || err.message);
+    return res.status(500).json({ error: err.sqlMessage || 'Erro no servidor' });
+  }
 
     if (results.length > 0) {
       const usuario = results[0];
@@ -871,8 +874,11 @@ app.post('/login', (req, res) => {
       WHERE f.email = ?
     `;
 
+    if (err) {
+  console.error("❌ ERRO NO LOGIN (funcionário):", err.sqlMessage || err.message);
+  return res.status(500).json({ error: err.sqlMessage || 'Erro no servidor' });
+}
     connection.query(sqlFuncionario, [email], (err, results) => {
-      if (err) return res.status(500).json({ error: "Erro no servidor" });
 
       if (results.length === 0 || results[0].senha !== senha) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
