@@ -35,7 +35,16 @@ const pool = mysqlRaw.createPool({
   connectionLimit: 10,
   queueLimit: 0
 });
-
+// --- Wrapper que substitui connection.query por pool.query ---
+function queryCallback(sql, params, cb) {
+  if (typeof params === 'function') {
+    cb = params;
+    params = [];
+  }
+  pool.query(sql, params)
+    .then(([rows]) => cb(null, rows))
+    .catch(err => cb(err));
+}
 // Testa conexão inicial
 (async () => {
   try {
@@ -93,35 +102,6 @@ const upload = multer({
   }
 });
 
-// ================= MYSQL=================
-
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD ?? '', // usa 'root' se não existir
-  database: process.env.DB_NAME || 'bibliontec'
-});
-
-
-connection.connect(err => {
-  if (err) {
-    console.error('Erro na conexão com o MySQL:', err);
-    return;
-  }
-  console.log('Conectado ao MySQL');
-});
-async function buscarLivroPorId(id) {
-  try {
-    const [rows] = await pool.query(
-      'SELECT id, titulo, autores, isbn, editora, cdd FROM livro WHERE id = ?', 
-      [id]
-    );
-    return rows[0] || null;
-  } catch (err) {
-    console.error('Erro ao buscar livro:', err);
-    return null;
-  }
-}
 
 async function filtrarComentario(texto) {
   try {
