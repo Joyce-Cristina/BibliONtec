@@ -663,7 +663,9 @@ if (avatar && dropdown) {
 // Troca a imagem do avatar com base no localStorage
 const usuario = JSON.parse(localStorage.getItem('usuario'));
 if (usuario && usuario.foto) {
-  const novaSrc = `http://localhost:3000/uploads/${usuario.foto}`;
+ const novaSrc = `${apiBase()}/uploads/${usuario.foto}`;
+
+
 
   if (avatar) avatar.src = novaSrc;
   if (avatarGrande) avatarGrande.src = novaSrc;
@@ -671,7 +673,7 @@ if (usuario && usuario.foto) {
 // Troca a imagem do avatar com base no localStorage para funcionário
 const funcionario = JSON.parse(localStorage.getItem('funcionario'));
 if (funcionario && funcionario.foto) { // ← CORRETO
-  const novaSrc = `http://localhost:3000/uploads/${funcionario.foto}`;
+  const novaSrc = `${apiBase()}/uploads/${funcionario.foto}`;
 
   if (avatar) avatar.src = novaSrc;
 
@@ -687,7 +689,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!file) {
       // volta para imagem padrão
-      previewBox.style.backgroundImage = "url('http://localhost:3000/uploads/padrao.jpg')";
+     previewBox.style.backgroundImage = `url('${apiBase()}/uploads/padrao.jpg')`;
+
       previewBox.style.backgroundSize = "cover";
       previewBox.style.backgroundPosition = "center";
       return;
