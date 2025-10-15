@@ -1,3 +1,14 @@
+
+// ================= CONFIGURAÇÃO AUTOMÁTICA DA API =================
+  function apiBase() {
+    // Detecta se está rodando localmente
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      return 'http://localhost:3000';
+    }
+    // URL do seu backend no Render
+    return 'https://bibliontec.onrender.com';
+  }
+
 // Função auxiliar para criar usar caixa de erro
 function getOrCreateErrorBox(id, form) {
   let box = document.getElementById(id);
@@ -13,16 +24,7 @@ function getOrCreateErrorBox(id, form) {
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Script JS carregado!");
-  // ================= CONFIGURAÇÃO AUTOMÁTICA DA API =================
-  function apiBase() {
-    // Detecta se está rodando localmente
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      return 'http://localhost:3000';
-    }
-    // URL do seu backend no Render
-    return 'https://bibliontec.onrender.com';
-  }
-
+  
 
 document.addEventListener("DOMContentLoaded", () => {
   const avatar = document.getElementById("avatarPerfil");
