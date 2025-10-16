@@ -11,8 +11,15 @@ const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
 
 
+// Detecta ambiente automaticamente
+const envFile =
+  process.env.NODE_ENV === 'production'
+    ? path.resolve(__dirname, '../../.env.production')
+    : path.resolve(__dirname, '../../.env.local');
 
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+console.log("🌍 Carregando variáveis de:", envFile);
+require('dotenv').config({ path: envFile });
+
 const SECRET = process.env.JWT_SECRET;
 
 const mmToPt = mm => mm * 2.8346456693;
@@ -63,7 +70,10 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'https://bibliontec.com.br' // domínio hospedado
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'https://bibliontec.com.br',
+  'https://bibliontec.onrender.com'
 ];
 
 app.use(cors({
@@ -71,11 +81,13 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log("🚫 Origem bloqueada pelo CORS:", origin);
       callback(new Error('Origem não permitida pelo CORS'));
     }
   },
   credentials: true
 }));
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
