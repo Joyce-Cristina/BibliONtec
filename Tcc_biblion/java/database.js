@@ -1080,160 +1080,7 @@ app.delete('/api/funcionarios/:id', (req, res) => {
   });
 });
 
-app.post('/lista-desejos', autenticarToken, (req, res) => {
-  const { usuarioId, livroId } = req.body;
 
-  if (!usuarioId || !livroId) {
-    return res.status(400).json({ error: 'Usuário e livro são obrigatórios' });
-  }
-
-  // Verificar se já existe na lista de desejos
-  const sqlCheck = `
-    SELECT ld.id 
-    FROM lista_desejo ld
-    JOIN lista_livro ll ON ld.id = ll.FK_lista_desejo_id
-    WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
-  `;
-
-  queryCallback(sqlCheck, [usuarioId, livroId], (err, results) => {
-    if (err) {
-      console.error('Erro ao verificar lista de desejos:', err);
-      return res.status(500).json({ error: 'Erro interno no servidor' });
-    }
-
-    if (results.length > 0) {
-      return res.status(409).json({ error: 'Livro já está na lista de desejos' });
-    }
-
-    // Verificar se o usuário já tem uma lista de desejos
-    const sqlFindLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ? LIMIT 1';
-    
-    queryCallback(sqlFindLista, [usuarioId], (err, listaResults) => {
-      if (err) {
-        console.error('Erro ao buscar lista de desejos:', err);
-        return res.status(500).json({ error: 'Erro interno no servidor' });
-      }
-
-      let listaId;
-
-      if (listaResults.length > 0) {
-        // Usar lista existente
-        listaId = listaResults[0].id;
-        adicionarLivroLista(listaId, livroId, res);
-      } else {
-        // Criar nova lista de desejos
-        const sqlCreateLista = `
-          INSERT INTO lista_desejo (lista_desejo, FK_usuario_id, FK_instituicao_id) 
-          VALUES (?, ?, ?)
-        `;
-        
-        queryCallback(sqlCreateLista, ['Minha Lista', usuarioId, 1], (err, result) => {
-          if (err) {
-            console.error('Erro ao criar lista de desejos:', err);
-            return res.status(500).json({ error: 'Erro interno no servidor' });
-          }
-
-          listaId = result.insertId;
-          adicionarLivroLista(listaId, livroId, res);
-        });
-      }
-    });
-  });
-});
-
-function adicionarLivroLista(listaId, livroId, res) {
-  const sqlInsert = 'INSERT INTO lista_livro (FK_lista_desejo_id, FK_livro_id) VALUES (?, ?)';
-  
-  queryCallback(sqlInsert, [listaId, livroId], (err) => {
-    if (err) {
-      console.error('Erro ao adicionar livro à lista:', err);
-      return res.status(500).json({ error: 'Erro ao adicionar livro à lista de desejos' });
-    }
-
-    res.status(201).json({ message: 'Livro adicionado à lista de desejos com sucesso!' });
-  });
-}
-
-// Verificar se livro está na lista de desejos
-app.get('/lista-desejos/verificar/:usuarioId/:livroId', (req, res) => {
-  const { usuarioId, livroId } = req.params;
-
-  const sql = `
-    SELECT ll.FK_livro_id 
-    FROM lista_livro ll
-    JOIN lista_desejo ld ON ll.FK_lista_desejo_id = ld.id
-    WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
-  `;
-
-  queryCallback(sql, [usuarioId, livroId], (err, results) => {
-    if (err) {
-      console.error('Erro ao verificar lista de desejos:', err);
-      return res.status(500).json({ error: 'Erro interno no servidor' });
-    }
-
-    res.json({ naLista: results.length > 0 });
-  });
-});
-
-app.get('/lista-desejos/:usuarioId', autenticarToken, (req, res) => {
-  const { usuarioId } = req.params;
-
-  const sql = `
-    SELECT l.id, l.titulo, l.capa, l.disponivel
-    FROM lista_livro ll
-    JOIN lista_desejo ld ON ll.FK_lista_desejo_id = ld.id
-    JOIN livro l ON ll.FK_livro_id = l.id
-    WHERE ld.FK_usuario_id = ?
-  `;
-
-  queryCallback(sql, [usuarioId], (err, rows) => {
-    if (err) {
-      console.error('Erro ao buscar lista de desejos:', err.sqlMessage);
-      return res.status(500).json({ error: 'Erro interno no servidor', details: err.sqlMessage });
-    }
-
-    if (!rows || rows.length === 0) {
-      return res.json([]); // retorna array vazio se não houver livros
-    }
-
-    res.json(rows);
-  });
-});
-
-app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
-  const { usuarioId, livroId } = req.params;
-
-  const sqlLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ?';
-  queryCallback(sqlLista, [usuarioId], (err, listas) => {
-    if (err) return res.status(500).json({ error: err.sqlMessage });
-    if (listas.length === 0)
-      return res.status(404).json({ error: 'Lista de desejos não encontrada' });
-
-    const listaId = listas[0].id;
-
-    const sqlDeleteLivro = 'DELETE FROM lista_livro WHERE FK_lista_desejo_id = ? AND FK_livro_id = ?';
-    queryCallback(sqlDeleteLivro, [listaId, livroId], (err2, result) => {
-      if (err2) return res.status(500).json({ error: err2.sqlMessage });
-      if (result.affectedRows === 0)
-        return res.status(404).json({ error: 'Livro não encontrado na lista de desejos' });
-
-      const sqlVerifica = 'SELECT COUNT(*) AS total FROM lista_livro WHERE FK_lista_desejo_id = ?';
-      queryCallback(sqlVerifica, [listaId], (err3, rows) => {
-        if (err3) return res.status(500).json({ error: err3.sqlMessage });
-
-        if (rows[0].total === 0) {
-          const sqlDeleteLista = 'DELETE FROM lista_desejo WHERE id = ?';
-          queryCallback(sqlDeleteLista, [listaId], (err4) => {
-            if (err4) return res.status(500).json({ error: err4.sqlMessage });
-            return res.json({ message: 'Livro removido e lista de desejos deletada (ficou vazia)' });
-          });
-        } else {
-          return res.json({ message: 'Livro removido da lista de desejos com sucesso!' });
-        }
-      });
-    });
-  });
-});
 
 // Listar funções
 app.get("/funcoes", autenticarToken, (req, res) => {
@@ -1430,7 +1277,160 @@ app.get("/tipos-usuario", (req, res) => {
     res.json(results);
   });
 });
+app.post('/lista-desejos', autenticarToken, (req, res) => {
+  const { usuarioId, livroId } = req.body;
 
+  if (!usuarioId || !livroId) {
+    return res.status(400).json({ error: 'Usuário e livro são obrigatórios' });
+  }
+
+  // Verificar se já existe na lista de desejos
+  const sqlCheck = `
+    SELECT ld.id 
+    FROM lista_desejo ld
+    JOIN lista_livro ll ON ld.id = ll.FK_lista_desejo_id
+    WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
+  `;
+
+  queryCallback(sqlCheck, [usuarioId, livroId], (err, results) => {
+    if (err) {
+      console.error('Erro ao verificar lista de desejos:', err);
+      return res.status(500).json({ error: 'Erro interno no servidor' });
+    }
+
+    if (results.length > 0) {
+      return res.status(409).json({ error: 'Livro já está na lista de desejos' });
+    }
+
+    // Verificar se o usuário já tem uma lista de desejos
+    const sqlFindLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ? LIMIT 1';
+    
+    queryCallback(sqlFindLista, [usuarioId], (err, listaResults) => {
+      if (err) {
+        console.error('Erro ao buscar lista de desejos:', err);
+        return res.status(500).json({ error: 'Erro interno no servidor' });
+      }
+
+      let listaId;
+
+      if (listaResults.length > 0) {
+        // Usar lista existente
+        listaId = listaResults[0].id;
+        adicionarLivroLista(listaId, livroId, res);
+      } else {
+        // Criar nova lista de desejos
+        const sqlCreateLista = `
+          INSERT INTO lista_desejo (lista_desejo, FK_usuario_id, FK_instituicao_id) 
+          VALUES (?, ?, ?)
+        `;
+        
+        queryCallback(sqlCreateLista, ['Minha Lista', usuarioId, 1], (err, result) => {
+          if (err) {
+            console.error('Erro ao criar lista de desejos:', err);
+            return res.status(500).json({ error: 'Erro interno no servidor' });
+          }
+
+          listaId = result.insertId;
+          adicionarLivroLista(listaId, livroId, res);
+        });
+      }
+    });
+  });
+});
+
+function adicionarLivroLista(listaId, livroId, res) {
+  const sqlInsert = 'INSERT INTO lista_livro (FK_lista_desejo_id, FK_livro_id) VALUES (?, ?)';
+  
+  queryCallback(sqlInsert, [listaId, livroId], (err) => {
+    if (err) {
+      console.error('Erro ao adicionar livro à lista:', err);
+      return res.status(500).json({ error: 'Erro ao adicionar livro à lista de desejos' });
+    }
+
+    res.status(201).json({ message: 'Livro adicionado à lista de desejos com sucesso!' });
+  });
+}
+
+// Verificar se livro está na lista de desejos
+app.get('/lista-desejos/verificar/:usuarioId/:livroId', (req, res) => {
+  const { usuarioId, livroId } = req.params;
+
+  const sql = `
+    SELECT ll.FK_livro_id 
+    FROM lista_livro ll
+    JOIN lista_desejo ld ON ll.FK_lista_desejo_id = ld.id
+    WHERE ld.FK_usuario_id = ? AND ll.FK_livro_id = ?
+  `;
+
+  queryCallback(sql, [usuarioId, livroId], (err, results) => {
+    if (err) {
+      console.error('Erro ao verificar lista de desejos:', err);
+      return res.status(500).json({ error: 'Erro interno no servidor' });
+    }
+
+    res.json({ naLista: results.length > 0 });
+  });
+});
+
+app.get('/lista-desejos/:usuarioId', autenticarToken, (req, res) => {
+  const { usuarioId } = req.params;
+
+  const sql = `
+    SELECT l.id, l.titulo, l.capa, l.disponivel
+    FROM lista_livro ll
+    JOIN lista_desejo ld ON ll.FK_lista_desejo_id = ld.id
+    JOIN livro l ON ll.FK_livro_id = l.id
+    WHERE ld.FK_usuario_id = ?
+  `;
+
+  queryCallback(sql, [usuarioId], (err, rows) => {
+    if (err) {
+      console.error('Erro ao buscar lista de desejos:', err.sqlMessage);
+      return res.status(500).json({ error: 'Erro interno no servidor', details: err.sqlMessage });
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.json([]); // retorna array vazio se não houver livros
+    }
+
+    res.json(rows);
+  });
+});
+
+app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
+  const { usuarioId, livroId } = req.params;
+
+  const sqlLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ?';
+  queryCallback(sqlLista, [usuarioId], (err, listas) => {
+    if (err) return res.status(500).json({ error: err.sqlMessage });
+    if (listas.length === 0)
+      return res.status(404).json({ error: 'Lista de desejos não encontrada' });
+
+    const listaId = listas[0].id;
+
+    const sqlDeleteLivro = 'DELETE FROM lista_livro WHERE FK_lista_desejo_id = ? AND FK_livro_id = ?';
+    queryCallback(sqlDeleteLivro, [listaId, livroId], (err2, result) => {
+      if (err2) return res.status(500).json({ error: err2.sqlMessage });
+      if (result.affectedRows === 0)
+        return res.status(404).json({ error: 'Livro não encontrado na lista de desejos' });
+
+      const sqlVerifica = 'SELECT COUNT(*) AS total FROM lista_livro WHERE FK_lista_desejo_id = ?';
+      queryCallback(sqlVerifica, [listaId], (err3, rows) => {
+        if (err3) return res.status(500).json({ error: err3.sqlMessage });
+
+        if (rows[0].total === 0) {
+          const sqlDeleteLista = 'DELETE FROM lista_desejo WHERE id = ?';
+          queryCallback(sqlDeleteLista, [listaId], (err4) => {
+            if (err4) return res.status(500).json({ error: err4.sqlMessage });
+            return res.json({ message: 'Livro removido e lista de desejos deletada (ficou vazia)' });
+          });
+        } else {
+          return res.json({ message: 'Livro removido da lista de desejos com sucesso!' });
+        }
+      });
+    });
+  });
+});
 //=================  Cadastro de Livro =================
 
 

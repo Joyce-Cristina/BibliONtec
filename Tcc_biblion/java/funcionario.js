@@ -27,7 +27,7 @@ async function carregarFuncionarios() {
     }
 
     todosOsFuncionarios = await resposta.json();
-
+    atualizarContadores(todosOsFuncionarios);
     if (document.getElementById("lista-funcionarios")) {
       exibirFuncionariosCards(todosOsFuncionarios);
     }
@@ -37,6 +37,15 @@ async function carregarFuncionarios() {
   } catch (erro) {
     console.error("Erro ao carregar funcionários:", erro);
   }
+}
+function atualizarContadores(funcionarios) {
+  const total = funcionarios.length;
+  const ativos = funcionarios.filter(f => f.status === "Ativo").length;
+  const inativos = funcionarios.filter(f => f.status === "Inativo").length;
+
+  document.getElementById("total-bibliotecarios").textContent = total;
+  document.getElementById("ativos-bibliotecarios").textContent = ativos;
+  document.getElementById("inativos-bibliotecarios").textContent = inativos;
 }
 
 // ------------------ CARREGAR FUNÇÕES (cargos) ------------------
@@ -234,6 +243,68 @@ function excluirFuncionario(id) {
       .catch(err => console.error("Erro ao excluir funcionário:", err));
   }
 }
+// ------------------ MODAL NOVO ------------------
+async function abrirModalNovo() {
+  await carregarFuncoes(); // atualiza as funções no select
+  const select = document.getElementById("funcao-novo");
+  select.innerHTML = "";
+  todasAsFuncoes.forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.id;
+    opt.textContent = f.funcao;
+    select.appendChild(opt);
+  });
+
+  document.getElementById("form-novo").reset();
+  const modal = new bootstrap.Modal(document.getElementById("modal-novo"));
+  modal.show();
+}
+
+// ------------------ SALVAR NOVO ------------------
+const formNovo = document.getElementById("form-novo");
+if (formNovo) {
+  formNovo.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("nome", document.getElementById("nome-novo").value);
+    formData.append("email", document.getElementById("email-novo").value);
+    formData.append("telefone", document.getElementById("telefone-novo").value);
+    formData.append("FK_funcao_id", document.getElementById("funcao-novo").value);
+    formData.append("status", "Ativo");
+    formData.append("senha", gerarSenhaAutomatica());
+
+    const foto = document.getElementById("foto-novo").files[0];
+    if (foto) formData.append("foto", foto);
+
+    try {
+      const res = await fetch(API_URL_FUNCIONARIOS, {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + localStorage.getItem("token") },
+        body: formData
+      });
+
+      if (!res.ok) throw new Error("Erro ao cadastrar funcionário");
+
+      const modal = bootstrap.Modal.getInstance(document.getElementById("modal-novo"));
+      modal.hide();
+      carregarFuncionarios();
+      alert("Bibliotecário cadastrado com sucesso!");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao salvar funcionário.");
+    }
+  });
+}
+
+function gerarSenhaAutomatica() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let senha = "";
+  for (let i = 0; i < 8; i++) senha += chars.charAt(Math.floor(Math.random() * chars.length));
+  return senha;
+}
+
+window.abrirModalNovo = abrirModalNovo;
 
 
 // 🔥 Deixar funções acessíveis ao HTML inline
