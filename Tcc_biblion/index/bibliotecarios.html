@@ -1068,7 +1068,7 @@
                     <option>Inativo</option>
                 </select>
                 <!-- Botão Novo bibliotecário -->
-                <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                <button class="btn btn-new-user" type="button" data-bs-toggle="modal" data-bs-target="#newUserModal"onclick="abrirModalNovo()">
                     <i class="bi bi-plus-circle"></i> Novo bibliotecário
                 </button>
 
@@ -1082,7 +1082,7 @@
                 </div>
                 <div class="info">
                     <p>Total de bibliotecários</p>
-                    <span>5</span>
+                    <p id="total-bibliotecarios">0</p>
                 </div>
             </div>
             <div class="card active">
@@ -1091,7 +1091,7 @@
                 </div>
                 <div class="info">
                     <p>Ativos</p>
-                    <span>3</span>
+                    <p id="ativos-bibliotecarios">0</p>
                 </div>
             </div>
             <div class="card inactive">
@@ -1100,7 +1100,8 @@
                 </div>
                 <div class="info">
                     <p>Inativos</p>
-                    <span>2</span>
+                    <p id="inativos-bibliotecarios">0</p>
+
                 </div>
             </div>
         </div>
@@ -1166,7 +1167,51 @@
             </div>
         </div>
     </div>
-
+<!-- Modal de cadastro-->
+<div class="modal fade" id="modal-novo" tabindex="-1" aria-labelledby="modalNovoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="form-novo">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalNovoLabel">Cadastrar Novo Bibliotecário</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+  
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="nome-novo" class="form-label">Nome</label>
+              <input type="text" id="nome-novo" class="form-control" required>
+            </div>
+  
+            <div class="mb-3">
+              <label for="email-novo" class="form-label">Email</label>
+              <input type="email" id="email-novo" class="form-control" required>
+            </div>
+  
+            <div class="mb-3">
+              <label for="telefone-novo" class="form-label">Telefone</label>
+              <input type="text" id="telefone-novo" class="form-control">
+            </div>
+  
+            <div class="mb-3">
+              <label for="funcao-novo" class="form-label">Função</label>
+              <select id="funcao-novo" class="form-select"></select>
+            </div>
+  
+            <div class="mb-3">
+              <label for="foto-novo" class="form-label">Foto</label>
+              <input type="file" id="foto-novo" class="form-control">
+            </div>
+          </div>
+  
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
     <!--Arrumou as abas para que elas apareçam apenas quando clicar no botão-->
     <script>
         function openTab(evt, tabId) {
@@ -1251,7 +1296,8 @@
             <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
         </button>
     </div>
-
+    
+      
     <!-- Avatar com menu fixado no canto inferior esquerdo -->
     <div class="avatar-container">
     <img src="https://bibliontec.onrender.com/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário">
