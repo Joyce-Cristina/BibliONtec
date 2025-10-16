@@ -11,7 +11,7 @@ const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
 
 
-// Detecta ambiente automaticamente
+// Detecta ambiete automaticamente
 const envFile =
   process.env.NODE_ENV === 'production'
     ? path.resolve(__dirname, '../../.env.production')
