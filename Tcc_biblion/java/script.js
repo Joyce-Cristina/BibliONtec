@@ -483,7 +483,8 @@ async function carregarDados(id, tipo) {
     document.getElementById("fname").value = user.nome || "";
     document.getElementById("email").value = user.email || "";
     document.getElementById("phone").value = user.telefone || "";
-    document.getElementById("senha").value = user.senha ?? "";
+    document.getElementById("senha").value = "";
+
 
     // Preenche curso e série para alunos
     if (tipo === "usuario") {

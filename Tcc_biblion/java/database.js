@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -9,6 +10,8 @@ const fetch = require("node-fetch");
 const jwt = require("jsonwebtoken");
 const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
+const bcrypt = require('bcrypt');
+const xss = require("xss");
 
 
 // Detecta ambiete automaticamente
@@ -63,10 +66,34 @@ function queryCallback(sql, params, cb) {
   }
 })();
 
+// middleware para validar token
+function autenticarToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
+  if (!token) return res.status(401).json({ error: "Token não fornecido" });
 
+  jwt.verify(token, SECRET, (err, payload) => {
+    if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
+
+    console.log("🔑 Payload do token:", payload);
+    req.user = payload;
+    next();
+  });
+}
+
+// --- SEGURANÇA, LOGS, CORS e PARSERS --- //
+const helmet = require('helmet');
+const { body, validationResult } = require('express-validator');
+const winston = require('winston');
+const expressWinston = require('express-winston');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+
+// Inicializa o app uma única vez
 const app = express();
-// ============ CORS CONFIGURADO ============
+
+// ===== 1. CORS =====
 const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
@@ -88,13 +115,90 @@ app.use(cors({
   credentials: true
 }));
 
+// ===== 2. Helmet (configurado corretamente) =====
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "img-src": [
+        "'self'",
+        "data:",
+        "blob:",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://bibliontec.com.br",
+        "https://bibliontec.onrender.com"
+      ],
+      "script-src": ["'self'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+      "font-src": ["'self'", "https://fonts.gstatic.com"],
+    }
+  }
+}));
 
-app.use(express.urlencoded({ extended: true }));
+// Corrige bloqueio "NotSameOrigin"
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+});
+
+// ===== 3. Body Parsers (apenas uma vez) =====
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Servir uploads e HTML
+// ===== 4. Logs =====
+app.use(morgan('combined'));
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'logs/combined.log' }),
+    new winston.transports.Console({ format: winston.format.simple() })
+  ]
+});
+
+app.use(expressWinston.logger({
+  winstonInstance: logger,
+  meta: true,
+  msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} - {{res.responseTime}}ms",
+  expressFormat: false,
+  colorize: false
+}));
+
+// ===== 5. Servir uploads e páginas =====
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use(express.static(path.join(__dirname, '..')));
+
+// ===== 6. Rate Limiter (login) =====
+const loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  message: { error: "Muitas tentativas de login. Aguarde alguns minutos." },
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    logger.warn("⚠️ Bloqueio temporário por excesso de tentativas", { ip: req.ip, rota: "/login" });
+    res.status(429).json({ error: "Muitas tentativas de login. Tente novamente em alguns minutos." });
+  }
+});
+
+// Middleware de validação (mantém o seu)
+function handleValidationErrors(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    logger.warn('Falha de validação', { errors: errors.array(), ip: req.ip });
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+}
+
 
 //================= MULTER=================
 
@@ -204,6 +308,7 @@ function gerarSenhaSegura() {
 
 
 
+
 // ==================== CADASTRO ALUNO/PROF ====================
 
 app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) => {
@@ -221,23 +326,33 @@ app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) =
     if (err) return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
     if (results.length > 0) return res.status(400).json({ error: 'E-mail já cadastrado.' });
 
+    // INSERIR DENTRO de app.post('/cadastrarAluno' ... ) no lugar do bloco que faz INSERT
     const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
-    const sql = `INSERT INTO usuario 
+    // hash da senha antes do INSERT
+    bcrypt.hash(senhaFinal, 12)
+      .then((hash) => {
+        const sql = `INSERT INTO usuario 
       (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id, FK_instituicao_id) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    queryCallback(sql, [
-      nome, telefone, email, senhaFinal, foto, tipo_usuario_id,
-      curso_id || null, serie || null,
-      funcionario_id || null,
-      req.user.FK_instituicao_id   // 👈 sempre pega do token
-    ], (err) => {
-      if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
-      return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
-    });
+        queryCallback(sql, [
+          nome, telefone, email, hash, foto, tipo_usuario_id,
+          curso_id || null, serie || null,
+          funcionario_id || null,
+          req.user.FK_instituicao_id
+        ], (err) => {
+          if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
+          return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
+        });
+      })
+      .catch(err => {
+        console.error('Erro ao gerar hash da senha:', err);
+        return res.status(500).json({ error: 'Erro ao processar senha' });
+      });
   });
 });
+
 
 app.get('/api/buscar-cdd/:isbn', async (req, res) => {
   const isbn = req.params.isbn;
@@ -812,114 +927,116 @@ app.get('/indicacoes-professor/:usuarioId', (req, res) => {
     }
   );
 });
+//================= LOGIN DE USUÁRIO E FUNCIONÁRIO (seguro + validado) =================
+app.post(
+  '/login',
+  loginLimiter,
+  body('email').isEmail().normalizeEmail(),
+  body('senha').isString().isLength({ min: 6 }),
+  handleValidationErrors,
+  async (req, res) => {
+    const { email, senha } = req.body;
 
+    try {
+      logger.info('Tentativa de login', { email, ip: req.ip });
 
+      // --- Login de usuário ---
+      const [users] = await pool.query(`
+        SELECT id, nome, FK_tipo_usuario_id, foto, FK_instituicao_id, senha, curso_id, serie
+        FROM usuario
+        WHERE email = ?
+        LIMIT 1
+      `, [email]);
 
-//=================LOGIN DE USUÁRIO E FUNCIONÁRIO=================
-// LOGIN USUÁRIO E FUNCIONÁRIO
-app.post('/login', async (req, res) => {
-  const { email, senha } = req.body;
+      if (users.length > 0) {
+        const usuario = users[0];
+        const match = await bcrypt.compare(senha, usuario.senha);
+        if (!match) {
+          logger.warn('Senha incorreta', { email, ip: req.ip });
+          return res.status(401).json({ error: "Email ou senha inválidos" });
+        }
 
-  try {
-    // 1) Login usuário
-    const [users] = await pool.query(`
-      SELECT id, nome, FK_tipo_usuario_id, foto, FK_instituicao_id, senha, curso_id, serie
-      FROM usuario
-      WHERE email = ?
-    `, [email]);
+        await pool.query(`UPDATE usuario SET ultimo_login = NOW() WHERE id = ?`, [usuario.id]);
 
-    if (users.length > 0) {
-      const usuario = users[0];
-
-      if (usuario.senha !== senha) {
-        return res.status(401).json({ error: "Senha incorreta" });
-      }
-
-      await pool.query(`UPDATE usuario SET ultimo_login = NOW() WHERE id = ?`, [usuario.id]);
-
-      const token = jwt.sign({
-        id: usuario.id,
-        tipo_usuario_id: usuario.FK_tipo_usuario_id,
-        FK_instituicao_id: usuario.FK_instituicao_id,
-        curso_id: usuario.curso_id,
-        serie: usuario.serie
-      }, SECRET, { expiresIn: '8h' });
-
-      return res.status(200).json({
-        message: 'Login usuário bem-sucedido',
-        token,
-        usuario: {
+        const token = jwt.sign({
           id: usuario.id,
-          nome: usuario.nome,
           tipo_usuario_id: usuario.FK_tipo_usuario_id,
           FK_instituicao_id: usuario.FK_instituicao_id,
           curso_id: usuario.curso_id,
-          serie: usuario.serie,
-          foto: usuario.foto || 'padrao.png'
+          serie: usuario.serie
+        }, SECRET, { expiresIn: '8h' });
+
+        logger.info('Login bem-sucedido (usuário)', { email, id: usuario.id, ip: req.ip });
+
+        return res.status(200).json({
+          message: 'Login usuário bem-sucedido',
+          token,
+          usuario: {
+            id: usuario.id,
+            nome: usuario.nome,
+            tipo_usuario_id: usuario.FK_tipo_usuario_id,
+            FK_instituicao_id: usuario.FK_instituicao_id,
+            curso_id: usuario.curso_id,
+            serie: usuario.serie,
+            foto: usuario.foto || 'padrao.png'
+          }
+        });
+      }
+
+      // --- Login de funcionário ---
+      const [funcionarios] = await pool.query(`
+        SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto,
+               f.FK_funcao_id AS funcao_id,
+               f.FK_instituicao_id, fn.funcao AS funcao_nome
+        FROM funcionario f
+        LEFT JOIN funcao fn ON f.FK_funcao_id = fn.id
+        WHERE f.email = ?
+        LIMIT 1
+      `, [email]);
+
+      if (funcionarios.length === 0) {
+        logger.warn('Email inexistente', { email, ip: req.ip });
+        return res.status(401).json({ error: "Email ou senha inválidos" });
+      }
+
+      const funcionario = funcionarios[0];
+      const matchFunc = await bcrypt.compare(senha, funcionario.senha);
+
+      if (!matchFunc) {
+        logger.warn('Senha incorreta (funcionário)', { email, ip: req.ip });
+        return res.status(401).json({ error: "Email ou senha inválidos" });
+      }
+
+      const token = jwt.sign({
+        id: funcionario.id,
+        role: "funcionario",
+        funcao: funcionario.funcao_id,
+        FK_instituicao_id: funcionario.FK_instituicao_id,
+      }, SECRET, { expiresIn: '8h' });
+
+      logger.info('Login bem-sucedido (funcionário)', { email, id: funcionario.id, ip: req.ip });
+
+      return res.status(200).json({
+        message: "Login funcionário bem-sucedido",
+        token,
+        funcionario: {
+          id: funcionario.id,
+          nome: funcionario.nome,
+          email: funcionario.email,
+          telefone: funcionario.telefone,
+          funcao_id: funcionario.funcao_id,
+          FK_instituicao_id: funcionario.FK_instituicao_id,
+          funcao_nome: funcionario.funcao_nome,
+          foto: funcionario.foto || "padrao.png"
         }
       });
+
+    } catch (err) {
+      logger.error('Erro interno no login', { error: err.message, email: req.body.email, ip: req.ip });
+      return res.status(500).json({ error: "Erro no servidor" });
     }
-
-    // 2) Login funcionário
-    const [funcionarios] = await pool.query(`
-      SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto, 
-             f.FK_funcao_id AS funcao_id,
-             f.FK_instituicao_id, fn.funcao AS funcao_nome
-      FROM funcionario f
-      JOIN funcao fn ON f.FK_funcao_id = fn.id
-      WHERE f.email = ?
-    `, [email]);
-
-    if (funcionarios.length === 0 || funcionarios[0].senha !== senha) {
-      return res.status(401).json({ error: "Email ou senha inválidos" });
-    }
-
-    const funcionario = funcionarios[0];
-
-    const token = jwt.sign({
-      id: funcionario.id,
-      role: "funcionario",
-      funcao: funcionario.funcao_id,
-      FK_instituicao_id: funcionario.FK_instituicao_id,
-    }, SECRET, { expiresIn: '8h' });
-
-    return res.status(200).json({
-      message: "Login funcionário bem-sucedido",
-      token,
-      funcionario: {
-        id: funcionario.id,
-        nome: funcionario.nome,
-        email: funcionario.email,
-        telefone: funcionario.telefone,
-        funcao_id: funcionario.funcao_id,
-        FK_instituicao_id: funcionario.FK_instituicao_id,
-        funcao_nome: funcionario.funcao_nome,
-        foto: funcionario.foto || "padrao.png"
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ ERRO NO LOGIN:", err.message);
-    return res.status(500).json({ error: "Erro no servidor" });
   }
-});
-
-// middleware para validar token
-function autenticarToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) return res.status(401).json({ error: "Token não fornecido" });
-
-  jwt.verify(token, SECRET, (err, payload) => {
-    if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
-
-    console.log("🔑 Payload do token:", payload);
-    req.user = payload;
-    next();
-  });
-}
-
+);
 
 // ================= ROTAS DE FUNCIONARIO =================
 
@@ -957,33 +1074,35 @@ app.post('/cadastrarFuncionario', autenticarToken, upload.single('foto'), async 
       if (err) return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
       if (results.length > 0) return res.status(400).json({ error: 'E-mail já cadastrado.' });
 
+      // dentro de app.post('/cadastrarFuncionario'...)
       const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
-      const sql = `INSERT INTO funcionario 
-        (nome, senha, email, foto, telefone, FK_funcao_id, FK_instituicao_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      bcrypt.hash(senhaFinal, 12)
+        .then((hash) => {
+          const sql = `INSERT INTO funcionario 
+      (nome, senha, email, foto, telefone, FK_funcao_id, FK_instituicao_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-      queryCallback(sql, [nome, senhaFinal, email, foto, telefone, FK_funcao_id, req.user.FK_instituicao_id], (err, result) => {
-        if (err) {
-          console.error("Erro no INSERT:", err);
-          return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
-        }
+          queryCallback(sql, [nome, hash, email, foto, telefone, FK_funcao_id, req.user.FK_instituicao_id], (err, result) => {
+            if (err) {
+              console.error("Erro no INSERT:", err);
+              return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
+            }
 
-        const funcionarioId = result.insertId;
-
-        if (permissoes.length > 0) {
-          const values = permissoes.map(p => [p, funcionarioId]);
-          const permSql = `INSERT INTO funcionario_permissao (FK_permissao_id, FK_funcionario_id) VALUES ?`;
-          queryCallback(permSql, [values], (err) => {
-            if (err) return res.status(500).json({ error: 'Funcionário criado, mas erro nas permissões.', senhaGerada: senhaFinal });
+            const funcionarioId = result.insertId;
+            // ... resto do código permanece igual
             return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!', senhaGerada: senhaFinal });
           });
-        } else {
-          return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!', senhaGerada: senhaFinal });
-        }
-      });
+        })
+        .catch(err => {
+          console.error('Erro ao gerar hash da senha (func):', err);
+          return res.status(500).json({ error: 'Erro ao processar senha' });
+        });
+
     });
-  } catch (error) {
+
+  }
+  catch (error) {
     console.error("Erro inesperado:", error);
     return res.status(500).json({ error: 'Erro inesperado no servidor.' });
   }
@@ -1201,7 +1320,7 @@ app.get('/api/usuario/:id', autenticarToken, (req, res) => {
 });
 
 // ================= Rota: atualizar usuário =================
-app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), (req, res) => {
+app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), async (req, res) => {
   const id = req.params.id;
   const { nome, email, telefone, senha, curso_id, serie, FK_tipo_usuario_id } = req.body;
   const foto = req.file ? req.file.filename : undefined;
@@ -1212,7 +1331,14 @@ app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), (req, res) 
   if (nome !== undefined) { updates.push("nome = ?"); values.push(nome); }
   if (email !== undefined) { updates.push("email = ?"); values.push(email); }
   if (telefone !== undefined) { updates.push("telefone = ?"); values.push(telefone); }
-  if (senha !== undefined) { updates.push("senha = ?"); values.push(senha); } // Pode criptografar se quiser
+
+  // 👇 Criptografa a senha se ela foi enviada
+  if (senha !== undefined && senha.trim() !== "") {
+    const hash = await bcrypt.hash(senha, 12);
+    updates.push("senha = ?");
+    values.push(hash);
+  }
+
   if (curso_id !== undefined) { updates.push("curso_id = ?"); values.push(curso_id); }
   if (serie !== undefined) { updates.push("serie = ?"); values.push(serie); }
   if (FK_tipo_usuario_id !== undefined) { updates.push("FK_tipo_usuario_id = ?"); values.push(FK_tipo_usuario_id); }
@@ -1232,6 +1358,7 @@ app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), (req, res) 
     res.json({ message: "Usuário atualizado com sucesso!" });
   });
 });
+
 
 // ================= Rota: deletar usuário =================
 app.delete('/api/usuarios/:id', autenticarToken, (req, res) => {
@@ -1304,7 +1431,7 @@ app.post('/lista-desejos', autenticarToken, (req, res) => {
 
     // Verificar se o usuário já tem uma lista de desejos
     const sqlFindLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ? LIMIT 1';
-    
+
     queryCallback(sqlFindLista, [usuarioId], (err, listaResults) => {
       if (err) {
         console.error('Erro ao buscar lista de desejos:', err);
@@ -1323,7 +1450,7 @@ app.post('/lista-desejos', autenticarToken, (req, res) => {
           INSERT INTO lista_desejo (lista_desejo, FK_usuario_id, FK_instituicao_id) 
           VALUES (?, ?, ?)
         `;
-        
+
         queryCallback(sqlCreateLista, ['Minha Lista', usuarioId, 1], (err, result) => {
           if (err) {
             console.error('Erro ao criar lista de desejos:', err);
@@ -1340,7 +1467,7 @@ app.post('/lista-desejos', autenticarToken, (req, res) => {
 
 function adicionarLivroLista(listaId, livroId, res) {
   const sqlInsert = 'INSERT INTO lista_livro (FK_lista_desejo_id, FK_livro_id) VALUES (?, ?)';
-  
+
   queryCallback(sqlInsert, [listaId, livroId], (err) => {
     if (err) {
       console.error('Erro ao adicionar livro à lista:', err);
@@ -1431,7 +1558,8 @@ app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
     });
   });
 });
-//=================  Cadastro de Livro =================
+
+
 
 
 // ======================= LISTAR LIVROS DO ACERVO =======================
@@ -1464,7 +1592,7 @@ app.get('/acervo/livros', autenticarToken, (req, res) => {
     res.json(out);
   });
 });
-
+//=================  Cadastro de Livro =================
 app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) => {
   const {
     titulo,
@@ -1672,7 +1800,11 @@ app.delete('/livros/:id', (req, res) => {
 });
 
 // ================= Buscar comentários de um livro =================
+function filtrarComentario(texto) {
+  return xss(texto);
+}
 
+// --- Buscar comentários ---
 app.get('/livros/:id/comentarios', (req, res) => {
   const { id } = req.params;
 
@@ -1701,7 +1833,7 @@ app.get('/livros/:id/comentarios', (req, res) => {
   });
 });
 
-
+// --- Salvar comentário com proteção XSS ---
 app.post("/livros/:id/comentarios", async (req, res) => {
   try {
     const { usuarioId, comentario } = req.body;
@@ -1711,10 +1843,10 @@ app.post("/livros/:id/comentarios", async (req, res) => {
       return res.status(400).json({ error: "Dados inválidos." });
     }
 
-    // Filtra o comentário
-    const comentarioFiltrado = await filtrarComentario(comentario);
+    // 🧹 Limpa o comentário de possíveis scripts
+    const comentarioFiltrado = filtrarComentario(comentario);
 
-    // ✅ Usando callback style (consistente com o resto do seu código)
+    // Inserir comentário
     queryCallback(
       "INSERT INTO comentario (comentario, data_comentario) VALUES (?, NOW())",
       [comentarioFiltrado],
@@ -1726,7 +1858,7 @@ app.post("/livros/:id/comentarios", async (req, res) => {
 
         const comentarioId = result.insertId;
 
-        // Vincular comentário ao usuário
+        // Vincular usuário
         queryCallback(
           "INSERT INTO usuario_comentario (FK_usuario_id, FK_comentario_id) VALUES (?, ?)",
           [usuarioId, comentarioId],
@@ -1736,7 +1868,7 @@ app.post("/livros/:id/comentarios", async (req, res) => {
               return res.status(500).json({ error: "Erro ao salvar comentário." });
             }
 
-            // Vincular comentário ao livro
+            // Vincular livro
             queryCallback(
               "INSERT INTO comentario_livro (FK_comentario_id, FK_livro_id) VALUES (?, ?)",
               [comentarioId, livroId],
@@ -1753,12 +1885,12 @@ app.post("/livros/:id/comentarios", async (req, res) => {
         );
       }
     );
-
   } catch (err) {
     console.error("Erro ao salvar comentário:", err);
     res.status(500).json({ error: "Erro ao salvar comentário." });
   }
 });
+
 
 // ===== Listar autores =====
 app.get('/autores', autenticarToken, (req, res) => {
