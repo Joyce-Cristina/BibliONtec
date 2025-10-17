@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 06/10/2025 às 19:15
+-- Tempo de geração: 16/10/2025 às 22:35
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -400,7 +400,7 @@ INSERT INTO `funcao` (`id`, `funcao`) VALUES
 CREATE TABLE `funcionario` (
   `id` int(11) NOT NULL,
   `nome` varchar(200) DEFAULT NULL,
-  `senha` varchar(10) DEFAULT NULL,
+  `senha` varchar(255) DEFAULT NULL,
   `email` varchar(50) DEFAULT NULL,
   `foto` varchar(255) DEFAULT NULL,
   `FK_funcao_id` int(11) DEFAULT NULL,
@@ -413,11 +413,11 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
-(4, 'João Silva dos santos', '123Abc@1', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1),
-(5, 'joao carlos ', '123Abc@1', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1),
-(8, 'Admin Principal', 'Admin123', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1),
-(9, 'cletin do pneu ', 'e32zy2mK', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1),
-(10, 'shaulin porco', 'YvP4t1Ev', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1);
+(4, 'João Silva dos santos', '$2b$12$tVUS/6uLjMGP04EMTblqhuezcdfL6uYKW.gvfMvng/j9ink.iMrj2', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1),
+(5, 'joao carlos ', '$2b$12$LObz6anCBt/bIDCQ4qzJz.VlXO5kyd49SJm4J5iF1HT2IEzF9qqbS', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1),
+(8, 'Admin Principal', '$2b$12$rVucKo1Mud6SLlgNiU3MouyDmrDqvuBn3TDOYOCaRr0/zap1GF79O', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1),
+(9, 'cletin do pneu ', '$2b$12$EYZ9dyuribSMa1a9oeq91OJxvAvG4/ojIILfhfgNQpd9iYn6IqVnS', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1),
+(10, 'shaulin porco', '$2b$12$UbUgnWQup4cgnmPh6TOV2ucm5zQ5nVpqK3OnfC887DYxeJeakD3iu', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1);
 
 -- --------------------------------------------------------
 
@@ -1000,7 +1000,7 @@ CREATE TABLE `usuario` (
   `email` varchar(50) DEFAULT NULL,
   `foto` varchar(255) DEFAULT NULL,
   `nome` varchar(200) DEFAULT NULL,
-  `senha` varchar(10) DEFAULT NULL,
+  `senha` varchar(255) DEFAULT NULL,
   `FK_tipo_usuario_id` int(11) DEFAULT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL,
   `curso_id` int(11) DEFAULT NULL,
@@ -1017,12 +1017,12 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`, `ativo`, `ultimo_login`) VALUES
-(30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', 'Abc1235', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:53'),
-(31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', 'Abc12345', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 21:26:13'),
-(32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', 'SenhaSegur', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-10-03 07:27:56'),
-(33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', 'Teste@2025', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:26'),
-(34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', 'Xyz78910', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-10-06 13:24:10'),
-(35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', 'Qwe123Rt', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-18 19:19:29');
+(30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', '$2b$12$r40IXzR66oRxHtuQYIb0JejCaebFefLlNuSptT74Rh1NWbisDj4nu', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:53'),
+(31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', '$2b$12$bRgIwXwzzMe1WBD9OfFufe0ggsYOP8UDiSx2olWyhOtIvKmns2hAW', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 21:26:13'),
+(32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', '$2b$12$BdQh8aZ2vosGRq/dmPNhH.N844Cw5M5Y0.ePnx7rDWVVYkPDRp8I.', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-10-03 07:27:56'),
+(33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', '$2b$12$VqS4zf2suKx9B90qUaMDGucYAFJmg6gP4rMlPILsi8q2QbKFJRIue', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:26'),
+(34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', '$2b$12$7CCAt7u7Jh9/517iB2sXu.rEZEVaL5ADGSlDcd7k.PWFedAHIVMmS', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-10-06 13:24:10'),
+(35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', '$2b$12$b4uCP5bgVNJi69NEW97n9uGz5BEPnktvMfvc2r3aTcmu6N1Fwm6RO', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-18 19:19:29');
 
 -- --------------------------------------------------------
 

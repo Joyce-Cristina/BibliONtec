@@ -4,6 +4,14 @@ function apiBase() {
   }
   return "https://bibliontec.onrender.com"; // backend hospedado
 }
+// --- Proteção contra XSS ---
+// Converte caracteres perigosos em texto seguro antes de exibir no HTML
+function sanitizeHTML(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -11,8 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const usuarioData = JSON.parse(localStorage.getItem("usuario"));
     const usuarioId = usuarioData ? usuarioData.id : null;
     const usuarioNome = usuarioData ? usuarioData.nome : "Você";
-    const usuarioFoto = usuarioData && usuarioData.foto 
-      ? `${apiBase()}/uploads/${usuarioData.foto}` 
+    const usuarioFoto = usuarioData && usuarioData.foto
+      ? `${apiBase()}/uploads/${usuarioData.foto}`
       : "../img/avatar.jpg";
     const isProfessor = usuarioData && usuarioData.tipo_usuario_id == 2;
 
@@ -47,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnLista = document.querySelector('.btn-lista');
     if (btnLista && usuarioId) {
       const naLista = await verificarListaDesejos(usuarioId, livroId);
-      
+
       if (naLista) {
         btnLista.innerHTML = '<i class="bi bi-heart-fill"></i> Remover da lista de desejos';
         btnLista.classList.remove('btn-lista');
@@ -55,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         btnLista.innerHTML = '<i class="bi bi-heart"></i> Adicionar na lista de desejos';
       }
-      
+
       btnLista.addEventListener('click', () => {
         toggleListaDesejos(usuarioId, livroId, btnLista);
       });
@@ -70,14 +78,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (btnIndicar && isProfessor && usuarioId) {
       try {
         const respVerificacao = await fetch(`${apiBase()}/verificar-indicacao/${usuarioId}/${livroId}`);
-        
+
         if (respVerificacao.ok) {
           const data = await respVerificacao.json();
           if (data.indicado) {
             btnIndicar.style.display = "none";
             const btnDesindicar = document.getElementById("btnDesindicar");
             btnDesindicar.style.display = "inline-block";
-          
+
             btnDesindicar.addEventListener("click", async () => {
               if (!confirm("Deseja realmente remover a indicação deste livro?")) return;
               try {
@@ -120,14 +128,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         const div = document.createElement("div");
         div.classList.add("comentario");
         div.innerHTML = `
-          <img src="${c.foto ? `${apiBase()}/uploads/${c.foto}` : '../img/avatar.jpg'}" 
-               class="comentario-avatar">
-          <div class="comentario-conteudo">
-            <strong>${c.nome}</strong>
-            <p>${c.comentario}</p>
-            <small>${new Date(c.data_comentario).toLocaleDateString('pt-BR')}</small>
-          </div>
-        `;
+  <img src="${c.foto ? `${apiBase()}/uploads/${sanitizeHTML(c.foto)}` : '../img/avatar.jpg'}" 
+       class="comentario-avatar">
+  <div class="comentario-conteudo">
+    <strong>${sanitizeHTML(c.nome)}</strong>
+    <p>${sanitizeHTML(c.comentario)}</p>
+    <small>${new Date(c.data_comentario).toLocaleDateString('pt-BR')}</small>
+  </div>
+`;
+
         comentariosContainer.appendChild(div);
       });
     };
@@ -146,6 +155,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!usuarioId) return alert("Você precisa estar logado para comentar.");
         const texto = novoComentarioInput.value.trim();
         if (!texto) return alert("Digite um comentário.");
+        // Validação simples contra tags perigosas
+        const regexXSS = /<[^>]*>|on\w+=|javascript:/gi;
+        if (regexXSS.test(texto)) {
+          alert("Comentário inválido: não use tags HTML ou código.");
+          return;
+        }
 
         const resp = await fetch(`${apiBase()}/livros/${livroId}/comentarios`, {
           method: "POST",
@@ -294,7 +309,7 @@ async function toggleListaDesejos(usuarioId, livroId, btnLista, token) {
       // Adicionar à lista
       const resp = await fetch(`${apiBase()}/lista-desejos/`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
@@ -336,7 +351,7 @@ if (btnReservar) {
       // --- Enviar reserva ---
       const reservaResp = await fetch(`${apiBase()}/reservas`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
@@ -354,7 +369,7 @@ if (btnReservar) {
       // --- Registrar histórico ---
       await fetch(`${apiBase()}/historico`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
