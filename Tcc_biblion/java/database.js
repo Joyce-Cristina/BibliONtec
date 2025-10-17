@@ -428,30 +428,6 @@ app.get('/etiquetas/:id', async (req, res) => {
   }
 });
 
-app.post('/cadastrarEvento', autenticarToken, upload.single('foto'), (req, res) => {
-  const { nome, patrocinio, local, descri, hora, data_evento } = req.body;
-  const foto = req.file ? req.file.filename : null;
-
-  const sql = `
-    INSERT INTO evento (titulo, descricao, data_evento, hora_evento, foto, FK_instituicao_id, FK_funcionario_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-
-  const values = [
-    nome, descri, data_evento, hora, foto,
-    req.user.FK_instituicao_id,
-    req.user.id
-  ];
-
-  queryCallback(sql, values, (err) => {
-    if (err) {
-      console.error("Erro ao cadastrar evento:", err);
-      return res.status(500).json({ error: "Erro ao cadastrar evento" });
-    }
-    res.status(200).json({ message: "Evento cadastrado com sucesso!" });
-  });
-});
-
 // ==================== ETIQUETAS MÚLTIPLAS ====================
 
 app.post('/etiquetas/multiple', async (req, res) => {
@@ -664,6 +640,61 @@ app.delete('/indicacoes/:usuarioId/:livroId', (req, res) => {
       res.json({ success: true });
     });
   });
+});
+
+app.post("/eventos", autenticarToken, upload.single("foto"), async (req, res) => {
+  try {
+    const { nome, descri, hora, data } = req.body;
+
+    const titulo = nome; 
+    const descricao = descri; 
+    const data_evento = data;
+    const hora_evento = hora;
+    const foto = req.file ? req.file.filename : null;
+    const FK_instituicao_id = req.user?.FK_instituicao_id || 1; 
+    const FK_funcionario_id = req.user?.id || null; 
+
+    await pool.query(
+      `INSERT INTO evento 
+        (titulo, descricao, data_evento, hora_evento, foto, FK_instituicao_id, FK_funcionario_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [titulo, descricao, data_evento, hora_evento, foto, FK_instituicao_id, FK_funcionario_id]
+    );
+
+    res.status(201).json({ message: "Evento cadastrado com sucesso!" });
+  } catch (err) {
+    console.error("Erro ao cadastrar evento:", err);
+    res.status(500).json({ error: "Erro ao cadastrar evento." });
+  }
+});
+
+app.get("/eventos/recente", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, titulo, descricao, data_evento, hora_evento, foto
+       FROM evento 
+       ORDER BY data_evento DESC, hora_evento DESC 
+       LIMIT 1`
+    );
+
+    if (rows.length === 0) return res.json(null);
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Erro ao buscar evento mais recente:", err);
+    res.status(500).json({ error: "Erro ao buscar evento mais recente." });
+  }
+});
+
+app.get("/eventos", autenticarToken, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      "SELECT id, titulo, descricao, data_evento, hora_evento, foto FROM evento ORDER BY data_evento ASC"
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("Erro ao buscar eventos:", err);
+    res.status(500).json({ error: "Erro ao buscar eventos." });
+  }
 });
 
 //=================  Indicar livro para múltiplas turmas =================
