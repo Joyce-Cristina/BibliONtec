@@ -13,6 +13,7 @@ const bwipjs = require('bwip-js');
 const bcrypt = require('bcrypt');
 const xss = require("xss");
 
+const cookieParser = require('cookie-parser');
 
 // Detecta ambiete automaticamente
 const envFile =
@@ -92,7 +93,7 @@ const rateLimit = require('express-rate-limit');
 
 // Inicializa o app uma única vez
 const app = express();
-
+app.use(cookieParser());
 // ===== 1. CORS =====
 const allowedOrigins = [
   'http://localhost:3000',
@@ -198,6 +199,30 @@ function handleValidationErrors(req, res, next) {
   }
   next();
 }
+app.get("/check-session", (req, res) => {
+  try {
+    // Verifica se há cookie OU header de autorização
+    const token =
+      req.cookies?.token ||
+      (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+
+    if (!token) {
+      return res.status(401).json({ autenticado: false, mensagem: "Não logado" });
+    }
+
+    jwt.verify(token, SECRET, (err, payload) => {
+      if (err) {
+        return res.status(401).json({ autenticado: false, mensagem: "Sessão inválida" });
+      }
+
+      // Retorna status de sessão válida
+      res.json({ autenticado: true, payload });
+    });
+  } catch (error) {
+    console.error("Erro no /check-session:", error);
+    res.status(500).json({ autenticado: false, mensagem: "Erro interno" });
+  }
+});
 
 
 //================= MULTER=================
@@ -311,8 +336,9 @@ function gerarSenhaSegura() {
 
 // ==================== CADASTRO ALUNO/PROF ====================
 
-app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) => {
-  const { nome, telefone, email, senha, curso_id, serie, tipo_usuario_id, funcionario_id } = req.body;
+// ==================== CADASTRO USUÁRIO (GENÉRICO) ====================
+app.post('/cadastrarUsuario', autenticarToken, upload.single('foto'), (req, res) => {
+  const { nome, telefone, email, senha, tipo_usuario_id, curso_id, serie, funcionario_id } = req.body;
   const foto = req.file ? req.file.filename : null;
 
   if (!nome || !telefone || !email || !tipo_usuario_id)
@@ -326,29 +352,38 @@ app.post('/cadastrarAluno', autenticarToken, upload.single('foto'), (req, res) =
     if (err) return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
     if (results.length > 0) return res.status(400).json({ error: 'E-mail já cadastrado.' });
 
-    // INSERIR DENTRO de app.post('/cadastrarAluno' ... ) no lugar do bloco que faz INSERT
     const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
-    // hash da senha antes do INSERT
     bcrypt.hash(senhaFinal, 12)
       .then((hash) => {
-        const sql = `INSERT INTO usuario 
-      (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id, FK_instituicao_id) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const sql = `
+          INSERT INTO usuario 
+          (nome, telefone, email, senha, foto, FK_tipo_usuario_id, curso_id, serie, FK_funcionario_id, FK_instituicao_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
 
         queryCallback(sql, [
-          nome, telefone, email, hash, foto, tipo_usuario_id,
-          curso_id || null, serie || null,
+          nome,
+          telefone,
+          email,
+          hash,
+          foto,
+          tipo_usuario_id,   // define se é aluno ou professor
+          tipo_usuario_id == 1 ? (curso_id || null) : null, // alunos têm curso e série
+          tipo_usuario_id == 1 ? (serie || null) : null,
           funcionario_id || null,
           req.user.FK_instituicao_id
         ], (err) => {
-          if (err) return res.status(500).json({ error: 'Erro ao cadastrar usuário' });
+          if (err) {
+            console.error('Erro ao cadastrar usuário:', err);
+            return res.status(500).json({ error: 'Erro ao cadastrar usuário.' });
+          }
           return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
         });
       })
       .catch(err => {
         console.error('Erro ao gerar hash da senha:', err);
-        return res.status(500).json({ error: 'Erro ao processar senha' });
+        return res.status(500).json({ error: 'Erro ao processar senha.' });
       });
   });
 });
