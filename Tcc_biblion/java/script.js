@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 // ----------- LÓGICA DE LOGIN ------------
-/*const formLogin = document.getElementById('formLogin');
+const formLogin = document.getElementById('formLogin');
 if (formLogin) {
   formLogin.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -269,7 +269,7 @@ if (formLogin) {
       alert("Erro de rede ou servidor!");
     }
   });
-}*/
+}
 
 // ----------- VALIDAÇÃO DE SESSÃO COM TOKEN (LOCALSTORAGE ou COOKIE) ------------
 async function validarSessao() {
