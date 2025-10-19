@@ -14,15 +14,23 @@
 
   <style>
 body {
-      margin: 0;
-      padding: 0;
+      margin: 0 !important;
+      padding: 0 !important;
       background-color: #f0e6d2;
       font-family: Arial, sans-serif;
-      height: 100vh;
+      height: auto;
       display: flex;
       flex-direction: column;
       font-size: 17px;
+      overflow-x: hidden;
     }
+    .tab-pane {
+  display: none;
+}
+.active-tab {
+  display: block !important;
+}
+
 
     .navbar,
     .sidebar,
@@ -101,14 +109,15 @@ body {
             background-color: #e0e0e0;
         }
 
-        .tab-content {
-            display: none;
-            padding: 20px;
-            margin: 20px auto;
-            border: none;
-            background-color: transparent;
-            max-width: 800px;
-        }
+.tab-content {
+    display: block; /* precisa ser block para conter as abas */
+    padding: 20px;
+    margin: 20px auto;
+    border: none;
+    background-color: transparent;
+    max-width: 800px;
+}
+
 
         .tab-content.active {
             display: block;
@@ -131,44 +140,64 @@ body {
   font-family: 'Georgia', serif;
 }
 
+.dashboard-button i {
+  font-size: 20px;
+}
+/* Ajuste do dropdown e espaçamento */
+.dashboard-section {
+  max-width: 1300px;
+  margin: 20px auto 40px auto; /* reduz espaço extra no final */
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
 .dashboard-button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #c2a675;
+  background-color: #e4e4e4;
   color: #000;
   padding: 15px 20px;
   border: none;
   width: 100%;
-  margin-bottom: 15px;
   font-size: 18px;
   font-weight: 500;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px; /* espaço entre as perguntas */
 }
 
 .dashboard-button:hover {
-  background-color: #b2965d;
+  background-color: #d6b778;
 }
 
-.dashboard-button i {
-  font-size: 20px;
-
+.dashboard-button.active {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background-color: #d6b778;
 }
-/* Estilo do dropdown interno do dashboard */
+
+/* resposta */
 .dashboard-dropdown {
-    display: none;
-    background-color: #f5f5f5;
-    padding: 15px 20px;
-    border-radius: 5px;
-    margin-top: 5px;
-    font-size: 1rem;
+  display: none;
+  background-color: #f9f9f9;
+  padding: 15px 20px;
+  border-radius: 0 0 8px 8px;
+  font-size: 1rem;
+  margin-top: -10px; /* cola na pergunta */
+  margin-bottom: 20px; /* espaçamento entre blocos */
+  border-top: 1px solid #ccc;
 }
 
+/* mostra a resposta do botão ativo */
 .dashboard-button.active + .dashboard-dropdown {
-    display: block;
+  display: block;
 }
+
+
 
     .form-control,
     .form-select {
@@ -520,12 +549,10 @@ body {
             <button class="tab-button" onclick="openTab(event, 'prof')">Professor</button>
         </div>
 
-  <!-- Conteúdo das Abas -->
-  <div class="tab-content mt-4" id="configTabsContent">
+  <!-- DASHBOARDS CORRIGIDOS -->
+
 <!-- Administrador -->
 <div class="tab-pane fade show active" id="adm" role="tabpanel">
-
-  <!-- Dashboard expandido -->
   <div class="dashboard-section">
     <div class="dashboard-title">Administrador</div>
 
@@ -542,200 +569,186 @@ body {
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Aqui você verá informações detalhadas sobre como funciona o sistema administrativo.
+      Explicação sobre como gerenciar bibliotecários dentro do sistema.
     </div>
 
     <button class="dashboard-button">
       Configurações do Sistema
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Área para ajustar preferências, permissões e parâmetros globais do sistema.
+    </div>
 
     <button class="dashboard-button">
       Manutenção do Sistema
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Dicas sobre manutenção, backup e atualizações do sistema.
+    </div>
 
     <button class="dashboard-button">
       Gestão de Usuários
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Instruções para cadastrar, editar e remover usuários.
+    </div>
 
     <button class="dashboard-button">
       Relatórios e Analytics
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Como gerar e visualizar relatórios e dados estatísticos.
+    </div>
   </div>
-
 </div>
 
-
-    <div class="tab-pane fade show" id="biblio" role="tabpanel">
-
-  <!-- Dashboard expandido -->
+<!-- Bibliotecário -->
+<div class="tab-pane" id="biblio" role="tabpanel">
   <div class="dashboard-section">
     <div class="dashboard-title">Bibliotecário</div>
 
     <button class="dashboard-button">
-      Como funciona o Sistema Administrativo
+      Cadastro de Livros
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Aqui você verá informações detalhadas sobre como funciona o sistema administrativo.
+      Passos para cadastrar novos livros e atualizar o acervo.
     </div>
 
     <button class="dashboard-button">
-      Gestão de Bibliotecários
+      Empréstimos e Devoluções
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Aqui você verá informações detalhadas sobre como funciona o sistema administrativo.
+      Como registrar empréstimos, renovações e devoluções no sistema.
     </div>
 
     <button class="dashboard-button">
-      Configurações do Sistema
+      Controle de Usuários
       <i class="bi bi-chevron-right"></i>
     </button>
-
-    <button class="dashboard-button">
-      Manutenção do Sistema
-      <i class="bi bi-chevron-right"></i>
-    </button>
-
-    <button class="dashboard-button">
-      Gestão de Usuários
-      <i class="bi bi-chevron-right"></i>
-    </button>
-
-    <button class="dashboard-button">
-      Relatórios e Analytics
-      <i class="bi bi-chevron-right"></i>
-    </button>
+    <div class="dashboard-dropdown">
+      Explicação sobre controle de prazos, multas e notificações aos usuários.
+    </div>
   </div>
-
 </div>
 
-<div class="tab-pane fade" id="usu" role="tabpanel">
-
-  <!-- Dashboard expandido -->
+<!-- Usuário -->
+<div class="tab-pane" id="usu" role="tabpanel">
   <div class="dashboard-section">
     <div class="dashboard-title">Usuário</div>
 
     <button class="dashboard-button">
-      Como funciona o Sistema Administrativo
+      Como realizar empréstimos
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Instruções passo a passo para solicitar livros e acompanhar o histórico.
+    </div>
 
     <button class="dashboard-button">
-      Gestão de Bibliotecários
+      Renovar livros
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Como renovar um livro emprestado e evitar multas.
+    </div>
 
     <button class="dashboard-button">
-      Configurações do Sistema
+      Consultar acervo
       <i class="bi bi-chevron-right"></i>
     </button>
-
-    <button class="dashboard-button">
-      Manutenção do Sistema
-      <i class="bi bi-chevron-right"></i>
-    </button>
-
-    <button class="dashboard-button">
-      Gestão de Usuários
-      <i class="bi bi-chevron-right"></i>
-    </button>
-
-    <button class="dashboard-button">
-      Relatórios e Analytics
-      <i class="bi bi-chevron-right"></i>
-    </button>
+    <div class="dashboard-dropdown">
+      Como pesquisar livros disponíveis na biblioteca digital ou física.
+    </div>
   </div>
-
 </div>
 
-<div class="tab-pane fade" id="prof" role="tabpanel">
-
-  <!-- Dashboard expandido -->
+<!-- Professor -->
+<div class="tab-pane" id="prof" role="tabpanel">
   <div class="dashboard-section">
     <div class="dashboard-title">Professor</div>
 
     <button class="dashboard-button">
-      Como funciona o Sistema Administrativo
+      Solicitar materiais didáticos
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Guia para solicitar livros e materiais de apoio ao ensino.
+    </div>
 
     <button class="dashboard-button">
-      Gestão de Bibliotecários
+      Gerenciar reservas de livros
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Explicação sobre como reservar obras e acompanhar disponibilidade.
+    </div>
 
     <button class="dashboard-button">
-      Configurações do Sistema
+      Acesso a relatórios
       <i class="bi bi-chevron-right"></i>
     </button>
-
-    <button class="dashboard-button">
-      Manutenção do Sistema
-      <i class="bi bi-chevron-right"></i>
-    </button>
-
-    <button class="dashboard-button">
-      Gestão de Usuários
-      <i class="bi bi-chevron-right"></i>
-    </button>
-
-    <button class="dashboard-button">
-      Relatórios e Analytics
-      <i class="bi bi-chevron-right"></i>
-    </button>
+    <div class="dashboard-dropdown">
+      Como acessar relatórios de uso da biblioteca e estatísticas de turmas.
+    </div>
   </div>
+</div>
 
-</div>
-</div>
 <script>
-  function openTab(evt, tabId) {
-      // Esconde todos os conteúdos das abas
-      const tabPanes = document.querySelectorAll('.tab-pane');
-      tabPanes.forEach(pane => {
-          pane.classList.remove('show', 'active');
-      });
-  
-      // Remove a classe 'active' de todos os botões
-      const tabButtons = document.querySelectorAll('.tab-button');
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-  
-      // Mostra a aba selecionada
-      document.getElementById(tabId).classList.add('show', 'active');
-  
-      // Adiciona 'active' ao botão clicado
-      evt.currentTarget.classList.add('active');
-  }
-  </script>
+function openTab(evt, tabName) {
+  const tabButtons = document.querySelectorAll(".tab-button");
+  const tabContents = document.querySelectorAll(".tab-pane");
 
-  <script>
-    const dashboardButtons = document.querySelectorAll('.dashboard-button');
-    
-    dashboardButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Fecha outros dropdowns
-            dashboardButtons.forEach(b => {
-                if(b !== btn) {
-                    b.classList.remove('active');
-                    b.nextElementSibling.style.display = 'none';
-                }
-            });
-    
-            // Alterna o dropdown do botão clicado
-            btn.classList.toggle('active');
-            const dropdown = btn.nextElementSibling;
-            if(btn.classList.contains('active')) {
-                dropdown.style.display = 'block';
-            } else {
-                dropdown.style.display = 'none';
-            }
-        });
+  // esconde todas as abas
+  tabContents.forEach(tab => tab.classList.remove("active-tab"));
+  tabButtons.forEach(btn => btn.classList.remove("active"));
+
+  // mostra a aba clicada
+  const tab = document.getElementById(tabName);
+  tab.classList.add("active-tab");
+  evt.currentTarget.classList.add("active");
+}
+
+// inicia mostrando a primeira aba
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("adm").classList.add("active-tab");
+});
+</script>
+
+
+<!-- SCRIPT CORRIGIDO -->
+<script>
+const dashboardButtons = document.querySelectorAll('.dashboard-button');
+
+dashboardButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Fecha outros dropdowns
+    dashboardButtons.forEach(b => {
+      if (b !== btn) {
+        b.classList.remove('active');
+        const icon = b.querySelector('i');
+        if (icon) icon.style.transform = 'rotate(0deg)';
+      }
     });
-    </script>
+
+    // Alterna dropdown do botão clicado
+    btn.classList.toggle('active');
+    const icon = btn.querySelector('i');
+    if (icon) {
+      icon.style.transition = 'transform 0.3s ease';
+      icon.style.transform = btn.classList.contains('active') ? 'rotate(90deg)' : 'rotate(0deg)';
+    }
+  });
+});
+</script>
+
+
+
   
 
  <!-- Botão de acessibilidade -->
