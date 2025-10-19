@@ -92,14 +92,11 @@ jobs:
 
       - name: 🚀 Deploy para Hostinger via FTP
         if: success()
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.HOSTINGER_FTP_SERVER }}
-          username: ${{ secrets.HOSTINGER_FTP_USER }}
-          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: /public_html/ # ou o caminho da pasta onde está seu site
-          exclude: |
-            .git*
-            node_modules/*
-            .github/*
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lftp
+          lftp -c "
+            open -u ${{ secrets.HOSTINGER_FTP_USER }},${{ secrets.HOSTINGER_FTP_PASSWORD }} ${{ secrets.HOSTINGER_FTP_SERVER }}
+            mirror -R ./ /public_html/ --exclude-glob .git* --exclude-glob node_modules/* --exclude-glob .github/*
+            bye
+          "
