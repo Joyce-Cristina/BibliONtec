@@ -31,15 +31,15 @@ jobs:
           --health-retries=5
 
     steps:
-      - name: Checkout do código
+      - name: 📦 Checkout do código
         uses: actions/checkout@v3
 
-      - name: Configurar Node.js
+      - name: ⚙️ Configurar Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      - name: Instalar dependências principais
+      - name: 📥 Instalar dependências principais
         run: |
           npm install
           npm install express-rate-limit
@@ -48,20 +48,17 @@ jobs:
           npm install cookie-parser
           npm install multer sharp bwip-js jsonwebtoken pdfkit mysql2 cors dotenv node-fetch
 
-      - name: Aguardar MySQL
+      - name: 🕒 Aguardar MySQL iniciar
         run: |
           until mysqladmin ping -h"127.0.0.1" -uroot -proot --silent; do
             echo "Aguardando MySQL iniciar..."
             sleep 2
           done
 
-      - name: Criar tabelas no banco de teste
+      - name: 🧱 Criar tabelas no banco de teste
         run: mysql -h 127.0.0.1 -uroot -proot bibliontec < ./bibliontec.sql
 
-      - name: Dar permissão ao Jest
-        run: chmod +x ./node_modules/.bin/jest
-
-      - name: Rodar testes
+      - name: ✅ Rodar testes com Jest
         env:
           DB_HOST: 127.0.0.1
           DB_USER: root
@@ -69,11 +66,11 @@ jobs:
           DB_NAME: bibliontec
         run: npx jest --forceExit --detectOpenHandles
 
-      - name: Empacotar projeto
+      - name: 📦 Empacotar projeto
         if: success()
         run: zip -r BibliONtec.zip .
 
-      - name: Excluir artefatos antigos via API
+      - name: 🧹 Excluir artefatos antigos
         if: success()
         run: |
           artifacts=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -81,20 +78,23 @@ jobs:
             | jq -r '.artifacts[] | select(.name=="bibliotec-artifact") | .id')
 
           for artifact in $artifacts; do
-            echo "Excluindo artefato $artifact..."
+            echo "🗑️ Excluindo artefato $artifact..."
             curl -s -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$artifact
           done
 
-      - name: Upload do artefato
+      - name: ⬆️ Upload do artefato
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: bibliotec-artifact
           path: BibliONtec.zip
 
-      - name: Deploy para Hostinger via FTP com curl
+      - name: 🚀 Deploy para Hostinger via FTP
         if: success()
         run: |
-          echo "Enviando BibliONtec.zip para o servidor Hostinger..."
-          curl -T "BibliONtec.zip" ftp://${{ secrets.HOSTINGER_FTP_USER }}:${{ secrets.HOSTINGER_FTP_PASSWORD }}@${{ secrets.HOSTINGER_FTP_SERVER }}/public_html/BibliONtec.zip
+          echo "Enviando BibliONtec.zip para Hostinger..."
+          curl -T "BibliONtec.zip" \
+            --user "${{ secrets.HOSTINGER_FTP_USER }}:${{ secrets.HOSTINGER_FTP_PASSWORD }}" \
+            ftp://${{ secrets.HOSTINGER_FTP_SERVER }}/public_html/BibliONtec.zip
+          echo "✅ Upload concluído com sucesso!"
