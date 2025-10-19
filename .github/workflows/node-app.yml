@@ -90,13 +90,8 @@ jobs:
           name: bibliotec-artifact
           path: BibliONtec.zip
 
-      - name: 🚀 Deploy para Hostinger via FTP
+      - name: 🚀 Deploy para Hostinger via FTP com curl
         if: success()
         run: |
-          sudo apt-get update
-          sudo apt-get install -y lftp
-          lftp -c "
-            open -u ${{ secrets.HOSTINGER_FTP_USER }},${{ secrets.HOSTINGER_FTP_PASSWORD }} ${{ secrets.HOSTINGER_FTP_SERVER }}
-            mirror -R ./ /public_html/ --exclude-glob .git* --exclude-glob node_modules/* --exclude-glob .github/*
-            bye
-          "
+          echo "Enviando BibliONtec.zip para o servidor Hostinger..."
+          curl -T "BibliONtec.zip" ftp://${{ secrets.HOSTINGER_FTP_USER }}:${{ secrets.HOSTINGER_FTP_PASSWORD }}@${{ secrets.HOSTINGER_FTP_SERVER }}/public_html/BibliONtec.zip
