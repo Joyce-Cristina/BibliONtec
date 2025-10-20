@@ -1051,17 +1051,12 @@ app.post(
 
       // --- Login de funcionário ---
       const [funcionarios] = await pool.query(`
-         SELECT f.id, f.nome, f.email, f.telefone, f.foto,
-         f.FK_funcao_id,
-         fun.funcao AS funcao,
-         CASE 
-           WHEN f.ultimo_login IS NOT NULL 
-                AND TIMESTAMPDIFF(HOUR, f.ultimo_login, NOW()) < 24 THEN 'Ativo'
-           ELSE 'Inativo'
-         END AS status
-  FROM funcionario f
-  LEFT JOIN funcao fun ON f.FK_funcao_id = fun.id
-  WHERE f.FK_instituicao_id = ?
+        SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto,
+               f.FK_funcao_id AS funcao_id,
+               f.FK_instituicao_id, fn.funcao AS funcao_nome
+        FROM funcionario f
+        LEFT JOIN funcao fn ON f.FK_funcao_id = fn.id
+        WHERE f.email = ?
         LIMIT 1
       `, [email]);
 
@@ -1197,10 +1192,17 @@ app.get('/api/funcionarios/:id', autenticarToken, (req, res) => {
   const id = req.params.id;
 
   const sql = `
-    SELECT f.*, f.telefone, fu.funcao AS nome_funcao
-    FROM funcionario f
-    LEFT JOIN funcao fu ON f.FK_funcao_id = fu.id
-    WHERE f.id = ? AND f.FK_instituicao_id = ?
+      SELECT f.id, f.nome, f.email, f.telefone, f.foto,
+         f.FK_funcao_id,
+         fun.funcao AS funcao,
+         CASE 
+           WHEN f.ultimo_login IS NOT NULL 
+                AND TIMESTAMPDIFF(HOUR, f.ultimo_login, NOW()) < 24 THEN 'Ativo'
+           ELSE 'Inativo'
+         END AS status
+  FROM funcionario f
+  LEFT JOIN funcao fun ON f.FK_funcao_id = fun.id
+  WHERE f.FK_instituicao_id = ?
   `;
 
   queryCallback(sql, [id, req.user.FK_instituicao_id], (err, results) => {
