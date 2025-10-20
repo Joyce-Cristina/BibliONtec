@@ -1051,12 +1051,17 @@ app.post(
 
       // --- Login de funcionário ---
       const [funcionarios] = await pool.query(`
-        SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto,
-               f.FK_funcao_id AS funcao_id,
-               f.FK_instituicao_id, fn.funcao AS funcao_nome
-        FROM funcionario f
-        LEFT JOIN funcao fn ON f.FK_funcao_id = fn.id
-        WHERE f.email = ?
+         SELECT f.id, f.nome, f.email, f.telefone, f.foto,
+         f.FK_funcao_id,
+         fun.funcao AS funcao,
+         CASE 
+           WHEN f.ultimo_login IS NOT NULL 
+                AND TIMESTAMPDIFF(HOUR, f.ultimo_login, NOW()) < 24 THEN 'Ativo'
+           ELSE 'Inativo'
+         END AS status
+  FROM funcionario f
+  LEFT JOIN funcao fun ON f.FK_funcao_id = fun.id
+  WHERE f.FK_instituicao_id = ?
         LIMIT 1
       `, [email]);
 
