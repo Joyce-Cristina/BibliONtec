@@ -26,9 +26,21 @@ async function carregarFuncionarios() {
     });
 
     if (!resposta.ok) throw new Error("Erro HTTP " + resposta.status);
+todosOsFuncionarios = await resposta.json();
 
-    todosOsFuncionarios = await resposta.json();
-    atualizarContadores(todosOsFuncionarios);
+// Define status com base no último login (igual ao usuário)
+todosOsFuncionarios = todosOsFuncionarios.map(f => {
+  const ultimoLogin = f.ultimo_login ? new Date(f.ultimo_login) : null;
+  const agora = new Date();
+  const diasSemLogin = ultimoLogin
+    ? Math.floor((agora - ultimoLogin) / (1000 * 60 * 60 * 24))
+    : Infinity;
+
+  const status = diasSemLogin <= 15 ? "Ativo" : "Inativo";
+  return { ...f, status };
+});
+
+atualizarContadores(todosOsFuncionarios);
 
     if (document.getElementById("lista-funcionarios")) {
       exibirFuncionariosCards(todosOsFuncionarios);

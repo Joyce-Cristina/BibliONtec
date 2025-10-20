@@ -25,8 +25,28 @@ async function carregarUsuarios() {
       throw new Error("Erro HTTP " + res.status);
     }
 
-    todosOsUsuarios = await res.json();
-    exibirUsuarios(todosOsUsuarios);
+ todosOsUsuarios = await res.json();
+
+// 🔹 Ajusta o status real com base no campo ativo e último login
+todosOsUsuarios = todosOsUsuarios.map(u => {
+  const ativo = u.ativo === 1;
+  const ultimoLogin = u.ultimo_login ? new Date(u.ultimo_login) : null;
+  const agora = new Date();
+  const diasSemLogin = ultimoLogin
+    ? Math.floor((agora - ultimoLogin) / (1000 * 60 * 60 * 24))
+    : Infinity;
+
+  let status;
+  if (!ativo) status = "Inativo";
+  else if (diasSemLogin <= 15) status = "Ativo";
+  else status = "Inativo";
+
+  return { ...u, status };
+});
+
+exibirUsuarios(todosOsUsuarios);
+
+      
   } catch (err) {
     console.error("Erro ao carregar usuários:", err);
   }
@@ -173,4 +193,15 @@ function excluirUsuario(id) {
       .catch(err => console.error('Erro ao excluir usuário:', err));
   }
 }
+//CONTADORES
+const totalEl = document.getElementById("total-usuarios");
+const ativosEl = document.getElementById("ativos-usuarios");
+const inativosEl = document.getElementById("inativos-usuarios");
+
+if (totalEl && ativosEl && inativosEl) {
+  totalEl.textContent = todosOsUsuarios.length;
+  ativosEl.textContent = todosOsUsuarios.filter(u => u.status === "Ativo").length;
+  inativosEl.textContent = todosOsUsuarios.filter(u => u.status === "Inativo").length;
+}
+
 
