@@ -681,13 +681,13 @@ app.post("/eventos", autenticarToken, upload.single("foto"), async (req, res) =>
   try {
     const { nome, descri, hora, data } = req.body;
 
-    const titulo = nome; 
-    const descricao = descri; 
+    const titulo = nome;
+    const descricao = descri;
     const data_evento = data;
     const hora_evento = hora;
     const foto = req.file ? req.file.filename : null;
-    const FK_instituicao_id = req.user?.FK_instituicao_id || 1; 
-    const FK_funcionario_id = req.user?.id || null; 
+    const FK_instituicao_id = req.user?.FK_instituicao_id || 1;
+    const FK_funcionario_id = req.user?.id || null;
 
     await pool.query(
       `INSERT INTO evento 
@@ -1073,12 +1073,16 @@ app.post(
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
+      // ✅ Atualiza o último login do funcionário
+      await pool.query(`UPDATE funcionario SET ultimo_login = NOW() WHERE id = ?`, [funcionario.id]);
+
       const token = jwt.sign({
         id: funcionario.id,
         role: "funcionario",
         funcao: funcionario.funcao_id,
         FK_instituicao_id: funcionario.FK_instituicao_id,
       }, SECRET, { expiresIn: '8h' });
+
 
       logger.info('Login bem-sucedido (funcionário)', { email, id: funcionario.id, ip: req.ip });
 
