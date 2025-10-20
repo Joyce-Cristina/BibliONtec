@@ -93,11 +93,12 @@ jobs:
           name: bibliotec-artifact
           path: BibliONtec.zip
 
-    
-      - name: 🚀 Deploy para Hostinger via FTP
+
+      - name: Enviar BibliONtec.zip para Hostinger via curl
         if: success()
         run: |
           echo "Enviando BibliONtec.zip para Hostinger..."
           curl -T "BibliONtec.zip" --user "${{ secrets.HOSTINGER_FTP_USER }}:${{ secrets.HOSTINGER_FTP_PASSWORD }}" ftp://${{ secrets.HOSTINGER_FTP_SERVER }}/public_html/BibliONtec.zip
+          echo "✅ Upload concluído com sucesso!"
 
  
