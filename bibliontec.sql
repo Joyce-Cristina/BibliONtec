@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Tempo de geração: 16/10/2025 às 22:35
--- Versão do servidor: 10.4.32-MariaDB
--- Versão do PHP: 8.2.12
+-- Host: 127.0.0.1:3306
+-- Tempo de geração: 20/10/2025 às 16:17
+-- Versão do servidor: 11.8.3-MariaDB-log
+-- Versão do PHP: 7.2.34
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `bibliontec`
+-- Banco de dados: `u479595318_bibliontec`
 --
 
 -- --------------------------------------------------------
@@ -405,19 +405,20 @@ CREATE TABLE `funcionario` (
   `foto` varchar(255) DEFAULT NULL,
   `FK_funcao_id` int(11) DEFAULT NULL,
   `telefone` varchar(20) DEFAULT NULL,
-  `FK_instituicao_id` int(11) DEFAULT NULL
+  `FK_instituicao_id` int(11) DEFAULT NULL,
+  `ultimo_login` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `funcionario`
 --
 
-INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`) VALUES
-(4, 'João Silva dos santos', '$2b$12$tVUS/6uLjMGP04EMTblqhuezcdfL6uYKW.gvfMvng/j9ink.iMrj2', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1),
-(5, 'joao carlos ', '$2b$12$LObz6anCBt/bIDCQ4qzJz.VlXO5kyd49SJm4J5iF1HT2IEzF9qqbS', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1),
-(8, 'Admin Principal', '$2b$12$rVucKo1Mud6SLlgNiU3MouyDmrDqvuBn3TDOYOCaRr0/zap1GF79O', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1),
-(9, 'cletin do pneu ', '$2b$12$EYZ9dyuribSMa1a9oeq91OJxvAvG4/ojIILfhfgNQpd9iYn6IqVnS', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1),
-(10, 'shaulin porco', '$2b$12$UbUgnWQup4cgnmPh6TOV2ucm5zQ5nVpqK3OnfC887DYxeJeakD3iu', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1);
+INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`, `ultimo_login`) VALUES
+(4, 'João Silva dos santos', '$2b$12$tVUS/6uLjMGP04EMTblqhuezcdfL6uYKW.gvfMvng/j9ink.iMrj2', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1, '2025-10-20 16:09:42'),
+(5, 'joao carlos ', '$2b$12$LObz6anCBt/bIDCQ4qzJz.VlXO5kyd49SJm4J5iF1HT2IEzF9qqbS', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1, NULL),
+(8, 'Admin Principal', '$2b$12$rVucKo1Mud6SLlgNiU3MouyDmrDqvuBn3TDOYOCaRr0/zap1GF79O', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1, '2025-10-20 16:10:10'),
+(9, 'cletin do pneu ', '$2b$12$EYZ9dyuribSMa1a9oeq91OJxvAvG4/ojIILfhfgNQpd9iYn6IqVnS', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1, NULL),
+(10, 'shaulin porco', '$2b$12$UbUgnWQup4cgnmPh6TOV2ucm5zQ5nVpqK3OnfC887DYxeJeakD3iu', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -1020,7 +1021,6 @@ INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_t
 (30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', '$2b$12$r40IXzR66oRxHtuQYIb0JejCaebFefLlNuSptT74Rh1NWbisDj4nu', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:53'),
 (31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', '$2b$12$bRgIwXwzzMe1WBD9OfFufe0ggsYOP8UDiSx2olWyhOtIvKmns2hAW', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 21:26:13'),
 (32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', '$2b$12$BdQh8aZ2vosGRq/dmPNhH.N844Cw5M5Y0.ePnx7rDWVVYkPDRp8I.', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-10-03 07:27:56'),
-(33, '11977774444', 'ana.lima@gmail.com', 'padrao.jpg', 'Ana Lima', '$2b$12$VqS4zf2suKx9B90qUaMDGucYAFJmg6gP4rMlPILsi8q2QbKFJRIue', 3, 8, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:26'),
 (34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', '$2b$12$7CCAt7u7Jh9/517iB2sXu.rEZEVaL5ADGSlDcd7k.PWFedAHIVMmS', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-10-06 13:24:10'),
 (35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', '$2b$12$b4uCP5bgVNJi69NEW97n9uGz5BEPnktvMfvc2r3aTcmu6N1Fwm6RO', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-18 19:19:29');
 
