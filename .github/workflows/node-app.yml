@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    name: CI Tests & Deploy
+    name: CI Tests
     runs-on: ubuntu-latest
 
     services:
@@ -39,14 +39,8 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Instalar dependências principais
-        run: |
-          npm install
-          npm install express-rate-limit
-          npm install bcrypt
-          npm install helmet express-validator winston express-winston morgan
-          npm install cookie-parser
-          npm install multer sharp bwip-js jsonwebtoken pdfkit mysql2 cors dotenv node-fetch
+      - name: Instalar dependências
+        run: npm install
 
       - name: Aguardar MySQL
         run: |
@@ -92,15 +86,4 @@ jobs:
         with:
           name: bibliotec-artifact
           path: BibliONtec.zip
-
-
-      
-      - name: Enviar BibliONtec.zip para Hostinger via curl
-        if: success()
-        run: |
-          echo "Enviando BibliONtec.zip para Hostinger..."
-          curl -T "BibliONtec.zip" --user "${{ secrets.HOSTINGER_FTP_USER }}:${{ secrets.HOSTINGER_FTP_PASSWORD }}" ftp://${{ secrets.HOSTINGER_FTP_SERVER }}/public_html/BibliONtec.zip
-          echo "✅ Upload concluído com sucesso!"
-
-
- 
+    
