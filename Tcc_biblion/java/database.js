@@ -1104,9 +1104,11 @@ app.post(
       });
 
     } catch (err) {
-      logger.error('Erro interno no login', { error: err.message, email: req.body.email, ip: req.ip });
-      return res.status(500).json({ error: "Erro no servidor" });
+      console.error("🔥 Erro detalhado no login:", err);
+      logger.error('Erro interno no login', { error: err.message, stack: err.stack, email: req.body.email, ip: req.ip });
+      return res.status(500).json({ error: "Erro no servidor", detalhe: err.message });
     }
+    
   }
 );
 
@@ -2573,7 +2575,7 @@ app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {
 });
 // ==================== BACKUP COMPLETO (BANCO + FOTOS) ====================
 const { exec } = require("child_process");
-const archiver = require("archiver");
+
 
 app.get("/backup", autenticarToken, async (req, res) => {
   try {
@@ -2624,6 +2626,119 @@ app.get("/backup", autenticarToken, async (req, res) => {
   }
 });
 
+
+// ===============================
+// === ROTAS DE BACKUP DO SISTEMA ===
+// ===============================
+const archiver = require("archiver");
+const unzipper = require("unzipper");
+const cron = require("node-cron");
+
+// === Criar pasta de backups ===
+const backupDir = path.join(__dirname, "..", "backups");
+if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir);
+
+// === ROTA: Gerar backup manual ou automático ===
+app.post("/backup", autenticarToken, async (req, res) => {
+  const { tipo } = req.body;
+  const funcionarioId = req.user?.id || null;
+
+  try {
+    const nomeArquivo = `backup_${Date.now()}.zip`;
+    const caminhoArquivo = path.join(backupDir, nomeArquivo);
+
+    const output = fs.createWriteStream(caminhoArquivo);
+    const archive = archiver("zip", { zlib: { level: 9 } });
+
+    archive.pipe(output);
+    archive.directory(path.join(__dirname, "..", "uploads"), "uploads");
+    archive.file(path.join(__dirname, "..", ".env.local"), { name: ".env.local" });
+    archive.finalize();
+
+    output.on("close", async () => {
+      await pool.query(
+        `INSERT INTO backup (tipo, caminho_arquivo, status, FK_funcionario_id)
+         VALUES (?, ?, 'concluido', ?)`,
+        [tipo, nomeArquivo, funcionarioId]
+      );
+
+      if (tipo === "manual") {
+        res.download(caminhoArquivo, nomeArquivo);
+      } else {
+        res.json({ message: "Backup automático concluído!" });
+      }
+    });
+
+    output.on("error", async (err) => {
+      await pool.query(
+        `INSERT INTO backup (tipo, status, mensagem, FK_funcionario_id)
+         VALUES (?, 'falhou', ?, ?)`,
+        [tipo, err.message, funcionarioId]
+      );
+      res.status(500).json({ error: "Erro ao gerar backup." });
+    });
+  } catch (err) {
+    console.error("Erro no backup:", err);
+    res.status(500).json({ error: "Erro interno ao gerar backup." });
+  }
+});
+
+// === ROTA: Listar histórico de backups ===
+app.get("/backup/historico", autenticarToken, async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT id, tipo, caminho_arquivo, data_criacao, status, mensagem
+      FROM backup ORDER BY data_criacao DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error("Erro ao listar backups:", err);
+    res.status(500).json({ error: "Erro ao listar backups." });
+  }
+});
+
+// === ROTA: Restaurar backup ===
+app.post("/backup/restaurar", autenticarToken, async (req, res) => {
+  const { arquivo } = req.body;
+  try {
+    const arquivoPath = path.join(backupDir, arquivo);
+    if (!fs.existsSync(arquivoPath)) {
+      return res.status(404).json({ error: "Backup não encontrado." });
+    }
+
+    await fs.createReadStream(arquivoPath)
+      .pipe(unzipper.Extract({ path: path.join(__dirname, "..") }))
+      .promise();
+
+    res.json({ message: "✅ Backup restaurado com sucesso!" });
+  } catch (err) {
+    console.error("Erro ao restaurar backup:", err);
+    res.status(500).json({ error: "Erro ao restaurar backup." });
+  }
+});
+
+// === ROTA: Baixar backup específico ===
+app.get("/backups/:file", autenticarToken, (req, res) => {
+  const file = req.params.file;
+  const filePath = path.join(backupDir, file);
+  if (fs.existsSync(filePath)) {
+    res.download(filePath);
+  } else {
+    res.status(404).json({ error: "Arquivo não encontrado" });
+  }
+});
+
+// === CRON: Backup automático diário às 03:00 ===
+cron.schedule("0 3 * * *", async () => {
+  console.log("⏰ Executando backup automático...");
+  try {
+    await pool.query(
+      `INSERT INTO backup (tipo, caminho_arquivo, status) VALUES ('automatico', '', 'pendente')`
+    );
+  } catch (err) {
+    console.error("Erro ao registrar backup automático:", err);
+  }
+});
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = process.env.PORT || 3000;
