@@ -1,0 +1,20 @@
+DELIMITER $$
+
+CREATE PROCEDURE gerar_codigo_recuperacao(IN p_email VARCHAR(255))
+BEGIN
+    DECLARE v_codigo VARCHAR(6);
+    
+    -- Gera código aleatório de 6 dígitos
+    SET v_codigo = LPAD(FLOOR(RAND() * 999999), 6, '0');
+    
+    -- Atualiza o usuário com o código e define validade de 15 minutos
+    UPDATE usuario
+    SET codigo_recuperacao = v_codigo,
+        expiracao_codigo = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+    WHERE email = p_email;
+    
+    -- Retorna o código para o backend enviar por e-mail
+    SELECT v_codigo AS codigo_gerado;
+END$$
+
+DELIMITER ;
