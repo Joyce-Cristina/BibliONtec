@@ -20,7 +20,7 @@
             height: 100%;
     margin: 0;
             padding: 0;
-            background-color: #f0e6d2;
+            background-color: #fdfaf2;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
@@ -1220,7 +1220,6 @@
         <a class="btn w-100" href="./configAdm2.html">Configurações</a>
         <a class="btn w-100 active" href="./manutencao.html">Manutenção</a>
         <a class="btn w-100" href="./usuariosAdm2.html">Usuários</a>
-        <a class="btn w-100" href="./relatorios.html">Relatórios</a>
     </div>
 
      <!-- Conteúdo -->
@@ -1273,6 +1272,18 @@
           </button>
         </div>
       </div>
+<<<<<<< Updated upstream
+=======
+      <div class="mb-4 d-flex gap-2">
+        <button class="btn btn-save w-50 d-flex justify-content-center align-items-center">
+          <i class="bi bi-save"></i> Backup manual
+        </button>
+        <button class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
+          <i class="bi bi-upload"  style="font-size: 18px;"></i> Restaurar backup
+        </button>
+      </div>
+    </div>
+>>>>>>> Stashed changes
 
       <!-- Seção: Configuração de backup -->
       <div class="section-box" style="flex: 1 1 48%;">
@@ -1312,9 +1323,43 @@
             </div>
           </div>
         </div>
+<<<<<<< Updated upstream
         <button id="btnSalvarConfig" class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
           <i class="bi bi-save" style="font-size: 18px;"></i> Configurar backup
         </button>
+=======
+
+        <div class="config-item d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="config-title">Retenção de backups</div>
+            <div class="config-desc">
+              Manter por
+              <input type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
+            </div>
+          </div>
+          <span class="badge bg-primary">30 dias</span>
+        </div>
+
+        <div class="config-item d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="config-title">Compressão</div>
+            <div class="config-desc">Reduz o tamanho do arquivo</div>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" checked>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
+          <i class="bi bi-save" style="font-size: 18px;"></i> Salvar configuração do backup
+      </button>
+    </div>
+
+    <!-- Seção: Histórico (maior largura) -->
+    <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
+      <div class="section-header">
+        <i class="bi bi-clock-history"></i> Histórico de backups
+>>>>>>> Stashed changes
       </div>
 
       <!-- Seção: Histórico -->

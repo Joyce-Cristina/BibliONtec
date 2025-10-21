@@ -18,9 +18,9 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #f0e6d2;
+            background-color: #fdfaf2;
             font-family: Arial, sans-serif;
-            height: 100vh;
+            height: 100px;
             display: flex;
             flex-direction: column;
             font-size: 17px;
@@ -1889,15 +1889,24 @@
         </div>
     </nav>
 
-    <!-- Sidebar -->
-    <div class="sidebar d-flex flex-column">
-        <a class="btn w-100" href="./areaAdm2.html">Administrador</a>
-        <a class="btn w-100" href="./bibliotecarios.html">Bibliotecários</a>
-        <a class="btn w-100" href="./configAdm2.html">Configurações</a>
-        <a class="btn w-100" href="./manutencao.html">Manutenção</a>
-        <a class="btn w-100" href="./usuariosAdm2.html">Usuários</a>
-        <a class="btn w-100 active" href="./relatorios.html">Relatórios</a>
-    </div>
+    <div class="sidebar">
+        <div class="dropdown" data-permissao="cadastro">
+          <button class="btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">Cadastro</button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="./cadAluno.html" data-permissao="cadAluno">Aluno</a></li>
+            <li><a class="dropdown-item" href="./cadLivro.html" data-permissao="cadLivro">Livro</a></li>
+            <li><a class="dropdown-item" href="./cadFunc.html" data-permissao="cadFunc">Funcionário</a></li>
+            <li><a class="dropdown-item" href="./cadEvento.html" data-permissao="cadEvento">Evento</a></li>
+          </ul>
+        </div>
+        <a class="btn w-100" href="./emprestimo.html" data-permissao="emprestimo">Empréstimo</a>
+        <a class="btn w-100" href="./etiqueta.html" data-permissao="etiqueta">Etiqueta</a>
+        <a class="btn w-100" href="./areaAdm.html" data-permissao="configAdm2">Administrador</a>
+        <a class="btn w-100" href="./acervo.html" data-permissao="acervo">Acervo</a>
+        <a class="btn w-100" href="./usuarios.html" data-permissao="usuarios">Usuários</a>
+        <a class="btn w-100" href="./funcionarios.html" data-permissao="funcionarios">Funcionários</a>
+        <a class="btn w-100 active" href="./relatorios.html" data-permissao="relatorio">Relatórios</a>
+      </div>
 
     <!-- Conteúdo -->
     <div class="main-container-custom">
