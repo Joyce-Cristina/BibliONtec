@@ -173,6 +173,7 @@ app.use(expressWinston.logger({
   colorize: false
 }));
 
+
 // ===== 5. Servir uploads e páginas =====
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use(express.static(path.join(__dirname, '..')));
@@ -189,6 +190,7 @@ const loginLimiter = rateLimit({
     res.status(429).json({ error: "Muitas tentativas de login. Tente novamente em alguns minutos." });
   }
 });
+
 
 // Middleware de validação (mantém o seu)
 function handleValidationErrors(req, res, next) {
@@ -1074,7 +1076,7 @@ app.post(
       }
 
       // ✅ Atualiza o último login do funcionário
-      await pool.query(`UPDATE funcionario SET ultimo_login = NOW() WHERE id = ?`, [funcionario.id]);
+   await pool.query(`UPDATE funcionario SET ultimo_login = NOW() WHERE id = ?`, [funcionario.id]);
 
       const token = jwt.sign({
         id: funcionario.id,
@@ -1112,7 +1114,8 @@ app.post(
 
 // ==================== CADASTRO FUNCIONÁRIO ====================
 
-app.post('/cadastrarFuncionario', autenticarToken, upload.single('foto'), async (req, res) => {
+app.post('/api/funcionarios', autenticarToken, upload.single('foto'), async (req, res) => {
+
   try {
     const { nome, senha, email, telefone, FK_funcao_id } = req.body;
     let permissoes = req.body['permissoes[]'] || [];
@@ -1286,9 +1289,20 @@ app.get("/funcoes", autenticarToken, (req, res) => {
 // Listar funcionários (apenas da mesma instituição)
 app.get('/api/funcionarios', autenticarToken, (req, res) => {
   const sql = `
-    SELECT f.id, f.nome, f.email, f.telefone, f.foto, 
-           f.FK_funcao_id,
-           fun.funcao AS funcao
+    SELECT 
+      f.id, 
+      f.nome, 
+      f.email, 
+      f.telefone, 
+      f.foto, 
+      f.ultimo_login,
+      f.FK_funcao_id,
+      fun.funcao AS funcao,
+      CASE
+        WHEN f.ultimo_login IS NULL THEN 'Inativo'
+        WHEN DATEDIFF(NOW(), f.ultimo_login) > 15 THEN 'Inativo'
+        ELSE 'Ativo'
+      END AS status
     FROM funcionario f
     LEFT JOIN funcao fun ON f.FK_funcao_id = fun.id
     WHERE f.FK_instituicao_id = ?
@@ -1302,6 +1316,7 @@ app.get('/api/funcionarios', autenticarToken, (req, res) => {
     res.json(results);
   });
 });
+
 // ==================== ATUALIZAR FUNCIONÁRIO (com foto) ====================
 // ==================== ATUALIZAR FUNCIONÁRIO (com foto) ====================
 app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, res) => {
@@ -2235,12 +2250,24 @@ app.put("/configuracoes-tipo-usuario/:id", (req, res) => {
   });
 });
 //================= Lista funcionários por instituição =================
-
 app.get('/api/funcionarios/:instituicaoId', (req, res) => {
   const { instituicaoId } = req.params;
 
   const sql = `
-    SELECT f.id, f.nome, f.email, f.telefone, f.foto, fun.funcao AS funcao, f.FK_funcao_id
+    SELECT 
+      f.id, 
+      f.nome, 
+      f.email, 
+      f.telefone, 
+      f.foto, 
+      f.ultimo_login,
+      f.FK_funcao_id,
+      fun.funcao AS funcao,
+      CASE
+        WHEN f.ultimo_login IS NULL THEN 'Inativo'
+        WHEN DATEDIFF(NOW(), f.ultimo_login) > 15 THEN 'Inativo'
+        ELSE 'Ativo'
+      END AS status
     FROM funcionario f
     LEFT JOIN funcao fun ON f.FK_funcao_id = fun.id
     WHERE f.FK_instituicao_id = ?
@@ -2254,6 +2281,7 @@ app.get('/api/funcionarios/:instituicaoId', (req, res) => {
     res.json(results);
   });
 });
+
 
 //================= Emprestimo =================
 
@@ -2542,6 +2570,58 @@ app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {
       res.json({ message: "Livro devolvido com sucesso!" });
     });
   });
+});
+// ==================== BACKUP COMPLETO (BANCO + FOTOS) ====================
+const { exec } = require("child_process");
+const archiver = require("archiver");
+
+app.get("/backup", autenticarToken, async (req, res) => {
+  try {
+    // Caminhos principais
+    const backupDir = path.join(__dirname, "..", "backups");
+    const sqlFile = path.join(backupDir, `bibliontec_${Date.now()}.sql`);
+    const zipFile = path.join(backupDir, `backup_completo_${Date.now()}.zip`);
+
+    // Cria pasta "backups" se não existir
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir);
+    }
+
+    // Comando para exportar o banco MySQL
+    const dumpCommand = `mysqldump -u ${process.env.DB_USER || "root"} ${
+      process.env.DB_PASSWORD ? "-p" + process.env.DB_PASSWORD : ""
+    } ${process.env.DB_NAME || "bibliontec"} > "${sqlFile}"`;
+
+    // Executa o backup do banco
+    exec(dumpCommand, (error) => {
+      if (error) {
+        console.error("❌ Erro ao exportar banco:", error);
+        return res.status(500).json({ error: "Erro ao exportar o banco de dados." });
+      }
+
+      // Compacta o banco + imagens em um ZIP
+      const output = fs.createWriteStream(zipFile);
+      const archive = archiver("zip", { zlib: { level: 9 } });
+
+      output.on("close", () => {
+        console.log(`✅ Backup completo criado: ${zipFile}`);
+        res.download(zipFile);
+      });
+
+      archive.on("error", (err) => {
+        console.error("Erro ao compactar backup:", err);
+        res.status(500).json({ error: "Erro ao compactar backup." });
+      });
+
+      archive.pipe(output);
+      archive.file(sqlFile, { name: path.basename(sqlFile) });
+      archive.directory(path.join(__dirname, "..", "uploads"), "uploads");
+      archive.finalize();
+    });
+  } catch (err) {
+    console.error("Erro geral no backup:", err);
+    res.status(500).json({ error: "Erro ao gerar backup completo." });
+  }
 });
 
 

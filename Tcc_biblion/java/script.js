@@ -204,15 +204,15 @@ if (formLogin) {
   formLogin.addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const email = document.getElementById('email').value;
-    const senha = document.getElementById('senha').value;
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('senha').value.trim();
 
     try {
       const response = await fetch(`${apiBase()}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, senha }),
-        credentials: 'include' // ESSENCIAL para cookies httpOnly
+        credentials: 'include'
       });
 
       const data = await response.json();
@@ -223,20 +223,21 @@ if (formLogin) {
         return;
       }
 
-      // Salva apenas dados do usuário/funcionário para UI
+      // ✅ Salva o token corretamente
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      // ✅ Salva informações do usuário/funcionário
       if (data.usuario) {
         localStorage.setItem("usuario", JSON.stringify(data.usuario));
-      } else {
+        localStorage.removeItem("funcionario");
+      } else if (data.funcionario) {
+        localStorage.setItem("funcionario", JSON.stringify(data.funcionario));
         localStorage.removeItem("usuario");
       }
 
-      if (data.funcionario) {
-        localStorage.setItem("funcionario", JSON.stringify(data.funcionario));
-      } else {
-        localStorage.removeItem("funcionario");
-      }
-
-      // Redirecionamento baseado no tipo
+      // ✅ Redirecionamento baseado no tipo
       if (data.usuario) {
         const tipo = Number(data.usuario.tipo_usuario_id);
         if (tipo === 1) {
@@ -278,20 +279,25 @@ async function validarSessao() {
 
     const res = await fetch(`${apiBase()}/check-session`, {
       headers: token ? { Authorization: "Bearer " + token } : {},
-      credentials: "include", // ainda tenta enviar cookie se existir
+      credentials: "include"
     });
 
-    // se o servidor responder com erro 401, não recarregue infinito
-    if (!res.ok) {
+    // 🚫 Evita loop infinito: apenas limpa token e para
+    if (res.status === 401 || res.status === 403) {
       console.warn("Sessão inválida ou expirada");
       localStorage.removeItem("token");
-      return; // não redireciona imediatamente (evita loop)
+      return;
+    }
+
+    if (!res.ok) {
+      console.warn("Erro inesperado na verificação da sessão");
+      return;
     }
 
     const data = await res.json();
     console.log("Sessão válida:", data);
 
-    // Atualiza interface
+    // Atualiza interface (opcional)
     if (data.payload?.usuario) {
       localStorage.setItem("usuario", JSON.stringify(data.payload.usuario));
     }

@@ -1333,15 +1333,14 @@
             </div>
         </div>
 
-
-        <div class="card-container">
+ <div class="card-container">
             <div class="card">
                 <div class="icon-container">
                     <i class="bi bi-person"></i>
                 </div>
                 <div class="info">
-                    <p>Total de usuários</p>
-                    <span>5</span>
+                    <p>Total de usuario</p>
+                    <p id="total-usuarios">0</p>
                 </div>
             </div>
             <div class="card active">
@@ -1350,7 +1349,7 @@
                 </div>
                 <div class="info">
                     <p>Ativos</p>
-                    <span>5</span>
+                    <p id="ativos-usuarios">0</p>
                 </div>
             </div>
             <div class="card inactive">
@@ -1359,92 +1358,29 @@
                 </div>
                 <div class="info">
                     <p>Inativos</p>
-                    <span>3</span>
+                    <p id="inativos-usuarios">0</p>
+
                 </div>
             </div>
         </div>
 
         <div class="table-responsive">
-        <table class="table table-striped table-bordered" id="lista-usuarios">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Status</th>
-                    <th>Tipos</th>
-                    <th>Empréstimo</th>
-                    <th>Atrasos</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Carlos Ferro</td>
-                    <td>carlos.fe@email.com</td>
-                    <td><span class="badge bg-success">Ativo</span></td>
-                    <td><span class="badge bg-wh-2">Aluno</span></td>
-                    <td>12</td>
-                    <td>1</td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Tháis Santos</td>
-                    <td>thais.sant@email.com</td>
-                    <td><span class="badge bg-danger">Inativo</span></td>
-                    <td><span class="badge bg-wh-1">Professor</span></td>
-                    <td>28</td>
-                    <td>10</td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Paula Lima</td>
-                    <td>paula.lima@email.com</td>
-                    <td><span class="badge bg-success">Ativo</span></td>
-                    <td><span class="badge bg-wh-1">Professor</span></td>
-                    <td>19</td>
-                    <td>0</td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Mateus Rosa</td>
-                    <td>mateus.ro@email.com</td>
-                    <td><span class="badge bg-success">Ativo</span></td>
-                    <td><span class="badge bg-wh-2">Aluno</span></td>
-                    <td>5</td>
-                    <td>1</td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Rose Ricardo</td>
-                    <td>rose.ricar@email.com</td>
-                    <td><span class="badge bg-danger">Inativo</span></td>
-                    <td><span class="badge bg-wh-2">Aluno</span></td>
-                    <td>9</td>
-                    <td>5</td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</button>
-                        <button class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil"></i> Editar</button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Excluir</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+
+<table class="table table-striped table-bordered text-center align-middle">
+  <thead class="table-dark">
+    <tr>
+      <th>Foto</th>
+      <th>Nome</th>
+      <th>Tipo</th>
+      <th>Email</th>
+      <th>Telefone</th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="tbody-usuarios"></tbody>
+</table>
+
     </div>
     </div>
 
@@ -1452,6 +1388,65 @@
 
 
 
+<!-- Modal Editar Usuário -->
+
+<div class="modal fade" id="modal-editar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="form-editar">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Usuário</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- ID oculto -->
+          <input type="hidden" id="id-usuario">
+
+          <!-- Nome -->
+          <div class="mb-3">
+            <label for="nome-usuario" class="form-label">Nome</label>
+            <input type="text" class="form-control" id="nome-usuario" required>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email-usuario" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email-usuario" required>
+          </div>
+
+          <!-- Telefone -->
+          <div class="mb-3">
+            <label for="telefone-usuario" class="form-label">Telefone</label>
+            <input type="text" class="form-control" id="telefone-usuario">
+          </div>
+
+          <!-- Tipo de Usuário -->
+          <div class="mb-3">
+            <label for="tipo-usuario" class="form-label">Tipo de Usuário</label>
+            <select id="tipo-usuario" class="form-control"></select>
+          </div>
+
+          <!-- Foto -->
+          <div class="mb-4 d-flex align-items-center">
+            <div id="previewBox"
+                 style="inline-size: 100px; block-size: 150px; background-color: #ddd; border-radius: 6px; margin-inline-end: 20px; background-image: url('https://bibliontec.onrender.com/uploads/padrao.jpg'); background-size: cover; background-position: center;">
+            </div>
+            <div>
+              <label class="mb-2">Escolha a foto para o usuário</label>
+              <input type="file" class="form-control" id="foto" name="foto" accept="image/*">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 
     <!-- Botão de acessibilidade -->

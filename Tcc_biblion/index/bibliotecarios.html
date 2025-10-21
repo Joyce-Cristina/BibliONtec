@@ -1074,54 +1074,55 @@
 
             </div>
         </div>
-
-        <div class="card-container">
-            <div class="card">
-                <div class="icon-container">
-                    <i class="bi bi-person"></i>
-                </div>
-                <div class="info">
-                    <p>Total de bibliotecários</p>
-                    <p id="total-bibliotecarios">0</p>
-                </div>
-            </div>
-            <div class="card active">
-                <div class="icon-container">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-                <div class="info">
-                    <p>Ativos</p>
-                    <p id="ativos-bibliotecarios">0</p>
-                </div>
-            </div>
-            <div class="card inactive">
-                <div class="icon-container">
-                    <i class="bi bi-x-circle"></i>
-                </div>
-                <div class="info">
-                    <p>Inativos</p>
-                    <p id="inativos-bibliotecarios">0</p>
-
-                </div>
-            </div>
+<div class="card-container">
+    <div class="card">
+        <div class="icon-container">
+            <i class="bi bi-person"></i>
         </div>
-        <div class="table-responsive">
-        <table class="table table-striped table-bordered mt-3" id="lista-bibliotecarios">
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Status</th>
-                    <th>Telefone</th>
-                    <th>Função</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- JS vai preencher -->
-            </tbody>
-        </table>
+        <div class="info">
+            <p>Total de funcionários</p>
+            <p id="total-funcionarios">0</p>
+        </div>
     </div>
+    <div class="card active">
+        <div class="icon-container">
+            <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="info">
+            <p>Ativos</p>
+            <p id="ativos-funcionarios">0</p>
+        </div>
+    </div>
+    <div class="card inactive">
+        <div class="icon-container">
+            <i class="bi bi-x-circle"></i>
+        </div>
+        <div class="info">
+            <p>Inativos</p>
+            <p id="inativos-funcionarios">0</p>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Foto</th>
+                <th>Nome</th>
+                <th>Função</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-funcionarios">
+            <!-- JS vai preencher -->
+        </tbody>
+    </table>
+</div>
+
     <!-- Modal de Edição -->
     <div class="modal fade" id="modal-editar" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
@@ -1152,7 +1153,7 @@
                     </div>
                     <div class="mb-4 d-flex align-items-center">
                         <div id="previewBox"
-                             style="inline-size: 100px; block-size: 150px; background-color: #5d3b1a; border-radius: 6px; margin-inline-end: 20px; background-image: url('https://bibliontec.onrender.com/uploads/padrao.jpg'); background-size: cover; background-position: center;">
+                             style="inline-size: 100px; block-size: 150px; background-color: #5d3b1a; border-radius: 6px; margin-inline-end: 20px; background-image: url('http://localhost:3000/uploads/padrao.jpg'); background-size: cover; background-position: center;">
                         </div>
                         <div>
                           <label class="mb-2">Escolha a foto para o usuário</label>
