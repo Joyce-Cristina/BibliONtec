@@ -370,7 +370,7 @@ app.post('/cadastrarUsuario', autenticarToken, upload.single('foto'), (req, res)
           email,
           hash,
           foto,
-          tipo_usuario_id,   // define se é aluno ou professor
+          tipo_usuario_id,   // define e é aluno ou professor
           tipo_usuario_id == 1 ? (curso_id || null) : null, // alunos têm curso e série
           tipo_usuario_id == 1 ? (serie || null) : null,
           funcionario_id || null,
