@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.2
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Tempo de geração: 20/10/2025 às 16:17
--- Versão do servidor: 11.8.3-MariaDB-log
--- Versão do PHP: 7.2.34
+-- Host: 127.0.0.1
+-- Tempo de geração: 21/10/2025 às 20:05
+-- Versão do servidor: 10.4.32-MariaDB
+-- Versão do PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `u479595318_bibliontec`
+-- Banco de dados: `bibliontec`
 --
 
 -- --------------------------------------------------------
@@ -101,6 +101,32 @@ INSERT INTO `autor` (`id`, `nome`) VALUES
 (50, 'Ralph Ellison'),
 (51, 'K.T. HAO'),
 (52, 'Nivio Ziviani');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `backup`
+--
+
+CREATE TABLE `backup` (
+  `id` int(11) NOT NULL,
+  `tipo` enum('manual','automatico') NOT NULL,
+  `caminho_arquivo` varchar(255) NOT NULL,
+  `data_criacao` datetime DEFAULT current_timestamp(),
+  `status` enum('concluido','falhou') DEFAULT 'concluido',
+  `tamanho` varchar(50) DEFAULT NULL,
+  `FK_funcionario_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `backup`
+--
+
+INSERT INTO `backup` (`id`, `tipo`, `caminho_arquivo`, `data_criacao`, `status`, `tamanho`, `FK_funcionario_id`) VALUES
+(1, 'manual', 'backup_1761069111687.zip', '2025-10-21 14:51:52', 'concluido', NULL, 8),
+(2, 'manual', 'backup_1761069132142.zip', '2025-10-21 14:52:12', 'concluido', NULL, 8),
+(3, 'manual', 'backup_1761069452795.zip', '2025-10-21 14:57:33', 'concluido', NULL, 8),
+(4, 'manual', 'backup_1761069462611.zip', '2025-10-21 14:57:43', 'concluido', NULL, 8);
 
 -- --------------------------------------------------------
 
@@ -416,7 +442,7 @@ CREATE TABLE `funcionario` (
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`, `ultimo_login`) VALUES
 (4, 'João Silva dos santos', '$2b$12$tVUS/6uLjMGP04EMTblqhuezcdfL6uYKW.gvfMvng/j9ink.iMrj2', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1, '2025-10-20 16:09:42'),
 (5, 'joao carlos ', '$2b$12$LObz6anCBt/bIDCQ4qzJz.VlXO5kyd49SJm4J5iF1HT2IEzF9qqbS', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1, NULL),
-(8, 'Admin Principal', '$2b$12$rVucKo1Mud6SLlgNiU3MouyDmrDqvuBn3TDOYOCaRr0/zap1GF79O', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1, '2025-10-20 16:10:10'),
+(8, 'Admin Principal', '$2b$12$rVucKo1Mud6SLlgNiU3MouyDmrDqvuBn3TDOYOCaRr0/zap1GF79O', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1, '2025-10-21 14:16:20'),
 (9, 'cletin do pneu ', '$2b$12$EYZ9dyuribSMa1a9oeq91OJxvAvG4/ojIILfhfgNQpd9iYn6IqVnS', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1, NULL),
 (10, 'shaulin porco', '$2b$12$UbUgnWQup4cgnmPh6TOV2ucm5zQ5nVpqK3OnfC887DYxeJeakD3iu', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1, NULL);
 
@@ -1114,6 +1140,13 @@ ALTER TABLE `autor`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `backup`
+--
+ALTER TABLE `backup`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_funcionario_id` (`FK_funcionario_id`);
+
+--
 -- Índices de tabela `classificacao`
 --
 ALTER TABLE `classificacao`
@@ -1444,6 +1477,12 @@ ALTER TABLE `autor`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
+-- AUTO_INCREMENT de tabela `backup`
+--
+ALTER TABLE `backup`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT de tabela `classificacao`
 --
 ALTER TABLE `classificacao`
@@ -1590,6 +1629,12 @@ ALTER TABLE `usuario`
 --
 -- Restrições para tabelas despejadas
 --
+
+--
+-- Restrições para tabelas `backup`
+--
+ALTER TABLE `backup`
+  ADD CONSTRAINT `backup_ibfk_1` FOREIGN KEY (`FK_funcionario_id`) REFERENCES `funcionario` (`id`) ON DELETE SET NULL;
 
 --
 -- Restrições para tabelas `comentario`
