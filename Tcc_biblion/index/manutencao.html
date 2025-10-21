@@ -1246,117 +1246,104 @@
 <div class="tab-content mt-3" id="configTabsContent">
 
   <!-- Seção: Backup -->
-<div id="backup" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
-  <div class="d-flex flex-wrap gap-3">
+  <div id="backup" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
+    <div class="d-flex flex-wrap gap-3">
 
-    <!-- Seção: Backup do banco -->
-    <div class="section-box" style="flex: 1 1 48%;">
-      <div class="section-header">Backup do banco de dados</div>
-      <div class="backup-info mb-3">
-        <div class="backup-item">
-          <span class="backup-label">Último backup:</span>
-          <span class="backup-value">16/01/2024 às 10:30</span>
-        </div>
-        <div class="backup-item-verifica">
-          <i class="bi bi-check-circle-fill"></i> Backup automático diário ativo
-        </div>
-      </div>
-      <div class="mb-4 d-flex gap-2">
-        <button class="btn btn-save w-50 d-flex justify-content-center align-items-center">
-          <i class="bi bi-hdd-stack"></i> Backup manual
-        </button>
-        <button class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
-          <i class="bi bi-upload"  style="font-size: 18px;"></i> Restaurar backup
-        </button>
-      </div>
-    </div>
+      <!-- Seção: Backup do banco -->
+      <div class="section-box" style="flex: 1 1 48%;">
+        <div class="section-header">Backup do banco de dados</div>
 
-    <!-- Seção: Configuração de backup -->
-    <div class="section-box" style="flex: 1 1 48%;">
-      <div class="section-header">
-        <i class="bi bi-gear"></i> Configuração de backup
+        <div class="backup-info mb-3">
+          <div class="backup-item">
+            <span class="backup-label">Último backup:</span>
+            <span id="ultimoBackup" class="backup-value">Nenhum ainda</span>
+          </div>
+          <div class="backup-item-verifica">
+            <i class="bi bi-check-circle-fill"></i>
+            <span id="statusBackup">Backup automático diário ativo</span>
+          </div>
+        </div>
+
+        <div class="mb-4 d-flex gap-2">
+          <button id="btnBackupManual" class="btn btn-save w-50 d-flex justify-content-center align-items-center">
+            <i class="bi bi-hdd-stack"></i> Backup manual
+          </button>
+          <button id="btnRestaurar" class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
+            <i class="bi bi-upload" style="font-size: 18px;"></i> Restaurar backup
+          </button>
+        </div>
       </div>
-      <div class="config-section p-3 mb-4">
-        <div class="config-item d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <div class="config-title">Backup automático</div>
-            <div class="config-desc">
-              Backup diário às
-              <input type="time" value="02:00" class="form-control form-control-sm d-inline w-auto">
+
+      <!-- Seção: Configuração de backup -->
+      <div class="section-box" style="flex: 1 1 48%;">
+        <div class="section-header">
+          <i class="bi bi-gear"></i> Configuração de backup
+        </div>
+        <div class="config-section p-3 mb-4">
+          <div class="config-item d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="config-title">Backup automático</div>
+              <div class="config-desc">
+                Backup diário às
+                <input id="horaBackup" type="time" value="02:00" class="form-control form-control-sm d-inline w-auto">
+              </div>
+            </div>
+            <span class="badge bg-success">Ativo</span>
+          </div>
+
+          <div class="config-item d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="config-title">Retenção de backups</div>
+              <div class="config-desc">
+                Manter por
+                <input id="diasRetencao" type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
+              </div>
+            </div>
+            <span id="retencaoLabel" class="badge bg-primary">30 dias</span>
+          </div>
+
+          <div class="config-item d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <div class="config-title">Compressão</div>
+              <div class="config-desc">Reduz o tamanho do arquivo</div>
+            </div>
+            <div class="form-check form-switch">
+              <input id="compressaoAtiva" class="form-check-input" type="checkbox" checked>
             </div>
           </div>
-          <span class="badge bg-success">Ativo</span>
         </div>
-
-        <div class="config-item d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <div class="config-title">Retenção de backups</div>
-            <div class="config-desc">
-              Manter por
-              <input type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
-            </div>
-          </div>
-          <span class="badge bg-primary">30 dias</span>
-        </div>
-
-        <div class="config-item d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <div class="config-title">Compressão</div>
-            <div class="config-desc">Reduz o tamanho do arquivo</div>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" checked>
-          </div>
-        </div>
-      </div>
-      <button class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
+        <button id="btnSalvarConfig" class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
           <i class="bi bi-save" style="font-size: 18px;"></i> Configurar backup
-      </button>
-    </div>
-
-    <!-- Seção: Histórico (maior largura) -->
-    <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
-      <div class="section-header">
-        <i class="bi bi-clock-history"></i> Histórico de backups
+        </button>
       </div>
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-          <thead class="table-light">
-            <tr>
-              <th>Data/Hora</th>
-              <th>Tipo</th>
-              <th>Tamanho</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>16/01/2024 10:30</td>
-              <td>Automático</td>
-              <td>27.8 MB</td>
-              <td><span class="badge bg-success">Concluído</span></td>
-              <td>
-                <button class="btn btn-outline btn-preto w-20"><i class="bi bi-save" style="font-size: 20px;"></i></button>
-              </td>
-            </tr>
-            <tr>
-              <td>15/01/2024 02:00</td>
-              <td>Automático</td>
-              <td>24.5 MB</td>
-              <td><span class="badge bg-danger">Falhou</span></td>
-              <td>
-                <button class="btn btn-outline btn-preto w-20"><i class="bi bi-save"  style="font-size: 20px;"></i></button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
+      <!-- Seção: Histórico -->
+      <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
+        <div class="section-header">
+          <i class="bi bi-clock-history"></i> Histórico de backups
+        </div>
+        <div class="table-responsive">
+          <table id="tabelaBackup" class="table table-striped table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>Data/Hora</th>
+                <th>Tipo</th>
+                <th>Tamanho</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="text-center mt-3">
+          <button id="btnListar" class="btn btn-secondary">🔄 Atualizar histórico</button>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
-
 
   <!-- Aba: Logs -->
   <div id="logs" class="tab-pane fade" role="tabpanel" aria-labelledby="logs-tab">
@@ -1470,7 +1457,7 @@
       <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
     </div>
   </div>
-
+ <script src="../java/backup.js"></script>
   <script src="../java/script.js"></script>
 <!-- Scripts das abas -->
 
