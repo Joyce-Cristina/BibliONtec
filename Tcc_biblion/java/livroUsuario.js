@@ -94,17 +94,38 @@ async function reservarLivro(livroId) {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("Sessão expirada");
 
-    const resp = await fetch(`${apiBase()}/reservar/${livroId}`, {
+    const usuarioJSON = localStorage.getItem("usuario");
+    if (!usuarioJSON) throw new Error("Dados do usuário não encontrados");
+    
+    const usuario = JSON.parse(usuarioJSON);
+    const usuarioId = usuario.id;
+
+    const resp = await fetch(`${apiBase()}/reservas`, {
       method: "POST",
-      headers: { "Authorization": `Bearer ${token}` }
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        usuarioId: usuarioId,
+        livroId: livroId
+      })
     });
 
-    if (!resp.ok) throw new Error("Erro ao reservar livro");
+    if (!resp.ok) {
+      const errorData = await resp.json();
+      throw new Error(errorData.error || "Erro ao reservar livro");
+    }
 
-    alert("Livro reservado com sucesso!");
+    const result = await resp.json();
+    alert(`Livro reservado com sucesso! Sua posição na fila: ${result.posicao}`);
+    
+    // Recarregar a página para atualizar o status do livro
+    window.location.reload();
+    
   } catch (err) {
     console.error("Erro ao reservar livro:", err);
-    alert("Não foi possível reservar o livro.");
+    alert("Não foi possível reservar o livro: " + err.message);
   }
 }
 
