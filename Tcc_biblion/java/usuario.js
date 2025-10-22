@@ -52,8 +52,9 @@ todosOsUsuarios = todosOsUsuarios.map((u) => {
   }
 }
 // ------------------ EXIBIR USUÁRIOS EM CARDS ------------------
-function exibirUsuarios(usuarios) {
+function exibirUsuariosCards(usuarios) {
   const container = document.getElementById('lista-usuarios');
+  if (!container) return; // se não existe, sai (talvez a página use tabela)
   container.innerHTML = '';
 
   usuarios.forEach(u => {
@@ -77,16 +78,14 @@ function exibirUsuarios(usuarios) {
         <button class="btn btn-dark" onclick="abrirModalEdicao(${u.id})">Editar</button>
       </div>
     `;
-
     container.appendChild(card);
   });
 }
 
 // ------------------ EXIBIR EM TABELA ------------------
-function exibirUsuarios(usuarios) {
+function exibirUsuariosTabela(usuarios) {
   const tbody = document.getElementById("tbody-usuarios");
   if (!tbody) return;
-
   tbody.innerHTML = "";
 
   usuarios.forEach((u) => {
@@ -95,7 +94,6 @@ function exibirUsuarios(usuarios) {
       : `${apiBase()}/uploads/padrao.jpg`;
 
     const tr = document.createElement("tr");
-
     const corStatus = u.status === "Ativo" ? "text-success" : "text-danger";
 
     tr.innerHTML = `
@@ -114,7 +112,6 @@ function exibirUsuarios(usuarios) {
         </button>
       </td>
     `;
-
     tbody.appendChild(tr);
   });
 }
@@ -248,4 +245,19 @@ function atualizarContadores() {
   totalEl.textContent = total;
   ativosEl.textContent = ativos;
   inativosEl.textContent = inativos;
+}
+
+function exibirUsuarios(usuarios) {
+  // página com cards?
+  if (document.getElementById('lista-usuarios')) {
+    exibirUsuariosCards(usuarios);
+    return;
+  }
+  // página com tabela?
+  if (document.getElementById('tbody-usuarios')) {
+    exibirUsuariosTabela(usuarios);
+    return;
+  }
+  // nenhum elemento reconhecido: apenas log para debug
+  console.warn('Nenhum container de usuários encontrado (lista-usuarios ou tbody-usuarios).');
 }
