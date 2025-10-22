@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -12,10 +11,21 @@ const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
 const bcrypt = require('bcrypt');
 const xss = require("xss");
-
+const { exec } = require('child_process');
+const cron = require("node-cron");
 const cookieParser = require('cookie-parser');
+const AdmZip = require("adm-zip");
 
-// Detecta ambiete automaticamente
+const execPromise = (cmd) =>
+  new Promise((resolve, reject) => {
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) return reject(error);
+      resolve({ stdout, stderr });
+    });
+  });
+
+
+// Detecta ambiente automaticamente
 const envFile =
   process.env.NODE_ENV === 'production'
     ? path.resolve(__dirname, '../../.env.production')
@@ -27,7 +37,6 @@ require('dotenv').config({ path: envFile });
 const SECRET = process.env.JWT_SECRET;
 
 const mmToPt = mm => mm * 2.8346456693;
-
 const ETIQUETA_W_MM = 85;
 const ETIQUETA_H_MM = 50;
 const ETIQUETA_W_PT = mmToPt(ETIQUETA_W_MM);
@@ -46,6 +55,7 @@ const pool = mysqlRaw.createPool({
   connectionLimit: 10,
   queueLimit: 0
 });
+
 // --- Wrapper que substitui connection.query por pool.query ---
 function queryCallback(sql, params, cb) {
   if (typeof params === 'function') {
@@ -56,6 +66,7 @@ function queryCallback(sql, params, cb) {
     .then(([rows]) => cb(null, rows))
     .catch(err => cb(err));
 }
+
 // Testa conexão inicial
 (async () => {
   try {
@@ -67,7 +78,15 @@ function queryCallback(sql, params, cb) {
   }
 })();
 
-// middleware para validar token
+function validarToken(token) {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET || "segredo");
+  } catch {
+    return null;
+  }
+}
+
+// Middleware para validar token
 function autenticarToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -76,12 +95,13 @@ function autenticarToken(req, res, next) {
 
   jwt.verify(token, SECRET, (err, payload) => {
     if (err) return res.status(403).json({ error: "Token inválido ou expirado" });
-
     console.log("🔑 Payload do token:", payload);
     req.user = payload;
     next();
   });
 }
+
+const app = express();
 
 // --- SEGURANÇA, LOGS, CORS e PARSERS --- //
 const helmet = require('helmet');
@@ -91,10 +111,7 @@ const expressWinston = require('express-winston');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 
-// Inicializa o app uma única vez
-const app = express();
-app.use(cookieParser());
-// ===== 1. CORS =====
+// ===== 1. CORS (antes de tudo que usa rotas) =====
 const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
@@ -105,18 +122,26 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log("🚫 Origem bloqueada pelo CORS:", origin);
-      callback(new Error('Origem não permitida pelo CORS'));
-    }
-  },
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
-// ===== 2. Helmet (configurado corretamente) =====
+/// ✅ Corrige o bug do path-to-regexp (*)
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    return res.sendStatus(204); // pré-flight OK
+  }
+  next();
+});
+
+
+// ===== 2. Helmet =====
 app.use(helmet({
   crossOriginResourcePolicy: false,
   contentSecurityPolicy: {
@@ -134,7 +159,7 @@ app.use(helmet({
       ],
       "script-src": ["'self'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
       "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
-      "font-src": ["'self'", "https://fonts.gstatic.com"],
+      "font-src": ["'self'", "https://fonts.gstatic.com"]
     }
   }
 }));
@@ -145,7 +170,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ===== 3. Body Parsers (apenas uma vez) =====
+// ===== 3. Body Parsers =====
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -173,12 +198,11 @@ app.use(expressWinston.logger({
   colorize: false
 }));
 
-
 // ===== 5. Servir uploads e páginas =====
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use(express.static(path.join(__dirname, '..')));
 
-// ===== 6. Rate Limiter (login) =====
+// ===== 6. Rate Limiter =====
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
@@ -191,8 +215,7 @@ const loginLimiter = rateLimit({
   }
 });
 
-
-// Middleware de validação (mantém o seu)
+// ===== 7. Middleware de validação =====
 function handleValidationErrors(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -201,9 +224,10 @@ function handleValidationErrors(req, res, next) {
   }
   next();
 }
+
+// ===== 8. Check session =====
 app.get("/check-session", (req, res) => {
   try {
-    // Verifica se há cookie OU header de autorização
     const token =
       req.cookies?.token ||
       (req.headers.authorization && req.headers.authorization.split(" ")[1]);
@@ -216,8 +240,6 @@ app.get("/check-session", (req, res) => {
       if (err) {
         return res.status(401).json({ autenticado: false, mensagem: "Sessão inválida" });
       }
-
-      // Retorna status de sessão válida
       res.json({ autenticado: true, payload });
     });
   } catch (error) {
@@ -226,9 +248,7 @@ app.get("/check-session", (req, res) => {
   }
 });
 
-
-//================= MULTER=================
-
+//================= MULTER =================//
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, '..', 'uploads')),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
@@ -237,15 +257,11 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    if (allowedMimeTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Apenas arquivos de imagem JPEG, PNG, JPG e WEBP são permitidos.'));
-    }
+    if (allowedMimeTypes.includes(file.mimetype)) cb(null, true);
+    else cb(new Error('Apenas arquivos de imagem JPEG, PNG, JPG e WEBP são permitidos.'));
   }
 });
-
-
+// ================= FILTRO DE PALAVRÕES =================
 async function filtrarComentario(texto) {
   try {
     const url = `https://myptify.vercel.app/api/filter?text=${encodeURIComponent(texto)}`;
@@ -1076,7 +1092,7 @@ app.post(
       }
 
       // ✅ Atualiza o último login do funcionário
-   await pool.query(`UPDATE funcionario SET ultimo_login = NOW() WHERE id = ?`, [funcionario.id]);
+      await pool.query(`UPDATE funcionario SET ultimo_login = NOW() WHERE id = ?`, [funcionario.id]);
 
       const token = jwt.sign({
         id: funcionario.id,
@@ -1108,7 +1124,7 @@ app.post(
       logger.error('Erro interno no login', { error: err.message, stack: err.stack, email: req.body.email, ip: req.ip });
       return res.status(500).json({ error: "Erro no servidor", detalhe: err.message });
     }
-    
+
   }
 );
 
@@ -2573,172 +2589,245 @@ app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {
     });
   });
 });
-// ==================== BACKUP COMPLETO (BANCO + FOTOS) ====================
-const { exec } = require("child_process");
 
+// ==================== BACKUP E RESTAURAÇÃO ==================== //
+const archiver = require("archiver");
 
-app.get("/backup", autenticarToken, async (req, res) => {
+// Cria a pasta de backups se não existir
+const pastaBackups = path.join(__dirname, "..", "backups");
+if (!fs.existsSync(pastaBackups)) {
+  fs.mkdirSync(pastaBackups, { recursive: true });
+}
+function validarToken(token) {
   try {
-    // Caminhos principais
-    const backupDir = path.join(__dirname, "..", "backups");
-    const sqlFile = path.join(backupDir, `bibliontec_${Date.now()}.sql`);
-    const zipFile = path.join(backupDir, `backup_completo_${Date.now()}.zip`);
+    return jwt.verify(token, process.env.JWT_SECRET || "segredo"); 
+  } catch (err) {
+    return null;
+  }
+}
+// === ROTA: Fazer Backup Manual (gera ZIP e envia download) ===
+// ROTA: Fazer Backup Manual (gera ZIP e envia download direto)
 
-    // Cria pasta "backups" se não existir
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir);
-    }
+// ROTA DE BACKUP E DOWNLOAD DIRETO
 
-    // Comando para exportar o banco MySQL
-    const dumpCommand = `mysqldump -u ${process.env.DB_USER || "root"} ${
-      process.env.DB_PASSWORD ? "-p" + process.env.DB_PASSWORD : ""
-    } ${process.env.DB_NAME || "bibliontec"} > "${sqlFile}"`;
 
-    // Executa o backup do banco
-    exec(dumpCommand, (error) => {
-      if (error) {
-        console.error("❌ Erro ao exportar banco:", error);
-        return res.status(500).json({ error: "Erro ao exportar o banco de dados." });
-      }
+// ROTA: Fazer Backup Manual e download direto
+app.get("/backup", async (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.status(401).json({ error: "Token não fornecido" });
 
-      // Compacta o banco + imagens em um ZIP
-      const output = fs.createWriteStream(zipFile);
-      const archive = archiver("zip", { zlib: { level: 9 } });
+  const usuario = validarToken(token);
+  if (!usuario) return res.status(401).json({ error: "Token inválido" });
 
-      output.on("close", () => {
-        console.log(`✅ Backup completo criado: ${zipFile}`);
-        res.download(zipFile);
-      });
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const dumpPath = path.join(pastaBackups, `dump-${timestamp}.sql`);
+    const zipPath = path.join(pastaBackups, `backup-${timestamp}.zip`);
 
-      archive.on("error", (err) => {
-        console.error("Erro ao compactar backup:", err);
-        res.status(500).json({ error: "Erro ao compactar backup." });
-      });
+    // Gerar dump MySQL
+    const caminhoDumpExe = `"D:\\Nova pasta\\mysql\\bin\\mysqldump.exe"`;
+    const comandoDump = `${caminhoDumpExe} -u${process.env.DB_USER || "root"} ${process.env.DB_PASSWORD ? `-p${process.env.DB_PASSWORD}` : ""} ${process.env.DB_NAME || "bibliontec"} > "${dumpPath}"`;
+    console.log("🧱 Executando comando:", comandoDump);
+    await execPromise(comandoDump);
 
-      archive.pipe(output);
-      archive.file(sqlFile, { name: path.basename(sqlFile) });
-      archive.directory(path.join(__dirname, "..", "uploads"), "uploads");
+    // Criar ZIP
+    const output = fs.createWriteStream(zipPath);
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    archive.pipe(output);
+    archive.file(dumpPath, { name: path.basename(dumpPath) });
+
+    // Adiciona uploads, se houver
+    const pastaUploads = path.join(__dirname, "..", "uploads");
+    if (fs.existsSync(pastaUploads)) archive.directory(pastaUploads, "uploads");
+
+    await new Promise((resolve, reject) => {
+      output.on("close", resolve);
+      archive.on("error", reject);
       archive.finalize();
     });
+
+    fs.unlinkSync(dumpPath);
+
+    // Envia download direto
+    res.download(zipPath, path.basename(zipPath), (err) => {
+      if (err) console.error("Erro ao enviar ZIP:", err);
+      else fs.unlinkSync(zipPath); // remove ZIP após download
+    });
+
   } catch (err) {
-    console.error("Erro geral no backup:", err);
-    res.status(500).json({ error: "Erro ao gerar backup completo." });
+    console.error("❌ Erro ao gerar backup:", err);
+    res.status(500).json({ error: "Falha ao gerar backup: " + err.message });
   }
 });
+const multerRestore = multer({ dest: path.join(__dirname, "..", "uploads") });
+const sqlFilePath = path.join(__dirname, "..", "uploads", "restore.sql");
 
 
-// ===============================
-// === ROTAS DE BACKUP DO SISTEMA ===
-// ===============================
-const archiver = require("archiver");
-const unzipper = require("unzipper");
-const cron = require("node-cron");
 
-// === Criar pasta de backups ===
-const backupDir = path.join(__dirname, "..", "backups");
-if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir);
-
-// === ROTA: Gerar backup manual ou automático ===
-app.post("/backup", autenticarToken, async (req, res) => {
-  const { tipo } = req.body;
-  const funcionarioId = req.user?.id || null;
-
+// === ROTA: Restaurar Backup ===
+app.post("/backup/restaurar", autenticarToken, multerRestore.single("arquivo"), async (req, res) => {
   try {
-    const nomeArquivo = `backup_${Date.now()}.zip`;
-    const caminhoArquivo = path.join(backupDir, nomeArquivo);
+    if (!req.file) {
+      return res.status(400).json({ error: "Nenhum arquivo enviado." });
+    }
 
-    const output = fs.createWriteStream(caminhoArquivo);
-    const archive = archiver("zip", { zlib: { level: 9 } });
+    const zipPath = req.file.path;
+    const zip = new AdmZip(zipPath);
+    const extractDir = path.join(__dirname, "restore_temp");
 
-    archive.pipe(output);
-    archive.directory(path.join(__dirname, "..", "uploads"), "uploads");
-    archive.file(path.join(__dirname, "..", ".env.local"), { name: ".env.local" });
-    archive.finalize();
+    // Garante que a pasta temporária existe
+    if (!fs.existsSync(extractDir)) fs.mkdirSync(extractDir);
 
-    output.on("close", async () => {
-      await pool.query(
-        `INSERT INTO backup (tipo, caminho_arquivo, status, FK_funcionario_id)
-         VALUES (?, ?, 'concluido', ?)`,
-        [tipo, nomeArquivo, funcionarioId]
-      );
+    // Extrai o ZIP
+    zip.extractAllTo(extractDir, true);
 
-      if (tipo === "manual") {
-        res.download(caminhoArquivo, nomeArquivo);
-      } else {
-        res.json({ message: "Backup automático concluído!" });
+    // Busca o arquivo .sql dentro do ZIP
+    const sqlFile = fs.readdirSync(extractDir).find(f => f.endsWith(".sql"));
+    if (!sqlFile) {
+      return res.status(400).json({ error: "Arquivo .sql não encontrado no backup." });
+    }
+
+    const sqlFilePath = path.join(extractDir, sqlFile);
+
+    exec(`mysql -u ${DB_USER} ${DB_PASS ? `-p${DB_PASS}` : ""} ${DB_NAME} < "${sqlFilePath}"`, (error) => {
+      if (error) {
+        console.error("Erro ao restaurar:", error);
+        return res.status(500).json({ error: "Falha ao restaurar o banco." });
       }
+
+      console.log("✅ Banco restaurado com sucesso!");
+      res.json({ message: "✅ Banco restaurado com sucesso!" });
     });
 
-    output.on("error", async (err) => {
-      await pool.query(
-        `INSERT INTO backup (tipo, status, mensagem, FK_funcionario_id)
-         VALUES (?, 'falhou', ?, ?)`,
-        [tipo, err.message, funcionarioId]
-      );
-      res.status(500).json({ error: "Erro ao gerar backup." });
-    });
   } catch (err) {
-    console.error("Erro no backup:", err);
-    res.status(500).json({ error: "Erro interno ao gerar backup." });
+    console.error("Erro ao restaurar backup:", err);
+    res.status(500).json({ error: "Falha ao restaurar backup." });
   }
 });
 
-// === ROTA: Listar histórico de backups ===
+
+// === ROTA: Histórico de Backups ===
 app.get("/backup/historico", autenticarToken, async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT id, tipo, caminho_arquivo, data_criacao, status, mensagem
-      FROM backup ORDER BY data_criacao DESC
+      SELECT id, tipo, caminho_arquivo, data_criacao, status, tamanho
+      FROM backup
+      ORDER BY data_criacao DESC
     `);
+
+    console.log("📦 BACKUPS ENVIADOS:", rows); // <-- ADICIONE ESTA LINHA
+
     res.json(rows);
   } catch (err) {
-    console.error("Erro ao listar backups:", err);
-    res.status(500).json({ error: "Erro ao listar backups." });
+    console.error("Erro ao carregar histórico de backups:", err);
+    res.status(500).json({ error: "Erro ao listar histórico" });
   }
+ 
+
 });
 
-// === ROTA: Restaurar backup ===
-app.post("/backup/restaurar", autenticarToken, async (req, res) => {
-  const { arquivo } = req.body;
+
+
+// === BACKUP AUTOMÁTICO AGENDADO ===
+cron.schedule("* * * * *", async () => {
   try {
-    const arquivoPath = path.join(backupDir, arquivo);
-    if (!fs.existsSync(arquivoPath)) {
-      return res.status(404).json({ error: "Backup não encontrado." });
+    const [configs] = await pool.query("SELECT * FROM backup_config");
+    for (const cfg of configs) {
+      const agora = new Date();
+      const horaAtual = agora.toTimeString().slice(0, 5);
+
+      if (horaAtual === cfg.hora) {
+        console.log(`⏰ Executando backup automático para instituição ${cfg.FK_instituicao_id}`);
+
+        const nomeArquivo = `backup_auto_${Date.now()}.sql`;
+        const caminho = `./backups/${nomeArquivo}`;
+
+        const comando = `mysqldump -u ${DB_USER} ${DB_PASS ? `-p${DB_PASS}` : ""} ${DB_NAME} > ${caminho}`;
+        exec(comando, async (error) => {
+          if (error) {
+            console.error("Erro no backup automático:", error);
+            await pool.query(
+              "INSERT INTO backup (tipo, caminho_arquivo, status, mensagem) VALUES ('automatico', ?, 'falhou', ?)",
+              [nomeArquivo, error.message]
+            );
+          } else {
+            const stats = fs.statSync(caminho);
+            const tamanho = (stats.size / (1024 * 1024)).toFixed(2) + " MB";
+            await pool.query(
+              "INSERT INTO backup (tipo, caminho_arquivo, status, tamanho) VALUES ('automatico', ?, 'concluido', ?)",
+              [nomeArquivo, tamanho]
+            );
+            console.log(`✅ Backup automático concluído: ${nomeArquivo}`);
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Erro ao executar backup automático:", err);
+  }
+});
+// === ROTA: Configurar Backup Automático ===
+app.post("/backup/configurar", autenticarToken, async (req, res) => {
+  try {
+    const { hora, dias_retencao, compressao } = req.body;
+
+    if (!hora) {
+      return res.status(400).json({ error: "Hora do backup é obrigatória." });
     }
 
-    await fs.createReadStream(arquivoPath)
-      .pipe(unzipper.Extract({ path: path.join(__dirname, "..") }))
-      .promise();
+    // ID da instituição do usuário logado (padrão 1 se não tiver no token)
+    const instituicaoId = req.user?.FK_instituicao_id || 1;
 
-    res.json({ message: "✅ Backup restaurado com sucesso!" });
+    await pool.query(`
+      INSERT INTO backup_config (FK_instituicao_id, hora, dias_retencao, compressao)
+      VALUES (?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE 
+        hora = VALUES(hora),
+        dias_retencao = VALUES(dias_retencao),
+        compressao = VALUES(compressao),
+        updated_at = CURRENT_TIMESTAMP
+    `, [
+      instituicaoId,
+      hora,
+      dias_retencao || 30,
+      compressao ? 1 : 0
+    ]);
+
+    console.log(`⚙️ Backup automático configurado: ${hora}, ${dias_retencao} dias, compressão=${compressao}`);
+
+    res.json({ message: "✅ Configuração salva com sucesso!" });
   } catch (err) {
-    console.error("Erro ao restaurar backup:", err);
-    res.status(500).json({ error: "Erro ao restaurar backup." });
+    console.error("Erro ao salvar configuração de backup:", err);
+    res.status(500).json({ error: "Erro ao salvar configuração de backup." });
   }
 });
-
-// === ROTA: Baixar backup específico ===
-app.get("/backups/:file", autenticarToken, (req, res) => {
-  const file = req.params.file;
-  const filePath = path.join(backupDir, file);
-  if (fs.existsSync(filePath)) {
-    res.download(filePath);
-  } else {
-    res.status(404).json({ error: "Arquivo não encontrado" });
-  }
-});
-
-// === CRON: Backup automático diário às 03:00 ===
-cron.schedule("0 3 * * *", async () => {
-  console.log("⏰ Executando backup automático...");
+// === ROTA: Obter Configuração Atual de Backup ===
+app.get("/backup/configurar", autenticarToken, async (req, res) => {
   try {
-    await pool.query(
-      `INSERT INTO backup (tipo, caminho_arquivo, status) VALUES ('automatico', '', 'pendente')`
+    const instituicaoId = req.user?.FK_instituicao_id || 1;
+
+    const [config] = await pool.query(
+      "SELECT hora, dias_retencao, compressao FROM backup_config WHERE FK_instituicao_id = ? LIMIT 1",
+      [instituicaoId]
     );
+
+    const [ultimoBackup] = await pool.query(`
+      SELECT data_criacao, tipo, status
+      FROM backup
+      ORDER BY data_criacao DESC
+      LIMIT 1
+    `);
+
+    res.json({
+      configuracao: config[0] || null,
+      ultimo_backup: ultimoBackup[0] || null
+    });
   } catch (err) {
-    console.error("Erro ao registrar backup automático:", err);
+    console.error("Erro ao buscar configuração de backup:", err);
+    res.status(500).json({ error: "Erro ao buscar configuração de backup." });
   }
 });
+
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = process.env.PORT || 3000;
