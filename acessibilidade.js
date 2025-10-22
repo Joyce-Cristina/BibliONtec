@@ -1,60 +1,46 @@
 // ===============================
-// BOTÃO DE ACESSIBILIDADE GLOBAL
+// ACESSIBILIDADE - Filtros de Daltonismo + Modo Escuro
+// Mantém header e botões fixos
 // ===============================
 
-// Cria o HTML base do botão e menu
-const accessibilityHTML = `
-  <div class="accessibility-container">
-    <button class="accessibility-btn" id="accessibilityToggle">
-      <i class="bi bi-universal-access"></i>
-    </button>
-
-    <div class="accessibility-menu" id="accessibilityMenu">
-      <button data-filter="none">Padrão</button>
-      <button data-filter="protanopia">Protanopia</button>
-      <button data-filter="deuteranopia">Deuteranopia</button>
-      <button data-filter="tritanopia">Tritanopia</button>
-    </div>
-  </div>
-
-  <!-- SVG Filters -->
-  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-    <filter id="protanopia">
-      <feColorMatrix type="matrix"
-        values="0.567,0.433,0,0,0
-                0.558,0.442,0,0,0
-                0,0.242,0.758,0,0
-                0,0,0,1,0"/>
-    </filter>
-    <filter id="deuteranopia">
-      <feColorMatrix type="matrix"
-        values="0.625,0.375,0,0,0
-                0.7,0.3,0,0,0
-                0,0.3,0.7,0,0
-                0,0,0,1,0"/>
-    </filter>
-    <filter id="tritanopia">
-      <feColorMatrix type="matrix"
-        values="0.95,0.05,0,0,0
-                0,0.433,0.567,0,0
-                0,0.475,0.525,0,0
-                0,0,0,1,0"/>
-    </filter>
-  </svg>
-`;
-
-// Injeta o HTML no final do body
 document.addEventListener("DOMContentLoaded", () => {
+  
+  // HTML do botão e menu
+  const accessibilityHTML = `
+    <div class="accessibility-container">
+      <button class="accessibility-btn" id="accessibilityToggle" title="Opções de acessibilidade">
+        <i class="bi bi-universal-access"></i>
+      </button>
+
+      <div class="accessibility-menu" id="accessibilityMenu">
+        <button data-filter="none">Padrão</button>
+        <button data-filter="protanopia">Protanopia</button>
+        <button data-filter="deuteranopia">Deuteranopia</button>
+        <button data-filter="tritanopia">Tritanopia</button>
+        <button data-filter="modo-escuro">Baixo Contraste</button>
+      </div>
+    </div>
+
+    <div id="accessibilityOverlay"></div>
+  `;
+
+  // Inserir no body
   document.body.insertAdjacentHTML("beforeend", accessibilityHTML);
 
-  // Injeta estilos
+  // Seletores
+  const toggleBtn = document.getElementById("accessibilityToggle");
+  const menu = document.getElementById("accessibilityMenu");
+  const overlay = document.getElementById("accessibilityOverlay");
+
+  // CSS dinâmico
   const style = document.createElement("style");
   style.textContent = `
+    /* Container e botão */
     .accessibility-container {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 9999;
+      z-index: 10001;
     }
     .accessibility-btn {
       width: 50px;
@@ -70,6 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
     .accessibility-btn:hover {
       background-color: #343a40;
     }
+
+    /* Menu */
     .accessibility-menu {
       position: absolute;
       bottom: 60px;
@@ -81,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
       visibility: hidden;
       transform: translateY(10px);
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
     }
     .accessibility-menu.show {
       opacity: 1;
@@ -90,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     .accessibility-menu button {
       display: block;
-      width: 140px;
+      width: 160px;
       background: transparent;
       color: white;
       border: none;
@@ -102,47 +90,62 @@ document.addEventListener("DOMContentLoaded", () => {
     .accessibility-menu button:hover {
       background: #343a40;
     }
-    body[data-filter="protanopia"] { filter: url("#protanopia"); }
-    body[data-filter="deuteranopia"] { filter: url("#deuteranopia"); }
-    body[data-filter="tritanopia"] { filter: url("#tritanopia"); }
+
+    /* Overlay que aplica filtro sem quebrar layout */
+    #accessibilityOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+      backdrop-filter: none;
+      transition: backdrop-filter 0.3s ease;
+    }
   `;
   document.head.appendChild(style);
 
-  // Função para aplicar filtro e salvar
-  function applyFilter(filter) {
-    if (filter === "none") {
-      document.body.removeAttribute("data-filter");
-      localStorage.removeItem("accessibilityFilter");
-    } else {
-      document.body.setAttribute("data-filter", filter);
-      localStorage.setItem("accessibilityFilter", filter);
-    }
-  }
-
-  // Recupera filtro salvo
-  const savedFilter = localStorage.getItem("accessibilityFilter");
-  if (savedFilter) document.body.setAttribute("data-filter", savedFilter);
-
-  // Seleciona elementos
-  const toggleBtn = document.getElementById("accessibilityToggle");
-  const menu = document.getElementById("accessibilityMenu");
-
+  // Mostrar/ocultar menu
   toggleBtn.addEventListener("click", () => {
     menu.classList.toggle("show");
   });
 
-  // Eventos de clique nas opções
-  menu.querySelectorAll("button").forEach((btn) => {
+  // Aplicar filtro
+  function applyFilter(filter) {
+    switch(filter) {
+      case 'protanopia':
+        overlay.style.backdropFilter = 'saturate(0.6) hue-rotate(-25deg)';
+        break;
+      case 'deuteranopia':
+        overlay.style.backdropFilter = 'saturate(0.6) hue-rotate(25deg)';
+        break;
+      case 'tritanopia':
+        overlay.style.backdropFilter = 'saturate(0.7) hue-rotate(170deg)';
+        break;
+      case 'modo-escuro':
+        overlay.style.backdropFilter = 'brightness(0.6) contrast(120%)';
+        break;
+      default:
+        overlay.style.backdropFilter = 'none';
+    }
+    localStorage.setItem('accessibilityFilter', filter);
+  }
+
+  // Recuperar filtro salvo
+  const savedFilter = localStorage.getItem('accessibilityFilter');
+  if (savedFilter) applyFilter(savedFilter);
+
+  // Clique nos botões do menu
+  menu.querySelectorAll("button").forEach(btn => {
     btn.addEventListener("click", () => {
       applyFilter(btn.dataset.filter);
       menu.classList.remove("show");
     });
   });
 
-  // Fecha o menu se clicar fora
-  document.addEventListener("click", (e) => {
+  // Fecha menu ao clicar fora
+  document.addEventListener("click", e => {
     if (!e.target.closest(".accessibility-container")) {
       menu.classList.remove("show");
     }
   });
+
 });
