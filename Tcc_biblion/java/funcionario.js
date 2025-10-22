@@ -5,6 +5,7 @@ function apiBase() {
   }
   return "https://bibliontec.onrender.com"; // backend hospedado
 }
+
 // ==================== VARIÁVEIS GLOBAIS ====================
 const API_URL_FUNCIONARIOS = `${apiBase()}/api/funcionarios`;
 let todosOsFuncionarios = [];
@@ -50,13 +51,51 @@ todosOsFuncionarios = todosOsFuncionarios.map((f) => {
 });
 
 
-    exibirFuncionarios(todosOsFuncionarios);
+if (document.getElementById("lista-funcionarios")) {
+  exibirFuncionariosCards(todosOsFuncionarios);
+} else {
+  exibirFuncionarios(todosOsFuncionarios); // versão tabela
+}
     atualizarContadores();
   } catch (err) {
     console.error("Erro ao carregar funcionários:", err);
   }
 }
 
+// ------------------ EXIBIR FUNCIONÁRIOS EM CARDS ------------------
+
+function exibirFuncionariosCards(funcionarios) {
+  console.log("Renderizando cards:", funcionarios.length);
+  const container = document.getElementById("lista-funcionarios");
+  if (!container) return; 
+  container.innerHTML = "";
+
+  funcionarios.forEach(f => {
+    const foto = f.foto
+      ? `${apiBase()}/uploads/${f.foto}`
+      : `${apiBase()}/uploads/padrao.jpg`;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.style.maxWidth = "300px";
+
+    card.innerHTML = `
+      <img src="${foto}" class="card-img-top" alt="${f.nome}" style="height: 180px; object-fit: cover;">
+      <div class="card-body text-center">
+        <h5 class="card-title fw-bold">${f.nome}</h5>
+        <p><strong>Função:</strong> ${f.funcao || "Não definida"}</p>
+        <p><strong>Email:</strong> ${f.email}</p>
+        <p><strong>Telefone:</strong> ${f.telefone || "—"}</p>
+      </div>
+      <div class="card-footer text-center">
+        <button class="btn btn-danger me-2" onclick="excluirFuncionario(${f.id})">Excluir</button>
+        <button class="btn btn-dark" onclick="abrirModalEdicao(${f.id})">Editar</button>
+      </div>
+    `;
+    container.appendChild(card);
+    console.log("Card criado para:", f.nome);
+  });
+}
 // ==================== EXIBIR FUNCIONÁRIOS EM TABELA ====================
 function exibirFuncionarios(funcionarios) {
   const tbody = document.getElementById("tbody-funcionarios");

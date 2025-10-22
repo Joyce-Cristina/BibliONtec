@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 22/10/2025 às 06:33
+-- Tempo de geração: 22/10/2025 às 22:41
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -124,19 +124,19 @@ CREATE TABLE `backup` (
 --
 
 INSERT INTO `backup` (`id`, `tipo`, `caminho_arquivo`, `data_criacao`, `status`, `tamanho`, `FK_funcionario_id`, `mensagem`) VALUES
-(29, 'manual', 'backup_1761092392452.zip', '2025-10-21 21:20:00', 'concluido', '79.91 MB', 8, NULL),
-(30, 'manual', 'backup_1761094191210.zip', '2025-10-21 21:49:58', 'concluido', '79.91 MB', 8, NULL),
-(31, 'manual', 'backup_1761094478649.zip', '2025-10-21 21:54:51', 'concluido', '79.91 MB', 8, NULL),
-(32, 'manual', 'backup_1761094478715.zip', '2025-10-21 21:54:51', 'concluido', '79.91 MB', 8, NULL),
-(33, 'manual', 'backup_1761094571449.zip', '2025-10-21 21:56:24', 'concluido', '79.91 MB', 8, NULL),
-(34, 'manual', 'backup_1761094571494.zip', '2025-10-21 21:56:25', 'concluido', '79.91 MB', 8, NULL),
-(35, 'manual', 'backup_1761094788539.zip', '2025-10-21 21:59:57', 'concluido', '79.91 MB', 8, NULL),
-(36, 'manual', 'backup_1761094803220.zip', '2025-10-21 22:00:10', 'concluido', '79.91 MB', 8, NULL),
-(37, 'manual', 'backup_1761094984302.zip', '2025-10-21 22:03:12', 'concluido', '79.91 MB', 8, NULL),
-(38, 'manual', 'backup_1761095200511.zip', '2025-10-21 22:06:47', 'concluido', '79.91 MB', 8, NULL),
-(39, 'manual', 'backup_1761095370000.zip', '2025-10-21 22:09:38', 'concluido', '79.91 MB', 8, NULL),
-(40, 'manual', 'backup_1761095490586.zip', '2025-10-21 22:11:37', 'concluido', '79.91 MB', 8, NULL),
-(42, 'manual', 'backup_1761097032393.zip', '2025-10-21 22:37:20', 'concluido', '98.74 MB', 8, NULL);
+(29, 'manual', 'backup_1761092392452.zip', '2025-10-21 21:20:00', 'concluido', '79.91 MB', NULL, NULL),
+(30, 'manual', 'backup_1761094191210.zip', '2025-10-21 21:49:58', 'concluido', '79.91 MB', NULL, NULL),
+(31, 'manual', 'backup_1761094478649.zip', '2025-10-21 21:54:51', 'concluido', '79.91 MB', NULL, NULL),
+(32, 'manual', 'backup_1761094478715.zip', '2025-10-21 21:54:51', 'concluido', '79.91 MB', NULL, NULL),
+(33, 'manual', 'backup_1761094571449.zip', '2025-10-21 21:56:24', 'concluido', '79.91 MB', NULL, NULL),
+(34, 'manual', 'backup_1761094571494.zip', '2025-10-21 21:56:25', 'concluido', '79.91 MB', NULL, NULL),
+(35, 'manual', 'backup_1761094788539.zip', '2025-10-21 21:59:57', 'concluido', '79.91 MB', NULL, NULL),
+(36, 'manual', 'backup_1761094803220.zip', '2025-10-21 22:00:10', 'concluido', '79.91 MB', NULL, NULL),
+(37, 'manual', 'backup_1761094984302.zip', '2025-10-21 22:03:12', 'concluido', '79.91 MB', NULL, NULL),
+(38, 'manual', 'backup_1761095200511.zip', '2025-10-21 22:06:47', 'concluido', '79.91 MB', NULL, NULL),
+(39, 'manual', 'backup_1761095370000.zip', '2025-10-21 22:09:38', 'concluido', '79.91 MB', NULL, NULL),
+(40, 'manual', 'backup_1761095490586.zip', '2025-10-21 22:11:37', 'concluido', '79.91 MB', NULL, NULL),
+(42, 'manual', 'backup_1761097032393.zip', '2025-10-21 22:37:20', 'concluido', '98.74 MB', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -191,7 +191,6 @@ CREATE TABLE `comentario` (
 INSERT INTO `comentario` (`id`, `comentario`, `data_comentario`, `FK_instituicao_id`) VALUES
 (1, 'adorei', '2025-09-16', NULL),
 (2, 'adorei', '2025-09-16', NULL),
-(3, 'putta', '2025-09-16', NULL),
 (4, '*', '2025-09-16', NULL);
 
 -- --------------------------------------------------------
@@ -212,7 +211,7 @@ CREATE TABLE `comentario_livro` (
 INSERT INTO `comentario_livro` (`FK_comentario_id`, `FK_livro_id`) VALUES
 (1, 11),
 (2, 1),
-(3, 1),
+(NULL, 1),
 (4, 1);
 
 -- --------------------------------------------------------
@@ -380,16 +379,6 @@ CREATE TABLE `emprestimo` (
   `FK_usuario_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `emprestimo`
---
-
-INSERT INTO `emprestimo` (`fila`, `data_emprestimo`, `data_devolucao_prevista`, `data_real_devolucao`, `id`, `FK_instituicao_id`, `FK_usuario_id`) VALUES
-(NULL, '2025-09-16', '2025-09-23', '2025-09-16', 1, 1, 30),
-(NULL, '2025-09-16', '2025-09-23', '2025-09-16', 2, NULL, 30),
-(NULL, '2025-09-17', '2025-09-25', '2025-09-17', 3, 1, 30),
-(NULL, '2025-09-18', '2025-09-26', NULL, 4, 1, 30);
-
 -- --------------------------------------------------------
 
 --
@@ -406,10 +395,10 @@ CREATE TABLE `emprestimo_livro` (
 --
 
 INSERT INTO `emprestimo_livro` (`FK_emprestimo_id`, `FK_livro_id`) VALUES
-(1, 6),
-(2, 6),
-(3, 1),
-(4, 6);
+(NULL, 6),
+(NULL, 6),
+(NULL, 1),
+(NULL, 6);
 
 -- --------------------------------------------------------
 
@@ -427,6 +416,16 @@ CREATE TABLE `evento` (
   `FK_instituicao_id` int(11) NOT NULL,
   `FK_funcionario_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `evento`
+--
+
+INSERT INTO `evento` (`id`, `titulo`, `descricao`, `data_evento`, `hora_evento`, `foto`, `FK_instituicao_id`, `FK_funcionario_id`) VALUES
+(1, 'Feira do livro', 'A Feira do Livro é um evento dedicado à celebração da literatura, da cultura e do encontro entre leitores, autores e editoras independentes. O espaço reúne estandes com uma grande variedade de livros — desde clássicos e lançamentos até publicações alternativas e quadrinhos — oferecendo ao público a oportunidade de descobrir novas obras e dialogar com quem faz o universo literário acontecer.  Durante o evento, o ambiente é acolhedor e vibrante, com mesas repletas de livros, atividades culturais, sessões de autógrafos e um público diverso apaixonado por leitura. A feira promove o acesso à cultura e incentiva a formação de novos leitores, fortalecendo a cena literária local.  Ideal para: amantes da literatura, estudantes, escritores, editoras independentes e o público em geral interessado em cultura e arte.', '2026-04-01', '10:00:00', '1761157028251.jpg', 1, 4),
+(2, 'Exposições de livros', 'A Exposição de Livros é um evento dedicado à valorização da leitura e à aproximação do público com o universo literário. Com estandes repletos de obras coloridas e temáticas variadas, a mostra apresenta livros infantis, educativos, didáticos e de lazer, voltados para todas as idades.  O espaço oferece um ambiente acolhedor e interativo, ideal para famílias, escolas e amantes da literatura. Além da ampla variedade de títulos, a exposição busca despertar o interesse pela leitura desde a infância e incentivar o aprendizado de forma lúdica e criativa.  Destaques: livros ilustrados, histórias clássicas, obras pedagógicas, atividades educativas e materiais interativos.', '2026-10-05', '07:00:00', '1761157197158.jpg', 1, 4),
+(3, 'Troca de Livros', 'O evento Troca de Livros é uma iniciativa que incentiva o hábito da leitura e a circulação de histórias entre os leitores. A proposta é simples e sustentável: traga um livro que você já leu e leve outro em troca! Dessa forma, cada participante tem a oportunidade de renovar sua estante, descobrir novos autores e compartilhar obras que marcaram sua vida.  Realizado em um ambiente acolhedor e aberto ao público, o evento estimula o consumo consciente e o acesso à cultura, criando um ponto de encontro entre leitores de todas as idades. Além da troca de livros, o espaço convida à conversa, à troca de experiências e à valorização da literatura como ferramenta de transformação.  Destaques: troca gra', '2026-11-08', '12:00:00', '1761157323850.jpg', 1, 4),
+(4, 'Oficina Criativa do Livro', 'A Oficina Criativa do Livro é um espaço interativo voltado à experimentação artística e ao incentivo à leitura. O evento convida crianças, jovens e adultos a colocarem a mão na massa em atividades que unem literatura, arte e criatividade — como confecção de marcadores de página, pintura, colagem e produção de pequenos livros artesanais.  Mais do que um momento de lazer, a oficina promove o contato direto com o universo dos livros de forma lúdica e educativa, despertando o interesse pela leitura e pela expressão artística. O ambiente é colaborativo e acolhedor, ideal para famílias e amantes da cultura.  Destaques: atividades práticas, incentivo à leitura, interação familiar e valorização da arte e do livro como instrumento de aprendizado.', '2026-02-05', '08:00:00', '1761157420896.jpg', 1, 4);
 
 -- --------------------------------------------------------
 
@@ -472,11 +471,10 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`, `ultimo_login`) VALUES
-(4, 'João Silva dos santos', '$2b$12$tVUS/6uLjMGP04EMTblqhuezcdfL6uYKW.gvfMvng/j9ink.iMrj2', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1, '2025-10-20 16:09:42'),
-(5, 'joao carlos ', '$2b$12$LObz6anCBt/bIDCQ4qzJz.VlXO5kyd49SJm4J5iF1HT2IEzF9qqbS', 'josefina@gmail.com', '1757887433078.jpg', 4, '11987654321', 1, NULL),
-(8, 'Admin Principal', '$2b$12$rVucKo1Mud6SLlgNiU3MouyDmrDqvuBn3TDOYOCaRr0/zap1GF79O', 'admin@bibliotec.com', '1757887328295.png', 1, '11999999994', 1, '2025-10-21 18:51:39'),
-(9, 'cletin do pneu ', '$2b$12$EYZ9dyuribSMa1a9oeq91OJxvAvG4/ojIILfhfgNQpd9iYn6IqVnS', 'cleitindopneu@gmail.com', '1756407461200.jpg', 3, '74859678541', 1, NULL),
-(10, 'shaulin porco', '$2b$12$UbUgnWQup4cgnmPh6TOV2ucm5zQ5nVpqK3OnfC887DYxeJeakD3iu', 'shaulinmatadordeporco@gmail.com', '1756413188838.jpg', 3, '74859641875', 1, NULL);
+(4, 'João Silva dos santos', '$2b$12$tVUS/6uLjMGP04EMTblqhuezcdfL6uYKW.gvfMvng/j9ink.iMrj2', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1, '2025-10-22 17:16:59'),
+(23, 'Ana Lima', '$2b$12$S63QQIZGUzJsW0eowlOG/OtnwDFdPiphie3v4Uv6SqZ0NCNGaMuhm', 'ana.lima@empresa.com', 'padrao.png', 1, '11987451236', 1, NULL),
+(24, 'Pedro Alves', '$2b$12$90ab0mb/1lgszZToHyIJ0OOD8yBZKGPRkK2DqhL2CVxjYPfvKq/TO', 'pedro.alves@empresa.com', '1761163286771.jpg', 2, '11996332254', 1, NULL),
+(26, 'Juliana Martins', '$2b$12$QWx1zZqR092fU66OiN6JZeuWifjZn9lQ7hfoieYtLPuo8OAEHaYDC', 'juliana.martins@empresa.com', '1761165499867.jpg', 1, '11977653321', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -516,12 +514,12 @@ CREATE TABLE `funcionario_permissao` (
 --
 
 INSERT INTO `funcionario_permissao` (`FK_permissao_id`, `FK_funcionario_id`) VALUES
-(NULL, 8),
-(NULL, 8),
-(NULL, 8),
-(NULL, 8),
-(NULL, 8),
-(NULL, 8);
+(NULL, NULL),
+(NULL, NULL),
+(NULL, NULL),
+(NULL, NULL),
+(NULL, NULL),
+(NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1076,11 +1074,12 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`, `ativo`, `ultimo_login`) VALUES
-(30, '1966258747', 'cleitindopneu@gmail.com', '1757886539725.png', 'cletin do pneu', '$2b$12$r40IXzR66oRxHtuQYIb0JejCaebFefLlNuSptT74Rh1NWbisDj4nu', 1, 4, 3, 1, 1, NULL, NULL, 1, '2025-10-03 08:11:53'),
-(31, '11988887777', 'maria.souza@gmail.com', 'padrao.jpg', 'Maria Souza', '$2b$12$bRgIwXwzzMe1WBD9OfFufe0ggsYOP8UDiSx2olWyhOtIvKmns2hAW', 1, 4, 1, 1, 1, NULL, NULL, 1, '2025-09-16 21:26:13'),
 (32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', '$2b$12$BdQh8aZ2vosGRq/dmPNhH.N844Cw5M5Y0.ePnx7rDWVVYkPDRp8I.', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-10-03 07:27:56'),
 (34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', '$2b$12$7CCAt7u7Jh9/517iB2sXu.rEZEVaL5ADGSlDcd7k.PWFedAHIVMmS', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-10-06 13:24:10'),
-(35, '11955552222', 'beatriz.mendes@gmail.com', 'padrao.jpg', 'Beatriz Mendes', '$2b$12$b4uCP5bgVNJi69NEW97n9uGz5BEPnktvMfvc2r3aTcmu6N1Fwm6RO', 2, 10, 2, 3, 1, NULL, NULL, 1, '2025-09-18 19:19:29');
+(38, '11987453698', 'lucas.ferreira@aluno.com', '1761159087135.jpg', 'Lucas Ferreira', '$2b$12$aQhwU0slu1JVxfnBGJNUCOJat0mBiIp2LUmHkh0HuJssVEuIDqlbW', 1, 4, 1, 2, 1, NULL, NULL, 1, NULL),
+(39, '11998874456', 'amanda.souza@aluno.com', '1761159147480.jpg', 'Amanda Souza  ', '$2b$12$3BufUb/L1vYeOdbJkf8m.uOiKO8hXii29BqSK1GOKeWAzcNTj7DiO', 1, 4, 2, 2, 1, NULL, NULL, 1, NULL),
+(40, '11996325874', 'thiago.santos@aluno.com', '1761159955530.jpeg', 'Thiago Santos  ', '$2b$12$.w55N8D0K9wVhw.pY85JmuMRbGfNm3/Fb58E7PIbAAQJw0x.PNPI2', 1, 4, 2, 2, 1, NULL, NULL, 1, NULL),
+(41, '11995447812', 'carolina.pereira@aluno.com', NULL, 'Carolina Pereira', '$2b$12$sGt0rWNlP8cPhacDOgBPOei6KfoQXACJx6XGSvoFm9AopPpW8S09K', 1, 4, 3, 3, 1, NULL, NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -1579,7 +1578,7 @@ ALTER TABLE `emprestimo`
 -- AUTO_INCREMENT de tabela `evento`
 --
 ALTER TABLE `evento`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `funcao`
@@ -1591,7 +1590,7 @@ ALTER TABLE `funcao`
 -- AUTO_INCREMENT de tabela `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de tabela `genero`
@@ -1669,7 +1668,7 @@ ALTER TABLE `tipo_usuario`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- Restrições para tabelas despejadas
