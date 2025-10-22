@@ -64,11 +64,14 @@ function renderizarLivros(containerId, livros, mensagemVazia = "Nenhum livro enc
       </div>
     `;
 
-    // Clique no card abre página de detalhes
-    card.addEventListener("click", () => {
-      localStorage.setItem("livroSelecionado", livro.id);
-      window.location.href = "visLivro.html";
-    });
+// Clique no card abre página de detalhes
+card.addEventListener("click", () => {
+  localStorage.setItem("livroSelecionado", livro.id);
+
+
+
+  window.location.href = "visLivro.html";
+});
 
     // Evitar que o clique no botão dispare o clique do card
     const botoes = card.querySelectorAll("button");
