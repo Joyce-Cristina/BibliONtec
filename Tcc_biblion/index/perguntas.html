@@ -561,7 +561,9 @@ body {
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Aqui você verá informações detalhadas sobre como funciona o sistema administrativo.
+      O administrador é o usuário com o mais alto nível de permissão dentro do sistema BibliONtec.<br>
+Ele é responsável pela gestão geral da plataforma, controle de instituições, usuários, funcionários, relatórios, backups e atualizações.
+Enquanto o bibliotecário gerencia o acervo e os empréstimos, o administrador supervisiona a estrutura técnica e institucional do sistema.
     </div>
 
     <button class="dashboard-button">
@@ -612,12 +614,69 @@ body {
     <div class="dashboard-title">Bibliotecário</div>
 
     <button class="dashboard-button">
+      Cadastro de usuários (alunos e professores)
+      <i class="bi bi-chevron-right"></i>
+      </button>
+      <div class="dashboard-dropdown">
+      🔹 Etapas do processo:<br>
+<br>
+1° Ao clicar em “Usuário”, o sistema exibe um formulário padrão com os seguintes campos iniciais:<br>
+<br>
+  🔹 Nome completo, E-mail institucional, Telefone, Senha e Foto.<br>
+<br>
+2° O bibliotecário deve definir o tipo de usuário por meio de uma caixa de seleção (checkbox):<br>
+<br>
+🔹 Se marcar “Aluno” → são exibidos os campos adicionais:<br>
+<br>
+Série e Curso.<br>
+<br>
+🔹 Se marcar “Professor” → os campos “Série” e “Curso” desaparecem, pois não se aplicam a esse tipo de usuário.<br>
+<br>
+3° Após o preenchimento, o bibliotecário confirma o cadastro.<br>
+<br>
+4° O sistema gera automaticamente um login com o e-mail institucional e uma senha temporária, que o usuário poderá alterar no primeiro acesso.<br>
+  </div>  
+    <button class="dashboard-button">
+      Cadastro de eventos
+      <i class="bi bi-chevron-right"></i>
+    </button>
+    <button class="dashboard-button">
+      Cadastro de funcionários
+      <i class="bi bi-chevron-right"></i>
+    </button>
+
+    <button class="dashboard-button">
       Cadastro de Livros
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Passos para cadastrar novos livros e atualizar o acervo.
+      Acesso:
+
+<label> principal → Aba “Cadastro” → Selecionar opção “Livro”</label><br>
+<br>
+- Etapas do processo:<br>
+<br>
+1° Ao acessar a aba “Cadastro”, o bibliotecário seleciona “Livro”.<br>
+<br>
+2° O sistema exibe um formulário com todos os campos necessários para o registro:<br>
+
+  🔹 Título, Autor(es), Código do autor, Edição, Editora, Local de publicação, Data de publicação, Número de páginas, Assunto, Linguagem da catalogação, Classificação (CDD), Área de conhecimento, ISBN, Sinopse, Capa e Disponibilidade.<br>
+<br>
+3° O sistema possui uma função automatizada de preenchimento via ISBN:<br>
+
+  🔹 Ao digitar o número do ISBN e clicar em “Buscar informações”, o sistema faz a busca automática dos dados do livro (como título, autor, editora e capa).<br>
+  🔹 Caso algumas informações não sejam encontradas, os campos permanecem em branco para que o bibliotecário complete manualmente.<br>
+<br>
+4° Após o cadastro, o sistema gera automaticamente uma etiqueta contendo:<br>
+
+  🔹 Código CDD, Código do autor, Área de conhecimento e Código de barras.<br>
+<br>
+5° O bibliotecário pode baixar ou imprimir a etiqueta imediatamente após o registro.<br>
     </div>
+    <button class="dashboard-button">
+      Cadastro de professores
+      <i class="bi bi-chevron-right"></i>
+    </button>
 
     <button class="dashboard-button">
       Empréstimos e Devoluções
