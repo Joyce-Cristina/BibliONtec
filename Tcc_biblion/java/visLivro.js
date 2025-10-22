@@ -14,6 +14,41 @@ function sanitizeHTML(text) {
 
 
 document.addEventListener("DOMContentLoaded", async () => {
+// --- CONFIGURAÇÃO DE EXIBIÇÃO DE BOTÕES --- //
+const referrer = document.referrer;
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+const tipoUsuario = usuario ? Number(usuario.tipo_usuario_id) : null;
+const isLivrosProf = referrer.includes('livrosProf.html');
+
+const botoesAluno = document.getElementById("botoesLivro");
+const btnIndicar = document.getElementById("btnIndicar");
+const btnDesindicar = document.getElementById("btnDesindicar");
+
+console.log('REFERRER:', referrer);
+console.log('isLivrosProf:', isLivrosProf);
+
+// CASO 1 — Página aberta a partir de livrosProf.html
+if (isLivrosProf) {
+  console.log('MODO PROFESSOR - Escondendo botoes aluno, mostrando indicar');
+  if (botoesAluno) botoesAluno.style.display = "none";
+  if (btnIndicar) {
+    btnIndicar.style.display = "block"; // ← ISSO AQUI É O QUE FALTAVA
+    btnIndicar.classList.remove("oculto-professor");
+  }
+  if (btnDesindicar) btnDesindicar.classList.remove("oculto-professor");
+}
+// CASO 2 — Outros casos
+else {
+  console.log('MODO NORMAL - Mostrando botoes aluno, escondendo indicar');
+  if (botoesAluno) botoesAluno.style.display = "flex";
+  if (btnIndicar) {
+    btnIndicar.style.display = "none"; // ← GARANTE QUE FICA ESCONDIDO
+    btnIndicar.classList.add("oculto-professor");
+  }
+  if (btnDesindicar) btnDesindicar.classList.add("oculto-professor");
+}
+
+
   try {
     // --- Carregar usuário logado ---
     const usuarioData = JSON.parse(localStorage.getItem("usuario"));

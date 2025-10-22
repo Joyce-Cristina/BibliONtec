@@ -252,7 +252,7 @@
       </div>
   
       <ul class="menu-navbar">
-        <li><a href="./homepageAluno.html" class="active">Página inicial</a></li>
+        <li><a href="./homepageAluno.html">Página inicial</a></li>
         <li><a href="./indicacoes.html">Indicações</a></li>
         <li><a href="./lista.html">Lista de desejo</a></li>
         <li><a href="./areaAluno.html">Área do aluno</a></li>
@@ -302,8 +302,8 @@
   </section>
 
   <div class="botoes-livro" id="botoesLivro">
-    <button class="btn btn-reservar">Reserve o livro agora</button>
-    <button class="btn btn-lista">
+    <button class="btn btn-reservar" id="reservar">Reserve o livro agora</button>
+    <button class="btn btn-lista" id="lista-desejos">
       <i class="bi bi-heart"></i> Adicionar na lista de desejos
     </button>
   </div>
@@ -391,22 +391,29 @@
       const usuario = JSON.parse(localStorage.getItem('usuario'));
       const funcionario = JSON.parse(localStorage.getItem('funcionario'));
       
-      let isProfessor = false;
-      
-      if (usuario && usuario.tipo_usuario_id == 2) {
-        isProfessor = true;
-      }
-      
-      if (isProfessor) {
-        document.getElementById('botoesLivro').classList.add('oculto-professor');
+ // Verifica a página de origem (referrer)
+    const referrer = document.referrer;
 
-        document.getElementById('btnIndicar').classList.remove('oculto-professor');
-        
-        document.getElementById('navbarCustom').classList.add('navbar-professor');
-        
-        document.querySelector('.icon-btn').classList.add('oculto-professor');
-      }
-      
+    // Busca apenas os botões Reservar e Lista de Desejos pelas classes
+    const btnReservar = document.querySelector('.btn-reservar');
+    const btnListaDesejos = document.querySelector('.btn-lista');
+
+    console.log('Referrer:', referrer);
+    console.log('Botões encontrados:', {btnReservar, btnListaDesejos});
+
+    // Lógica baseada no referrer
+    if (referrer.includes('livrosProf.html')) {
+        console.log('Acesso via livrosProf.html - ESCONDENDO Reservar e Lista Desejos');
+        // Esconder reservar/lista de desejos
+        if (btnReservar) btnReservar.style.display = 'none';
+        if (btnListaDesejos) btnListaDesejos.style.display = 'none';
+    } else {
+        console.log('Acesso via outra página - MOSTRANDO Reservar e Lista Desejos');
+        // Comportamento padrão (para outros acessos)
+        if (btnReservar) btnReservar.style.display = 'block';
+        if (btnListaDesejos) btnListaDesejos.style.display = 'block';
+    }
+     
       if (usuario && usuario.foto) {
         document.getElementById('avatarPerfil').src = `http://localhost:3000/uploads/${usuario.foto}`;
       } else if (funcionario && funcionario.foto) {
