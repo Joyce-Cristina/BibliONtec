@@ -2,1171 +2,1211 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BibliOnTec - Página Inicial</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BibliOnTec - Página Inicial</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Ícones -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+  <style>
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #fdfaf2;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      font-size: 17px;
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Ícones -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-
-    <style>
-        body {
-            height: 100%;
-    margin: 0;
-            padding: 0;
-            background-color: #fdfaf2;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            font-size: 17px;
-            
-        }
-
-        .navbar,
-        .sidebar,
-        .sidebar a,
-        .sidebar button.dropdown-toggle {
-            font-size: 17px;
-        }
-
-        .navbar {
-            background-color: #7a1505;
-            position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1050; /* Garante que a navbar fique no topo */
-        }
-
-      /* A sidebar deve começar logo abaixo da navbar */
-.sidebar {
-    position: fixed;
-    top: 56px; /* Distância correta da navbar */
-    left: 0;
-    width: 220px;
-    height: calc(100vh - 56px); /* Ocupa o restante da altura da tela */
-    background-color: #7a1505;
-    padding: 20px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    z-index: 1040;
-}
-
-
-
-
-        .dropdown-menu {
-            background-color: #691400;
-        }
-
-        .dropdown-item {
-            background-color: #691400;
-        }
-
-        .dropdown-item:hover {
-            background-color: #a82010;
-            color: white;
-        }
-
-        .dropdown-item.active {
-            background-color: #4d0f03 !important;
-            color: white !important;
-        }
-
-        .sidebar a,
-        .sidebar button.dropdown-toggle {
-            display: block;
-            background-color: #7a1505;
-            color: white;
-            margin-bottom: 10px;
-            text-align: left;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .sidebar a:hover,
-        .sidebar button.dropdown-toggle:hover {
-            background-color: #a82010;
-            color: white;
-        }
-
-        .sidebar>a.active {
-            background-color: #4d0f03 !important;
-            color: white !important;
-            box-shadow: none !important;
-        }
-
-        .sidebar>button.dropdown-toggle.active {
-            background-color: #7a1505 !important;
-            color: white !important;
-            box-shadow: none !important;
-        }        
-
-        /* Estilo do botão "Salvar alterações" */
-        .btn-save {
-            background-color: #7a1600;
-            color: white;
-            border-radius: 50px;
-            padding: 10px 20px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
-            margin-left: 5px;
-            max-height: 40px;
-            margin-top: 13px;
-            /* Ajuste a margem para afastar um pouco o botão do título */
-        }
-
-        .btn-save:hover {
-            background-color: #3f0900;
-            color: #dcdcdc;
-        }
-
-        .btn-comum:hover {
-            background-color: #d7d7d7;
-            color: #000000;
-            border-width: 50px #c8aa78;
-        }
-
-        .btn-save i {
-            font-size: 1.2rem;
-        }
-
-        .btn-comum {
-            background-color: #fff;
-            color: black;
-            border-radius: 50px;
-            border-color: #c8aa78;
-            padding: 10px 20px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
-            margin-left: 5px;
-            max-height: 40px;
-            margin-top: 13px;
-            /* Ajuste a margem para afastar um pouco o botão do título */
-        }
-
-       
-
-
-        .notificacao-dropdown {
-            background-color: #ffffff;
-            min-width: 250px;
-            max-width: 100%;
-            max-height: 300px;
-            overflow-y: auto;
-            border-radius: 0px;
-            padding: 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-left: -20px;
-        }
-
-        .notificacao-dropdown .dropdown-item {
-            background-color: #ffffff;
-            color: #333333;
-            padding: 15px 20px;
-            border: none;
-            border-bottom: 1px solid #ddd;
-            font-size: 16px;
-        }
-
-        .notificacao-dropdown .dropdown-item:hover {
-            background-color: #f0f0f0;
-        }
-
-        .notificacao-dropdown .dropdown-item.active {
-            background-color: #a82010;
-            color: white;
-        }
-
-        /* Avatar flutuante */
-        .avatar-container {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1051;
-        }
-
-        .avatar-navbar {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Menu do avatar */
-        .menu-perfil {
-            display: none;
-            position: absolute;
-            bottom: 60px;
-            left: 0;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            min-width: 200px;
-        }
-
-        .menu-perfil.show {
-            display: block;
-        }
-
-        .menu-perfil .dropdown-item {
-            padding: 12px 16px;
-            text-decoration: none;
-            color: #333;
-            display: block;
-            background-color: #fff;
-            transition: background-color 0.2s;
-        }
-
-        .menu-perfil .dropdown-item:hover {
-            background-color: #f5f5f5;
-        }
-
-        .menu-divider {
-            margin: 0;
-            border: none;
-            border-top: 1px solid #ccc;
-        }
-
-        .tab-container {
-            background-color: #dddddd;
-            border-radius: 30px;
-            padding: 5px;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-            width: fit-content;
-            margin: 0 auto;
-        }
-
-        .tab-button {
-            background-color: transparent;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .tab-button.active {
-            background-color: #f0f0f0;
-        }
-
-        .tab-button:hover:not(.active) {
-            background-color: #e0e0e0;
-        }
-
-        .tab-content {
-            display: flex;
-            padding: 20px;
-            margin: 20px auto;
-            border: none;
-            background-color: transparent;
-            max-width: 800px;
-            gap: 20px; /* espaço entre as caixas */
-            align-items: flex-start;
-        }
-
-        .tab-content.active {
-            display: flex;
-        }
-
-        /* Caixa com borda e título */
-        .section-box {
-            border: 2px solid #c8aa78;
-            border-radius: 10px;
-            padding: 15px;
-            background-color: #f8f8f8;
-            max-width: 1000px;
-            margin: none;
-            flex: 1; /* cada caixa ocupa metade */
-        }
-
-        /* Cabeçalho com ícone */
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.2rem;
-            color: #000;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #c8aa78;
-            padding-bottom: 10px;
-        }
-
-        /* Layout dos campos */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        /* Campo ocupa a largura toda */
-        .form-group.full-width {
-            grid-column: span 2;
-        }
-
-        /* Campos e labels */
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 6px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            background-color: #dddddd;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        .permissions-tab .section-box {
-            background-color: transparent;
-            border: 2px solid #cba95b;
-            border-radius: 8px;
-            padding: none;
-            transition: background-color 0.3s;
-            margin: 0 auto;
-            /* Centraliza o card */
-            max-width: 1000px;
-            /* Ajuste a largura conforme necessário */
-        }
-
-        .permissions-tab .section-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 1.2rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #cba95b;
-            margin-bottom: 1rem;
-        }
-
-        .permissions-tab.active .section-box {
-            background-color: #f3f3f3;
-        }
-
-        .permissions-tab .user-role {
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid #cba95b;
-            padding-bottom: 1rem;
-        }
-
-        .permissions-tab .user-role:last-child {
-            border-bottom: none;
-        }
-
-        .permissions-tab h4 {
-            margin: 0 0 0.5rem;
-        }
-
-        .permissions-tab .user-permission-row {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    flex-wrap: nowrap; /* Impede que os itens quebrem para a linha de baixo */
-}
-
-
-        .permissions-tab .form-group {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-width: 180px;
-        }
-
-        .permissions-tab .form-control {
-            background-color: #ddd;
-            border: none;
-            border-radius: 8px;
-            padding: 0.5rem;
-        }
-
-        .permissions-tab .toggle-group {
-            display: flex;
-            align-items: center;
-        }
-        .permissions-tab .toggle-group span {
-    white-space: nowrap;  /* Impede que o texto quebre em várias linhas */
-    margin-left: 10px; /* Ajusta o espaçamento entre o botão e o texto */
-}
-
-
-        /* Switch estilo iOS */
-        .permissions-tab .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 26px;
-        }
-
-        .permissions-tab .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .permissions-tab .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: black;
-            transition: 0.4s;
-            border-radius: 34px;
-        }
-
-        .permissions-tab .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 4px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
-
-        .permissions-tab .switch input:checked+.slider {
-            background-color: #4caf50;
-        }
-
-        .permissions-tab .switch input:checked+.slider:before {
-            transform: translateX(24px);
-        }
-
-        /* Estilos específicos para o formulário de Dados Institucionais */
-        .institutional-data {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            border: 2px solid #cba95b;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .institutional-data .form-container {
-            width: 100%;
-        }
-
-        .institutional-data .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .institutional-data .icon {
-            color: #007bff;
-            font-size: 30px;
-            margin-right: 10px;
-        }
-
-        .institutional-data h2 {
-            font-size: 24px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .institutional-data .form-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .institutional-data .form-group {
-            width: 48%;
-            /* Ajusta a largura dos campos */
-        }
-
-        .institutional-data .form-group label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .institutional-data .form-group input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            background-color: #f7f7f7;
-            width: 100%;
-        }
-
-        .institutional-data .form-group input:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        .institutional-data .form-group input::placeholder {
-            color: #888;
-        }
-
-        .notification-settings {
-            width: 100%;
-            max-width: 1000px;
-            /* Largura maior */
-            margin: 0 auto;
-            padding: 40px;
-            background-color: #fff;
-            border-radius: 8px;
-            border: 2px solid #c8aa78;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            font-family: Arial, sans-serif;
-        }
-
-        .notification-settings .form-container {
-            width: 100%;
-        }
-
-        .notification-settings .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .notification-settings .icon {
-            color: #007bff;
-            font-size: 30px;
-            margin-right: 10px;
-        }
-
-        .notification-settings h2 {
-            font-size: 24px;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .notification-settings .form-group {
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: space-between;
-            /* Alinha o conteúdo */
-            align-items: center;
-            /* Alinha os itens verticalmente */
-        }
-
-        .notification-settings .form-group label {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 5px;
-            font-weight: bold;
-            flex: 1;
-            /* Deixa o label ocupar o espaço restante */
-        }
-
-        .notification-settings .form-group p {
-            font-size: 14px;
-            color: #777;
-            margin-top: 10px;
-        }
-
-        .notification-settings .switch-container {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            /* Alinha os switches à direita */
-        }
-
-        .notification-settings .form-group input[type="number"] {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            background-color: #f7f7f7;
-            width: 100px;
-        }
-
-        .notification-settings .form-group input[type="number"]:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        .notification-settings .form-group .input-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .notification-settings .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-        }
-
-        .notification-settings .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .notification-settings .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.4s;
-            border-radius: 34px;
-        }
-
-        .notification-settings .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.4s;
-        }
-
-        .notification-settings input:checked+.slider {
-            background-color: #007bff;
-        }
-
-        .notification-settings input:checked+.slider:before {
-            transform: translateX(22px);
-        }
-
-        .notification-settings .form-group.dias {
-            flex-direction: column;
-            /* Organiza o conteúdo verticalmente */
-            align-items: flex-start;
-            /* Alinha o conteúdo à esquerda */
-        }
-
-        .notification-settings .form-group.dias .switch-container {
-            margin-top: 10px;
-            /* Adiciona um pouco de espaço entre o título e o campo de dias */
-            justify-content: flex-start;
-            /* Alinha à esquerda para a terceira opção */
-        }
-
-        /* Responsividade da Sidebar */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: absolute;
-                top: 0;
-                left: -220px;
-                width: 220px;
-                height: 100%;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.show {
-                left: 0;
-            }
-
-            .main-container-custom {
-                padding-left: 0;
-                margin-top: 10px;
-                /* Ajusta para não ficar muito colado ao topo */
-            }
-
-            /* Botões na navbar para dispositivos móveis */
-            .navbar-toggler {
-                display: block;
-            }
-
-            .navbar-collapse {
-                width: 100%;
-                display: none;
-            }
-
-            .navbar-collapse.show {
-                display: flex;
-            }
-
-            /* Ajuste das abas em dispositivos menores */
-            .tab-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-        }
-
-        @media (max-width: 768px) {
-    .backup-container {
-        flex-direction: column;
     }
-}
 
-        /*parte do backup*/
+    .navbar,
+    .sidebar,
+    .sidebar a,
+    .sidebar button.dropdown-toggle {
+      font-size: 17px;
+    }
+
+    .navbar {
+      background-color: #7a1505;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1050;
+      /* Garante que a navbar fique no topo */
+    }
+
+    /* A sidebar deve começar logo abaixo da navbar */
+    .sidebar {
+      position: fixed;
+      top: 56px;
+      /* Distância correta da navbar */
+      left: 0;
+      width: 220px;
+      height: calc(100vh - 56px);
+      /* Ocupa o restante da altura da tela */
+      background-color: #7a1505;
+      padding: 20px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 1040;
+    }
+
+
+
+
+    .dropdown-menu {
+      background-color: #691400;
+    }
+
+    .dropdown-item {
+      background-color: #691400;
+    }
+
+    .dropdown-item:hover {
+      background-color: #a82010;
+      color: white;
+    }
+
+    .dropdown-item.active {
+      background-color: #4d0f03 !important;
+      color: white !important;
+    }
+
+    .sidebar a,
+    .sidebar button.dropdown-toggle {
+      display: block;
+      background-color: #7a1505;
+      color: white;
+      margin-bottom: 10px;
+      text-align: left;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .sidebar a:hover,
+    .sidebar button.dropdown-toggle:hover {
+      background-color: #a82010;
+      color: white;
+    }
+
+    .sidebar>a.active {
+      background-color: #4d0f03 !important;
+      color: white !important;
+      box-shadow: none !important;
+    }
+
+    .sidebar>button.dropdown-toggle.active {
+      background-color: #7a1505 !important;
+      color: white !important;
+      box-shadow: none !important;
+    }
+
+    /* Estilo do botão "Salvar alterações" */
+    .btn-save {
+      background-color: #7a1600;
+      color: white;
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease;
+      margin-left: 5px;
+      max-height: 40px;
+      margin-top: 13px;
+      /* Ajuste a margem para afastar um pouco o botão do título */
+    }
+
+    .btn-save:hover {
+      background-color: #3f0900;
+      color: #dcdcdc;
+    }
+
+    .btn-comum:hover {
+      background-color: #d7d7d7;
+      color: #000000;
+      border-width: 50px #c8aa78;
+    }
+
+    .btn-save i {
+      font-size: 1.2rem;
+    }
+
+    .btn-comum {
+      background-color: #fff;
+      color: black;
+      border-radius: 50px;
+      border-color: #c8aa78;
+      padding: 10px 20px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease;
+      margin-left: 5px;
+      max-height: 40px;
+      margin-top: 13px;
+      /* Ajuste a margem para afastar um pouco o botão do título */
+    }
+
+
+
+
+    .notificacao-dropdown {
+      background-color: #ffffff;
+      min-width: 250px;
+      max-width: 100%;
+      max-height: 300px;
+      overflow-y: auto;
+      border-radius: 0px;
+      padding: 0;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-left: -20px;
+    }
+
+    .notificacao-dropdown .dropdown-item {
+      background-color: #ffffff;
+      color: #333333;
+      padding: 15px 20px;
+      border: none;
+      border-bottom: 1px solid #ddd;
+      font-size: 16px;
+    }
+
+    .notificacao-dropdown .dropdown-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    .notificacao-dropdown .dropdown-item.active {
+      background-color: #a82010;
+      color: white;
+    }
+
+    /* Avatar flutuante */
+    .avatar-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1051;
+    }
+
+    .avatar-navbar {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Menu do avatar */
+    .menu-perfil {
+      display: none;
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      min-width: 200px;
+    }
+
+    .menu-perfil.show {
+      display: block;
+    }
+
+    .menu-perfil .dropdown-item {
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #333;
+      display: block;
+      background-color: #fff;
+      transition: background-color 0.2s;
+    }
+
+    .menu-perfil .dropdown-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .menu-divider {
+      margin: 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+
+    .tab-container {
+      background-color: #dddddd;
+      border-radius: 30px;
+      padding: 5px;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+      width: fit-content;
+      margin: 0 auto;
+    }
+
+    .tab-button {
+      background-color: transparent;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 20px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .tab-button.active {
+      background-color: #f0f0f0;
+    }
+
+    .tab-button:hover:not(.active) {
+      background-color: #e0e0e0;
+    }
+
+    .tab-content {
+      display: flex;
+      padding: 20px;
+      margin: 20px auto;
+      border: none;
+      background-color: transparent;
+      max-width: 800px;
+      gap: 20px;
+      /* espaço entre as caixas */
+      align-items: flex-start;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Caixa com borda e título */
+    .section-box {
+      border: 2px solid #c8aa78;
+      border-radius: 10px;
+      padding: 15px;
+      background-color: #f8f8f8;
+      max-width: 1000px;
+      margin: none;
+      flex: 1;
+      /* cada caixa ocupa metade */
+    }
+
+    /* Cabeçalho com ícone */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      color: #000;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #c8aa78;
+      padding-bottom: 10px;
+    }
+
+    /* Layout dos campos */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* Campo ocupa a largura toda */
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+
+    /* Campos e labels */
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      background-color: #dddddd;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    .permissions-tab .section-box {
+      background-color: transparent;
+      border: 2px solid #cba95b;
+      border-radius: 8px;
+      padding: none;
+      transition: background-color 0.3s;
+      margin: 0 auto;
+      /* Centraliza o card */
+      max-width: 1000px;
+      /* Ajuste a largura conforme necessário */
+    }
+
+    .permissions-tab .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.2rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #cba95b;
+      margin-bottom: 1rem;
+    }
+
+    .permissions-tab.active .section-box {
+      background-color: #f3f3f3;
+    }
+
+    .permissions-tab .user-role {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #cba95b;
+      padding-bottom: 1rem;
+    }
+
+    .permissions-tab .user-role:last-child {
+      border-bottom: none;
+    }
+
+    .permissions-tab h4 {
+      margin: 0 0 0.5rem;
+    }
+
+    .permissions-tab .user-permission-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: nowrap;
+      /* Impede que os itens quebrem para a linha de baixo */
+    }
+
+
+    .permissions-tab .form-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .permissions-tab .form-control {
+      background-color: #ddd;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem;
+    }
+
+    .permissions-tab .toggle-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .permissions-tab .toggle-group span {
+      white-space: nowrap;
+      /* Impede que o texto quebre em várias linhas */
+      margin-left: 10px;
+      /* Ajusta o espaçamento entre o botão e o texto */
+    }
+
+
+    /* Switch estilo iOS */
+    .permissions-tab .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+
+    .permissions-tab .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .permissions-tab .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: black;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .permissions-tab .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    .permissions-tab .switch input:checked+.slider {
+      background-color: #4caf50;
+    }
+
+    .permissions-tab .switch input:checked+.slider:before {
+      transform: translateX(24px);
+    }
+
+    /* Estilos específicos para o formulário de Dados Institucionais */
+    .institutional-data {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      border: 2px solid #cba95b;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .institutional-data .form-container {
+      width: 100%;
+    }
+
+    .institutional-data .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .institutional-data .icon {
+      color: #007bff;
+      font-size: 30px;
+      margin-right: 10px;
+    }
+
+    .institutional-data h2 {
+      font-size: 24px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .institutional-data .form-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .institutional-data .form-group {
+      width: 48%;
+      /* Ajusta a largura dos campos */
+    }
+
+    .institutional-data .form-group label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .institutional-data .form-group input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #f7f7f7;
+      width: 100%;
+    }
+
+    .institutional-data .form-group input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .institutional-data .form-group input::placeholder {
+      color: #888;
+    }
+
+    .notification-settings {
+      width: 100%;
+      max-width: 1000px;
+      /* Largura maior */
+      margin: 0 auto;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 8px;
+      border: 2px solid #c8aa78;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      font-family: Arial, sans-serif;
+    }
+
+    .notification-settings .form-container {
+      width: 100%;
+    }
+
+    .notification-settings .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .notification-settings .icon {
+      color: #007bff;
+      font-size: 30px;
+      margin-right: 10px;
+    }
+
+    .notification-settings h2 {
+      font-size: 24px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .notification-settings .form-group {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      /* Alinha o conteúdo */
+      align-items: center;
+      /* Alinha os itens verticalmente */
+    }
+
+    .notification-settings .form-group label {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 5px;
+      font-weight: bold;
+      flex: 1;
+      /* Deixa o label ocupar o espaço restante */
+    }
+
+    .notification-settings .form-group p {
+      font-size: 14px;
+      color: #777;
+      margin-top: 10px;
+    }
+
+    .notification-settings .switch-container {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      /* Alinha os switches à direita */
+    }
+
+    .notification-settings .form-group input[type="number"] {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #f7f7f7;
+      width: 100px;
+    }
+
+    .notification-settings .form-group input[type="number"]:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .notification-settings .form-group .input-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notification-settings .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
+
+    .notification-settings .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .notification-settings .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .notification-settings .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+    }
+
+    .notification-settings input:checked+.slider {
+      background-color: #007bff;
+    }
+
+    .notification-settings input:checked+.slider:before {
+      transform: translateX(22px);
+    }
+
+    .notification-settings .form-group.dias {
+      flex-direction: column;
+      /* Organiza o conteúdo verticalmente */
+      align-items: flex-start;
+      /* Alinha o conteúdo à esquerda */
+    }
+
+    .notification-settings .form-group.dias .switch-container {
+      margin-top: 10px;
+      /* Adiciona um pouco de espaço entre o título e o campo de dias */
+      justify-content: flex-start;
+      /* Alinha à esquerda para a terceira opção */
+    }
+
+    /* Responsividade da Sidebar */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: absolute;
+        top: 0;
+        left: -220px;
+        width: 220px;
+        height: 100%;
+        transition: left 0.3s ease;
+      }
+
+      .sidebar.show {
+        left: 0;
+      }
+
+      .main-container-custom {
+        padding-left: 0;
+        margin-top: 10px;
+        /* Ajusta para não ficar muito colado ao topo */
+      }
+
+      /* Botões na navbar para dispositivos móveis */
+      .navbar-toggler {
+        display: block;
+      }
+
+      .navbar-collapse {
+        width: 100%;
+        display: none;
+      }
+
+      .navbar-collapse.show {
+        display: flex;
+      }
+
+      /* Ajuste das abas em dispositivos menores */
+      .tab-container {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .backup-container {
+        flex-direction: column;
+      }
+    }
+
+    /*parte do backup*/
 
     .section-box {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-}
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+    }
 
-.section-header {
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-}
+    .section-header {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+    }
 
-.backup-info {
-    background: #a3bafe;
-    padding: 15px;
-    border-radius: 6px;
-}
+    .backup-info {
+      background: #a3bafe;
+      padding: 15px;
+      border-radius: 6px;
+    }
 
-.backup-item {
-    font-weight: bold;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
-}
+    .backup-item {
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
 
-.backup-item-verifica {
-    font-weight: bold;
-    color: #0000FF;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
-}
+    .backup-item-verifica {
+      font-weight: bold;
+      color: #0000FF;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
 
-.config-section {
-    background: #f8f9fa;
-}
+    .config-section {
+      background: #f8f9fa;
+    }
 
-.form-label {
-    white-space: nowrap; /* Evita quebrar o texto em várias linhas */
-}
-.config-title {
-    font-weight: bold;
-    font-size: medium;
-}
-.config-desc {
-    font-size: 15px;
-    color: #555;
-}
-.btn-preto {
-  background-color: black;
-  color: white; /* Ou outra cor para o texto que contraste com o preto */
-  border-color: black; /* Cor da borda, se desejar */
-}
+    .form-label {
+      white-space: nowrap;
+      /* Evita quebrar o texto em várias linhas */
+    }
 
-.btn-preto:hover {
-    background-color: #333; /* Cor mais escura ao passar o mouse */
-    color: white;
-    border-color: #333;
-}
+    .config-title {
+      font-weight: bold;
+      font-size: medium;
+    }
 
-/* Card de Estatísticas */
-        .card-stat {
-            background-color: #faf8f0;
-            border: 2px solid #d3c6a1;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+    .config-desc {
+      font-size: 15px;
+      color: #555;
+    }
 
-        /* Adicionando ícones */
-        .bi {
-            font-size: 32px;
-        }
+    .btn-preto {
+      background-color: black;
+      color: white;
+      /* Ou outra cor para o texto que contraste com o preto */
+      border-color: black;
+      /* Cor da borda, se desejar */
+    }
 
-        /* Estilo para o botão "Novo bibliotecário" */
-        .btn-new-user {
-            background-color: #7a1600;
-            /* Cor de fundo do botão */
-            color: white;
-            /* Cor do texto */
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            /* Ajusta o espaço entre o ícone e o texto */
-            transition: background-color 0.3s ease;
-        }
+    .btn-preto:hover {
+      background-color: #333;
+      /* Cor mais escura ao passar o mouse */
+      color: white;
+      border-color: #333;
+    }
 
-        .btn-new-user:hover {
-            background-color: #5c0e00;
-            color: rgb(146, 146, 146);
-            /* Cor de fundo ao passar o mouse */
-        }
+    /* Card de Estatísticas */
+    .card-stat {
+      background-color: #faf8f0;
+      border: 2px solid #d3c6a1;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
 
-        .btn-new-user i {
-            font-size: 1.4rem;
-            /* Tamanho do ícone */
-        }
+    /* Adicionando ícones */
+    .bi {
+      font-size: 32px;
+    }
 
-        .bg-wh-1 {
-            display: inline-block;
-            min-width: 10px;
-            padding: 3px 7px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #6030ba;
-            line-height: 1;
-            vertical-align: middle;
-            white-space: nowrap;
-            text-align: center;
-            border-radius: 10px;
-        }
+    /* Estilo para o botão "Novo bibliotecário" */
+    .btn-new-user {
+      background-color: #7a1600;
+      /* Cor de fundo do botão */
+      color: white;
+      /* Cor do texto */
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      /* Ajusta o espaço entre o ícone e o texto */
+      transition: background-color 0.3s ease;
+    }
 
-        .bg-wh-2 {
-            display: inline-block;
-            min-width: 10px;
-            padding: 3px 7px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #409cff;
-            line-height: 1;
-            vertical-align: middle;
-            white-space: nowrap;
-            text-align: center;
-            border-radius: 10px;
-        }
+    .btn-new-user:hover {
+      background-color: #5c0e00;
+      color: rgb(146, 146, 146);
+      /* Cor de fundo ao passar o mouse */
+    }
 
+    .btn-new-user i {
+      font-size: 1.4rem;
+      /* Tamanho do ícone */
+    }
 
-        
-        /* === Largura total nas abas === */
-.tab-content {
-  display: block;        /* não precisa ser flex aqui */
-  width: 100% !important;
-  max-width: none !important;
-  margin: 20px 0 !important;
-}
+    .bg-wh-1 {
+      display: inline-block;
+      min-width: 10px;
+      padding: 3px 7px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #6030ba;
+      line-height: 1;
+      vertical-align: middle;
+      white-space: nowrap;
+      text-align: center;
+      border-radius: 10px;
+    }
 
-#configTabsContent .tab-pane {
-  width: 100% !important;
-}
-
-#em,
-#em .col-12,
-#em .section-box {
-  width: 100% !important;
-  max-width: none !important;
-}
-
-#em canvas#graficoEmprestimos {
-  width: 100% !important;   /* Chart.js ocupa toda a largura */
-  height: 380px !important; /* ajuste a gosto */
-}
-
-
-.history-section table {
-  width: 100%;          /* tabela vai expandir até o limite do container */
-  table-layout: fixed;  /* distribui melhor as colunas */
-}
-
-.history-section {
-    flex: 1 1 70%;   /* 70% da largura da linha */
-    min-width: 500px; /* garante tamanho mínimo */
-}
-
-
-/* Estilos específicos para o main-container */
-        .main-container-custom {
-            flex: 1;
-            padding-left: 270px;
-            padding-top: 20px;
-            padding-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            overflow-y: auto;
-            min-height: calc(100vh - 56px);
-        }
-
-        /* Título estilizado */
-        .text-center-custom {
-            text-align: center;
-            font-family: Georgia, serif;
-            font-weight: 500;
-        }
-
-        /* Estilos para o grupo de busca */
-        .input-group-custom {
-            max-width: 600px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin: 0 auto;
-        }
-
-        /* Barra de pesquisa */
-        .search-input {
-            border-radius: 25px;
-            padding-left: 20px;
-            font-size: 16px;
-            flex: 1;
-        }
-
-        /* Estilo do botão de pesquisa */
-        .search-btn {
-            background-color: #fff;
-            border: 1px solid #d2b28c;
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-size: 18px;
-        }
-
-        /* Ajuste do card */
-        .custom-card {
-            background-color: #c8aa78 !important;
-            border-radius: 15px !important;
-            padding: 30px !important; 
-            max-width: 1000px !important;
-            margin: 20px auto !important;
-            width: 100% !important;
-
-        }
-
-        /* Estilo para o campo de status */
-        .status-label {
-            font-weight: bold  !important;
-            color: rgb(0, 0, 0) !important;
-            margin-right: 5px !important;
-        }
-
-        /* Estilo para o botão Status */
-        .status-select {
-            margin-left: 10px !important;
-            margin-right: 10px !important;
-            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
-        }
-        /* Estilo dos botões */
-        .status-select,
-        .new-user-btn {
-            margin-top: 10px;
-            /* Adiciona um pequeno espaço superior para os botões */
-        }
-        /* Estilo para o botão Status */
-        .status-select {
-            margin-left: 10px;
-            margin-right: 20px;
-            font-weight: bold;
-            color: rgb(0, 0, 0);
-            margin-right: 1px;
-            background-color: white;
-            border-color: #c8aa78;
-            border-radius: 25px;
-            padding: 10px 30px;
-            /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
-        }
-
-
-        /* Layout para os botões fora do card */
-        .d-flex.justify-content-between.mt-3 {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            margin: 0 20px !important;
-            /* Adiciona espaço nas laterais para afastar da "parede" */
-        }
-
-        /* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
-        .new-user-btn {
-            background-color: #7a1600 !important;
-            color: white !important;
-            border-radius: 25px !important;
-            padding: 10px 20px !important;
-        }
-
-        .new-user-btn:hover {
-            background-color: #5c0e00 !important;
-        }
-
-        /* Estilos específicos para o main-container */
-        .main-container-custom {
-            flex: 1 !important;
-            padding-left: 270px !important;
-             padding-top: 100px !important;
-            padding-bottom: 20px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            overflow-y: auto !important;
-            min-height: calc(100vh - 56px) !important;
-        }
-
-        /* Título estilizado */
-        .text-center-custom {
-            text-align: center !important;
-            font-family: Georgia, serif !important;
-            font-weight: 500 !important;
-            font-size: 2rem  !important;
-            margin: 0 !important;
-        }
-
-        /* Ajuste do card */
-        .custom-card {
-            background-color: #c8aa78 !important;
-            border-radius: 10px!important;
-            padding: 20px 40px!important;
-            width: auto;
-            /* Ajuste a largura para se ajustar ao conteúdo */
-            margin: 0 auto;
-            /* Centraliza o card */
-            padding: 10%;
-        }
-
-        /* Sombra semelhante à da imagem */
-        .shadow-title {
-            box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15)!important;
-        }
-
-        /* Correções de responsividade extras */
-/* responsivo */
-@media (max-width: 992px) {
-  .search-box { width: 300px; }
-}
-
-/* Sidebar some no mobile e vira "menu lateral" */
-@media (max-width: 992px) {
-  .sidebar {
-    position: fixed;
-    top: 56px;
-    left: -220px;
-    width: 220px;
-    height: 100%;
-    transition: left 0.3s ease;
-    z-index: 1051;
-  }
-  .sidebar.show {
-    left: 0;
-  }
-
-  .main-container-custom {
-    padding-left: 0 !important;
-    padding-top: 80px !important;
-  }
-}
-
-/* Ajusta grid das abas no celular */
-@media (max-width: 768px) {
-  .tab-container {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .tab-content {
-    flex-direction: column !important;
-    gap: 15px !important;
-  }
-
-  .section-box {
-    flex: 1 1 100% !important;
-    max-width: 100% !important;
-  }
-
-  .d-flex.gap-3.flex-wrap {
-    flex-direction: column;
-  }
-
-  .custom-card {
-    padding: 15px !important;
-  }
-}
-
-/* Ajusta tabelas no mobile */
-.table-responsive {
-  overflow-x: auto;
-}
-
-/* Ajusta avatar e botão acessibilidade no mobile */
-@media (max-width: 576px) {
-  .avatar-container {
-    bottom: 70px;
-    left: 10px;
-  }
-  .btn[style*="width: 50px"] {
-    width: 45px !important;
-    height: 45px !important;
-  }
-}
-
-/* Overlay por trás da sidebar no mobile */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 1050;
-  display: none;
-}
-.sidebar-overlay.show {
-  display: block;
-}
-
-/* ANTES — não funciona porque não há .card em #logs */
-#logs .card {
-  max-width: 900px;
-  width: 100%;
-}
-
-/* DEPOIS — aplica no elemento correto */
-#logs {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  padding: 0 16px;           /* respiro lateral no mobile */
-}
-#logs .row {
-  width: 100%;
-}
-#logs .section-box {
-  max-width: 900px;
-  width: 100%;
-  margin: 0 auto;            /* garante centralização */
-}
+    .bg-wh-2 {
+      display: inline-block;
+      min-width: 10px;
+      padding: 3px 7px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #409cff;
+      line-height: 1;
+      vertical-align: middle;
+      white-space: nowrap;
+      text-align: center;
+      border-radius: 10px;
+    }
 
 
 
-/* opcional: se não quiser a caixa gigante */
-#em .section-box { min-height: 420px !important; }
+    /* === Largura total nas abas === */
+    .tab-content {
+      display: block;
+      /* não precisa ser flex aqui */
+      width: 100% !important;
+      max-width: none !important;
+      margin: 20px 0 !important;
+    }
 
-#configTabsContent .tab-pane { display: none; }
-#configTabsContent .tab-pane.active { display: block; }
+    #configTabsContent .tab-pane {
+      width: 100% !important;
+    }
+
+    #em,
+    #em .col-12,
+    #em .section-box {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    #em canvas#graficoEmprestimos {
+      width: 100% !important;
+      /* Chart.js ocupa toda a largura */
+      height: 380px !important;
+      /* ajuste a gosto */
+    }
 
 
-    </style>
+    .history-section table {
+      width: 100%;
+      /* tabela vai expandir até o limite do container */
+      table-layout: fixed;
+      /* distribui melhor as colunas */
+    }
+
+    .history-section {
+      flex: 1 1 70%;
+      /* 70% da largura da linha */
+      min-width: 500px;
+      /* garante tamanho mínimo */
+    }
+
+
+    /* Estilos específicos para o main-container */
+    .main-container-custom {
+      flex: 1;
+      padding-left: 270px;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      overflow-y: auto;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* Título estilizado */
+    .text-center-custom {
+      text-align: center;
+      font-family: Georgia, serif;
+      font-weight: 500;
+    }
+
+    /* Estilos para o grupo de busca */
+    .input-group-custom {
+      max-width: 600px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    /* Barra de pesquisa */
+    .search-input {
+      border-radius: 25px;
+      padding-left: 20px;
+      font-size: 16px;
+      flex: 1;
+    }
+
+    /* Estilo do botão de pesquisa */
+    .search-btn {
+      background-color: #fff;
+      border: 1px solid #d2b28c;
+      border-radius: 25px;
+      padding: 10px 20px;
+      font-size: 18px;
+    }
+
+    /* Ajuste do card */
+    .custom-card {
+      background-color: #c8aa78 !important;
+      border-radius: 15px !important;
+      padding: 30px !important;
+      max-width: 1000px !important;
+      margin: 20px auto !important;
+      width: 100% !important;
+
+    }
+
+    /* Estilo para o campo de status */
+    .status-label {
+      font-weight: bold !important;
+      color: rgb(0, 0, 0) !important;
+      margin-right: 5px !important;
+    }
+
+    /* Estilo para o botão Status */
+    .status-select {
+      margin-left: 10px !important;
+      margin-right: 10px !important;
+      /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+    }
+
+    /* Estilo dos botões */
+    .status-select,
+    .new-user-btn {
+      margin-top: 10px;
+      /* Adiciona um pequeno espaço superior para os botões */
+    }
+
+    /* Estilo para o botão Status */
+    .status-select {
+      margin-left: 10px;
+      margin-right: 20px;
+      font-weight: bold;
+      color: rgb(0, 0, 0);
+      margin-right: 1px;
+      background-color: white;
+      border-color: #c8aa78;
+      border-radius: 25px;
+      padding: 10px 30px;
+      /* Dá espaço entre o botão de Status e o botão de Novo bibliotecário */
+    }
+
+
+    /* Layout para os botões fora do card */
+    .d-flex.justify-content-between.mt-3 {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin: 0 20px !important;
+      /* Adiciona espaço nas laterais para afastar da "parede" */
+    }
+
+    /* Ajuste de layout para os botões "Status" e "Novo bibliotecário" */
+    .new-user-btn {
+      background-color: #7a1600 !important;
+      color: white !important;
+      border-radius: 25px !important;
+      padding: 10px 20px !important;
+    }
+
+    .new-user-btn:hover {
+      background-color: #5c0e00 !important;
+    }
+
+    /* Estilos específicos para o main-container */
+    .main-container-custom {
+      flex: 1 !important;
+      padding-left: 270px !important;
+      padding-top: 100px !important;
+      padding-bottom: 20px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      overflow-y: auto !important;
+      min-height: calc(100vh - 56px) !important;
+    }
+
+    /* Título estilizado */
+    .text-center-custom {
+      text-align: center !important;
+      font-family: Georgia, serif !important;
+      font-weight: 500 !important;
+      font-size: 2rem !important;
+      margin: 0 !important;
+    }
+
+    /* Ajuste do card */
+    .custom-card {
+      background-color: #c8aa78 !important;
+      border-radius: 10px !important;
+      padding: 20px 40px !important;
+      width: auto;
+      /* Ajuste a largura para se ajustar ao conteúdo */
+      margin: 0 auto;
+      /* Centraliza o card */
+      padding: 10%;
+    }
+
+    /* Sombra semelhante à da imagem */
+    .shadow-title {
+      box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Correções de responsividade extras */
+    /* responsivo */
+    @media (max-width: 992px) {
+      .search-box {
+        width: 300px;
+      }
+    }
+
+    /* Sidebar some no mobile e vira "menu lateral" */
+    @media (max-width: 992px) {
+      .sidebar {
+        position: fixed;
+        top: 56px;
+        left: -220px;
+        width: 220px;
+        height: 100%;
+        transition: left 0.3s ease;
+        z-index: 1051;
+      }
+
+      .sidebar.show {
+        left: 0;
+      }
+
+      .main-container-custom {
+        padding-left: 0 !important;
+        padding-top: 80px !important;
+      }
+    }
+
+    /* Ajusta grid das abas no celular */
+    @media (max-width: 768px) {
+      .tab-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .tab-content {
+        flex-direction: column !important;
+        gap: 15px !important;
+      }
+
+      .section-box {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+      }
+
+      .d-flex.gap-3.flex-wrap {
+        flex-direction: column;
+      }
+
+      .custom-card {
+        padding: 15px !important;
+      }
+    }
+
+    /* Ajusta tabelas no mobile */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    /* Ajusta avatar e botão acessibilidade no mobile */
+    @media (max-width: 576px) {
+      .avatar-container {
+        bottom: 70px;
+        left: 10px;
+      }
+
+      .btn[style*="width: 50px"] {
+        width: 45px !important;
+        height: 45px !important;
+      }
+    }
+
+    /* Overlay por trás da sidebar no mobile */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1050;
+      display: none;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+
+    /* ANTES — não funciona porque não há .card em #logs */
+    #logs .card {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* DEPOIS — aplica no elemento correto */
+    #logs {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+      padding: 0 16px;
+      /* respiro lateral no mobile */
+    }
+
+    #logs .row {
+      width: 100%;
+    }
+
+    #logs .section-box {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      /* garante centralização */
+    }
+
+
+
+    /* opcional: se não quiser a caixa gigante */
+    #em .section-box {
+      min-height: 420px !important;
+    }
+
+    #configTabsContent .tab-pane {
+      display: none;
+    }
+
+    #configTabsContent .tab-pane.active {
+      display: block;
+    }
+  </style>
 </head>
 
 
@@ -1174,325 +1214,291 @@
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid d-flex align-items-center" style="gap: 0;">
-            <a class="navbar-brand" href="./homepageAdm2.html">
-                <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
-            </a>
-            <button class="navbar-toggler" type="button" id="sidebarToggle">
-              <span class="navbar-toggler-icon"></span>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid d-flex align-items-center" style="gap: 0;">
+      <a class="navbar-brand" href="./homepageAdm2.html">
+        <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
+      </a>
+      <button class="navbar-toggler" type="button" id="sidebarToggle">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+        <form class="d-flex">
+          <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+            <li class="nav-item">
+              <a class="nav-link" href="#" style="color: white;">
+                <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+              </a>
+            </li>
+          </ul>
+          <ul class="navbar-nav mb-2 mb-lg-0 me-3">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false" style="color: white;">
+                Atualizações
+              </a>
+              <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">Foi adicionado um <br>elemento novo <br> no sistema</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Foi excluído um <br> elemento antigo <br> no sistema</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Foi alterado um <br> elemento no sistema</a></li>
+              </ul>
+            </li>
+          </ul>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <div class="sidebar d-flex flex-column">
+    <a class="btn w-100" href="./areaAdm2.html">Administrador</a>
+    <a class="btn w-100" href="./bibliotecarios.html">Bibliotecários</a>
+    <a class="btn w-100" href="./configAdm2.html">Configurações</a>
+    <a class="btn w-100 active" href="./manutencao.html">Manutenção</a>
+    <a class="btn w-100" href="./usuariosAdm2.html">Usuários</a>
+  </div>
+
+  <!-- Conteúdo -->
+  <div class="main-container-custom">
+    <div class="p-4 rounded-3 shadow custom-card">
+      <h2 class="text-center-custom">Manutenção do sistema</h2>
+      <div class="d-flex justify-content-center">
+
+      </div>
+
+    </div>
+    <br><br>
+
+    <!-- Abas -->
+    <div class="tab-container">
+      <button class="tab-button active" onclick="openTab(event, 'backup')">Backup e restauração</button>
+      <button class="tab-button" onclick="openTab(event, 'logs')">Logs do sistema</button>
+    </div>
+
+
+
+    <!-- Conteúdo das Abas -->
+    <div class="tab-content mt-3" id="configTabsContent">
+
+      <!-- Seção: Backup -->
+      <div id="backup" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
+        <div class="d-flex flex-wrap gap-3">
+
+          <!-- Seção: Backup do banco -->
+          <div class="section-box" style="flex: 1 1 48%;">
+            <div class="section-header">Backup do banco de dados</div>
+
+            <div class="backup-info mb-3">
+              <div class="backup-item">
+                <span class="backup-label">Último backup:</span>
+                <span id="ultimoBackup" class="backup-value">Nenhum ainda</span>
+              </div>
+              <div class="backup-item-verifica">
+                <i class="bi bi-check-circle-fill"></i>
+                <span id="statusBackup">Backup automático diário ativo</span>
+              </div>
+            </div>
+
+            <div class="mb-4 d-flex gap-2">
+              <button id="btnBackupManual" class="btn btn-save w-50 d-flex justify-content-center align-items-center">
+                <i class="bi bi-hdd-stack"></i> Backup manual
+              </button>
+              <div id="backupResult" class="mt-2"></div>
+
+              <button id="btnRestaurar" class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
+                <i class="bi bi-upload" style="font-size: 18px;"></i> Restaurar backup
+              </button>
+            </div>
+          </div>
+
+          <!-- Seção: Configuração de backup -->
+          <!-- Seção: Configuração de backup -->
+          <div class="section-box" style="flex: 1 1 48%;">
+            <div class="section-header">
+              <i class="bi bi-gear"></i> Configuração de backup
+            </div>
+
+            <div class="config-section p-3 mb-4">
+              <div class="config-item d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="config-title">Backup automático</div>
+                  <div class="config-desc">
+                    Backup diário às
+                    <input id="horaBackup" type="time" value="02:00"
+                      class="form-control form-control-sm d-inline w-auto">
+                  </div>
+                </div>
+                <span class="badge bg-success">Ativo</span>
+              </div>
+
+              <div class="config-item d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="config-title">Retenção de backups</div>
+                  <div class="config-desc">
+                    Manter por
+                    <input id="diasRetencao" type="number" value="30"
+                      class="form-control form-control-sm d-inline w-auto"> dias
+                  </div>
+                </div>
+                <span id="retencaoLabel" class="badge bg-primary">30 dias</span>
+              </div>
+
+              <div class="config-item d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="config-title">Compressão</div>
+                  <div class="config-desc">Reduz o tamanho do arquivo</div>
+                </div>
+                <div class="form-check form-switch">
+                  <input id="compressaoAtiva" class="form-check-input" type="checkbox" checked>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botão principal -->
+            <button id="btnSalvarConfig" class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
+              <i class="bi bi-save" style="font-size: 18px;"></i> Configurar backup
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
-                <form class="d-flex">
-                    <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" style="color: white;">
-                                <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
-                            </a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
-                                Atualizações
-                            </a>
-                            <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#">Foi adicionado um <br>elemento novo <br> no sistema</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Foi excluído um <br> elemento antigo <br> no sistema</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Foi alterado um <br> elemento no sistema</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column">
-        <a class="btn w-100" href="./areaAdm2.html">Administrador</a>
-        <a class="btn w-100" href="./bibliotecarios.html">Bibliotecários</a>
-        <a class="btn w-100" href="./configAdm2.html">Configurações</a>
-        <a class="btn w-100 active" href="./manutencao.html">Manutenção</a>
-        <a class="btn w-100" href="./usuariosAdm2.html">Usuários</a>
-    </div>
-
-     <!-- Conteúdo -->
-    <div class="main-container-custom">
-        <div class="p-4 rounded-3 shadow custom-card">
-            <h2 class="text-center-custom">Manutenção do sistema</h2>
-            <div class="d-flex justify-content-center">
-                
-            </div>
-
-        </div>
-        <br><br>
-
-        <!-- Abas -->
-        <div class="tab-container">
-            <button class="tab-button active" onclick="openTab(event, 'backup')">Backup e restauração</button>
-            <button class="tab-button" onclick="openTab(event, 'logs')">Logs do sistema</button>
-        </div>
-
-
-
-<!-- Conteúdo das Abas -->
-<div class="tab-content mt-3" id="configTabsContent">
-
-  <!-- Seção: Backup -->
-  <div id="backup" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
-    <div class="d-flex flex-wrap gap-3">
-
-      <!-- Seção: Backup do banco -->
-      <div class="section-box" style="flex: 1 1 48%;">
-        <div class="section-header">Backup do banco de dados</div>
-
-        <div class="backup-info mb-3">
-          <div class="backup-item">
-            <span class="backup-label">Último backup:</span>
-            <span id="ultimoBackup" class="backup-value">Nenhum ainda</span>
           </div>
-          <div class="backup-item-verifica">
-            <i class="bi bi-check-circle-fill"></i>
-            <span id="statusBackup">Backup automático diário ativo</span>
-          </div>
-        </div>
 
-        <div class="mb-4 d-flex gap-2">
-          <button id="btnBackupManual" class="btn btn-save w-50 d-flex justify-content-center align-items-center">
-            <i class="bi bi-hdd-stack"></i> Backup manual
-          </button>
-          <button id="btnRestaurar" class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
-            <i class="bi bi-upload" style="font-size: 18px;"></i> Restaurar backup
-          </button>
+          <!-- Seção: Histórico -->
+          <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
+            <div class="section-header">
+              <i class="bi bi-clock-history"></i> Histórico de backups
+            </div>
+            <div class="table-responsive">
+              <table id="tabelaBackup" class="table table-striped table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>Data/Hora</th>
+                    <th>Tipo</th>
+                    <th>Tamanho</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="text-center mt-3">
+              <button id="btnListar" class="btn btn-secondary">🔄 Atualizar histórico</button>
+            </div>
+          </div>
+
         </div>
       </div>
-<<<<<<< Updated upstream
-=======
-      <div class="mb-4 d-flex gap-2">
-        <button class="btn btn-save w-50 d-flex justify-content-center align-items-center">
-          <i class="bi bi-save"></i> Backup manual
-        </button>
-        <button class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
-          <i class="bi bi-upload"  style="font-size: 18px;"></i> Restaurar backup
-        </button>
-      </div>
     </div>
->>>>>>> Stashed changes
 
-      <!-- Seção: Configuração de backup -->
-      <div class="section-box" style="flex: 1 1 48%;">
-        <div class="section-header">
-          <i class="bi bi-gear"></i> Configuração de backup
-        </div>
-        <div class="config-section p-3 mb-4">
-          <div class="config-item d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <div class="config-title">Backup automático</div>
-              <div class="config-desc">
-                Backup diário às
-                <input id="horaBackup" type="time" value="02:00" class="form-control form-control-sm d-inline w-auto">
+    <!-- Aba: Logs -->
+    <div id="logs" class="tab-pane fade" role="tabpanel" aria-labelledby="logs-tab">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8 mx-auto">
+          <div class="section-box">
+            <div class="section-header">
+              <span><strong>Logs do sistema</strong></span>
+              <div class="ms-auto d-flex gap-2">
+                <select style="min-width: 100px;" class="form-select status-select">
+                  <option>Todos</option>
+                  <option>Sucesso</option>
+                  <option>Atenção</option>
+                  <option>Erro</option>
+                </select>
+                <button class="btn btn-save">
+                  <i class="bi bi-download"></i> Exportar
+                </button>
               </div>
             </div>
-            <span class="badge bg-success">Ativo</span>
-          </div>
 
-          <div class="config-item d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <div class="config-title">Retenção de backups</div>
-              <div class="config-desc">
-                Manter por
-                <input id="diasRetencao" type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
+            <!-- Lista de logs -->
+            <div id="logs-list">
+
+              <!-- Exemplo 1 -->
+              <div class="log-card" data-date="2024-01-16T09:15:22">
+                <!--apartir do momento que muda o date-date atualiza a ordem do mais novo para o mais antigo-->
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle text-success fs-4"></i>
+                    <div>
+                      <strong>Backup automático realizado</strong>
+                      <span class="badge bg-success">Sucesso</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="mb-1">Backup completo do banco de dados salvo com sucesso</p>
+                <small class="text-muted">
+                  <i class="bi bi-clock"></i> 16-01-2024 09:15:22 &nbsp;
+                  <i class="bi bi-person"></i> Sistema
+                </small>
+              </div>
+
+              <!-- Exemplo 2 -->
+              <div class="log-card" data-date="2024-01-16T08:17:36">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-circle text-warning fs-4"></i>
+                    <div>
+                      <strong>Configuração alterada</strong>
+                      <span class="badge bg-warning text-dark">Atenção</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="mb-1">Prazo de empréstimo alterado de 14 para 20 dias</p>
+                <small class="text-muted">
+                  <i class="bi bi-clock"></i> 16-01-2024 08:17:36 &nbsp;
+                  <i class="bi bi-person"></i> admin@email.com
+                </small>
+              </div>
+
+              <!-- Exemplo 3 -->
+              <div class="log-card" data-date="2024-01-19T22:07:55">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-x-octagon text-danger fs-4"></i>
+                    <div>
+                      <strong>Falha de login</strong>
+                      <span class="badge bg-danger">Erro</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="mb-1">Tentativa de acesso com credenciais inválidas</p>
+                <small class="text-muted">
+                  <i class="bi bi-clock"></i> 19-01-2024 22:07:55 &nbsp;
+                  <i class="bi bi-person"></i> usuario.invalido@email.com
+                </small>
               </div>
             </div>
-            <span id="retencaoLabel" class="badge bg-primary">30 dias</span>
-          </div>
-
-          <div class="config-item d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <div class="config-title">Compressão</div>
-              <div class="config-desc">Reduz o tamanho do arquivo</div>
-            </div>
-            <div class="form-check form-switch">
-              <input id="compressaoAtiva" class="form-check-input" type="checkbox" checked>
-            </div>
-          </div>
-        </div>
-<<<<<<< Updated upstream
-        <button id="btnSalvarConfig" class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
-          <i class="bi bi-save" style="font-size: 18px;"></i> Configurar backup
-        </button>
-=======
-
-        <div class="config-item d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <div class="config-title">Retenção de backups</div>
-            <div class="config-desc">
-              Manter por
-              <input type="number" value="30" class="form-control form-control-sm d-inline w-auto"> dias
-            </div>
-          </div>
-          <span class="badge bg-primary">30 dias</span>
-        </div>
-
-        <div class="config-item d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <div class="config-title">Compressão</div>
-            <div class="config-desc">Reduz o tamanho do arquivo</div>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" checked>
           </div>
         </div>
       </div>
-      <button class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
-          <i class="bi bi-save" style="font-size: 18px;"></i> Salvar configuração do backup
-      </button>
     </div>
 
-    <!-- Seção: Histórico (maior largura) -->
-    <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
-      <div class="section-header">
-        <i class="bi bi-clock-history"></i> Histórico de backups
->>>>>>> Stashed changes
-      </div>
 
-      <!-- Seção: Histórico -->
-      <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
-        <div class="section-header">
-          <i class="bi bi-clock-history"></i> Histórico de backups
-        </div>
-        <div class="table-responsive">
-          <table id="tabelaBackup" class="table table-striped table-bordered">
-            <thead class="table-light">
-              <tr>
-                <th>Data/Hora</th>
-                <th>Tipo</th>
-                <th>Tamanho</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="text-center mt-3">
-          <button id="btnListar" class="btn btn-secondary">🔄 Atualizar histórico</button>
-        </div>
-      </div>
 
-    </div>
+
+
   </div>
-</div>
 
-  <!-- Aba: Logs -->
-  <div id="logs" class="tab-pane fade" role="tabpanel" aria-labelledby="logs-tab">
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-10 col-lg-8 mx-auto">    
-    <div class="section-box">
-    <div class="section-header">
-      <span><strong>Logs do sistema</strong></span>
-      <div class="ms-auto d-flex gap-2">
-        <select style="min-width: 100px;" class="form-select status-select" >
-          <option>Todos</option>
-          <option>Sucesso</option>
-          <option>Atenção</option>
-          <option>Erro</option>
-        </select>
-        <button class="btn btn-save">
-          <i class="bi bi-download"></i> Exportar
-        </button>
-      </div>
-    </div>
 
-    <!-- Lista de logs -->
-    <div id="logs-list">
-      
-      <!-- Exemplo 1 -->
-      <div class="log-card" data-date="2024-01-16T09:15:22"> <!--apartir do momento que muda o date-date atualiza a ordem do mais novo para o mais antigo-->
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-check-circle text-success fs-4"></i>
-            <div>
-              <strong>Backup automático realizado</strong>
-              <span class="badge bg-success">Sucesso</span>
-            </div>
-          </div>
-        </div>
-        <p class="mb-1">Backup completo do banco de dados salvo com sucesso</p>
-        <small class="text-muted">
-          <i class="bi bi-clock"></i> 16-01-2024 09:15:22 &nbsp; 
-          <i class="bi bi-person"></i> Sistema
-        </small>
-      </div>
 
-      <!-- Exemplo 2 -->
-      <div class="log-card" data-date="2024-01-16T08:17:36">
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-exclamation-circle text-warning fs-4"></i>
-            <div>
-              <strong>Configuração alterada</strong>
-              <span class="badge bg-warning text-dark">Atenção</span>
-            </div>
-          </div>
-        </div>
-        <p class="mb-1">Prazo de empréstimo alterado de 14 para 20 dias</p>
-        <small class="text-muted">
-          <i class="bi bi-clock"></i> 16-01-2024 08:17:36 &nbsp;
-          <i class="bi bi-person"></i> admin@email.com
-        </small>
-      </div>
-
-      <!-- Exemplo 3 -->
-      <div class="log-card" data-date="2024-01-19T22:07:55">
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-x-octagon text-danger fs-4"></i>
-            <div>
-              <strong>Falha de login</strong>
-              <span class="badge bg-danger">Erro</span>
-            </div>
-          </div>
-        </div>
-        <p class="mb-1">Tentativa de acesso com credenciais inválidas</p>
-        <small class="text-muted">
-          <i class="bi bi-clock"></i> 19-01-2024 22:07:55 &nbsp;
-          <i class="bi bi-person"></i> usuario.invalido@email.com
-        </small>
-      </div>
-      </div>
+  <!-- Botão de acessibilidade -->
+  <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
+    <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
+      <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
+    </button>
   </div>
-    </div>
-  </div>
-</div>
 
-
-
-
-
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.js"></script>
-
-
-
-        <!-- Botão de acessibilidade -->
-    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
-        <button class="btn btn-dark rounded-3" style="width: 50px; height: 50px;">
-            <i class="bi bi-universal-access" style="font-size: 1.5rem;"></i>
-        </button>
-    </div>
-
-    <!-- Avatar com menu fixado no canto inferior esquerdo -->
-    <div class="avatar-container">
-   <img src="https://bibliontec.onrender.com/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário">
+  <!-- Avatar com menu fixado no canto inferior esquerdo -->
+  <div class="avatar-container">
+    <img src="https://bibliontec.onrender.com/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar"
+      alt="Avatar do Usuário">
 
     <div class="menu-perfil" id="menuPerfil">
       <a href="./areaAdm2.html" class="dropdown-item">Meu Perfil</a>
@@ -1502,98 +1508,100 @@
       <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
     </div>
   </div>
- <script src="../java/backup.js"></script>
-  <script src="../java/script.js"></script>
-<!-- Scripts das abas -->
 
 
-<!--Arruma a ordem da lista da aba "log"-->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const list = document.getElementById("logs-list");
-    const cards = Array.from(list.children);
+  <!-- Scripts das abas -->
 
-    cards.sort((a, b) => {
-      return new Date(b.dataset.date) - new Date(a.dataset.date);
+
+  <!--Arruma a ordem da lista da aba "log"-->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const list = document.getElementById("logs-list");
+      const cards = Array.from(list.children);
+
+      cards.sort((a, b) => {
+        return new Date(b.dataset.date) - new Date(a.dataset.date);
+      });
+
+      cards.forEach(c => list.appendChild(c));
     });
+  </script>
 
-    cards.forEach(c => list.appendChild(c));
-  });
-</script>
+  <!--Arrumou as abas para que elas apareçam apenas quando clicar no botão-->
+  <script>
+    function openTab(evt, tabId) {
+      // desativa TODAS as abas (os panes)
+      document.querySelectorAll('#configTabsContent .tab-pane')
+        .forEach(pane => pane.classList.remove('active', 'show'));
 
-<!--Arrumou as abas para que elas apareçam apenas quando clicar no botão-->
-    <script>
-  function openTab(evt, tabId) {
-    // desativa TODAS as abas (os panes)
-    document.querySelectorAll('#configTabsContent .tab-pane')
-      .forEach(pane => pane.classList.remove('active', 'show'));
+      // desmarca todos os botões
+      document.querySelectorAll('.tab-container .tab-button')
+        .forEach(btn => btn.classList.remove('active'));
 
-    // desmarca todos os botões
-    document.querySelectorAll('.tab-container .tab-button')
-      .forEach(btn => btn.classList.remove('active'));
+      // ativa só a aba clicada
+      const pane = document.getElementById(tabId);
+      if (pane) pane.classList.add('active', 'show'); // 'show' dá o fade, 'active' mostra
 
-    // ativa só a aba clicada
-    const pane = document.getElementById(tabId);
-    if (pane) pane.classList.add('active', 'show'); // 'show' dá o fade, 'active' mostra
-
-    // marca o botão clicado
-    evt.currentTarget.classList.add('active');
-  }
-
-</script>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const toggler  = document.querySelector(".navbar-toggler");
-    const sidebar  = document.querySelector(".sidebar");
-    const backdrop = document.getElementById("sidebar-backdrop");
-
-    function openSidebar() {
-      sidebar.classList.add("show");
-      if (window.innerWidth <= 1200 && backdrop) backdrop.classList.add("active");
-    }
-    function closeSidebar() {
-      sidebar.classList.remove("show");
-      if (backdrop) backdrop.classList.remove("active");
+      // marca o botão clicado
+      evt.currentTarget.classList.add('active');
     }
 
-    if (toggler && sidebar) {
-      toggler.addEventListener("click", function (e) {
-        e.stopPropagation();
-        if (sidebar.classList.contains("show")) {
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const toggler = document.querySelector(".navbar-toggler");
+      const sidebar = document.querySelector(".sidebar");
+      const backdrop = document.getElementById("sidebar-backdrop");
+
+      function openSidebar() {
+        sidebar.classList.add("show");
+        if (window.innerWidth <= 1200 && backdrop) backdrop.classList.add("active");
+      }
+      function closeSidebar() {
+        sidebar.classList.remove("show");
+        if (backdrop) backdrop.classList.remove("active");
+      }
+
+      if (toggler && sidebar) {
+        toggler.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (sidebar.classList.contains("show")) {
+            closeSidebar();
+          } else {
+            openSidebar();
+          }
+        });
+      }
+
+      /* Clicar no backdrop fecha */
+      if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+      /* Clicar fora da sidebar fecha */
+      document.addEventListener("click", function (e) {
+        if (
+          window.innerWidth <= 1200 &&
+          sidebar.classList.contains("show") &&
+          !sidebar.contains(e.target) &&
+          !toggler.contains(e.target)
+        ) {
           closeSidebar();
-        } else {
-          openSidebar();
         }
       });
-    }
 
-    /* Clicar no backdrop fecha */
-    if (backdrop) backdrop.addEventListener("click", closeSidebar);
-
-    /* Clicar fora da sidebar fecha */
-    document.addEventListener("click", function (e) {
-      if (
-        window.innerWidth <= 1200 &&
-        sidebar.classList.contains("show") &&
-        !sidebar.contains(e.target) &&
-        !toggler.contains(e.target)
-      ) {
-        closeSidebar();
-      }
+      /* Ao redimensionar, limpa estados para evitar sobreposição */
+      window.addEventListener("resize", function () {
+        if (window.innerWidth > 1200) {
+          if (backdrop) backdrop.classList.remove("active");
+        } else {
+          closeSidebar();
+        }
+      });
     });
-
-    /* Ao redimensionar, limpa estados para evitar sobreposição */
-    window.addEventListener("resize", function () {
-      if (window.innerWidth > 1200) {
-        if (backdrop) backdrop.classList.remove("active");
-      } else {
-        closeSidebar();
-      }
-    });
-  });
-</script>
-</div>
+  </script>
+  </div>
 </body>
+<script src="../java/backup.js"></script>
+<script src="../java/script.js"></script>
 
 </html>
