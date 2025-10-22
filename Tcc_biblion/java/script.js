@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener('input', () => {
       input.value = input.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
     });
-  });/*
+  });
 // ----------- LÓGICA DE LOGIN ------------
 const formLogin = document.getElementById('formLogin');
 if (formLogin) {
@@ -308,7 +308,7 @@ async function validarSessao() {
   } catch (err) {
     console.error("Erro ao validar sessão:", err);
   }
-}*/
+}
 
 
   // ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
