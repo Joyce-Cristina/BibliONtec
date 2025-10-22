@@ -51,7 +51,11 @@ todosOsFuncionarios = todosOsFuncionarios.map((f) => {
 });
 
 
-    exibirFuncionarios(todosOsFuncionarios);
+if (document.getElementById("lista-funcionarios")) {
+  exibirFuncionariosCards(todosOsFuncionarios);
+} else {
+  exibirFuncionarios(todosOsFuncionarios); // versão tabela
+}
     atualizarContadores();
   } catch (err) {
     console.error("Erro ao carregar funcionários:", err);
@@ -61,12 +65,9 @@ todosOsFuncionarios = todosOsFuncionarios.map((f) => {
 // ------------------ EXIBIR FUNCIONÁRIOS EM CARDS ------------------
 
 function exibirFuncionariosCards(funcionarios) {
-console.log("Renderizando cards:", funcionarios.length);
-
- 
+  console.log("Renderizando cards:", funcionarios.length);
   const container = document.getElementById("lista-funcionarios");
-  if (!container) 
-
+  if (!container) return; 
   container.innerHTML = "";
 
   funcionarios.forEach(f => {
