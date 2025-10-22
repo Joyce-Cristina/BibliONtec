@@ -51,6 +51,36 @@ todosOsUsuarios = todosOsUsuarios.map((u) => {
     console.error("Erro ao carregar usuários:", err);
   }
 }
+// ------------------ EXIBIR USUÁRIOS EM CARDS ------------------
+function exibirUsuarios(usuarios) {
+  const container = document.getElementById('lista-usuarios');
+  container.innerHTML = '';
+
+  usuarios.forEach(u => {
+    const foto = u.foto
+      ? `${apiBase()}/uploads/${u.foto}`
+      : `${apiBase()}/uploads/padrao.jpg`;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <img src="${foto}" class="card-img-top" alt="${u.nome}" style="height:180px; object-fit:cover;">
+      <div class="card-body text-center">
+        <h5 class="card-title fw-bold">${u.nome}</h5>
+        <p><strong>Tipo:</strong> ${u.tipo || 'Não definido'}</p>
+        <p><strong>Email:</strong> ${u.email}</p>
+        <p><strong>Telefone:</strong> ${u.telefone || '—'}</p>
+      </div>
+      <div class="card-footer text-center">
+        <button class="btn btn-danger me-2" onclick="excluirUsuario(${u.id})">Excluir</button>
+        <button class="btn btn-dark" onclick="abrirModalEdicao(${u.id})">Editar</button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
 
 // ------------------ EXIBIR EM TABELA ------------------
 function exibirUsuarios(usuarios) {

@@ -1,13 +1,13 @@
 
 // ================= CONFIGURAÇÃO AUTOMÁTICA DA API =================
-  function apiBase() {
-    // Detecta se está rodando localmente
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      return 'http://localhost:3000';
-    }
-    // URL do seu backend no Render
-    return 'https://bibliontec.onrender.com';
+function apiBase() {
+  // Detecta se está rodando localmente
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000';
   }
+  // URL do seu backend no Render
+  return 'https://bibliontec.onrender.com';
+}
 
 // Função auxiliar para criar usar caixa de erro
 function getOrCreateErrorBox(id, form) {
@@ -24,25 +24,25 @@ function getOrCreateErrorBox(id, form) {
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log("Script JS carregado!");
-  
 
-document.addEventListener("DOMContentLoaded", () => {
-  const avatar = document.getElementById("avatarPerfil");
-  if (!avatar) return;
 
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
-  const funcionario = JSON.parse(localStorage.getItem("funcionario"));
-  
-  let foto = "padrao.jpg"; // valor padrão
-  
-  if (usuario?.foto) {
-    foto = usuario.foto;
-  } else if (funcionario?.foto) {
-    foto = funcionario.foto;
-  }
+  document.addEventListener("DOMContentLoaded", () => {
+    const avatar = document.getElementById("avatarPerfil");
+    if (!avatar) return;
 
-  avatar.src = `${apiBase()}/uploads/${foto}`;
-});
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+    const funcionario = JSON.parse(localStorage.getItem("funcionario"));
+
+    let foto = "padrao.jpg"; // valor padrão
+
+    if (usuario?.foto) {
+      foto = usuario.foto;
+    } else if (funcionario?.foto) {
+      foto = funcionario.foto;
+    }
+
+    avatar.src = `${apiBase()}/uploads/${foto}`;
+  });
 
 
   // ----------- LÓGICA DE CADASTRO DE ALUNO ------------
@@ -198,117 +198,117 @@ document.addEventListener("DOMContentLoaded", () => {
       input.value = input.value.replace(/[^a-zA-ZÀ-ÿ\s]/g, '');
     });
   });
-// ----------- LÓGICA DE LOGIN ------------
-const formLogin = document.getElementById('formLogin');
-if (formLogin) {
-  formLogin.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  // ----------- LÓGICA DE LOGIN ------------
+  const formLogin = document.getElementById('formLogin');
+  if (formLogin) {
+    formLogin.addEventListener('submit', async (event) => {
+      event.preventDefault();
 
-    const email = document.getElementById('email').value.trim();
-    const senha = document.getElementById('senha').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value.trim();
 
+      try {
+        const response = await fetch(`${apiBase()}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha }),
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+        console.log('Resposta do login:', data);
+
+        if (!response.ok) {
+          alert("Erro ao fazer login: " + (data.error || "desconhecido"));
+          return;
+        }
+
+        // ✅ Salva o token corretamente
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+
+        // ✅ Salva informações do usuário/funcionário
+        if (data.usuario) {
+          localStorage.setItem("usuario", JSON.stringify(data.usuario));
+          localStorage.removeItem("funcionario");
+        } else if (data.funcionario) {
+          localStorage.setItem("funcionario", JSON.stringify(data.funcionario));
+          localStorage.removeItem("usuario");
+        }
+
+        // ✅ Redirecionamento baseado no tipo
+        if (data.usuario) {
+          const tipo = Number(data.usuario.tipo_usuario_id);
+          if (tipo === 1) {
+            window.location.href = './homepageAluno.html';
+          } else if (tipo === 2) {
+            window.location.href = './homepageProf.html';
+          } else {
+            alert('Tipo de usuário não reconhecido.');
+          }
+        } else if (data.funcionario) {
+          const funcao = Number(data.funcionario.funcao_id);
+          switch (funcao) {
+            case 1:
+              window.location.href = './homepageAdm2.html'; // Administrador
+              break;
+            case 2:
+            case 3:
+            case 4:
+              window.location.href = './homepageAdm.html'; // Bibliotecário, Circulação, Catalogação
+              break;
+            default:
+              alert("Função não reconhecida! funcao_id: " + funcao);
+          }
+        } else {
+          alert("Resposta inesperada do servidor.");
+        }
+
+      } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        alert("Erro de rede ou servidor!");
+      }
+    });
+  }
+
+  // ----------- VALIDAÇÃO DE SESSÃO COM TOKEN (LOCALSTORAGE ou COOKIE) ------------
+  async function validarSessao() {
     try {
-      const response = await fetch(`${apiBase()}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha }),
-        credentials: 'include'
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${apiBase()}/check-session`, {
+        headers: token ? { Authorization: "Bearer " + token } : {},
+        credentials: "include"
       });
 
-      const data = await response.json();
-      console.log('Resposta do login:', data);
-
-      if (!response.ok) {
-        alert("Erro ao fazer login: " + (data.error || "desconhecido"));
+      // 🚫 Evita loop infinito: apenas limpa token e para
+      if (res.status === 401 || res.status === 403) {
+        console.warn("Sessão inválida ou expirada");
+        localStorage.removeItem("token");
         return;
       }
 
-      // ✅ Salva o token corretamente
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+      if (!res.ok) {
+        console.warn("Erro inesperado na verificação da sessão");
+        return;
       }
 
-      // ✅ Salva informações do usuário/funcionário
-      if (data.usuario) {
-        localStorage.setItem("usuario", JSON.stringify(data.usuario));
-        localStorage.removeItem("funcionario");
-      } else if (data.funcionario) {
-        localStorage.setItem("funcionario", JSON.stringify(data.funcionario));
-        localStorage.removeItem("usuario");
+      const data = await res.json();
+      console.log("Sessão válida:", data);
+
+      // Atualiza interface (opcional)
+      if (data.payload?.usuario) {
+        localStorage.setItem("usuario", JSON.stringify(data.payload.usuario));
+      }
+      if (data.payload?.funcionario) {
+        localStorage.setItem("funcionario", JSON.stringify(data.payload.funcionario));
       }
 
-      // ✅ Redirecionamento baseado no tipo
-      if (data.usuario) {
-        const tipo = Number(data.usuario.tipo_usuario_id);
-        if (tipo === 1) {
-          window.location.href = './homepageAluno.html';
-        } else if (tipo === 2) {
-          window.location.href = './homepageProf.html';
-        } else {
-          alert('Tipo de usuário não reconhecido.');
-        }
-      } else if (data.funcionario) {
-        const funcao = Number(data.funcionario.funcao_id);
-        switch (funcao) {
-          case 1:
-            window.location.href = './homepageAdm2.html'; // Administrador
-            break;
-          case 2:
-          case 3:
-          case 4:
-            window.location.href = './homepageAdm.html'; // Bibliotecário, Circulação, Catalogação
-            break;
-          default:
-            alert("Função não reconhecida! funcao_id: " + funcao);
-        }
-      } else {
-        alert("Resposta inesperada do servidor.");
-      }
-
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      alert("Erro de rede ou servidor!");
+    } catch (err) {
+      console.error("Erro ao validar sessão:", err);
     }
-  });
-}
-
-// ----------- VALIDAÇÃO DE SESSÃO COM TOKEN (LOCALSTORAGE ou COOKIE) ------------
-async function validarSessao() {
-  try {
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(`${apiBase()}/check-session`, {
-      headers: token ? { Authorization: "Bearer " + token } : {},
-      credentials: "include"
-    });
-
-    // 🚫 Evita loop infinito: apenas limpa token e para
-    if (res.status === 401 || res.status === 403) {
-      console.warn("Sessão inválida ou expirada");
-      localStorage.removeItem("token");
-      return;
-    }
-
-    if (!res.ok) {
-      console.warn("Erro inesperado na verificação da sessão");
-      return;
-    }
-
-    const data = await res.json();
-    console.log("Sessão válida:", data);
-
-    // Atualiza interface (opcional)
-    if (data.payload?.usuario) {
-      localStorage.setItem("usuario", JSON.stringify(data.payload.usuario));
-    }
-    if (data.payload?.funcionario) {
-      localStorage.setItem("funcionario", JSON.stringify(data.payload.funcionario));
-    }
-
-  } catch (err) {
-    console.error("Erro ao validar sessão:", err);
   }
-}
 
 
   // ----------- LÓGICA DE CADASTRO DE FUNCIONÁRIO ------------
@@ -335,8 +335,14 @@ async function validarSessao() {
       const foto = document.getElementById('foto').files[0];
 
       // funções múltiplas
+
       const funcaoSelect = document.getElementById('funcao');
-      const funcoesSelecionadas = [...funcaoSelect.selectedOptions].map(opt => opt.value);
+      let funcoesSelecionadas = [];
+
+      if (funcaoSelect) {
+        funcoesSelecionadas = [...funcaoSelect.selectedOptions].map(opt => opt.value);
+      }
+
 
       if (!nome || !senha || !email) {
         alert("Preencha todos os campos obrigatórios.");
@@ -354,7 +360,8 @@ async function validarSessao() {
       try {
 
 
-        const response = await fetch(`${apiBase()}/cadastrarFuncionario`, {
+        const response = await fetch(`${apiBase()}/api/funcionarios`, {
+
 
 
           method: 'POST',
@@ -663,7 +670,7 @@ if (avatar && dropdown) {
 // Troca a imagem do avatar com base no localStorage
 const usuario = JSON.parse(localStorage.getItem('usuario'));
 if (usuario && usuario.foto) {
- const novaSrc = `${apiBase()}/uploads/${usuario.foto}`;
+  const novaSrc = `${apiBase()}/uploads/${usuario.foto}`;
 
 
 
@@ -689,7 +696,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!file) {
       // volta para imagem padrão
-     previewBox.style.backgroundImage = `url('${apiBase()}/uploads/padrao.jpg')`;
+      previewBox.style.backgroundImage = `url('${apiBase()}/uploads/padrao.jpg')`;
 
       previewBox.style.backgroundSize = "cover";
       previewBox.style.backgroundPosition = "center";
