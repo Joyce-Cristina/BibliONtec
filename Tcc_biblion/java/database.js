@@ -1668,20 +1668,29 @@ app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
 // ======================= LISTAR LIVROS DO ACERVO =======================
 app.get('/acervo/livros', autenticarToken, (req, res) => {
   const sql = `
-    SELECT l.id, l.titulo, l.sinopse, l.capa, l.cdd, l.paginas, l.isbn,
-           g.genero, e.editora AS editora,
-           GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores,
-           f.nome AS funcionario_cadastrou,
-           l.disponivel
-    FROM livro l
-    LEFT JOIN genero g ON l.FK_genero_id = g.id
-    LEFT JOIN editora e ON l.FK_editora_id = e.id
-    LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
-    LEFT JOIN autor a ON la.FK_autor_id = a.id
-    LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
-    WHERE l.FK_instituicao_id = ?
-    GROUP BY l.id
-  `;
+SELECT 
+  l.id,
+  l.titulo,
+  l.isbn,
+  l.sinopse,
+  l.paginas,
+  l.capa,
+  l.cdd,
+  l.quantidade,
+  l.local_publicacao,
+  l.data_publicacao,
+  g.genero,
+  e.editora,
+  f.nome AS funcionario_cadastrou,
+  GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores
+FROM livro l
+LEFT JOIN genero g ON l.FK_genero_id = g.id
+LEFT JOIN editora e ON l.FK_editora_id = e.id
+LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
+LEFT JOIN autor a ON l.FK_autor_id = a.id
+GROUP BY l.id;
+`;
+
 
   queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro ao buscar livros do acervo' });
@@ -1853,20 +1862,16 @@ app.get('/livros/:id', (req, res) => {
 //=================  Atualizar livro com chaves estrangeiras =================
 
 app.put('/livros/:id', autenticarToken, upload.single('capa'), (req, res) => {
-
-  console.log('Dados recebidos:', req.body); // Para debug
-  console.log('Arquivo recebido:', req.file); // Para debug
-
   const id = parseInt(req.params.id);
-  const { titulo, isbn, sinopse, paginas, generoId, editoraId } = req.body;
+  const { titulo, isbn, sinopse, paginas, generoId, editoraId, FK_autor_id } = req.body;
   const capa = req.file ? req.file.filename : null;
 
   const sql = `
     UPDATE livro 
-    SET titulo=?, isbn=?, sinopse=?, paginas=?, FK_genero_id=?, FK_editora_id=? ${capa ? ', capa=?' : ''}
+    SET titulo=?, isbn=?, sinopse=?, paginas=?, FK_genero_id=?, FK_editora_id=?, FK_autor_id=? ${capa ? ', capa=?' : ''} 
     WHERE id=?`;
 
-  const values = [titulo, isbn, sinopse, paginas, generoId, editoraId];
+  const values = [titulo, isbn, sinopse, paginas, generoId, editoraId, FK_autor_id];
   if (capa) values.push(capa);
   values.push(id);
 
@@ -1879,16 +1884,33 @@ app.put('/livros/:id', autenticarToken, upload.single('capa'), (req, res) => {
   });
 });
 
+// ================== EXCLUIR LIVRO ==================
 app.delete('/livros/:id', (req, res) => {
   const { id } = req.params;
 
-  queryCallback('DELETE FROM livro_autor WHERE FK_livro_id = ?', [id], (err) => {
-    if (err) {
-      console.error('Erro ao deletar autores do livro:', err);
-      return res.status(500).json({ error: 'Erro ao deletar autores do livro' });
-    }
+  // Apaga dependências diretas
+  const tabelasDependentes = [
+    'livro_autor',
+    'emprestimo_livro',
+    'emprestimo',
+    'reserva',
+    'historico_emprestimos'
+  ];
 
-    // Depois, deletar o livro
+  const excluirDependencias = (index = 0) => {
+    if (index >= tabelasDependentes.length) return excluirLivro();
+
+    const tabela = tabelasDependentes[index];
+    const sql = `DELETE FROM ${tabela} WHERE FK_livro_id = ? OR livro_id = ?`;
+    queryCallback(sql, [id, id], (err) => {
+      if (err) {
+        console.warn(`⚠️ Aviso: não foi possível limpar ${tabela}:`, err.sqlMessage);
+      }
+      excluirDependencias(index + 1);
+    });
+  };
+
+  const excluirLivro = () => {
     queryCallback('DELETE FROM livro WHERE id = ?', [id], (err, result) => {
       if (err) {
         console.error('Erro ao deletar livro:', err);
@@ -1897,9 +1919,11 @@ app.delete('/livros/:id', (req, res) => {
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: 'Livro não encontrado' });
       }
-      res.json({ message: 'Livro excluído com sucesso' });
+      res.json({ message: 'Livro excluído com sucesso!' });
     });
-  });
+  };
+
+  excluirDependencias();
 });
 
 // ================= Buscar comentários de um livro =================

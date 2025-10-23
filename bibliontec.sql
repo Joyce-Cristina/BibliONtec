@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 22/10/2025 às 22:41
+-- Tempo de geração: 23/10/2025 às 17:21
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -379,6 +379,13 @@ CREATE TABLE `emprestimo` (
   `FK_usuario_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `emprestimo`
+--
+
+INSERT INTO `emprestimo` (`fila`, `data_emprestimo`, `data_devolucao_prevista`, `data_real_devolucao`, `id`, `FK_instituicao_id`, `FK_usuario_id`) VALUES
+(NULL, '2025-10-23', '2025-10-31', NULL, 5, 1, 34);
+
 -- --------------------------------------------------------
 
 --
@@ -398,7 +405,8 @@ INSERT INTO `emprestimo_livro` (`FK_emprestimo_id`, `FK_livro_id`) VALUES
 (NULL, 6),
 (NULL, 6),
 (NULL, 1),
-(NULL, 6);
+(NULL, 6),
+(5, 1);
 
 -- --------------------------------------------------------
 
@@ -471,10 +479,14 @@ CREATE TABLE `funcionario` (
 --
 
 INSERT INTO `funcionario` (`id`, `nome`, `senha`, `email`, `foto`, `FK_funcao_id`, `telefone`, `FK_instituicao_id`, `ultimo_login`) VALUES
-(4, 'João Silva dos santos', '$2b$12$tVUS/6uLjMGP04EMTblqhuezcdfL6uYKW.gvfMvng/j9ink.iMrj2', 'joaodograu@gmail.com', '1755194757132.jpg', 2, '11987654328', 1, '2025-10-22 17:16:59'),
-(23, 'Ana Lima', '$2b$12$S63QQIZGUzJsW0eowlOG/OtnwDFdPiphie3v4Uv6SqZ0NCNGaMuhm', 'ana.lima@empresa.com', 'padrao.png', 1, '11987451236', 1, NULL),
-(24, 'Pedro Alves', '$2b$12$90ab0mb/1lgszZToHyIJ0OOD8yBZKGPRkK2DqhL2CVxjYPfvKq/TO', 'pedro.alves@empresa.com', '1761163286771.jpg', 2, '11996332254', 1, NULL),
-(26, 'Juliana Martins', '$2b$12$QWx1zZqR092fU66OiN6JZeuWifjZn9lQ7hfoieYtLPuo8OAEHaYDC', 'juliana.martins@empresa.com', '1761165499867.jpg', 1, '11977653321', 1, NULL);
+(4, 'João Silva dos santos', '$2b$12$tVUS/6uLjMGP04EMTblqhuezcdfL6uYKW.gvfMvng/j9ink.iMrj2', 'joaosilva@gmail.com', '1761170866453.jpg', 2, '11987654398', 1, '2025-10-22 17:16:59'),
+(23, 'Ana Lima', '$2b$12$S63QQIZGUzJsW0eowlOG/OtnwDFdPiphie3v4Uv6SqZ0NCNGaMuhm', 'ana.lima@empresa.com', '1761170694699.jpg', 1, '11987451236', 1, '2025-10-22 19:00:52'),
+(24, 'Pedro Alves', '$2b$12$90ab0mb/1lgszZToHyIJ0OOD8yBZKGPRkK2DqhL2CVxjYPfvKq/TO', 'pedro.alves@empresa.com', '1761163286771.jpg', 2, '11996332254', 1, '2025-10-23 10:25:54'),
+(26, 'Juliana Martins', '$2b$12$QWx1zZqR092fU66OiN6JZeuWifjZn9lQ7hfoieYtLPuo8OAEHaYDC', 'juliana.martins@empresa.com', '1761165499867.jpg', 1, '11977653321', 1, NULL),
+(27, 'Mariana Costa', '$2b$12$NTXEMbOCqWDt0VrkmXuNbu1YWCRQGZvgs2bovPfCcEZxg/Hu4I.iW', 'mariana.costa@etec.com', '1761227838434.jpg', 1, '11987654321', 1, NULL),
+(28, 'Ricardo Souza', '$2b$12$3Gr5MCeJQ/vMzrSdkav7ruDTkjG0odT0YdxE3d8H.eOzElQYHMLwe', 'ricardo.souza@etec.com', '1761227848521.jpg', 2, '11999887766', 1, NULL),
+(29, 'Fernanda Lima', '$2b$12$URabjCTVUxI6028xMDf7VureK6WEUZUq.957n2Vk4OekIBfgrn0G6', 'fernanda.lima@etec.com', '1761227867018.jpg', 3, '11988776655', 1, NULL),
+(30, 'Carlos Pereira', '$2b$12$dUtZM//taCcCht0xbWQlF.1wi1XUY67n5iO/W1kP8.GwXUnH7PMY.', 'carlos.pereira@etec.com', '1761227891641.jpeg', 4, '11966554433', 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -645,7 +657,9 @@ CREATE TABLE `historico` (
 --
 
 INSERT INTO `historico` (`id`, `data_leitura`, `FK_instituicao_id`) VALUES
-(1, '2025-10-06', 1);
+(1, '2025-10-06', 1),
+(2, '2025-10-23', 1),
+(3, '2025-10-23', 1);
 
 -- --------------------------------------------------------
 
@@ -674,7 +688,9 @@ CREATE TABLE `historico_livro` (
 --
 
 INSERT INTO `historico_livro` (`FK_historico_id`, `FK_livro_id`) VALUES
-(1, 6);
+(1, 6),
+(2, 1),
+(3, 16);
 
 -- --------------------------------------------------------
 
@@ -692,7 +708,9 @@ CREATE TABLE `historico_usuario` (
 --
 
 INSERT INTO `historico_usuario` (`FK_usuario_id`, `FK_historico_id`) VALUES
-(34, 1);
+(34, 1),
+(34, 2),
+(45, 3);
 
 -- --------------------------------------------------------
 
@@ -713,7 +731,8 @@ CREATE TABLE `indicacao` (
 INSERT INTO `indicacao` (`id`, `indicacao`, `FK_instituicao_id`) VALUES
 (1, '11', 1),
 (2, '11', 1),
-(3, '11', 1);
+(3, '11', 1),
+(4, '11', 1);
 
 -- --------------------------------------------------------
 
@@ -734,7 +753,8 @@ CREATE TABLE `indicacao_usuario` (
 
 INSERT INTO `indicacao_usuario` (`FK_usuario_id`, `FK_indicacao_id`, `FK_curso_id`, `serie`) VALUES
 (32, 2, 1, 2),
-(32, 3, 2, 2);
+(32, 3, 2, 2),
+(43, 4, 1, 2);
 
 -- --------------------------------------------------------
 
@@ -775,6 +795,13 @@ CREATE TABLE `lista_desejo` (
   `FK_instituicao_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `lista_desejo`
+--
+
+INSERT INTO `lista_desejo` (`id`, `lista_desejo`, `FK_usuario_id`, `FK_instituicao_id`) VALUES
+(1, 'Minha Lista', 45, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -785,6 +812,13 @@ CREATE TABLE `lista_livro` (
   `FK_lista_desejo_id` int(11) DEFAULT NULL,
   `FK_livro_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `lista_livro`
+--
+
+INSERT INTO `lista_livro` (`FK_lista_desejo_id`, `FK_livro_id`) VALUES
+(1, 16);
 
 -- --------------------------------------------------------
 
@@ -822,10 +856,30 @@ CREATE TABLE `livro` (
 --
 
 INSERT INTO `livro` (`id`, `edicao`, `capa`, `paginas`, `quantidade`, `local_publicacao`, `data_publicacao`, `sinopse`, `isbn`, `titulo`, `cdd`, `assunto_discutido`, `subtitulo`, `volume`, `FK_funcionario_id`, `FK_classificacao_id`, `FK_status_id`, `FK_instituicao_id`, `FK_genero_id`, `FK_editora_id`, `FK_autor_id`, `disponivel`) VALUES
-(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', NULL, 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, 4, NULL, NULL, 1, 1, 13, NULL, 1),
-(6, '1ª', '1757811238700.png', '357', '4', NULL, '2018-05-01', 'NESTE LIVRO A AUTORA APRESENTA O FRUTO DE SUAS REFLUSES DESDE que um passageiro da cultura de Massas para a cultura da Míndias Fertilizou o Terreno Sociocultural Para O Surgimento Da Cultura Digital. ', '978-85-349-2101-5', 'Culturas e artes do pós-humano', NULL, 'arte,cultura ', 'Da Cultura Das Míndias à Cibcultura', '1', 4, NULL, NULL, 1, 2, 24, NULL, 0),
-(11, '1ª', '1758059242787.png', '926', '1', 'Rio de Janeiro ', '2012-01-01', 'Este livro se propõe um texto abrangente abrangente o moderno estudo de algoritmos para computadores, inclluindo capítulos, exercícios e problemas, revisão de pseudocódigos e um estilo de Redação Mais Claro.', '978-85-352-3699-6', 'Algoritmos e programação', NULL, 'numeros,programação', 'Teoria e Prática', '1', 4, NULL, NULL, 1, 1, 19, NULL, 1),
-(12, '1ª', '1758064651448.png', '31', '1', 'São Paulo', '2022-01-01', 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'Ó Livro Magico', NULL, NULL, NULL, '1', 4, NULL, NULL, 1, 1, 26, 51, 1);
+(1, '1', '1754168499834.png', '186', '1', 'São Paulo', '2007-02-10', 'Bruno, um menino de 9 anos, se muda com a família para uma casa próxima a um campo de concentração nazista. Lá, ele conhece Shmuel, um menino judeu da mesma idade, do outro lado da cerca. Uma amizade proibida e comovente se forma, com consequências trágic', '9788574063669', 'O Menino do Pijama ', NULL, 'Holocausto, Segunda Guerra Mundial, amizade, preconceito', NULL, NULL, 4, NULL, NULL, 1, 1, 13, 43, 0),
+(6, '1ª', '1757811238700.png', '357', '4', NULL, '2018-05-01', 'NESTE LIVRO A AUTORA APRESENTA O FRUTO DE SUAS REFLUSES DESDE que um passageiro da cultura de Massas para a cultura da Míndias Fertilizou o Terreno Sociocultural Para O Surgimento Da Cultura Digital. ', '978-85-349-2101-5', 'Culturas e artes do pós-humano', NULL, 'arte,cultura ', 'Da Cultura Das Míndias à Cibcultura', '1', 4, NULL, NULL, 1, 1, 24, 37, 0),
+(11, '1ª', '1758059242787.png', '926', '1', 'Rio de Janeiro ', '2012-01-01', 'Este livro se propõe um texto abrangente abrangente o moderno estudo de algoritmos para computadores, inclluindo capítulos, exercícios e problemas, revisão de pseudocódigos e um estilo de Redação Mais Claro.', '978-85-352-3699-6', 'Algoritmos e programação', NULL, 'numeros,programação', 'Teoria e Prática', '1', 4, NULL, NULL, 1, 1, 19, 18, 1),
+(12, '1ª', '1758064651448.png', '31', '1', 'São Paulo', '2022-01-01', 'O Elefantinho Nino Sofre Muito com Sua Dificuldade para Dormir. ', '9788532271464', 'Ó Livro Magico', NULL, NULL, NULL, '1', 4, NULL, NULL, 1, 1, 26, 51, 1),
+(15, '1ª', '1761229222807.jpg', '320', '5', 'São Paulo', '2019-04-12', 'Um romance sobre a complexidade dos relacionamentos e o poder da empatia.', '9788535931427', 'A delicadeza do amor', '869.3', 'Relacionamentos e empatia', 'Um olhar sensível sobre o coração humano', '1', 4, NULL, NULL, 1, 1, 5, 5, 1),
+(16, '2ª', '1761229313017.jpg', '410', '3', 'Rio de Janeiro', '2020-07-15', 'Uma reflexão sobre a vida moderna e os dilemas éticos da tecnologia.', '9788543107505', 'O código humano', '004.6', 'Tecnologia e sociedade', 'Entre algoritmos e emoções', '1', 4, NULL, NULL, 1, 1, 11, 13, 1),
+(17, '3ª', '1761229421546.jpg', '270', '2', 'Lisboa', '2018-05-10', 'Contos que exploram o cotidiano com poesia e filosofia.', '9789720049130', 'Fragmentos de um dia comum', '869.1', 'Reflexões e cotidiano', 'Entre o real e o imaginário', '1', 4, NULL, NULL, 1, 1, 4, 34, 1),
+(18, '1ª', '1761229478354.jpg', '198', '6', 'Porto Alegre', '2016-09-22', 'Um suspense psicológico sobre memórias e segredos.', '9788535927666', 'A casa das vozes', '813.6', 'Memória e identidade', 'Mistério e revelações', '1', 4, NULL, NULL, 1, 1, 2, 21, 1),
+(19, '1ª', '1761229508906.jpg', '502', '4', 'São Paulo', '2015-11-05', 'Uma jornada épica pela Terra Média.', '9788578279592', 'O Senhor dos Anéis', '823.912', 'Fantasia, amizade e coragem', 'A Sociedade do Anel', '1', 4, NULL, NULL, 1, 1, 15, 45, 1),
+(20, '1ª', '1761229571455.jpg', '350', '3', 'Londres', '2012-06-10', 'Um clássico sobre justiça e moralidade.', '9780141439600', 'Orgulho e Preconceito', '823.7', 'Amor, classe e preconceito', NULL, '1', 4, NULL, NULL, 1, 1, 15, 14, 1),
+(21, '1ª', '1761229667804.png', '256', '5', 'Nova York', '2017-03-14', 'Histórias sobre o impacto da leitura na vida das pessoas.', '9780525559474', 'O poder dos livros', '028.9', 'Importância da leitura', 'Como os livros transformam vidas', '1', 4, NULL, NULL, 1, 1, 24, 20, 1),
+(22, '1ª', '1761229744436.png', '190', '2', 'Curitiba', '2018-10-22', 'Uma biografia emocionante de uma escritora brasileira.', '9788574069227', 'Clarice: uma vida que se conta', '869.4', 'Biografia literária', NULL, '1', 4, NULL, NULL, 1, 1, 26, 5, 1),
+(23, '1ª', '1761229877439.jpg', '290', '4', 'São Paulo', '2021-03-11', 'Introdução acessível à programação em Python.', '9788575228302', 'Programar é para todos', '005.13', 'Lógica e tecnologia', 'Guia prático para iniciantes', '1', 4, NULL, NULL, 1, 1, 3, 44, 1),
+(24, '1ª', '1761229914970.jpg', '480', '2', 'Paris', '2010-04-04', 'Uma história de revolução, amor e esperança.', '9782070409182', 'Os Miseráveis', '843.7', 'Injustiça e redenção', 'Edição integral', '1', 4, NULL, NULL, 1, 1, 15, 12, 1),
+(25, '1ª', '1761229949034.jpg', '300', '5', 'São Paulo', '2018-09-13', 'Um estudo sobre o impacto das redes sociais.', '9788582713962', 'Conectados demais', '302.23', 'Comportamento e internet', NULL, '1', 4, NULL, NULL, 1, 1, 11, 51, 1),
+(26, '2ª', '1761229998215.jpg', '220', '3', 'Rio de Janeiro', '2017-01-15', 'Um olhar crítico sobre a educação no Brasil.', '9788571399990', 'A sala de aula invertida', '370', 'Educação e inovação', NULL, '1', 4, NULL, NULL, 1, 1, 30, 23, 1),
+(27, '1ª', '1761230047216.jpg', '600', '3', 'São Paulo', '2019-08-08', 'Uma introdução completa à filosofia antiga.', '9788535932196', 'Pensar como um filósofo', '100', 'Filosofia e pensamento crítico', 'Da Grécia Antiga aos dias atuais', '1', 4, NULL, NULL, 1, 1, 19, 27, 1),
+(28, '1ª', '1761230080880.jpg', '410', '4', 'Londres', '2015-05-20', 'Um clássico da ficção distópica.', '9780451524935', '1984', '823.912', 'Totalitarismo e liberdade', NULL, '1', 4, NULL, NULL, 1, 1, 15, 13, 1),
+(29, '1ª', '1761230158904.jpg', '288', '6', 'Lisboa', '2022-09-18', 'Uma coletânea de contos sobre o cotidiano contemporâneo.', '9789722045673', 'Histórias do agora', '869.9', 'Sociedade e cotidiano', NULL, '1', 4, NULL, NULL, 1, 1, 28, 9, 1),
+(30, '1ª', '1761230203166.jpg', '330', '2', 'São Paulo', '2020-02-22', 'Um estudo sobre liderança e trabalho em equipe.', '9788521219991', 'Gestão com propósito', '658.4', 'Administração e ética', NULL, '1', 4, NULL, NULL, 1, 1, 2, 30, 1),
+(31, '1ª', '1761230230926.jpg', '210', '5', 'Rio de Janeiro', '2013-07-01', 'Uma introdução à psicologia moderna.', '9788535926355', 'A mente humana', '150', 'Psicologia e comportamento', NULL, '1', 4, NULL, NULL, 1, 1, 3, 19, 1),
+(32, '1ª', '1761230356035.jpg', '500', '4', 'São Paulo', '2014-10-10', 'Um guia sobre economia e política.', '9788535912341', 'O capital revisitado', '330', 'Economia e sociedade', NULL, '1', 4, NULL, NULL, 1, 1, 5, 30, 1),
+(33, '1ª', '1761230494423.jpg', '190', '5', 'Belo Horizonte', '2021-11-03', 'Um conto juvenil sobre descobertas e amizade.', '9788579808882', 'O mistério da sala 13', '869.5', 'Juventude e aventura', NULL, '1', 4, NULL, NULL, 1, 1, 29, 3, 1),
+(34, '1ª', '1761230589915.jpg', '250', '3', 'São Paulo', '2023-05-12', 'Manual prático para desenvolvedores iniciantes.', '9788550815931', 'Lógica de programação moderna', '005.1', 'Programação e lógica computacional', NULL, '1', 4, NULL, NULL, 1, 1, 11, 44, 1);
 
 -- --------------------------------------------------------
 
@@ -843,8 +897,6 @@ CREATE TABLE `livro_autor` (
 --
 
 INSERT INTO `livro_autor` (`FK_autor_id`, `FK_livro_id`) VALUES
-(10, 1),
-(24, 6),
 (48, 11),
 (51, 12);
 
@@ -956,7 +1008,8 @@ CREATE TABLE `reserva` (
 --
 
 INSERT INTO `reserva` (`id`, `reserva`, `hora_reserva`, `retirada`, `posicao`, `FK_instituicao_id`) VALUES
-(1, 1, '2025-10-06', 0, '1', 1);
+(1, 1, '2025-10-06', 0, '1', 1),
+(2, 1, '2025-10-23', 0, '1', 1);
 
 -- --------------------------------------------------------
 
@@ -974,7 +1027,8 @@ CREATE TABLE `reserva_livro` (
 --
 
 INSERT INTO `reserva_livro` (`FK_reserva_id`, `FK_livro_id`) VALUES
-(1, 6);
+(1, 6),
+(2, 16);
 
 -- --------------------------------------------------------
 
@@ -992,7 +1046,8 @@ CREATE TABLE `reserva_usuario` (
 --
 
 INSERT INTO `reserva_usuario` (`FK_reserva_id`, `FK_usuario_id`) VALUES
-(1, 34);
+(1, 34),
+(2, 45);
 
 -- --------------------------------------------------------
 
@@ -1074,12 +1129,15 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `telefone`, `email`, `foto`, `nome`, `senha`, `FK_tipo_usuario_id`, `FK_funcionario_id`, `curso_id`, `serie`, `FK_instituicao_id`, `codigo_recuperacao`, `expiracao_codigo`, `ativo`, `ultimo_login`) VALUES
-(32, '11999996666', 'joao.pereira@gmail.com', 'padrao.jpg', 'João Pereira', '$2b$12$BdQh8aZ2vosGRq/dmPNhH.N844Cw5M5Y0.ePnx7rDWVVYkPDRp8I.', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-10-03 07:27:56'),
-(34, '11966663333', 'carlos.santos@gmail.com', 'padrao.jpg', 'Carlos Santos', '$2b$12$7CCAt7u7Jh9/517iB2sXu.rEZEVaL5ADGSlDcd7k.PWFedAHIVMmS', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-10-06 13:24:10'),
-(38, '11987453698', 'lucas.ferreira@aluno.com', '1761159087135.jpg', 'Lucas Ferreira', '$2b$12$aQhwU0slu1JVxfnBGJNUCOJat0mBiIp2LUmHkh0HuJssVEuIDqlbW', 1, 4, 1, 2, 1, NULL, NULL, 1, NULL),
-(39, '11998874456', 'amanda.souza@aluno.com', '1761159147480.jpg', 'Amanda Souza  ', '$2b$12$3BufUb/L1vYeOdbJkf8m.uOiKO8hXii29BqSK1GOKeWAzcNTj7DiO', 1, 4, 2, 2, 1, NULL, NULL, 1, NULL),
-(40, '11996325874', 'thiago.santos@aluno.com', '1761159955530.jpeg', 'Thiago Santos  ', '$2b$12$.w55N8D0K9wVhw.pY85JmuMRbGfNm3/Fb58E7PIbAAQJw0x.PNPI2', 1, 4, 2, 2, 1, NULL, NULL, 1, NULL),
-(41, '11995447812', 'carolina.pereira@aluno.com', NULL, 'Carolina Pereira', '$2b$12$sGt0rWNlP8cPhacDOgBPOei6KfoQXACJx6XGSvoFm9AopPpW8S09K', 1, 4, 3, 3, 1, NULL, NULL, 1, NULL);
+(32, '1199999698', 'joao.pereira@gmail.com', '1761227955866.jpeg', 'João Pereira', '$2b$12$BdQh8aZ2vosGRq/dmPNhH.N844Cw5M5Y0.ePnx7rDWVVYkPDRp8I.', 2, 5, 2, 2, 1, NULL, NULL, 1, '2025-10-03 07:27:56'),
+(34, '11966663333', 'carlos.santos@gmail.com', '1761227964969.jpg', 'Carlos Santos', '$2b$12$7CCAt7u7Jh9/517iB2sXu.rEZEVaL5ADGSlDcd7k.PWFedAHIVMmS', 1, 9, 1, 2, 1, NULL, NULL, 1, '2025-10-06 13:24:10'),
+(42, '11991234567', 'juliana.mendes@etec.com', '1761227973130.jpg', 'Juliana Mendes', '$2b$12$l5ebPA2ITTjGZQ.U62Vd4.nSiwPz0CDsubZxXQFDVrMQq.ixIVRKO', 2, NULL, 1, 3, 1, NULL, NULL, 1, '2025-10-23 12:19:09'),
+(43, '11997654321', 'andre.almeida@etec.com', '1761228007960.jpg', 'André Almeida', '$2b$12$hNudA9.hVJdajhtL1kl3G.Y0wEMx.trr70gSyiib5W3PNzHNG89rS', 2, NULL, 2, 2, 1, NULL, NULL, 1, '2025-10-23 12:19:43'),
+(44, '11995432167', 'camila.rocha@etec.com', '1761228035081.jpg', 'Camila Rocha', '$2b$12$L4XhVfznusM8kCw11nhgN.LTkD2qPPRZAsg0pr3AcsfXhKyj6XmQC', 2, NULL, 3, 1, 1, NULL, NULL, 1, NULL),
+(45, '11996325874', 'lucas.martins@aluno.com', '1761228056544.jpg', 'Lucas Martins', '$2b$12$n6hrxmEmkqQEVR/dV70ozeauecbyW3hkn7sfNysCtrIDLl0ytLseC', 1, NULL, 1, 1, 1, NULL, NULL, 1, '2025-10-23 12:17:03'),
+(46, '11997412563', 'beatriz.silva@aluno.com', '1761228114211.jpg', 'Beatriz Silva', '$2b$12$dyy1YqX1F7ji1IrV9YkCDuMblv4bgjtVIzyDWwF1oR.XhaNVLsPPC', 1, NULL, 2, 2, 1, NULL, NULL, 1, NULL),
+(47, '11998523641', 'gabriel.oliveira@aluno.com', '1761228124915.jpg', 'Gabriel Oliveira', '$2b$12$Pm9VEwOev1W2wrgipm28ZOcOfE8zUr4th4W45oNMsfMs6TqfmB22m', 1, NULL, 3, 3, 1, NULL, NULL, 1, NULL),
+(48, '11996587412', 'carla.ferreira@aluno.com', '1761228139451.jpg', 'Carla Ferreira', '$2b$12$D7bn0uW7xeqU60TyCfrx1O5tqObFAZI5eMYZVMCdpX00DjTCUvSO.', 1, NULL, 1, 2, 1, NULL, NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -1572,7 +1630,7 @@ ALTER TABLE `editora`
 -- AUTO_INCREMENT de tabela `emprestimo`
 --
 ALTER TABLE `emprestimo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `evento`
@@ -1590,7 +1648,7 @@ ALTER TABLE `funcao`
 -- AUTO_INCREMENT de tabela `funcionario`
 --
 ALTER TABLE `funcionario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT de tabela `genero`
@@ -1602,13 +1660,13 @@ ALTER TABLE `genero`
 -- AUTO_INCREMENT de tabela `historico`
 --
 ALTER TABLE `historico`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `indicacao`
 --
 ALTER TABLE `indicacao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `instituicao`
@@ -1620,13 +1678,13 @@ ALTER TABLE `instituicao`
 -- AUTO_INCREMENT de tabela `lista_desejo`
 --
 ALTER TABLE `lista_desejo`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `livro`
 --
 ALTER TABLE `livro`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT de tabela `notificacao`
@@ -1644,7 +1702,7 @@ ALTER TABLE `permissao`
 -- AUTO_INCREMENT de tabela `reserva`
 --
 ALTER TABLE `reserva`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `status`
@@ -1668,7 +1726,7 @@ ALTER TABLE `tipo_usuario`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- Restrições para tabelas despejadas
