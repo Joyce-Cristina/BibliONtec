@@ -150,9 +150,8 @@
     <div class="row">
       <!-- Foto -->
       <div class="col-lg-4 me-auto d-flex justify-content-center">
-       <img src="https://bibliontec.onrender.com/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário">
-
-          style="width: 400px; height: 400px; border-radius: 50%; object-fit: cover; border: 10px solid #C2A878;">
+       <img src="${apiBase()}/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar"
+       style="width: 500px; height: 500px; border-radius: 50%; object-fit: cover; border: 10px solid #C2A878;">
       </div>
 
       <!-- Formulário -->
@@ -311,6 +310,32 @@
     </footer>
 
     <script>
+      document.addEventListener("DOMContentLoaded", async () => {  
+        const token = localStorage.getItem("token");
+        if (!token) return;
+      
+        try {
+          const response = await fetch(`${apiBase()}/usuarioLogado`, {
+            headers: { "Authorization": "Bearer " + token }
+          });
+      
+          const dados = await response.json();
+      
+          const foto = dados.foto
+            ? `${apiBase()}/uploads/${dados.foto}`
+            : `${apiBase()}/uploads/padrao.jpg`;
+      
+          document.getElementById("avatarNavbar").src = foto;
+          document.getElementById("avatarPerfilPagina").src = foto;
+      
+        } catch (err) {
+          console.error("Erro ao carregar foto do usuário", err);
+        }
+      });
+      </script>
+      
+
+    <script>
       function aplicarEspacoNavbar() {
         const nav = document.querySelector('.navbar-custom');
         if (!nav) return;
@@ -321,6 +346,7 @@
       window.addEventListener('resize', aplicarEspacoNavbar);
       
     </script>
+    
     
 
 
