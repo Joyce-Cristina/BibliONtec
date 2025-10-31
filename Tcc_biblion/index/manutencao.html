@@ -13,6 +13,7 @@
   <!-- Ícones -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
@@ -1420,60 +1421,7 @@
             <!-- Lista de logs -->
             <div id="logs-list">
 
-              <!-- Exemplo 1 -->
-              <div class="log-card" data-date="2024-01-16T09:15:22">
-                <!--apartir do momento que muda o date-date atualiza a ordem do mais novo para o mais antigo-->
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-check-circle text-success fs-4"></i>
-                    <div>
-                      <strong>Backup automático realizado</strong>
-                      <span class="badge bg-success">Sucesso</span>
-                    </div>
-                  </div>
-                </div>
-                <p class="mb-1">Backup completo do banco de dados salvo com sucesso</p>
-                <small class="text-muted">
-                  <i class="bi bi-clock"></i> 16-01-2024 09:15:22 &nbsp;
-                  <i class="bi bi-person"></i> Sistema
-                </small>
-              </div>
 
-              <!-- Exemplo 2 -->
-              <div class="log-card" data-date="2024-01-16T08:17:36">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-exclamation-circle text-warning fs-4"></i>
-                    <div>
-                      <strong>Configuração alterada</strong>
-                      <span class="badge bg-warning text-dark">Atenção</span>
-                    </div>
-                  </div>
-                </div>
-                <p class="mb-1">Prazo de empréstimo alterado de 14 para 20 dias</p>
-                <small class="text-muted">
-                  <i class="bi bi-clock"></i> 16-01-2024 08:17:36 &nbsp;
-                  <i class="bi bi-person"></i> admin@email.com
-                </small>
-              </div>
-
-              <!-- Exemplo 3 -->
-              <div class="log-card" data-date="2024-01-19T22:07:55">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-x-octagon text-danger fs-4"></i>
-                    <div>
-                      <strong>Falha de login</strong>
-                      <span class="badge bg-danger">Erro</span>
-                    </div>
-                  </div>
-                </div>
-                <p class="mb-1">Tentativa de acesso com credenciais inválidas</p>
-                <small class="text-muted">
-                  <i class="bi bi-clock"></i> 19-01-2024 22:07:55 &nbsp;
-                  <i class="bi bi-person"></i> usuario.invalido@email.com
-                </small>
-              </div>
             </div>
           </div>
         </div>
@@ -1530,7 +1478,7 @@
   <!--Arrumou as abas para que elas apareçam apenas quando clicar no botão-->
   <script>
     function openTab(evt, tabId) {
-      // desativa TODAS as abas (os panes)
+      // desativa todas as abas
       document.querySelectorAll('#configTabsContent .tab-pane')
         .forEach(pane => pane.classList.remove('active', 'show'));
 
@@ -1538,11 +1486,17 @@
       document.querySelectorAll('.tab-container .tab-button')
         .forEach(btn => btn.classList.remove('active'));
 
-      // ativa só a aba clicada
+      // ativa a aba clicada
       const pane = document.getElementById(tabId);
-      if (pane) pane.classList.add('active', 'show'); // 'show' dá o fade, 'active' mostra
+      if (pane) {
+        pane.classList.add('active', 'show');
 
-      // marca o botão clicado
+        // 🧩 carrega logs apenas quando clicar na aba de logs
+        if (tabId === 'logs') {
+          carregarLogs();
+        }
+      }
+
       evt.currentTarget.classList.add('active');
     }
 
@@ -1598,12 +1552,14 @@
         }
       });
     });
+    
   </script>
   </div>
+
 </body>
 <script src="../java/backup.js"></script>
 <script src="../java/script.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="../java/logs.js"></script>
 <script src="../../acessibilidade.js"></script>
 
 </html>
