@@ -1667,7 +1667,7 @@ app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
 
 // ======================= LISTAR LIVROS DO ACERVO =======================
 app.get('/acervo/livros', autenticarToken, (req, res) => {
-  const sql = `
+  const sql =`
 SELECT 
   l.id,
   l.titulo,
@@ -1679,6 +1679,9 @@ SELECT
   l.quantidade,
   l.local_publicacao,
   l.data_publicacao,
+  l.FK_genero_id,
+  l.FK_editora_id,              
+  l.FK_autor_id,                
   g.genero,
   e.editora,
   f.nome AS funcionario_cadastrou,
@@ -1704,6 +1707,48 @@ GROUP BY l.id;
     res.json(out);
   });
 });
+
+// ======================= BUSCA DE LIVROS POR TÍTULO =======================
+app.get('/acervo/livros/busca/:termo', autenticarToken, (req, res) => {
+  const termo = `%${req.params.termo}%`;
+
+  const sql = `
+SELECT 
+  l.id,
+  l.titulo,
+  l.isbn,
+  l.sinopse,
+  l.paginas,
+  l.capa,
+  l.cdd,
+  l.quantidade,
+  l.local_publicacao,
+  l.data_publicacao,
+  l.FK_genero_id,
+  l.FK_editora_id,
+  l.FK_autor_id,
+  g.genero,
+  e.editora,
+  f.nome AS funcionario_cadastrou,
+  GROUP_CONCAT(a.nome SEPARATOR ', ') AS autores
+FROM livro l
+LEFT JOIN genero g ON l.FK_genero_id = g.id
+LEFT JOIN editora e ON l.FK_editora_id = e.id
+LEFT JOIN funcionario f ON l.FK_funcionario_id = f.id
+LEFT JOIN autor a ON l.FK_autor_id = a.id
+WHERE l.titulo LIKE ?
+GROUP BY l.id;
+`;
+
+  queryCallback(sql, [termo], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar livros:', err);
+      return res.status(500).json({ error: 'Erro ao buscar livros por título' });
+    }
+    res.json(results);
+  });
+});
+
 //=================  Cadastro de Livro =================
 app.post('/cadastrarLivro', autenticarToken, upload.single('capa'), (req, res) => {
   const {

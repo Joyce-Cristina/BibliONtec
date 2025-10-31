@@ -556,9 +556,9 @@
         <p style="font-weight: bold;">Esta página é para visualizar todos os seus livros cadastrados.</p>
         <div class="d-flex justify-content-center align-items-center mt-3" style="gap: 8px;">
           <div class="search-box">
-          <input type="text" placeholder="Buscar usuário...">
-          <i class="bi bi-search"></i>
-        </div>
+  <input type="text" id="buscaLivro" placeholder="Buscar livro...">
+  <i class="bi bi-search"></i>
+</div>
         </div>
       </div>
 
@@ -580,31 +580,25 @@
   <div class="container my-4">
     <div class="d-flex justify-content-center gap-3 flex-wrap">
 
-      <!-- Filtro: Autor -->
-      <div class="dropdown">
-        <button class="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown"
-          style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
-          Autor
-        </button>
-        <ul class="dropdown-menu filtro-dropdown">
-          <li><a class="dropdown-item item-com-linha" href="#">Machado Assis</a></li>
-          <li><a class="dropdown-item item-com-linha" href="#">Junji Ito</a></li>
-          <li><a class="dropdown-item" href="#">José</a></li>
-        </ul>
-      </div>
+<!-- Filtro: Autor -->
+<div class="dropdown">
+  <button class="btn dropdown-toggle text-white" type="button" id="btnAutor" data-bs-toggle="dropdown"
+    style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
+    Autor
+  </button>
+  <ul id="listaAutores" class="dropdown-menu filtro-dropdown">
+  </ul>
+</div>
 
-      <!-- Filtro: Editora -->
-      <div class="dropdown">
-        <button class="btn dropdown-toggle text-white" type="button" data-bs-toggle="dropdown"
-          style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
-          Editora
-        </button>
-        <ul class="dropdown-menu filtro-dropdown">
-          <li><a class="dropdown-item item-com-linha" href="#">Panini</a></li>
-          <li><a class="dropdown-item item-com-linha" href="#">New Pop</a></li>
-          <li><a class="dropdown-item" href="#">Intrinsica</a></li>
-        </ul>
-      </div>
+<!-- Filtro: Editora -->
+<div class="dropdown">
+  <button class="btn dropdown-toggle text-white" type="button" id="btnEditora" data-bs-toggle="dropdown"
+    style="background-color: #5e4028; border-radius: 12px; min-width: 130px;">
+    Editora
+  </button>
+  <ul id="listaEditoras" class="dropdown-menu filtro-dropdown">
+  </ul>
+</div>
 
       <!-- Filtro: Gênero -->
       <div class="dropdown">

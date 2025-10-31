@@ -15,15 +15,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // Busca por título
   const buscaInput = document.getElementById('buscaLivro');
   if (buscaInput) {
-    buscaInput.addEventListener('input', function () {
-      const termo = this.value.toLowerCase();
-      const filtrados = todosOsLivros.filter(livro =>
-        livro.titulo && livro.titulo.toLowerCase().includes(termo)
-      );
-      exibirLivros(filtrados);
-    });
-  }
+  buscaInput.addEventListener('input', async function () {
+    const termo = this.value.trim();
 
+    if (termo.length === 0) {
+      // mostra todos os livros se o campo estiver vazio
+      exibirLivros(todosOsLivros);
+      return;
+    }
+
+    try {
+      const token = getToken();
+      const resposta = await fetch(`${apiBase()}/acervo/livros/busca/${encodeURIComponent(termo)}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      const data = await resposta.json();
+      if (!resposta.ok) {
+        console.error("Erro ao buscar livros:", data);
+        return;
+      }
+
+      exibirLivros(data);
+    } catch (erro) {
+      console.error('Erro ao buscar livros:', erro);
+    }
+  });
+}
   // Delegação de eventos para Editar e Excluir
   const container = document.getElementById('cardsContainer');
   if (container) {
@@ -122,6 +140,95 @@ function exibirLivros(livros) {
   });
 }
 
+async function carregarAutores() {
+  const lista = document.getElementById('listaAutores');
+  if (!lista) return;
+
+  try {
+    const token = getToken();
+    const resposta = await fetch(`${apiBase()}/autores`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    const autores = await resposta.json();
+
+    if (!resposta.ok) {
+      console.error("Erro ao carregar autores:", autores);
+      return;
+    }
+
+    lista.innerHTML = '';
+
+    const itemTodos = document.createElement('li');
+    itemTodos.innerHTML = `<a class="dropdown-item item-com-linha" href="#" data-id="0">Todos</a>`;
+    lista.appendChild(itemTodos);
+
+    autores.forEach(autor => {
+      const item = document.createElement('li');
+      item.innerHTML = `<a class="dropdown-item item-com-linha" href="#" data-id="${autor.id}">${autor.nome}</a>`;
+      lista.appendChild(item);
+    });
+
+    lista.addEventListener('click', e => {
+      if (e.target && e.target.matches('a[data-id]')) {
+        e.preventDefault();
+        const idAutor = parseInt(e.target.dataset.id);
+        if (idAutor === 0) {
+          exibirLivros(todosOsLivros);
+        } else {
+          const filtrados = todosOsLivros.filter(livro => Number(livro.FK_autor_id) === idAutor);
+          exibirLivros(filtrados);
+        }
+      }
+    });
+  } catch (erro) {
+    console.error('Erro ao carregar autores:', erro);
+  }
+}
+
+async function carregarEditoras() {
+  const lista = document.getElementById('listaEditoras');
+  if (!lista) return;
+
+  try {
+    const token = getToken();
+    const resposta = await fetch(`${apiBase()}/editoras`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    const editoras = await resposta.json();
+
+    if (!resposta.ok) {
+      console.error("Erro ao carregar editoras:", editoras);
+      return;
+    }
+
+    lista.innerHTML = '';
+
+    const itemTodos = document.createElement('li');
+    itemTodos.innerHTML = `<a class="dropdown-item item-com-linha" href="#" data-id="0">Todos</a>`;
+    lista.appendChild(itemTodos);
+
+    editoras.forEach(editora => {
+      const item = document.createElement('li');
+      item.innerHTML = `<a class="dropdown-item item-com-linha" href="#" data-id="${editora.id}">${editora.editora}</a>`;
+      lista.appendChild(item);
+    });
+
+    lista.addEventListener('click', e => {
+      if (e.target && e.target.matches('a[data-id]')) {
+        e.preventDefault();
+        const idEditora = parseInt(e.target.dataset.id);
+        if (idEditora === 0) {
+          exibirLivros(todosOsLivros);
+        } else {
+          const filtrados = todosOsLivros.filter(livro => Number(livro.FK_editora_id) === idEditora);
+          exibirLivros(filtrados);
+        }
+      }
+    });
+  } catch (erro) {
+    console.error('Erro ao carregar editoras:', erro);
+  }
+}
 
 // Carregar gêneros
 async function carregarGeneros() {
@@ -160,7 +267,7 @@ async function carregarGeneros() {
         if (idGenero === 0) {
           exibirLivros(todosOsLivros);
         } else {
-          const filtrados = todosOsLivros.filter(livro => livro.FK_genero_id === idGenero);
+          const filtrados = todosOsLivros.filter(livro => Number(livro.FK_genero_id) === idGenero);
           exibirLivros(filtrados);
         }
       }
@@ -240,7 +347,7 @@ async function abrirModalEdicaoLivro(id) {
       const option = document.createElement('option');
       option.value = e.id;
       option.textContent = e.editora;
-      if (e.editora === livro.editora) option.selected = true;
+      if (e.id === livro.FK_editora_id) option.selected = true;
       selectEditoras.appendChild(option);
     });
   }
