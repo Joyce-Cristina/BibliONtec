@@ -15,7 +15,6 @@ const { exec } = require('child_process');
 const cron = require("node-cron");
 const cookieParser = require('cookie-parser');
 const AdmZip = require("adm-zip");
-
 const execPromise = (cmd) =>
   new Promise((resolve, reject) => {
     exec(cmd, (error, stdout, stderr) => {
@@ -190,6 +189,25 @@ const logger = winston.createLogger({
   ]
 });
 
+// ==================== FUNÇÃO PADRÃO DE LOG ====================
+function registrarLog(acao, mensagem, req, tipo = "info") {
+  const usuario = req.user ? req.user.nome || `Usuário #${req.user.id}` : "Sistema";
+  const email = req.user ? req.user.email || "sem email" : "sistema@local";
+  const instituicao = req.user ? req.user.FK_instituicao_id || "desconhecida" : "sem instituição";
+
+  logger.log({
+    level: tipo,
+    message: `${acao} - ${mensagem}`,
+    meta: {
+      usuario,
+      email,
+      instituicao,
+      rota: req.originalUrl,
+      metodo: req.method
+    }
+  });
+}
+
 app.use(expressWinston.logger({
   winstonInstance: logger,
   meta: true,
@@ -354,6 +372,7 @@ function gerarSenhaSegura() {
 
 // ==================== CADASTRO ALUNO/PROF ====================
 
+
 // ==================== CADASTRO USUÁRIO (GENÉRICO) ====================
 app.post('/cadastrarUsuario', autenticarToken, upload.single('foto'), (req, res) => {
   const { nome, telefone, email, senha, tipo_usuario_id, curso_id, serie, funcionario_id } = req.body;
@@ -367,8 +386,15 @@ app.post('/cadastrarUsuario', autenticarToken, upload.single('foto'), (req, res)
 
   const checkEmailSql = `SELECT id FROM usuario WHERE email = ?`;
   queryCallback(checkEmailSql, [email], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
-    if (results.length > 0) return res.status(400).json({ error: 'E-mail já cadastrado.' });
+    if (err) {
+      registrarLog("Erro ao verificar e-mail", `Erro interno ao verificar e-mail de ${email}`, req, "error");
+      return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
+    }
+
+    if (results.length > 0) {
+      registrarLog("Tentativa de cadastro duplicado", `O e-mail ${email} já está cadastrado.`, req, "warn");
+      return res.status(400).json({ error: 'E-mail já cadastrado.' });
+    }
 
     const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
@@ -386,33 +412,51 @@ app.post('/cadastrarUsuario', autenticarToken, upload.single('foto'), (req, res)
           email,
           hash,
           foto,
-          tipo_usuario_id,   // define e é aluno ou professor
-          tipo_usuario_id == 1 ? (curso_id || null) : null, // alunos têm curso e série
+          tipo_usuario_id,
+          tipo_usuario_id == 1 ? (curso_id || null) : null,
           tipo_usuario_id == 1 ? (serie || null) : null,
           funcionario_id || null,
           req.user.FK_instituicao_id
         ], (err) => {
           if (err) {
+            registrarLog("Erro ao cadastrar usuário", `Falha ao inserir usuário "${nome}" (${email}).`, req, "error");
             console.error('Erro ao cadastrar usuário:', err);
             return res.status(500).json({ error: 'Erro ao cadastrar usuário.' });
           }
+
+          // ✅ Sucesso — registra o log
+          registrarLog(
+            "Cadastro de usuário",
+            `Usuário "${nome}" (${email}) cadastrado por ${req.user.nome || 'Sistema'}.`,
+            req,
+            "info"
+          );
+
           return res.status(200).json({ message: 'Usuário cadastrado com sucesso!', senhaGerada: senhaFinal });
         });
       })
       .catch(err => {
+        registrarLog("Erro ao gerar hash", `Erro ao gerar senha de ${email}`, req, "error");
         console.error('Erro ao gerar hash da senha:', err);
         return res.status(500).json({ error: 'Erro ao processar senha.' });
       });
   });
 });
 
-
-app.get('/api/buscar-cdd/:isbn', async (req, res) => {
+// ==================== BUSCAR CDD VIA OPEN LIBRARY ====================
+app.get('/api/buscar-cdd/:isbn', autenticarToken, async (req, res) => {
   const isbn = req.params.isbn;
 
   try {
     const resposta = await fetch(`https://openlibrary.org/isbn/${isbn}.json`);
+
     if (!resposta.ok) {
+      registrarLog(
+        "Consulta de CDD",
+        `Falha ao buscar CDD do ISBN ${isbn} — livro não encontrado.`,
+        req,
+        "warn"
+      );
       return res.status(404).json({ error: 'Livro não encontrado' });
     }
 
@@ -423,21 +467,43 @@ app.get('/api/buscar-cdd/:isbn', async (req, res) => {
       cdd = dados.classifications.dewey_decimal_class[0] || "000";
     }
 
+    // ✅ Loga sucesso na busca
+    registrarLog(
+      "Consulta de CDD",
+      `CDD ${cdd} obtido para ISBN ${isbn} por ${req.user.nome || "Sistema"}.`,
+      req,
+      "info"
+    );
+
     res.json({ cdd });
   } catch (erro) {
     console.error('Erro ao buscar CDD:', erro);
+    registrarLog(
+      "Erro ao buscar CDD",
+      `Erro ao buscar CDD para ISBN ${isbn}.`,
+      req,
+      "error"
+    );
     res.status(500).json({ error: 'Erro ao buscar CDD' });
   }
 });
 
 // ==================== ETIQUETAS ====================
-
-app.get('/etiquetas/:id', async (req, res) => {
+app.get('/etiquetas/:id', autenticarToken, async (req, res) => {
   const id = Number(req.params.id);
-  const livro = await buscarLivroPorId(id);
-  if (!livro) return res.status(404).json({ error: 'Livro não encontrado' });
 
   try {
+    const livro = await buscarLivroPorId(id);
+    if (!livro) {
+      registrarLog(
+        "Geração de etiqueta",
+        `Falha — livro ID ${id} não encontrado.`,
+        req,
+        "warn"
+      );
+      return res.status(404).json({ error: 'Livro não encontrado' });
+    }
+
     const doc = new PDFDocument({ size: [ETIQUETA_W_PT, ETIQUETA_H_PT], margin: mmToPt(5) });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename=etiqueta_${livro.id}.pdf`);
@@ -448,7 +514,6 @@ app.get('/etiquetas/:id', async (req, res) => {
 
     doc.fontSize(14).text(livro.titulo || '', { align: 'center', width: largura });
     y += mmToPt(6);
-
     doc.moveDown(0.1);
     doc.fontSize(10).text(livro.autores || '', { align: 'center', width: largura });
 
@@ -468,24 +533,43 @@ app.get('/etiquetas/:id', async (req, res) => {
 
     doc.fontSize(8).text(`ISBN: ${livro.isbn || ''}`, { align: 'center', width: largura });
     doc.fontSize(8).text(`CDD: ${livro.cdd || ''}`, { align: 'center', width: largura });
-
     doc.fontSize(8).text(livro.editora || '', ETIQUETA_W_PT - mmToPt(5) - mmToPt(30), ETIQUETA_H_PT - mmToPt(12), {
       width: mmToPt(30),
       align: 'right'
     });
 
     doc.end();
+
+    // ✅ Log de sucesso
+    registrarLog(
+      "Geração de etiqueta",
+      `Etiqueta do livro "${livro.titulo}" (ID ${livro.id}) gerada por ${req.user.nome || "Sistema"}.`,
+      req,
+      "info"
+    );
   } catch (err) {
     console.error('Erro ao gerar etiqueta:', err);
+    registrarLog(
+      "Erro ao gerar etiqueta",
+      `Erro ao gerar etiqueta do livro ID ${req.params.id}.`,
+      req,
+      "error"
+    );
     return res.status(500).json({ error: 'Erro ao gerar etiqueta' });
   }
 });
-
 // ==================== ETIQUETAS MÚLTIPLAS ====================
-
-app.post('/etiquetas/multiple', async (req, res) => {
+app.post('/etiquetas/multiple', autenticarToken, async (req, res) => {
   const ids = Array.isArray(req.body.ids) ? req.body.ids.map(Number) : [];
-  if (!ids.length) return res.status(400).json({ error: 'Nenhum id fornecido' });
+  if (!ids.length) {
+    registrarLog(
+      "Geração de etiquetas múltiplas",
+      `Falha — nenhum ID de livro fornecido na requisição.`,
+      req,
+      "warn"
+    );
+    return res.status(400).json({ error: 'Nenhum id fornecido' });
+  }
 
   try {
     const livros = [];
@@ -493,7 +577,16 @@ app.post('/etiquetas/multiple', async (req, res) => {
       const l = await buscarLivroPorId(id);
       if (l) livros.push(l);
     }
-    if (!livros.length) return res.status(404).json({ error: 'Nenhum livro encontrado' });
+
+    if (!livros.length) {
+      registrarLog(
+        "Geração de etiquetas múltiplas",
+        `Falha — IDs fornecidos (${ids.join(", ")}) não encontrados.`,
+        req,
+        "warn"
+      );
+      return res.status(404).json({ error: 'Nenhum livro encontrado' });
+    }
 
     const doc = new PDFDocument({ size: 'A4', margin: mmToPt(10) });
     res.setHeader('Content-Type', 'application/pdf');
@@ -557,20 +650,42 @@ app.post('/etiquetas/multiple', async (req, res) => {
 
     doc.end();
 
+    // ✅ Loga sucesso ao final
+    registrarLog(
+      "Geração de etiquetas múltiplas",
+      `Geradas ${livros.length} etiquetas (${livros.map(l => l.titulo).join(", ")}) por ${req.user.nome || "Sistema"}.`,
+      req,
+      "info"
+    );
+
   } catch (err) {
     console.error('Erro ao gerar etiquetas múltiplas:', err);
+    registrarLog(
+      "Erro ao gerar etiquetas múltiplas",
+      `Erro interno ao gerar etiquetas para IDs: ${ids.join(", ")}.`,
+      req,
+      "error"
+    );
     return res.status(500).json({ error: 'Erro ao gerar etiquetas' });
   }
 });
+// ==================== RESERVAS ====================
 
-// === ROTA: criar reserva (adaptada ao seu schema) ===
 app.post('/reservas', autenticarToken, (req, res) => {
   const { usuarioId, livroId } = req.body;
-  if (!usuarioId || !livroId) return res.status(400).json({ error: 'usuarioId e livroId são obrigatórios' });
+  if (!usuarioId || !livroId) {
+    registrarLog(
+      "Criação de reserva",
+      `Tentativa falhou — campos obrigatórios ausentes (usuarioId: ${usuarioId}, livroId: ${livroId}).`,
+      req,
+      "warn"
+    );
+    return res.status(400).json({ error: 'usuarioId e livroId são obrigatórios' });
+  }
 
   const instituicaoId = req.user ? req.user.FK_instituicao_id : null;
 
-  // 1) calcular posição na fila (quantas reservas já existem para este livro)
+  // 1️⃣ Contar quantas reservas já existem para o livro
   const sqlCount = `
     SELECT COUNT(*) AS cnt
     FROM reserva_livro
@@ -579,11 +694,18 @@ app.post('/reservas', autenticarToken, (req, res) => {
   queryCallback(sqlCount, [livroId], (err, rows) => {
     if (err) {
       console.error('Erro ao contar reservas existentes:', err);
+      registrarLog(
+        "Criação de reserva",
+        `Erro ao contar reservas para o livro ID ${livroId}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: 'Erro ao processar reserva (count)' });
     }
+
     const posicao = (rows[0].cnt || 0) + 1;
 
-    // 2) inserir na tabela reserva (usa seu schema: reserva, hora_reserva, retirada, posicao, FK_instituicao_id)
+    // 2️⃣ Inserir reserva
     const sqlInsertReserva = `
       INSERT INTO reserva (reserva, hora_reserva, retirada, posicao, FK_instituicao_id)
       VALUES (?, CURDATE(), ?, ?, ?)
@@ -591,77 +713,137 @@ app.post('/reservas', autenticarToken, (req, res) => {
     queryCallback(sqlInsertReserva, [1, 0, String(posicao), instituicaoId], (err2, result) => {
       if (err2) {
         console.error('Erro ao inserir reserva:', err2);
+        registrarLog(
+          "Criação de reserva",
+          `Erro ao criar reserva do livro ${livroId} para o usuário ${usuarioId}: ${err2.message}`,
+          req,
+          "error"
+        );
         return res.status(500).json({ error: err2.sqlMessage || 'Erro ao inserir reserva' });
       }
+
       const reservaId = result.insertId;
 
-      // 3) vincular livro na reserva (tabela reserva_livro já existe no seu dump)
+      // 3️⃣ Vincular livro à reserva
       queryCallback('INSERT INTO reserva_livro (FK_reserva_id, FK_livro_id) VALUES (?, ?)', [reservaId, livroId], (err3) => {
         if (err3) {
           console.error('Erro ao inserir reserva_livro:', err3);
+          registrarLog(
+            "Criação de reserva",
+            `Erro ao vincular livro ${livroId} à reserva ${reservaId}: ${err3.message}`,
+            req,
+            "error"
+          );
           return res.status(500).json({ error: 'Erro ao vincular livro à reserva' });
         }
 
-        // 4) vincular usuário à reserva (tabela criada por migração acima)
+        // 4️⃣ Vincular usuário à reserva
         queryCallback('INSERT INTO reserva_usuario (FK_reserva_id, FK_usuario_id) VALUES (?, ?)', [reservaId, usuarioId], (err4) => {
           if (err4) {
-            // se der erro aqui (tabela não existe) apenas logamos, mas a reserva já foi criada
-            console.warn('Aviso: erro ao inserir reserva_usuario (pode não existir):', err4.message);
+            console.warn('Aviso: erro ao inserir reserva_usuario:', err4.message);
+            registrarLog(
+              "Criação de reserva",
+              `Aviso — falha ao vincular usuário ${usuarioId} à reserva ${reservaId}: ${err4.message}`,
+              req,
+              "warn"
+            );
           }
 
-          // 5) criar histórico (usa sua tabela historico existente)
+          // 5️⃣ Criar histórico
           queryCallback('INSERT INTO historico (data_leitura, FK_instituicao_id) VALUES (NOW(), ?)', [instituicaoId], (err5, histRes) => {
             if (err5) {
               console.error('Erro ao inserir historico:', err5);
+              registrarLog(
+                "Criação de reserva",
+                `Erro ao criar histórico da reserva ${reservaId}: ${err5.message}`,
+                req,
+                "error"
+              );
               return res.status(500).json({ error: 'Erro ao criar histórico' });
             }
+
             const historicoId = histRes.insertId;
 
-            // 6) vincular historico ao usuario
+            // 6️⃣ Vincular histórico ao usuário
             queryCallback('INSERT INTO historico_usuario (FK_usuario_id, FK_historico_id) VALUES (?, ?)', [usuarioId, historicoId], (err6) => {
               if (err6) console.warn('Erro ao inserir historico_usuario:', err6.message);
+            });
 
-              // 7) vincular historico ao livro (precisa da tabela historico_livro criada acima)
-              queryCallback('INSERT INTO historico_livro (FK_historico_id, FK_livro_id) VALUES (?, ?)', [historicoId, livroId], (err7) => {
-                if (err7) console.warn('Erro ao inserir historico_livro (pode não existir):', err7.message);
+            // 7️⃣ Vincular histórico ao livro
+            queryCallback('INSERT INTO historico_livro (FK_historico_id, FK_livro_id) VALUES (?, ?)', [historicoId, livroId], (err7) => {
+              if (err7) console.warn('Erro ao inserir historico_livro:', err7.message);
 
-                // tudo ok
-                return res.status(201).json({
-                  message: 'Reserva criada e histórico registrado (onde possível).',
-                  reservaId,
-                  posicao
-                });
+              // ✅ Tudo certo
+              registrarLog(
+                "Reserva criada",
+                `Usuário ${req.user.nome || usuarioId} reservou o livro ID ${livroId} (posição ${posicao}).`,
+                req,
+                "info"
+              );
+
+              return res.status(201).json({
+                message: 'Reserva criada e histórico registrado (onde possível).',
+                reservaId,
+                posicao
               });
             });
           });
-
         });
       });
     });
   });
 });
 
-// ==================== INDICAÇOES ====================
 
-app.post('/indicacoes/multiplas', (req, res) => {
+// ==================== INDICAÇÕES ====================
+
+// --- Criar indicação ---
+app.post('/indicacoes/multiplas', autenticarToken, (req, res) => {
   const { usuarioId, indicacaoId, cursoId, serie } = req.body;
 
-  const sql = `INSERT INTO indicacao_usuario (FK_usuario_id, FK_indicacao_id, FK_curso_id, serie)
-               VALUES (?, ?, ?, ?)`;
+  if (!usuarioId || !indicacaoId) {
+    registrarLog(
+      "Criação de indicação",
+      `Tentativa falhou — Campos obrigatórios ausentes (usuarioId: ${usuarioId}, indicacaoId: ${indicacaoId}).`,
+      req,
+      "warn"
+    );
+    return res.status(400).json({ error: "Campos obrigatórios ausentes." });
+  }
+
+  const sql = `
+    INSERT INTO indicacao_usuario (FK_usuario_id, FK_indicacao_id, FK_curso_id, serie)
+    VALUES (?, ?, ?, ?)
+  `;
 
   queryCallback(sql, [usuarioId, indicacaoId, cursoId, serie], (err, result) => {
     if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Erro ao salvar indicação.' });
+      console.error("Erro ao salvar indicação:", err);
+      registrarLog(
+        "Criação de indicação",
+        `Erro ao salvar indicação do usuário ${usuarioId} para a indicação ${indicacaoId}: ${err.message}`,
+        req,
+        "error"
+      );
+      return res.status(500).json({ error: "Erro ao salvar indicação." });
     }
+
+    registrarLog(
+      "Indicação criada",
+      `Usuário ${req.user?.nome || usuarioId} criou uma indicação (ID ${indicacaoId}) para o curso ${cursoId || 'N/A'}, série ${serie || 'N/A'}.`,
+      req,
+      "info"
+    );
+
     res.json({ success: true });
   });
 });
-//=================  Remover indicação =================
-app.delete('/indicacoes/:usuarioId/:livroId', (req, res) => {
+
+
+// --- Remover indicação ---
+app.delete('/indicacoes/:usuarioId/:livroId', autenticarToken, (req, res) => {
   const { usuarioId, livroId } = req.params;
 
-  // Primeiro busca o id da indicação correspondente ao livro
   const sqlBusca = `
     SELECT i.id AS indicacao_id
     FROM indicacao i
@@ -672,29 +854,58 @@ app.delete('/indicacoes/:usuarioId/:livroId', (req, res) => {
 
   queryCallback(sqlBusca, [livroId, usuarioId], (err, rows) => {
     if (err) {
-      console.error(err);
+      console.error("Erro ao buscar indicação:", err);
+      registrarLog(
+        "Remoção de indicação",
+        `Erro ao buscar indicação do livro ${livroId} para o usuário ${usuarioId}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: "Erro ao buscar indicação." });
     }
 
     if (!rows.length) {
+      registrarLog(
+        "Remoção de indicação",
+        `Nenhuma indicação encontrada para o livro ${livroId} e usuário ${usuarioId}.`,
+        req,
+        "warn"
+      );
       return res.status(404).json({ error: "Nenhuma indicação encontrada." });
     }
 
     const indicacaoId = rows[0].indicacao_id;
 
-    const sqlDelete = `DELETE FROM indicacao_usuario WHERE FK_indicacao_id = ? AND FK_usuario_id = ?`;
+    const sqlDelete = `
+      DELETE FROM indicacao_usuario
+      WHERE FK_indicacao_id = ? AND FK_usuario_id = ?
+    `;
 
     queryCallback(sqlDelete, [indicacaoId, usuarioId], (err) => {
       if (err) {
-        console.error(err);
+        console.error("Erro ao remover indicação:", err);
+        registrarLog(
+          "Remoção de indicação",
+          `Erro ao remover indicação ${indicacaoId} do usuário ${usuarioId}: ${err.message}`,
+          req,
+          "error"
+        );
         return res.status(500).json({ error: "Erro ao remover indicação." });
       }
+
+      registrarLog(
+        "Indicação removida",
+        `Usuário ${req.user?.nome || usuarioId} removeu a indicação ${indicacaoId} (livro ${livroId}).`,
+        req,
+        "info"
+      );
 
       res.json({ success: true });
     });
   });
 });
 
+//=================  Eventos =================
 app.post("/eventos", autenticarToken, upload.single("foto"), async (req, res) => {
   try {
     const { nome, descri, hora, data } = req.body;
@@ -714,13 +925,32 @@ app.post("/eventos", autenticarToken, upload.single("foto"), async (req, res) =>
       [titulo, descricao, data_evento, hora_evento, foto, FK_instituicao_id, FK_funcionario_id]
     );
 
+    // ✅ Logar ação de criação de evento
+    registrarLog(
+      "Evento cadastrado",
+      `O usuário ${req.user?.nome || FK_funcionario_id} cadastrou o evento "${titulo}" (data ${data_evento}, hora ${hora_evento}).`,
+      req,
+      "info"
+    );
+
     res.status(201).json({ message: "Evento cadastrado com sucesso!" });
   } catch (err) {
     console.error("Erro ao cadastrar evento:", err);
+
+    // ❌ Logar erro
+    registrarLog(
+      "Erro ao cadastrar evento",
+      `Falha ao cadastrar evento: ${err.message}`,
+      req,
+      "error"
+    );
+
     res.status(500).json({ error: "Erro ao cadastrar evento." });
   }
 });
 
+
+//=================  Buscar evento mais recente =================
 app.get("/eventos/recente", async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -730,47 +960,85 @@ app.get("/eventos/recente", async (req, res) => {
        LIMIT 1`
     );
 
-    if (rows.length === 0) return res.json(null);
+    if (rows.length === 0) {
+      registrarLog("Busca de evento recente", "Nenhum evento encontrado no sistema.", req, "warn");
+      return res.json(null);
+    }
+
+    registrarLog(
+      "Busca de evento recente",
+      `Evento mais recente consultado: "${rows[0].titulo}" (data ${rows[0].data_evento}).`,
+      req,
+      "info"
+    );
+
     res.json(rows[0]);
   } catch (err) {
     console.error("Erro ao buscar evento mais recente:", err);
+    registrarLog(
+      "Erro ao buscar evento recente",
+      `Erro interno ao consultar evento recente: ${err.message}`,
+      req,
+      "error"
+    );
     res.status(500).json({ error: "Erro ao buscar evento mais recente." });
   }
 });
 
+
+//=================  Listar todos os eventos =================
 app.get("/eventos", autenticarToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
       "SELECT id, titulo, descricao, data_evento, hora_evento, foto FROM evento ORDER BY data_evento ASC"
     );
+
+    registrarLog(
+      "Listagem de eventos",
+      `Usuário ${req.user?.nome || req.user?.id} visualizou a lista de ${rows.length} eventos.`,
+      req,
+      "info"
+    );
+
     res.json(rows);
   } catch (err) {
     console.error("Erro ao buscar eventos:", err);
+    registrarLog(
+      "Erro ao listar eventos",
+      `Erro ao buscar eventos: ${err.message}`,
+      req,
+      "error"
+    );
     res.status(500).json({ error: "Erro ao buscar eventos." });
   }
 });
 
-//=================  Indicar livro para múltiplas turmas =================
 
-app.post('/indicacoes/multiplas-turmas', (req, res) => {
+//=================  Indicar livro para múltiplas turmas =================
+app.post('/indicacoes/multiplas-turmas', autenticarToken, (req, res) => {
   const { usuarioId, livroId, turmas } = req.body;
 
   if (!usuarioId || !livroId || !Array.isArray(turmas) || turmas.length === 0) {
+    registrarLog("Erro ao indicar livro", `Usuário ${req.user?.nome || usuarioId} enviou dados inválidos.`, req, "warn");
     return res.status(400).json({ error: 'Dados inválidos' });
   }
 
   queryCallback(
-    'SELECT FK_tipo_usuario_id FROM usuario WHERE id = ?',
+    'SELECT FK_tipo_usuario_id, nome FROM usuario WHERE id = ?',
     [usuarioId],
     (err, usuarioResults) => {
       if (err) {
         console.error('Erro ao buscar usuário:', err);
+        registrarLog("Erro ao buscar usuário", `Erro interno ao buscar usuário ${usuarioId}: ${err.message}`, req, "error");
         return res.status(500).json({ error: 'Erro interno no servidor' });
       }
 
       if (usuarioResults.length === 0 || usuarioResults[0].FK_tipo_usuario_id !== 2) {
+        registrarLog("Tentativa de indicação não autorizada", `Usuário ${req.user?.nome || usuarioId} tentou indicar livro, mas não é professor.`, req, "warn");
         return res.status(403).json({ error: 'Apenas professores podem indicar livros' });
       }
+
+      const nomeUsuario = usuarioResults[0].nome || `Usuário ${usuarioId}`;
 
       const indicacoesPromises = turmas.map(turma => {
         return new Promise((resolve, reject) => {
@@ -786,12 +1054,18 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
               if (err) return reject(err);
 
               if (results.length > 0) {
+                registrarLog(
+                  "Indicação duplicada",
+                  `${nomeUsuario} tentou indicar novamente o livro ${livroId} para curso ${cursoId} - série ${serie}.`,
+                  req,
+                  "warn"
+                );
                 return resolve({ cursoId, serie, status: 'já_existe' });
               }
 
               queryCallback(
                 'INSERT INTO indicacao (indicacao, FK_instituicao_id) VALUES (?, ?)',
-                [livroId.toString(), 1],
+                [livroId.toString(), req.user?.FK_instituicao_id || 1],
                 (err, result) => {
                   if (err) return reject(err);
 
@@ -802,6 +1076,13 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
                     [indicacaoId, usuarioId, cursoId, serie],
                     (err) => {
                       if (err) return reject(err);
+
+                      registrarLog(
+                        "Nova indicação",
+                        `${nomeUsuario} indicou o livro ${livroId} para o curso ${cursoId} - série ${serie}.`,
+                        req,
+                        "info"
+                      );
                       resolve({ cursoId, serie, status: 'sucesso' });
                     }
                   );
@@ -812,11 +1093,17 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
         });
       });
 
-      // Executar todas as indicações
       Promise.all(indicacoesPromises)
         .then(results => {
           const sucessos = results.filter(r => r.status === 'sucesso');
           const jaExistentes = results.filter(r => r.status === 'já_existe');
+
+          registrarLog(
+            "Processamento de indicações",
+            `${nomeUsuario} processou ${sucessos.length} novas indicações (${jaExistentes.length} já existentes).`,
+            req,
+            "info"
+          );
 
           res.status(201).json({
             message: `Indicações processadas: ${sucessos.length} novas, ${jaExistentes.length} já existiam`,
@@ -825,19 +1112,22 @@ app.post('/indicacoes/multiplas-turmas', (req, res) => {
         })
         .catch(error => {
           console.error('Erro ao processar indicações:', error);
+          registrarLog("Erro ao processar indicações", `Falha ao registrar indicações de ${nomeUsuario}: ${error.message}`, req, "error");
           res.status(500).json({ error: 'Erro ao processar indicações' });
         });
     }
   );
 });
 //=================  Depurar turmas =================
-app.get('/turmas', (req, res) => {
+app.get('/turmas', autenticarToken, (req, res) => {
   console.log('=== INICIANDO DEBUG TURMAS ===');
+  registrarLog("Depuração de turmas iniciada", `${req.user?.nome || 'Usuário'} iniciou a verificação de turmas.`, req, "info");
 
   // 1. Primeiro, verifica todos os cursos
   queryCallback('SELECT id, curso FROM curso', (err, cursos) => {
     if (err) {
       console.error('Erro ao buscar cursos:', err);
+      registrarLog("Erro em depuração de turmas", `Falha ao buscar cursos: ${err.message}`, req, "error");
       return res.status(500).json({ error: 'Erro ao buscar cursos', details: err.message });
     }
 
@@ -852,6 +1142,7 @@ app.get('/turmas', (req, res) => {
     `, (err, usuarios) => {
       if (err) {
         console.error('Erro ao buscar usuários:', err);
+        registrarLog("Erro em depuração de turmas", `Falha ao buscar usuários: ${err.message}`, req, "error");
         return res.status(500).json({ error: 'Erro ao buscar usuários', details: err.message });
       }
 
@@ -883,10 +1174,18 @@ app.get('/turmas', (req, res) => {
       `, (err, resultadoQuery) => {
         if (err) {
           console.error('Erro na query original:', err);
+          registrarLog("Erro em depuração de turmas", `Erro na query original: ${err.message}`, req, "error");
           return res.status(500).json({ error: 'Erro na query original', details: err.message });
         }
 
         console.log('Resultado da query original:', resultadoQuery);
+
+        registrarLog(
+          "Depuração de turmas concluída",
+          `${req.user?.nome || 'Usuário'} finalizou a depuração com ${usuarios.length} usuários e ${cursos.length} cursos encontrados.`,
+          req,
+          "info"
+        );
 
         res.json({
           total_cursos: cursos.length,
@@ -902,22 +1201,33 @@ app.get('/turmas', (req, res) => {
 });
 
 //=================  Indicar livro para uma turma =================
-app.post('/indicacoes', (req, res) => {
+app.post('/indicacoes', autenticarToken, (req, res) => {
   const { usuarioId, livroId, cursoId, serie } = req.body;
+
+  registrarLog(
+    "Indicação de livro iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a indicação do livro ${livroId} para o curso ${cursoId}, série ${serie}.`,
+    req,
+    "info"
+  );
 
   // 1. Verificar se usuário é professor
   queryCallback(
-    'SELECT FK_tipo_usuario_id FROM usuario WHERE id = ?',
+    'SELECT FK_tipo_usuario_id, nome FROM usuario WHERE id = ?',
     [usuarioId],
     (err, usuarioResults) => {
       if (err) {
         console.error('Erro ao buscar usuário:', err);
+        registrarLog("Erro ao buscar usuário", `Falha ao buscar usuário ${usuarioId}: ${err.message}`, req, "error");
         return res.status(500).json({ error: 'Erro interno no servidor' });
       }
 
       if (usuarioResults.length === 0 || usuarioResults[0].FK_tipo_usuario_id !== 2) {
+        registrarLog("Acesso negado", `Usuário ${usuarioId} tentou indicar livro, mas não é professor.`, req, "warn");
         return res.status(403).json({ error: 'Apenas professores podem indicar livros' });
       }
+
+      const nomeProfessor = usuarioResults[0].nome;
 
       // 2. Verificar se já indicou este livro para a mesma turma
       queryCallback(
@@ -929,20 +1239,23 @@ app.post('/indicacoes', (req, res) => {
         (err, indicacoesResults) => {
           if (err) {
             console.error('Erro ao verificar indicações:', err);
+            registrarLog("Erro ao verificar indicações", `Erro ao verificar indicações do livro ${livroId}: ${err.message}`, req, "error");
             return res.status(500).json({ error: 'Erro interno no servidor' });
           }
 
           if (indicacoesResults.length > 0) {
+            registrarLog("Indicação duplicada", `${nomeProfessor} tentou indicar novamente o livro ${livroId} para o curso ${cursoId} - série ${serie}.`, req, "warn");
             return res.status(409).json({ error: 'Você já indicou este livro para esta turma' });
           }
 
           // 3. Criar indicação
           queryCallback(
             'INSERT INTO indicacao (indicacao, FK_instituicao_id) VALUES (?, ?)',
-            [livroId.toString(), 1],
+            [livroId.toString(), req.user?.FK_instituicao_id || 1],
             (err, result) => {
               if (err) {
                 console.error('Erro ao criar indicação:', err);
+                registrarLog("Erro ao criar indicação", `Falha ao criar registro de indicação para o livro ${livroId}: ${err.message}`, req, "error");
                 return res.status(500).json({ error: 'Erro interno no servidor' });
               }
 
@@ -955,8 +1268,16 @@ app.post('/indicacoes', (req, res) => {
                 (err) => {
                   if (err) {
                     console.error('Erro ao vincular indicação:', err);
+                    registrarLog("Erro ao vincular indicação", `Erro ao vincular indicação ${indicacaoId} (livro ${livroId}) ao curso ${cursoId}, série ${serie}: ${err.message}`, req, "error");
                     return res.status(500).json({ error: 'Erro interno no servidor' });
                   }
+
+                  registrarLog(
+                    "Indicação criada",
+                    `${nomeProfessor} indicou o livro ${livroId} para o curso ${cursoId} - série ${serie}.`,
+                    req,
+                    "info"
+                  );
 
                   res.status(201).json({ message: 'Livro indicado com sucesso para a turma!' });
                 }
@@ -970,11 +1291,16 @@ app.post('/indicacoes', (req, res) => {
 });
 
 //=================  Verificar se usuário já indicou o livro =================
-
-app.get('/verificar-indicacao/:usuarioId/:livroId', (req, res) => {
+app.get('/verificar-indicacao/:usuarioId/:livroId', autenticarToken, (req, res) => {
   const { usuarioId, livroId } = req.params;
 
-  // Verifica se o usuário já indicou este livro (em qualquer turma)
+  registrarLog(
+    "Verificação de indicação iniciada",
+    `${req.user?.nome || 'Usuário'} está verificando se o usuário ${usuarioId} já indicou o livro ${livroId}.`,
+    req,
+    "info"
+  );
+
   queryCallback(
     `SELECT i.id 
      FROM indicacao i
@@ -984,19 +1310,43 @@ app.get('/verificar-indicacao/:usuarioId/:livroId', (req, res) => {
     (err, results) => {
       if (err) {
         console.error('Erro ao verificar indicação:', err);
+        registrarLog(
+          "Erro ao verificar indicação",
+          `Falha ao verificar se o usuário ${usuarioId} indicou o livro ${livroId}: ${err.message}`,
+          req,
+          "error"
+        );
         return res.status(500).json({ error: 'Erro interno no servidor' });
       }
 
-      res.json({ indicado: results.length > 0 });
+      const indicado = results.length > 0;
+
+      registrarLog(
+        "Verificação de indicação concluída",
+        `${req.user?.nome || 'Usuário'} verificou a indicação: usuário ${usuarioId} ${indicado ? 'já indicou' : 'ainda não indicou'} o livro ${livroId}.`,
+        req,
+        "info"
+      );
+
+      res.json({ indicado });
     }
   );
 });
 
-app.get('/indicacoes-professor/:usuarioId', (req, res) => {
+
+//=================  Buscar todas as indicações feitas por um professor =================
+app.get('/indicacoes-professor/:usuarioId', autenticarToken, (req, res) => {
   const { usuarioId } = req.params;
 
+  registrarLog(
+    "Listagem de indicações iniciada",
+    `${req.user?.nome || 'Usuário'} está buscando todas as indicações do professor ${usuarioId}.`,
+    req,
+    "info"
+  );
+
   queryCallback(
-    `SELECT i.indicacao as livro_id, i.id as indicacao_id
+    `SELECT i.indicacao AS livro_id, i.id AS indicacao_id
      FROM indicacao i
      JOIN indicacao_usuario iu ON i.id = iu.FK_indicacao_id
      WHERE iu.FK_usuario_id = ?`,
@@ -1004,8 +1354,21 @@ app.get('/indicacoes-professor/:usuarioId', (req, res) => {
     (err, indicacoes) => {
       if (err) {
         console.error('Erro ao buscar indicações:', err);
+        registrarLog(
+          "Erro ao buscar indicações",
+          `Falha ao buscar indicações do professor ${usuarioId}: ${err.message}`,
+          req,
+          "error"
+        );
         return res.status(500).json({ error: 'Erro interno no servidor' });
       }
+
+      registrarLog(
+        "Listagem de indicações concluída",
+        `${req.user?.nome || 'Usuário'} listou ${indicacoes.length} indicações feitas pelo professor ${usuarioId}.`,
+        req,
+        "info"
+      );
 
       res.json(indicacoes);
     }
@@ -1022,7 +1385,7 @@ app.post(
     const { email, senha } = req.body;
 
     try {
-      logger.info('Tentativa de login', { email, ip: req.ip });
+      registrarLog("Tentativa de login", `Tentativa de login com o e-mail ${email}`, req, "info");
 
       // --- Login de usuário ---
       const [users] = await pool.query(`
@@ -1035,8 +1398,9 @@ app.post(
       if (users.length > 0) {
         const usuario = users[0];
         const match = await bcrypt.compare(senha, usuario.senha);
+
         if (!match) {
-          logger.warn('Senha incorreta', { email, ip: req.ip });
+          registrarLog("Login falhou", `Senha incorreta para o e-mail ${email}`, req, "warn");
           return res.status(401).json({ error: "Email ou senha inválidos" });
         }
 
@@ -1044,13 +1408,20 @@ app.post(
 
         const token = jwt.sign({
           id: usuario.id,
+          nome: usuario.nome,
+          email,
           tipo_usuario_id: usuario.FK_tipo_usuario_id,
           FK_instituicao_id: usuario.FK_instituicao_id,
           curso_id: usuario.curso_id,
           serie: usuario.serie
         }, SECRET, { expiresIn: '8h' });
 
-        logger.info('Login bem-sucedido (usuário)', { email, id: usuario.id, ip: req.ip });
+        registrarLog(
+          "Login bem-sucedido (usuário)",
+          `Usuário ${usuario.nome} (ID ${usuario.id}) efetuou login com sucesso.`,
+          req,
+          "info"
+        );
 
         return res.status(200).json({
           message: 'Login usuário bem-sucedido',
@@ -1079,7 +1450,7 @@ app.post(
       `, [email]);
 
       if (funcionarios.length === 0) {
-        logger.warn('Email inexistente', { email, ip: req.ip });
+        registrarLog("Login falhou", `E-mail ${email} não encontrado no sistema.`, req, "warn");
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
@@ -1087,22 +1458,27 @@ app.post(
       const matchFunc = await bcrypt.compare(senha, funcionario.senha);
 
       if (!matchFunc) {
-        logger.warn('Senha incorreta (funcionário)', { email, ip: req.ip });
+        registrarLog("Login falhou (funcionário)", `Senha incorreta para o e-mail ${email}`, req, "warn");
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
-      // ✅ Atualiza o último login do funcionário
       await pool.query(`UPDATE funcionario SET ultimo_login = NOW() WHERE id = ?`, [funcionario.id]);
 
       const token = jwt.sign({
         id: funcionario.id,
+        nome: funcionario.nome,
+        email,
         role: "funcionario",
         funcao: funcionario.funcao_id,
         FK_instituicao_id: funcionario.FK_instituicao_id,
       }, SECRET, { expiresIn: '8h' });
 
-
-      logger.info('Login bem-sucedido (funcionário)', { email, id: funcionario.id, ip: req.ip });
+      registrarLog(
+        "Login bem-sucedido (funcionário)",
+        `Funcionário ${funcionario.nome} (ID ${funcionario.id}) efetuou login com sucesso.`,
+        req,
+        "info"
+      );
 
       return res.status(200).json({
         message: "Login funcionário bem-sucedido",
@@ -1121,22 +1497,26 @@ app.post(
 
     } catch (err) {
       console.error("🔥 Erro detalhado no login:", err);
-      logger.error('Erro interno no login', { error: err.message, stack: err.stack, email: req.body.email, ip: req.ip });
+      registrarLog("Erro interno no login", `Erro inesperado ao processar login (${email}): ${err.message}`, req, "error");
       return res.status(500).json({ error: "Erro no servidor", detalhe: err.message });
     }
-
   }
 );
 
 // ================= ROTAS DE FUNCIONARIO =================
 
 // ==================== CADASTRO FUNCIONÁRIO ====================
-
 app.post('/api/funcionarios', autenticarToken, upload.single('foto'), async (req, res) => {
-
   try {
     const { nome, senha, email, telefone, FK_funcao_id } = req.body;
     let permissoes = req.body['permissoes[]'] || [];
+
+    registrarLog(
+      "Cadastro de funcionário iniciado",
+      `${req.user?.nome || 'Usuário'} iniciou o cadastro de um novo funcionário (${nome || 'sem nome informado'}).`,
+      req,
+      "info"
+    );
 
     if (typeof permissoes === "string") {
       permissoes = [permissoes];
@@ -1144,9 +1524,27 @@ app.post('/api/funcionarios', autenticarToken, upload.single('foto'), async (req
 
     let foto = req.file ? req.file.filename : 'padrao.png';
 
-    if (!nome || !email) return res.status(400).json({ error: 'Campos obrigatórios não preenchidos.' });
-    if (telefone && !telefoneValido(telefone)) return res.status(400).json({ error: 'Telefone inválido.' });
+    if (!nome || !email) {
+      registrarLog(
+        "Erro no cadastro de funcionário",
+        `${req.user?.nome || 'Usuário'} tentou cadastrar funcionário, mas faltam campos obrigatórios.`,
+        req,
+        "warn"
+      );
+      return res.status(400).json({ error: 'Campos obrigatórios não preenchidos.' });
+    }
 
+    if (telefone && !telefoneValido(telefone)) {
+      registrarLog(
+        "Erro no cadastro de funcionário",
+        `${req.user?.nome || 'Usuário'} informou telefone inválido (${telefone}) ao cadastrar funcionário ${nome}.`,
+        req,
+        "warn"
+      );
+      return res.status(400).json({ error: 'Telefone inválido.' });
+    }
+
+    // Processar e redimensionar a imagem, se enviada
     if (req.file) {
       foto = Date.now() + '.jpg';
       const uploadDir = path.join(__dirname, '..', 'uploads', foto);
@@ -1157,50 +1555,93 @@ app.post('/api/funcionarios', autenticarToken, upload.single('foto'), async (req
         .jpeg({ quality: 90 })
         .toFile(uploadDir);
 
-      fs.unlinkSync(req.file.path); // remove original
+      fs.unlinkSync(req.file.path);
     }
 
     const checkEmailSql = `SELECT id FROM funcionario WHERE email = ?`;
     queryCallback(checkEmailSql, [email], (err, results) => {
-      if (err) return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
-      if (results.length > 0) return res.status(400).json({ error: 'E-mail já cadastrado.' });
+      if (err) {
+        console.error('Erro ao verificar e-mail:', err);
+        registrarLog(
+          "Erro ao verificar e-mail",
+          `Falha ao verificar e-mail ${email}: ${err.message}`,
+          req,
+          "error"
+        );
+        return res.status(500).json({ error: 'Erro ao verificar e-mail.' });
+      }
 
-      // dentro de app.post('/cadastrarFuncionario'...)
+      if (results.length > 0) {
+        registrarLog(
+          "Cadastro de funcionário bloqueado",
+          `${req.user?.nome || 'Usuário'} tentou cadastrar funcionário com e-mail duplicado (${email}).`,
+          req,
+          "warn"
+        );
+        return res.status(400).json({ error: 'E-mail já cadastrado.' });
+      }
+
       const senhaFinal = senha && senha.trim() !== "" ? senha : gerarSenhaSegura();
 
       bcrypt.hash(senhaFinal, 12)
         .then((hash) => {
-          const sql = `INSERT INTO funcionario 
-      (nome, senha, email, foto, telefone, FK_funcao_id, FK_instituicao_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?)`;
+          const sql = `
+            INSERT INTO funcionario 
+              (nome, senha, email, foto, telefone, FK_funcao_id, FK_instituicao_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+          `;
 
           queryCallback(sql, [nome, hash, email, foto, telefone, FK_funcao_id, req.user.FK_instituicao_id], (err, result) => {
             if (err) {
               console.error("Erro no INSERT:", err);
+              registrarLog(
+                "Erro ao cadastrar funcionário",
+                `Erro ao inserir funcionário ${nome} (${email}): ${err.message}`,
+                req,
+                "error"
+              );
               return res.status(500).json({ error: 'Erro ao cadastrar funcionário' });
             }
 
             const funcionarioId = result.insertId;
-            // ... resto do código permanece igual
-            return res.status(200).json({ message: 'Funcionário cadastrado com sucesso!', senhaGerada: senhaFinal });
+
+            registrarLog(
+              "Cadastro de funcionário concluído",
+              `${req.user?.nome || 'Usuário'} cadastrou o funcionário ${nome} (ID ${funcionarioId}, e-mail ${email}).`,
+              req,
+              "info"
+            );
+
+            return res.status(200).json({
+              message: 'Funcionário cadastrado com sucesso!',
+              senhaGerada: senhaFinal
+            });
           });
         })
         .catch(err => {
           console.error('Erro ao gerar hash da senha (func):', err);
+          registrarLog(
+            "Erro ao gerar hash da senha",
+            `Erro ao processar senha do funcionário ${nome}: ${err.message}`,
+            req,
+            "error"
+          );
           return res.status(500).json({ error: 'Erro ao processar senha' });
         });
 
     });
 
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Erro inesperado:", error);
+    registrarLog(
+      "Erro inesperado no cadastro de funcionário",
+      `Erro inesperado ao cadastrar funcionário: ${error.message}`,
+      req,
+      "error"
+    );
     return res.status(500).json({ error: 'Erro inesperado no servidor.' });
   }
 });
-
-
-
 
 // Função para validar senha forte
 function senhaValida(senha) {
@@ -1208,9 +1649,16 @@ function senhaValida(senha) {
   return regex.test(senha);
 }
 
-// Buscar funcionário pelo ID (apenas da mesma instituição)
+// ==================== BUSCAR FUNCIONÁRIO PELO ID ====================
 app.get('/api/funcionarios/:id', autenticarToken, (req, res) => {
   const id = req.params.id;
+
+  registrarLog(
+    "Busca de funcionário iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a busca pelo funcionário ID ${id}.`,
+    req,
+    "info"
+  );
 
   const sql = `
     SELECT f.*, f.telefone, fu.funcao AS nome_funcao
@@ -1222,19 +1670,42 @@ app.get('/api/funcionarios/:id', autenticarToken, (req, res) => {
   queryCallback(sql, [id, req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar funcionário:", err);
+      registrarLog("Erro ao buscar funcionário", `Falha ao buscar funcionário ID ${id}: ${err.message}`, req, "error");
       return res.status(500).json({ error: "Erro ao buscar funcionário" });
     }
 
     if (results.length === 0) {
+      registrarLog(
+        "Funcionário não encontrado",
+        `${req.user?.nome || 'Usuário'} tentou acessar o funcionário ID ${id}, que não pertence à sua instituição.`,
+        req,
+        "warn"
+      );
       return res.status(404).json({ error: "Funcionário não encontrado ou não pertence à sua instituição" });
     }
+
+    registrarLog(
+      "Busca de funcionário concluída",
+      `${req.user?.nome || 'Usuário'} visualizou os dados do funcionário ${results[0].nome} (ID ${id}).`,
+      req,
+      "info"
+    );
 
     res.json({ funcionario: results[0] });
   });
 });
 
+
+// ==================== BUSCAR INDICAÇÕES POR CURSO E SÉRIE ====================
 app.get('/indicacoes/:cursoId/:serie', autenticarToken, (req, res) => {
   const { cursoId, serie } = req.params;
+
+  registrarLog(
+    "Consulta de indicações iniciada",
+    `${req.user?.nome || 'Usuário'} está consultando indicações do curso ${cursoId}, série ${serie}.`,
+    req,
+    "info"
+  );
 
   const sql = `
     SELECT l.id, l.titulo, l.capa, l.sinopse, c.curso, iu.serie
@@ -1246,66 +1717,129 @@ app.get('/indicacoes/:cursoId/:serie', autenticarToken, (req, res) => {
   `;
 
   queryCallback(sql, [cursoId, serie], (err, results) => {
-    if (err) return res.status(500).json({ error: 'Erro no servidor' });
+    if (err) {
+      console.error('Erro ao buscar indicações:', err);
+      registrarLog("Erro na consulta de indicações", `Falha ao buscar indicações do curso ${cursoId}, série ${serie}: ${err.message}`, req, "error");
+      return res.status(500).json({ error: 'Erro no servidor' });
+    }
+
+    registrarLog(
+      "Consulta de indicações concluída",
+      `${req.user?.nome || 'Usuário'} consultou ${results.length} indicações do curso ${cursoId}, série ${serie}.`,
+      req,
+      "info"
+    );
+
     res.json(results);
   });
 });
 
-// Apaga funcionário e dependências
-app.delete('/api/funcionarios/:id', (req, res) => {
+
+// ==================== EXCLUSÃO DE FUNCIONÁRIO E DEPENDÊNCIAS ====================
+app.delete('/api/funcionarios/:id', autenticarToken, (req, res) => {
   const id = parseInt(req.params.id);
 
-  // 1. Buscar todos os usuários desse funcionário
+  registrarLog(
+    "Exclusão de funcionário iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a exclusão do funcionário ID ${id}.`,
+    req,
+    "info"
+  );
+
   const sqlUsuarios = 'SELECT id FROM usuario WHERE FK_funcionario_id = ?';
   queryCallback(sqlUsuarios, [id], (err, usuarios) => {
-    if (err) return res.status(500).json({ error: 'Erro ao buscar usuários' });
+    if (err) {
+      registrarLog("Erro na exclusão", `Erro ao buscar usuários vinculados ao funcionário ${id}: ${err.message}`, req, "error");
+      return res.status(500).json({ error: 'Erro ao buscar usuários' });
+    }
 
     const usuarioIds = usuarios.map(u => u.id);
 
+    const deletarFuncionario = () => {
+      queryCallback('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
+        if (err) {
+          registrarLog("Erro ao excluir funcionário", `Erro ao excluir funcionário ID ${id}: ${err.message}`, req, "error");
+          return res.status(500).json({ error: 'Erro ao excluir funcionário' });
+        }
+
+        if (result.affectedRows === 0) {
+          registrarLog("Funcionário não encontrado", `Tentativa de exclusão de funcionário inexistente (ID ${id}).`, req, "warn");
+          return res.status(404).json({ error: 'Funcionário não encontrado' });
+        }
+
+        registrarLog("Exclusão concluída", `${req.user?.nome || 'Usuário'} excluiu o funcionário ID ${id} com sucesso.`, req, "info");
+        res.status(200).json({ message: 'Funcionário excluído com sucesso' });
+      });
+    };
+
     if (usuarioIds.length > 0) {
-      // 2. Deletar registros em usuario_curso desses usuários
+      // Usuários vinculados — remover dependências primeiro
       queryCallback('DELETE FROM usuario_curso WHERE FK_usuario_id IN (?)', [usuarioIds], (err) => {
-        if (err) return res.status(500).json({ error: 'Erro ao deletar usuario_curso' });
+        if (err) {
+          registrarLog("Erro ao excluir dependências", `Erro ao remover usuario_curso de usuários vinculados ao funcionário ${id}: ${err.message}`, req, "error");
+          return res.status(500).json({ error: 'Erro ao deletar usuario_curso' });
+        }
 
-        // 3. Deletar os usuários
         queryCallback('DELETE FROM usuario WHERE id IN (?)', [usuarioIds], (err) => {
-          if (err) return res.status(500).json({ error: 'Erro ao deletar usuários' });
+          if (err) {
+            registrarLog("Erro ao excluir usuários vinculados", `Erro ao excluir usuários vinculados ao funcionário ${id}: ${err.message}`, req, "error");
+            return res.status(500).json({ error: 'Erro ao deletar usuários' });
+          }
 
-          // 4. Deletar o funcionário
-          queryCallback('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
-            if (err) return res.status(500).json({ error: 'Erro ao excluir funcionário' });
-            if (result.affectedRows === 0) return res.status(404).json({ error: 'Funcionário não encontrado' });
-            res.status(200).json({ message: 'Funcionário excluído com sucesso' });
-          });
+          deletarFuncionario();
         });
       });
     } else {
-      // Nenhum usuário vinculado, pode apagar direto
-      queryCallback('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
-        if (err) return res.status(500).json({ error: 'Erro ao excluir funcionário' });
-        if (result.affectedRows === 0) return res.status(404).json({ error: 'Funcionário não encontrado' });
-        res.status(200).json({ message: 'Funcionário excluído com sucesso' });
-      });
+      // Sem usuários vinculados
+      deletarFuncionario();
     }
   });
 });
 
 
-
-// Listar funções
+// ==================== LISTAR FUNÇÕES DE FUNCIONÁRIOS ====================
 app.get("/funcoes", autenticarToken, (req, res) => {
+  registrarLog(
+    "Listagem de funções iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a listagem de funções de funcionários.`,
+    req,
+    "info"
+  );
+
   const sql = "SELECT id, funcao FROM funcao";
   queryCallback(sql, (err, results) => {
     if (err) {
       console.error("Erro ao buscar funções:", err);
+      registrarLog(
+        "Erro na listagem de funções",
+        `Falha ao listar funções: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: "Erro no servidor" });
     }
+
+    registrarLog(
+      "Listagem de funções concluída",
+      `${req.user?.nome || 'Usuário'} listou ${results.length} funções de funcionários.`,
+      req,
+      "info"
+    );
+
     res.json(results);
   });
 });
 
-// Listar funcionários (apenas da mesma instituição)
+
+// ==================== LISTAR FUNCIONÁRIOS (MESMA INSTITUIÇÃO) ====================
 app.get('/api/funcionarios', autenticarToken, (req, res) => {
+  registrarLog(
+    "Listagem de funcionários iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a listagem de funcionários da instituição ${req.user.FK_instituicao_id}.`,
+    req,
+    "info"
+  );
+
   const sql = `
     SELECT 
       f.id, 
@@ -1329,18 +1863,37 @@ app.get('/api/funcionarios', autenticarToken, (req, res) => {
   queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error('Erro ao buscar funcionários:', err);
+      registrarLog(
+        "Erro na listagem de funcionários",
+        `Falha ao buscar funcionários da instituição ${req.user.FK_instituicao_id}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: 'Erro no servidor' });
     }
+
+    registrarLog(
+      "Listagem de funcionários concluída",
+      `${req.user?.nome || 'Usuário'} listou ${results.length} funcionários da instituição ${req.user.FK_instituicao_id}.`,
+      req,
+      "info"
+    );
+
     res.json(results);
   });
 });
-
-// ==================== ATUALIZAR FUNCIONÁRIO (com foto) ====================
 // ==================== ATUALIZAR FUNCIONÁRIO (com foto) ====================
 app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, res) => {
   const id = req.params.id;
   const { nome, email, telefone, FK_funcao_id } = req.body;
   const foto = req.file ? req.file.filename : undefined;
+
+  registrarLog(
+    "Atualização de funcionário iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a atualização do funcionário ID ${id}.`,
+    req,
+    "info"
+  );
 
   const updates = [];
   const values = [];
@@ -1352,6 +1905,12 @@ app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, r
   if (foto !== undefined) { updates.push("foto = ?"); values.push(foto); }
 
   if (updates.length === 0) {
+    registrarLog(
+      "Atualização de funcionário cancelada",
+      `${req.user?.nome || 'Usuário'} tentou atualizar o funcionário ID ${id}, mas não enviou nenhum campo.`,
+      req,
+      "warn"
+    );
     return res.status(400).json({ error: "Nenhum campo para atualizar." });
   }
 
@@ -1361,25 +1920,57 @@ app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, r
   queryCallback(sql, values, (err, result) => {
     if (err) {
       console.error("Erro ao atualizar funcionário:", err);
+      registrarLog(
+        "Erro na atualização de funcionário",
+        `Falha ao atualizar o funcionário ID ${id}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: "Erro ao atualizar funcionário" });
     }
+
     if (result.affectedRows === 0) {
+      registrarLog(
+        "Funcionário não encontrado na atualização",
+        `${req.user?.nome || 'Usuário'} tentou atualizar o funcionário ID ${id}, mas ele não pertence à sua instituição ou não existe.`,
+        req,
+        "warn"
+      );
       return res.status(404).json({ error: "Funcionário não encontrado" });
     }
+
+    registrarLog(
+      "Atualização de funcionário concluída",
+      `${req.user?.nome || 'Usuário'} atualizou com sucesso o funcionário ID ${id} (${[
+        nome ? `nome: ${nome}` : "",
+        email ? `email: ${email}` : "",
+        telefone ? `telefone: ${telefone}` : "",
+        FK_funcao_id ? `função: ${FK_funcao_id}` : "",
+        foto ? `nova foto: ${foto}` : ""
+      ].filter(Boolean).join(", ")}).`,
+      req,
+      "info"
+    );
+
     res.json({ message: "Funcionário atualizado com sucesso!" });
   });
 });
 
 
-
 // ================= ROTAS DE USUÁRIO =================
 
 
-
-// ================= Rota: listar todos usuários da mesma instituição =================
+// ================= LISTAR TODOS USUÁRIOS DA MESMA INSTITUIÇÃO =================
 app.get('/api/usuarios', autenticarToken, (req, res) => {
+  registrarLog(
+    "Listagem de usuários iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a listagem de todos os usuários da instituição ${req.user.FK_instituicao_id}.`,
+    req,
+    "info"
+  );
+
   const sql = `
-    SELECT u.id, u.nome, u.email, u.telefone, u.foto,u.senha,
+    SELECT u.id, u.nome, u.email, u.telefone, u.foto, u.senha,
            tu.tipo AS tipo,
            u.FK_tipo_usuario_id,
            c.curso AS nome_curso,
@@ -1389,20 +1980,44 @@ app.get('/api/usuarios', autenticarToken, (req, res) => {
     LEFT JOIN curso c ON u.curso_id = c.id
     WHERE u.FK_instituicao_id = ?
   `;
+
   queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuários:", err);
+      registrarLog(
+        "Erro na listagem de usuários",
+        `Falha ao listar usuários da instituição ${req.user.FK_instituicao_id}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: "Erro ao buscar usuários" });
     }
+
+    registrarLog(
+      "Listagem de usuários concluída",
+      `${req.user?.nome || 'Usuário'} listou ${results.length} usuários da instituição ${req.user.FK_instituicao_id}.`,
+      req,
+      "info"
+    );
+
     res.json(results);
   });
 });
 
-// ================= Rota: buscar usuário pelo ID =================
+
+// ================= BUSCAR USUÁRIO PELO ID =================
 app.get('/api/usuario/:id', autenticarToken, (req, res) => {
   const id = req.params.id;
+
+  registrarLog(
+    "Busca de usuário iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a busca pelo usuário ID ${id}.`,
+    req,
+    "info"
+  );
+
   const sql = `
-    SELECT u.id, u.nome, u.email, u.telefone, u.foto,u.senha,
+    SELECT u.id, u.nome, u.email, u.telefone, u.foto, u.senha,
            tu.tipo AS tipo,
            u.FK_tipo_usuario_id,
            c.curso AS nome_curso,
@@ -1412,21 +2027,53 @@ app.get('/api/usuario/:id', autenticarToken, (req, res) => {
     LEFT JOIN curso c ON u.curso_id = c.id
     WHERE u.id = ? AND u.FK_instituicao_id = ?
   `;
+
   queryCallback(sql, [id, req.user.FK_instituicao_id], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuário:", err);
+      registrarLog(
+        "Erro na busca de usuário",
+        `Erro ao buscar usuário ID ${id}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: "Erro ao buscar usuário" });
     }
-    if (results.length === 0) return res.status(404).json({ error: "Usuário não encontrado" });
+
+    if (results.length === 0) {
+      registrarLog(
+        "Usuário não encontrado",
+        `${req.user?.nome || 'Usuário'} tentou acessar o usuário ID ${id}, que não pertence à sua instituição.`,
+        req,
+        "warn"
+      );
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    registrarLog(
+      "Busca de usuário concluída",
+      `${req.user?.nome || 'Usuário'} visualizou os dados do usuário ${results[0].nome} (ID ${id}).`,
+      req,
+      "info"
+    );
+
     res.json({ usuario: results[0] });
   });
 });
 
-// ================= Rota: atualizar usuário =================
+
+// ================= ATUALIZAR USUÁRIO =================
 app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), async (req, res) => {
   const id = req.params.id;
   const { nome, email, telefone, senha, curso_id, serie, FK_tipo_usuario_id } = req.body;
   const foto = req.file ? req.file.filename : undefined;
+
+  registrarLog(
+    "Atualização de usuário iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a atualização do usuário ID ${id}.`,
+    req,
+    "info"
+  );
 
   const updates = [];
   const values = [];
@@ -1435,11 +2082,22 @@ app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), async (req,
   if (email !== undefined) { updates.push("email = ?"); values.push(email); }
   if (telefone !== undefined) { updates.push("telefone = ?"); values.push(telefone); }
 
-  // 👇 Criptografa a senha se ela foi enviada
+  // Criptografa a senha se enviada
   if (senha !== undefined && senha.trim() !== "") {
-    const hash = await bcrypt.hash(senha, 12);
-    updates.push("senha = ?");
-    values.push(hash);
+    try {
+      const hash = await bcrypt.hash(senha, 12);
+      updates.push("senha = ?");
+      values.push(hash);
+    } catch (err) {
+      console.error("Erro ao gerar hash da senha:", err);
+      registrarLog(
+        "Erro ao criptografar senha",
+        `Erro ao criptografar senha do usuário ID ${id}: ${err.message}`,
+        req,
+        "error"
+      );
+      return res.status(500).json({ error: "Erro ao processar senha." });
+    }
   }
 
   if (curso_id !== undefined) { updates.push("curso_id = ?"); values.push(curso_id); }
@@ -1447,7 +2105,15 @@ app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), async (req,
   if (FK_tipo_usuario_id !== undefined) { updates.push("FK_tipo_usuario_id = ?"); values.push(FK_tipo_usuario_id); }
   if (foto !== undefined) { updates.push("foto = ?"); values.push(foto); }
 
-  if (updates.length === 0) return res.status(400).json({ error: "Nenhum campo para atualizar." });
+  if (updates.length === 0) {
+    registrarLog(
+      "Atualização de usuário cancelada",
+      `${req.user?.nome || 'Usuário'} tentou atualizar o usuário ID ${id}, mas não enviou nenhum campo.`,
+      req,
+      "warn"
+    );
+    return res.status(400).json({ error: "Nenhum campo para atualizar." });
+  }
 
   const sql = `UPDATE usuario SET ${updates.join(", ")} WHERE id = ? AND FK_instituicao_id = ?`;
   values.push(id, req.user.FK_instituicao_id);
@@ -1455,62 +2121,208 @@ app.put('/api/usuarios/:id', autenticarToken, upload.single('foto'), async (req,
   queryCallback(sql, values, (err, result) => {
     if (err) {
       console.error("Erro ao atualizar usuário:", err);
+      registrarLog(
+        "Erro na atualização de usuário",
+        `Erro ao atualizar o usuário ID ${id}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: "Erro ao atualizar usuário." });
     }
-    if (result.affectedRows === 0) return res.status(404).json({ error: "Usuário não encontrado." });
+
+    if (result.affectedRows === 0) {
+      registrarLog(
+        "Usuário não encontrado na atualização",
+        `${req.user?.nome || 'Usuário'} tentou atualizar o usuário ID ${id}, mas ele não pertence à sua instituição ou não existe.`,
+        req,
+        "warn"
+      );
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+
+    registrarLog(
+      "Atualização de usuário concluída",
+      `${req.user?.nome || 'Usuário'} atualizou com sucesso o usuário ID ${id} (${[
+        nome ? `nome: ${nome}` : "",
+        email ? `email: ${email}` : "",
+        telefone ? `telefone: ${telefone}` : "",
+        curso_id ? `curso_id: ${curso_id}` : "",
+        serie ? `série: ${serie}` : "",
+        FK_tipo_usuario_id ? `tipo: ${FK_tipo_usuario_id}` : "",
+        foto ? `nova foto: ${foto}` : ""
+      ].filter(Boolean).join(", ")}).`,
+      req,
+      "info"
+    );
+
     res.json({ message: "Usuário atualizado com sucesso!" });
   });
 });
 
-
-// ================= Rota: deletar usuário =================
+// ================= DELETAR USUÁRIO =================
 app.delete('/api/usuarios/:id', autenticarToken, (req, res) => {
   const id = req.params.id;
 
+  registrarLog(
+    "Exclusão de usuário iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a exclusão do usuário ID ${id}.`,
+    req,
+    "info"
+  );
+
   const sqlDependencias = 'DELETE FROM usuario_curso WHERE FK_usuario_id = ?';
   queryCallback(sqlDependencias, [id], (err) => {
-    if (err) return res.status(500).json({ error: 'Erro ao deletar dependências' });
+    if (err) {
+      console.error("Erro ao deletar dependências:", err);
+      registrarLog(
+        "Erro ao excluir dependências de usuário",
+        `Erro ao remover dependências do usuário ID ${id}: ${err.message}`,
+        req,
+        "error"
+      );
+      return res.status(500).json({ error: 'Erro ao deletar dependências' });
+    }
 
     queryCallback('DELETE FROM usuario WHERE id = ? AND FK_instituicao_id = ?', [id, req.user.FK_instituicao_id], (err, result) => {
-      if (err) return res.status(500).json({ error: 'Erro ao excluir usuário' });
-      if (result.affectedRows === 0) return res.status(404).json({ error: 'Usuário não encontrado' });
+      if (err) {
+        console.error("Erro ao excluir usuário:", err);
+        registrarLog(
+          "Erro na exclusão de usuário",
+          `Erro ao excluir usuário ID ${id}: ${err.message}`,
+          req,
+          "error"
+        );
+        return res.status(500).json({ error: 'Erro ao excluir usuário' });
+      }
+
+      if (result.affectedRows === 0) {
+        registrarLog(
+          "Usuário não encontrado para exclusão",
+          `${req.user?.nome || 'Usuário'} tentou excluir o usuário ID ${id}, mas ele não pertence à sua instituição ou não existe.`,
+          req,
+          "warn"
+        );
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+
+      registrarLog(
+        "Exclusão de usuário concluída",
+        `${req.user?.nome || 'Usuário'} excluiu o usuário ID ${id} com sucesso.`,
+        req,
+        "info"
+      );
+
       res.status(200).json({ message: 'Usuário excluído com sucesso' });
     });
   });
 });
 
-// ================= Rota: verificar se nome já existe =================
+
+// ================= VERIFICAR SE NOME JÁ EXISTE =================
 app.get('/verificarNome', (req, res) => {
   const { nome } = req.query;
-  if (!nome) return res.status(400).json({ error: 'Nome não informado.' });
+
+  registrarLog(
+    "Verificação de nome iniciada",
+    `Verificando se o nome '${nome || 'não informado'}' já existe no sistema.`,
+    req,
+    "info"
+  );
+
+  if (!nome) {
+    registrarLog(
+      "Verificação de nome inválida",
+      "Tentativa de verificação de nome sem informar o parâmetro 'nome'.",
+      req,
+      "warn"
+    );
+    return res.status(400).json({ error: 'Nome não informado.' });
+  }
 
   const sqlAluno = 'SELECT id FROM usuario WHERE nome = ? LIMIT 1';
   const sqlFunc = 'SELECT id FROM funcionario WHERE nome = ? LIMIT 1';
 
   queryCallback(sqlAluno, [nome], (err, alunoResult) => {
-    if (err) return res.status(500).json({ error: 'Erro ao verificar aluno.' });
+    if (err) {
+      console.error("Erro ao verificar aluno:", err);
+      registrarLog("Erro ao verificar nome (aluno)", `Erro ao verificar nome '${nome}' em usuários: ${err.message}`, req, "error");
+      return res.status(500).json({ error: 'Erro ao verificar aluno.' });
+    }
 
     queryCallback(sqlFunc, [nome], (err2, funcResult) => {
-      if (err2) return res.status(500).json({ error: 'Erro ao verificar funcionário.' });
+      if (err2) {
+        console.error("Erro ao verificar funcionário:", err2);
+        registrarLog("Erro ao verificar nome (funcionário)", `Erro ao verificar nome '${nome}' em funcionários: ${err2.message}`, req, "error");
+        return res.status(500).json({ error: 'Erro ao verificar funcionário.' });
+      }
 
       const exists = (alunoResult.length > 0) || (funcResult.length > 0);
+
+      registrarLog(
+        "Verificação de nome concluída",
+        `Nome '${nome}' ${exists ? 'já existe' : 'ainda não está cadastrado'} no sistema.`,
+        req,
+        "info"
+      );
+
       res.json({ exists });
     });
   });
 });
 
-// ================= Rota: listar tipos de usuário =================
-app.get("/tipos-usuario", (req, res) => {
+
+// ================= LISTAR TIPOS DE USUÁRIO =================
+app.get("/tipos-usuario", autenticarToken, (req, res) => {
+  registrarLog(
+    "Listagem de tipos de usuário iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou a listagem de tipos de usuário.`,
+    req,
+    "info"
+  );
+
   const sql = "SELECT id, tipo FROM tipo_usuario";
   queryCallback(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: "Erro ao buscar tipos de usuário" });
+    if (err) {
+      console.error("Erro ao buscar tipos de usuário:", err);
+      registrarLog(
+        "Erro na listagem de tipos de usuário",
+        `Falha ao buscar tipos de usuário: ${err.message}`,
+        req,
+        "error"
+      );
+      return res.status(500).json({ error: "Erro ao buscar tipos de usuário" });
+    }
+
+    registrarLog(
+      "Listagem de tipos de usuário concluída",
+      `${req.user?.nome || 'Usuário'} listou ${results.length} tipos de usuário.`,
+      req,
+      "info"
+    );
+
     res.json(results);
   });
 });
+
+
+// ================= ROTAS DE LISTA DE DESEJOS =================
 app.post('/lista-desejos', autenticarToken, (req, res) => {
   const { usuarioId, livroId } = req.body;
 
+  registrarLog(
+    "Adição à lista de desejos iniciada",
+    `${req.user?.nome || 'Usuário'} iniciou o processo de adicionar o livro ${livroId || 'não informado'} à lista de desejos do usuário ${usuarioId || 'não informado'}.`,
+    req,
+    "info"
+  );
+
   if (!usuarioId || !livroId) {
+    registrarLog(
+      "Adição à lista de desejos cancelada",
+      `${req.user?.nome || 'Usuário'} tentou adicionar um livro sem informar usuário ou ID do livro.`,
+      req,
+      "warn"
+    );
     return res.status(400).json({ error: 'Usuário e livro são obrigatórios' });
   }
 
@@ -1525,61 +2337,107 @@ app.post('/lista-desejos', autenticarToken, (req, res) => {
   queryCallback(sqlCheck, [usuarioId, livroId], (err, results) => {
     if (err) {
       console.error('Erro ao verificar lista de desejos:', err);
+      registrarLog(
+        "Erro ao verificar lista de desejos",
+        `Falha ao verificar se o livro ${livroId} já está na lista de desejos do usuário ${usuarioId}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: 'Erro interno no servidor' });
     }
 
     if (results.length > 0) {
+      registrarLog(
+        "Livro já presente na lista de desejos",
+        `${req.user?.nome || 'Usuário'} tentou adicionar o livro ${livroId}, mas ele já estava na lista de desejos do usuário ${usuarioId}.`,
+        req,
+        "warn"
+      );
       return res.status(409).json({ error: 'Livro já está na lista de desejos' });
     }
 
     // Verificar se o usuário já tem uma lista de desejos
     const sqlFindLista = 'SELECT id FROM lista_desejo WHERE FK_usuario_id = ? LIMIT 1';
-
     queryCallback(sqlFindLista, [usuarioId], (err, listaResults) => {
       if (err) {
         console.error('Erro ao buscar lista de desejos:', err);
+        registrarLog(
+          "Erro ao buscar lista de desejos",
+          `Falha ao buscar a lista de desejos do usuário ${usuarioId}: ${err.message}`,
+          req,
+          "error"
+        );
         return res.status(500).json({ error: 'Erro interno no servidor' });
       }
 
       let listaId;
-
       if (listaResults.length > 0) {
         // Usar lista existente
         listaId = listaResults[0].id;
-        adicionarLivroLista(listaId, livroId, res);
+        registrarLog(
+          "Lista de desejos encontrada",
+          `Foi encontrada uma lista existente (ID ${listaId}) para o usuário ${usuarioId}. Adicionando livro ${livroId}.`,
+          req,
+          "info"
+        );
+        adicionarLivroLista(listaId, livroId, req, res);
       } else {
         // Criar nova lista de desejos
         const sqlCreateLista = `
           INSERT INTO lista_desejo (lista_desejo, FK_usuario_id, FK_instituicao_id) 
           VALUES (?, ?, ?)
         `;
-
-        queryCallback(sqlCreateLista, ['Minha Lista', usuarioId, 1], (err, result) => {
+        queryCallback(sqlCreateLista, ['Minha Lista', usuarioId, req.user.FK_instituicao_id || 1], (err, result) => {
           if (err) {
             console.error('Erro ao criar lista de desejos:', err);
+            registrarLog(
+              "Erro ao criar lista de desejos",
+              `Falha ao criar nova lista de desejos para o usuário ${usuarioId}: ${err.message}`,
+              req,
+              "error"
+            );
             return res.status(500).json({ error: 'Erro interno no servidor' });
           }
 
           listaId = result.insertId;
-          adicionarLivroLista(listaId, livroId, res);
+          registrarLog(
+            "Lista de desejos criada",
+            `Foi criada uma nova lista de desejos (ID ${listaId}) para o usuário ${usuarioId}. Adicionando livro ${livroId}.`,
+            req,
+            "info"
+          );
+          adicionarLivroLista(listaId, livroId, req, res);
         });
       }
     });
   });
 });
 
-function adicionarLivroLista(listaId, livroId, res) {
+function adicionarLivroLista(listaId, livroId, req, res) {
   const sqlInsert = 'INSERT INTO lista_livro (FK_lista_desejo_id, FK_livro_id) VALUES (?, ?)';
 
   queryCallback(sqlInsert, [listaId, livroId], (err) => {
     if (err) {
       console.error('Erro ao adicionar livro à lista:', err);
+      registrarLog(
+        "Erro ao adicionar livro à lista de desejos",
+        `Erro ao adicionar o livro ${livroId} à lista ${listaId}: ${err.message}`,
+        req,
+        "error"
+      );
       return res.status(500).json({ error: 'Erro ao adicionar livro à lista de desejos' });
     }
 
+    registrarLog(
+      "Livro adicionado à lista de desejos",
+      `${req.user?.nome || 'Usuário'} adicionou o livro ${livroId} à lista de desejos (ID ${listaId}).`,
+      req,
+      "info"
+    );
+
     res.status(201).json({ message: 'Livro adicionado à lista de desejos com sucesso!' });
   });
-}
+}//parei aqui
 
 // Verificar se livro está na lista de desejos
 app.get('/lista-desejos/verificar/:usuarioId/:livroId', (req, res) => {
@@ -2669,7 +3527,7 @@ if (!fs.existsSync(pastaBackups)) {
 }
 function validarToken(token) {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET || "segredo"); 
+    return jwt.verify(token, process.env.JWT_SECRET || "segredo");
   } catch (err) {
     return null;
   }
@@ -2791,7 +3649,7 @@ app.get("/backup/historico", autenticarToken, async (req, res) => {
     console.error("Erro ao carregar histórico de backups:", err);
     res.status(500).json({ error: "Erro ao listar histórico" });
   }
- 
+
 
 });
 
@@ -2897,6 +3755,129 @@ app.get("/backup/configurar", autenticarToken, async (req, res) => {
   }
 });
 
+// ==================== VISUALIZAR LOGS (JSON PADRONIZADO E PAGINADO) ====================
+app.get("/logs", autenticarToken, (req, res) => {
+  try {
+    const logPath = path.join(__dirname, "logs", "combined.log");
+    if (!fs.existsSync(logPath)) {
+      return res.json({ total: 0, logs: [] });
+    }
+
+    // Lê o arquivo de logs
+    const linhas = fs.readFileSync(logPath, "utf8")
+      .trim()
+      .split("\n")
+      .slice(-1000) // lê só os 1000 últimos registros (evita travamento)
+      .reverse();
+
+
+    const todosLogs = linhas.map(linha => {
+      try {
+        const log = JSON.parse(linha);
+        let icone, badge;
+
+        if (log.tipo === "erro") {
+          icone = "bi-x-circle text-danger";
+          badge = "bg-danger";
+        } else if (log.tipo === "aviso" || log.tipo === "atenção") {
+          icone = "bi-exclamation-triangle text-warning";
+          badge = "bg-warning text-dark";
+        } else {
+          icone = "bi-check-circle text-success";
+          badge = "bg-success";
+        }
+
+        return {
+          data: log.timestamp,
+          titulo: log.titulo || "Evento do sistema",
+          mensagem: log.mensagem || "",
+          usuario: log.usuario || "Sistema",
+          tipo: (log.tipo || "sucesso").charAt(0).toUpperCase() + (log.tipo || "sucesso").slice(1),
+          icone,
+          badge
+        };
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+
+    // 🔁 Paginação
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 30;
+    const start = (page - 1) * limit;
+    const end = start + limit;
+
+    const logsPaginados = todosLogs.slice(start, end);
+
+    res.json({
+      total: todosLogs.length,
+      logs: logsPaginados
+    });
+
+  } catch (err) {
+    console.error("Erro ao ler logs:", err);
+    res.status(500).json({ error: "Erro ao carregar logs" });
+  }
+});
+
+
+// ==================== EXPORTAR LOGS EM PDF ====================
+app.get("/logs/export/pdf", autenticarToken, (req, res) => {
+  try {
+    const logPath = path.join(__dirname, "logs", "combined.log");
+    if (!fs.existsSync(logPath)) {
+      return res.status(404).send("Nenhum log encontrado");
+    }
+
+    const linhas = fs.readFileSync(logPath, "utf8").trim().split("\n").slice(-1000).reverse();
+    const logs = linhas.map(l => {
+      try {
+        const log = JSON.parse(l);
+        return {
+          data: new Date(log.timestamp).toLocaleString("pt-BR"),
+          tipo: log.tipo || "sucesso",
+          titulo: log.titulo || "Evento do sistema",
+          mensagem: log.mensagem || "",
+          usuario: log.usuario || "Sistema"
+        };
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+
+    // 📄 Configuração do PDF
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=logs_sistema.pdf");
+
+    const doc = new PDFDocument({ margin: 40, size: "A4" });
+    doc.pipe(res);
+
+    // Título
+    doc.fontSize(18).text("Relatório de Logs do Sistema", { align: "center" });
+    doc.moveDown(1);
+
+    logs.forEach((log, i) => {
+      doc
+        .fontSize(12)
+        .text(`🕒 ${log.data}`, { continued: true })
+        .text(`   👤 ${log.usuario}`)
+        .moveDown(0.3)
+        .font("Helvetica-Bold")
+        .text(`${log.titulo} (${log.tipo.toUpperCase()})`)
+        .font("Helvetica")
+        .text(log.mensagem || "-", { align: "justify" })
+        .moveDown(0.8);
+
+      if (i < logs.length - 1) doc.moveDown(0.3).moveTo(40, doc.y).lineTo(550, doc.y).stroke();
+    });
+
+    doc.end();
+
+  } catch (err) {
+    console.error("Erro ao exportar PDF:", err);
+    res.status(500).send("Erro ao gerar PDF");
+  }
+});
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = process.env.PORT || 3000;
