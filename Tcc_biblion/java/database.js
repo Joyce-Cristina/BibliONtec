@@ -23,15 +23,22 @@ const execPromise = (cmd) =>
     });
   });
 
+const { enviarEmail } = require("./emailService");
 
-// Detecta ambiente automaticamente
-const envFile =
-  process.env.NODE_ENV === 'production'
-    ? path.resolve(__dirname, '../../.env.production')
-    : path.resolve(__dirname, '../../.env.local');
+// Detecta se está em produção (Hostinger) ou local (XAMPP)
+const isProduction =
+  process.env.NODE_ENV === "production" ||
+  process.env.RENDER === "true" ||
+  process.env.HOSTINGER === "true" ||
+  process.env.PORT === "10000"; // só exemplo, pode ajustar se quiser
+
+const envFile = isProduction
+  ? path.resolve(__dirname, "../../.env") // ou apenas .env se preferir
+  : path.resolve(__dirname, "../../.env.local");
 
 console.log("🌍 Carregando variáveis de:", envFile);
-require('dotenv').config({ path: envFile });
+require("dotenv").config({ path: envFile, override: true });
+
 
 const SECRET = process.env.JWT_SECRET;
 
@@ -3876,6 +3883,173 @@ app.get("/logs/export/pdf", autenticarToken, (req, res) => {
   } catch (err) {
     console.error("Erro ao exportar PDF:", err);
     res.status(500).send("Erro ao gerar PDF");
+  }
+});
+// ============================================================================
+// 🔔 Funções principais de notificação
+// ============================================================================
+
+async function enviarNotificacaoUsuario(usuario, mensagem, tipo) {
+  await pool.query(
+    "INSERT INTO notificacao (mensagem, tipo, data_envio, FK_instituicao_id) VALUES (?, ?, NOW(), ?)",
+    [mensagem, tipo, usuario.FK_instituicao_id]
+  );
+
+  const [notificacao] = await pool.query("SELECT LAST_INSERT_ID() AS id");
+  await pool.query(
+    "INSERT INTO usuario_notificacao (FK_usuario_id, FK_notificacao_id) VALUES (?, ?)",
+    [usuario.id, notificacao[0].id]
+  );
+
+  // Envio de e-mail
+  await enviarEmail(usuario.email, "📚 Notificação BibliONtec", `<p>${mensagem}</p>`);
+}
+  
+
+async function enviarNotificacaoFuncionario(funcionario, mensagem, tipo) {
+  await pool.query(
+    "INSERT INTO notificacao (mensagem, tipo, data_envio, FK_instituicao_id) VALUES (?, ?, NOW(), ?)",
+    [mensagem, tipo, funcionario.FK_instituicao_id]
+  );
+
+  const [notificacao] = await pool.query("SELECT LAST_INSERT_ID() AS id");
+  await pool.query(
+    "INSERT INTO funcionario_notificacao (FK_funcionario_id, FK_notificacao_id) VALUES (?, ?)",
+    [funcionario.id, notificacao[0].id]
+  );
+
+  await enviarEmail(funcionario.email, "📚 Alerta BibliONtec", `<p>${mensagem}</p>`);
+}
+// ============================================================================
+// ⚙️ Função de verificação automática (chamada manual ou pelo cron)
+// ============================================================================
+
+async function gerarNotificacoesAutomaticas() {
+  const [configs] = await pool.query("SELECT * FROM configuracoes_notificacao");
+  const [emprestimos] = await pool.query(`
+    SELECT e.*, u.email, u.nome, u.FK_instituicao_id, u.telefone, u.id
+    FROM emprestimo e
+    JOIN usuario u ON e.FK_usuario_id = u.id
+    WHERE e.data_real_devolucao IS NULL
+  `);
+
+  const hoje = dayjs();
+
+  for (const emp of emprestimos) {
+    const config = configs.find(c => c.FK_instituicao_id === emp.FK_instituicao_id);
+    const diasAntes = config?.dias_antes_vencimento || 2;
+    const dataPrevista = dayjs(emp.data_devolucao_prevista);
+    const diff = dataPrevista.diff(hoje, "day");
+
+    // 📆 Lembrete antes do vencimento
+    if (diff === diasAntes && config?.lembrete_vencimento) {
+      await enviarNotificacaoUsuario(emp, `Lembrete: o livro deve ser devolvido em ${diasAntes} dia(s)!`, "lembrete");
+    }
+
+    // ⏰ Livros atrasados
+    if (diff < 0 && config?.notificacao_atraso) {
+      const [biblios] = await pool.query(
+        "SELECT * FROM funcionario WHERE FK_funcao_id = 2 AND FK_instituicao_id = ?",
+        [emp.FK_instituicao_id]
+      );
+      for (const b of biblios) {
+        await enviarNotificacaoFuncionario(b, `📕 O usuário ${emp.nome} está com livro em atraso.`, "atraso");
+      }
+    }
+  }
+}
+
+// ============================================================================
+// ⏰ Agendamento automático diário às 8h
+// ============================================================================
+
+cron.schedule("0 8 * * *", async () => {
+  try {
+    console.log("⏰ Verificando notificações automáticas...");
+    await gerarNotificacoesAutomaticas();
+    console.log("✅ Notificações verificadas e enviadas.");
+  } catch (err) {
+    console.error("❌ Erro no agendamento de notificações:", err);
+  }
+});
+
+// ============================================================================
+// 🌐 ROTAS DE NOTIFICAÇÕES
+// ============================================================================
+
+// Buscar notificações do usuário
+app.get("/notificacoes/usuario/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query(`
+      SELECT n.id, n.mensagem, n.tipo, DATE_FORMAT(n.data_envio, '%d/%m/%Y') AS data_envio
+      FROM notificacao n
+      JOIN usuario_notificacao un ON n.id = un.FK_notificacao_id
+      WHERE un.FK_usuario_id = ?
+      ORDER BY n.data_envio DESC
+    `, [id]);
+    res.json(rows);
+  } catch (err) {
+    console.error("Erro ao buscar notificações do usuário:", err);
+    res.status(500).json({ error: "Erro ao buscar notificações" });
+  }
+});
+
+// Buscar notificações do funcionário
+app.get("/notificacoes/funcionario/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query(`
+      SELECT n.id, n.mensagem, n.tipo, DATE_FORMAT(n.data_envio, '%d/%m/%Y') AS data_envio
+      FROM notificacao n
+      JOIN funcionario_notificacao fn ON n.id = fn.FK_notificacao_id
+      WHERE fn.FK_funcionario_id = ?
+      ORDER BY n.data_envio DESC
+    `, [id]);
+    res.json(rows);
+  } catch (err) {
+    console.error("Erro ao buscar notificações do funcionário:", err);
+    res.status(500).json({ error: "Erro ao buscar notificações" });
+  }
+});
+
+// Rota manual para gerar notificações (teste)
+app.post("/notificacoes/gerar", async (req, res) => {
+  try {
+    await gerarNotificacoesAutomaticas();
+    res.json({ mensagem: "✅ Notificações automáticas geradas com sucesso!" });
+  } catch (err) {
+    console.error("Erro ao gerar notificações:", err);
+    res.status(500).json({ error: "Erro ao gerar notificações" });
+  }
+});
+
+// ============================================================================
+// 🔄 Quando um empréstimo é criado → notificação imediata ao usuário
+// ============================================================================
+
+app.post("/emprestimo", async (req, res) => {
+  try {
+    const { FK_usuario_id, FK_livro_id, data_devolucao_prevista, FK_instituicao_id } = req.body;
+
+    // Insere o empréstimo
+    await pool.query(
+      "INSERT INTO emprestimo (FK_usuario_id, FK_livro_id, data_emprestimo, data_devolucao_prevista, FK_instituicao_id) VALUES (?, ?, NOW(), ?, ?)",
+      [FK_usuario_id, FK_livro_id, data_devolucao_prevista, FK_instituicao_id]
+    );
+
+    // Busca dados do usuário
+    const [usuarios] = await pool.query("SELECT * FROM usuario WHERE id = ?", [FK_usuario_id]);
+    const usuario = usuarios[0];
+
+    // Cria notificação imediata
+    const msg = `📘 Empréstimo realizado com sucesso! O prazo para devolução é ${dayjs(data_devolucao_prevista).format("DD/MM/YYYY")}.`;
+    await enviarNotificacaoUsuario(usuario, msg, "emprestimo");
+
+    res.status(200).json({ mensagem: "✅ Empréstimo registrado e notificação enviada!" });
+  } catch (err) {
+    console.error("Erro ao registrar empréstimo:", err);
+    res.status(500).json({ error: "Erro ao registrar empréstimo" });
   }
 });
 

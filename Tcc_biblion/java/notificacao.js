@@ -89,3 +89,25 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarNotificacoes();
   if (salvarBtn) salvarBtn.addEventListener("click", salvarNotificacoes);
 });
+async function carregarNotificacoes() {
+  const usuario = JSON.parse(localStorage.getItem("usuario")) || JSON.parse(localStorage.getItem("funcionario"));
+  if (!usuario) return;
+
+  const tipo = usuario.FK_tipo_usuario_id ? "usuario" : "funcionario";
+  const res = await fetch(`${apiBase()}/notificacoes/${tipo}/${usuario.id}`);
+  const notificacoes = await res.json();
+
+  const badge = document.getElementById("notificacaoBadge");
+  const lista = document.getElementById("listaNotificacoes");
+
+  badge.style.display = notificacoes.length ? "inline" : "none";
+  lista.innerHTML = notificacoes.length
+    ? notificacoes.map(n => `<li class="dropdown-item small"><b>${n.tipo.toUpperCase()}</b>: ${n.mensagem}</li>`).join("")
+    :"<li class='dropdown-item notification-empty'>Sem novas notificações</li>";
+
+}
+
+// Atualiza a cada 1 min
+carregarNotificacoes();
+setInterval(carregarNotificacoes, 60000);
+

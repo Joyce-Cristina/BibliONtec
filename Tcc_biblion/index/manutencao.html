@@ -174,36 +174,7 @@
 
 
 
-    .notificacao-dropdown {
-      background-color: #ffffff;
-      min-width: 250px;
-      max-width: 100%;
-      max-height: 300px;
-      overflow-y: auto;
-      border-radius: 0px;
-      padding: 0;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-left: -20px;
-    }
-
-    .notificacao-dropdown .dropdown-item {
-      background-color: #ffffff;
-      color: #333333;
-      padding: 15px 20px;
-      border: none;
-      border-bottom: 1px solid #ddd;
-      font-size: 16px;
-    }
-
-    .notificacao-dropdown .dropdown-item:hover {
-      background-color: #f0f0f0;
-    }
-
-    .notificacao-dropdown .dropdown-item.active {
-      background-color: #a82010;
-      color: white;
-    }
-
+    
     /* Avatar flutuante */
     .avatar-container {
       position: fixed;
@@ -560,137 +531,7 @@
       font-family: Arial, sans-serif;
     }
 
-    .notification-settings .form-container {
-      width: 100%;
-    }
-
-    .notification-settings .header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 30px;
-    }
-
-    .notification-settings .icon {
-      color: #007bff;
-      font-size: 30px;
-      margin-right: 10px;
-    }
-
-    .notification-settings h2 {
-      font-size: 24px;
-      color: #333;
-      font-weight: bold;
-    }
-
-    .notification-settings .form-group {
-      margin-bottom: 25px;
-      display: flex;
-      justify-content: space-between;
-      /* Alinha o conteúdo */
-      align-items: center;
-      /* Alinha os itens verticalmente */
-    }
-
-    .notification-settings .form-group label {
-      font-size: 16px;
-      color: #666;
-      margin-bottom: 5px;
-      font-weight: bold;
-      flex: 1;
-      /* Deixa o label ocupar o espaço restante */
-    }
-
-    .notification-settings .form-group p {
-      font-size: 14px;
-      color: #777;
-      margin-top: 10px;
-    }
-
-    .notification-settings .switch-container {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      /* Alinha os switches à direita */
-    }
-
-    .notification-settings .form-group input[type="number"] {
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
-      background-color: #f7f7f7;
-      width: 100px;
-    }
-
-    .notification-settings .form-group input[type="number"]:focus {
-      border-color: #007bff;
-      outline: none;
-    }
-
-    .notification-settings .form-group .input-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .notification-settings .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 28px;
-    }
-
-    .notification-settings .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .notification-settings .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
-      border-radius: 34px;
-    }
-
-    .notification-settings .slider:before {
-      position: absolute;
-      content: "";
-      height: 20px;
-      width: 20px;
-      border-radius: 50%;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: 0.4s;
-    }
-
-    .notification-settings input:checked+.slider {
-      background-color: #007bff;
-    }
-
-    .notification-settings input:checked+.slider:before {
-      transform: translateX(22px);
-    }
-
-    .notification-settings .form-group.dias {
-      flex-direction: column;
-      /* Organiza o conteúdo verticalmente */
-      align-items: flex-start;
-      /* Alinha o conteúdo à esquerda */
-    }
-
-    .notification-settings .form-group.dias .switch-container {
-      margin-top: 10px;
-      /* Adiciona um pouco de espaço entre o título e o campo de dias */
-      justify-content: flex-start;
-      /* Alinha à esquerda para a terceira opção */
-    }
+    
 
     /* Responsividade da Sidebar */
     @media (max-width: 768px) {
@@ -1207,6 +1048,226 @@
     #configTabsContent .tab-pane.active {
       display: block;
     }
+    /* Quando não há notificações */
+/* ===========================================================
+   🌟 ESTILO DAS CONFIGURAÇÕES DE NOTIFICAÇÃO (PÁGINA INTERNA)
+   =========================================================== */
+.notification-settings {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 2px solid #c8aa78;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.notification-settings .form-container {
+  width: 100%;
+}
+
+.notification-settings .header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.notification-settings .icon {
+  color: #007bff;
+  font-size: 30px;
+  margin-right: 10px;
+}
+
+.notification-settings h2 {
+  font-size: 24px;
+  color: #333;
+  font-weight: bold;
+}
+
+.notification-settings .form-group {
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-settings .form-group label {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 5px;
+  font-weight: bold;
+  flex: 1;
+}
+
+.notification-settings .form-group p {
+  font-size: 14px;
+  color: #777;
+  margin-top: 10px;
+}
+
+.notification-settings .switch-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.notification-settings .form-group input[type="number"] {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: #f7f7f7;
+  width: 100px;
+}
+
+.notification-settings .form-group input[type="number"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.notification-settings .form-group .input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-settings .switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.notification-settings .switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.notification-settings .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.notification-settings .slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+}
+
+.notification-settings input:checked + .slider {
+  background-color: #007bff;
+}
+
+.notification-settings input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.notification-settings .form-group.dias {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.notification-settings .form-group.dias .switch-container {
+  margin-top: 10px;
+  justify-content: flex-start;
+}
+
+/* ===========================================================
+   🔔 ESTILO DO SINO E DROPDOWN DE NOTIFICAÇÕES
+   =========================================================== */
+
+/* Caixa principal do dropdown do sino */
+.dropdown-menu.notificacao-dropdown {
+  background-color: #fff8ef !important; /* bege claro */
+  border: 1px solid #c8aa78; /* dourado */
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  min-width: 260px;
+  padding: 8px;
+}
+
+/* Itens da lista */
+.dropdown-menu.notificacao-dropdown .dropdown-item {
+  color: #3d1f00;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+.dropdown-menu.notificacao-dropdown .dropdown-item:hover {
+  background-color: #f0e0c6;
+}
+
+/* Quando não há notificações (modo simples) */
+.notification-empty {
+  background-color: #ca5a5a; /* vermelho suave */
+  color: #5a0000;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 8px;
+  border: 1px solid #b04545;
+}
+
+/* ===========================================================
+   💬 BALÃO DE NOTIFICAÇÃO (POPOVER OU TOOLTIP)
+   =========================================================== */
+.notification-tooltip {
+  background-color: #fff; /* fundo branco */
+  color: #5a0000; /* texto vinho escuro */
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Tooltip quando não há notificações */
+.notification-tooltip.empty {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Ícone do sino */
+.nav-link i.bi-bell {
+  color: white;
+  position: relative;
+}
+
+/* Bolinha vermelha no sino */
+.nav-link i.bi-bell::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  display: none;
+}
+
+/* Mostrar bolinha quando houver novas notificações */
+.nav-link.has-notification i.bi-bell::after {
+  display: block;
+}
+
   </style>
 </head>
 
@@ -1228,11 +1289,18 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
         <form class="d-flex">
           <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-            <li class="nav-item">
-              <a class="nav-link" href="#" style="color: white;">
+            <li class="nav-item dropdown">
+              <a class="nav-link position-relative" href="#" id="notificacaoDropdown" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+                <span id="notificacaoBadge"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  style="display:none;">!</span>
               </a>
+              <ul id="listaNotificacoes" class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacaoDropdown"
+                style="width: 250px; max-height: 300px; overflow-y:auto;"></ul>
             </li>
+
           </ul>
           <ul class="navbar-nav mb-2 mb-lg-0 me-3">
             <li class="nav-item dropdown">
@@ -1552,7 +1620,7 @@
         }
       });
     });
-    
+
   </script>
   </div>
 
@@ -1561,5 +1629,5 @@
 <script src="../java/script.js"></script>
 <script src="../java/logs.js"></script>
 <script src="../../acessibilidade.js"></script>
-
+<script src="../java/notificacao.js"></script>
 </html>
