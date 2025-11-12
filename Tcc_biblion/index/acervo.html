@@ -57,13 +57,13 @@
 
     .dropdown-item {
       background-color: #691400;
+       color: #f8f8f8;
     }
 
     .dropdown-item:hover {
       background-color: #a82010;
-      color: white;
+      color: #000000;
     }
-
     .dropdown-item.active {
       background-color: #4d0f03 !important;
       color: white !important;
@@ -492,11 +492,19 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
         <form class="d-flex">
           <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-            <li class="nav-item">
-              <a class="nav-link" href="#" style="color: white;">
+             <a class="nav-link dropdown-toggle" href="#" id="notificacaoDropdown" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false" style="color: white; position: relative;">
                 <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+                <span id="notificacaoBadge"
+                  class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                  style="display:none;"></span>
               </a>
+              <ul id="listaNotificacoes" class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacaoDropdown">
+                <li class="dropdown-item text-muted">Carregando notificações...</li>
+              </ul>
             </li>
+       
+
           </ul>
           <ul class="navbar-nav mb-2 mb-lg-0 me-3">
             <li class="nav-item dropdown">
@@ -778,6 +786,8 @@
     <script src="../java/acervo.js"></script>
     <script src="../java/script.js"></script>
 <script src="../../acessibilidade.js"></script>
+<script src="../java/notificacao.js"></script>
+  </div>
 </body>
 
 </html>

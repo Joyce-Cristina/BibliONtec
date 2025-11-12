@@ -15,6 +15,7 @@ const { exec } = require('child_process');
 const cron = require("node-cron");
 const cookieParser = require('cookie-parser');
 const AdmZip = require("adm-zip");
+const mysqlRaw = require('mysql2/promise');
 const execPromise = (cmd) =>
   new Promise((resolve, reject) => {
     exec(cmd, (error, stdout, stderr) => {
@@ -22,6 +23,8 @@ const execPromise = (cmd) =>
       resolve({ stdout, stderr });
     });
   });
+const dayjs = require("dayjs");
+const nodemailer = require("nodemailer");
 
 const { enviarEmail } = require("./emailService");
 
@@ -50,7 +53,6 @@ const ETIQUETA_H_PT = mmToPt(ETIQUETA_H_MM);
 
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
-const mysqlRaw = require("mysql2/promise");
 
 const pool = mysqlRaw.createPool({
   host: process.env.DB_HOST || "127.0.0.1",
@@ -2532,7 +2534,7 @@ app.delete('/lista-desejos/:usuarioId/:livroId', (req, res) => {
 
 // ======================= LISTAR LIVROS DO ACERVO =======================
 app.get('/acervo/livros', autenticarToken, (req, res) => {
-  const sql =`
+  const sql = `
 SELECT 
   l.id,
   l.titulo,
@@ -3368,7 +3370,7 @@ app.get("/emprestimo/livros", autenticarToken, (req, res) => {
   });
 });
 
-app.post('/emprestimos', autenticarToken, async (req, res) => {
+/*app.post('/emprestimos', autenticarToken, async (req, res) => {
   const { usuarioId, livros } = req.body;
 
   if (!usuarioId || !Array.isArray(livros) || livros.length === 0) {
@@ -3427,7 +3429,7 @@ app.post('/emprestimos', autenticarToken, async (req, res) => {
     console.error("Erro ao registrar empréstimo:", err);
     res.status(500).json({ error: "Erro ao registrar empréstimo" });
   }
-});
+});*/
 
 app.get('/emprestimos/:usuarioId/historico', autenticarToken, async (req, res) => {
   const { usuarioId } = req.params;
@@ -3888,42 +3890,74 @@ app.get("/logs/export/pdf", autenticarToken, (req, res) => {
 // ============================================================================
 // 🔔 Funções principais de notificação
 // ============================================================================
+async function enviarNotificacaoUsuario(usuarioOuId, mensagem, tipo) {
+  // 🔍 Garante que temos os dados completos do usuário
+  let usuario = usuarioOuId;
+  if (!usuario.id) {
+    const [rows] = await pool.query("SELECT * FROM usuario WHERE id = ?", [usuarioOuId]);
+    usuario = rows[0];
+    if (!usuario) return console.warn("⚠️ Usuário não encontrado para notificação");
+  }
 
-async function enviarNotificacaoUsuario(usuario, mensagem, tipo) {
-  await pool.query(
+  // 📨 Cria notificação
+  const [result] = await pool.query(
     "INSERT INTO notificacao (mensagem, tipo, data_envio, FK_instituicao_id) VALUES (?, ?, NOW(), ?)",
     [mensagem, tipo, usuario.FK_instituicao_id]
   );
+  const notificacaoId = result.insertId;
+  console.log("📨 Enviando notificação ao usuário:", usuario);
 
-  const [notificacao] = await pool.query("SELECT LAST_INSERT_ID() AS id");
+  // 🔗 Relaciona com o usuário
   await pool.query(
     "INSERT INTO usuario_notificacao (FK_usuario_id, FK_notificacao_id) VALUES (?, ?)",
-    [usuario.id, notificacao[0].id]
+    [usuario.id, notificacaoId]
   );
 
-  // Envio de e-mail
+  // 💌 Envia e-mail (opcional)
   await enviarEmail(usuario.email, "📚 Notificação BibliONtec", `<p>${mensagem}</p>`);
 }
-  
 
-async function enviarNotificacaoFuncionario(funcionario, mensagem, tipo) {
-  await pool.query(
+async function enviarNotificacaoFuncionario(funcionarioOuInstituicao, mensagem, tipo) {
+  let funcionarios = [];
+
+  // 🧩 Se recebeu um objeto de funcionário individual
+  if (funcionarioOuInstituicao && funcionarioOuInstituicao.id) {
+    funcionarios = [funcionarioOuInstituicao];
+  } else {
+    // 🔍 Busca todos os funcionários com permissão de circulação dessa instituição
+    const instituicaoId = funcionarioOuInstituicao.FK_instituicao_id || funcionarioOuInstituicao;
+    const [rows] = await pool.query(
+      "SELECT * FROM funcionario WHERE FK_funcao_id = 2 AND FK_instituicao_id = ?",
+      [instituicaoId]
+    );
+    funcionarios = rows;
+  }
+
+  if (funcionarios.length === 0) {
+    console.warn("⚠️ Nenhum funcionário com permissão de circulação encontrado.");
+    return;
+  }
+
+  // 📨 Cria uma única notificação
+  const [result] = await pool.query(
     "INSERT INTO notificacao (mensagem, tipo, data_envio, FK_instituicao_id) VALUES (?, ?, NOW(), ?)",
-    [mensagem, tipo, funcionario.FK_instituicao_id]
+    [mensagem, tipo, funcionarios[0].FK_instituicao_id]
   );
+  const notificacaoId = result.insertId;
 
-  const [notificacao] = await pool.query("SELECT LAST_INSERT_ID() AS id");
-  await pool.query(
-    "INSERT INTO funcionario_notificacao (FK_funcionario_id, FK_notificacao_id) VALUES (?, ?)",
-    [funcionario.id, notificacao[0].id]
-  );
-
-  await enviarEmail(funcionario.email, "📚 Alerta BibliONtec", `<p>${mensagem}</p>`);
+  // 🔗 Vincula a todos os funcionários encontrados
+  for (const f of funcionarios) {
+    await pool.query(
+      "INSERT INTO funcionario_notificacao (FK_funcionario_id, FK_notificacao_id) VALUES (?, ?)",
+      [f.id, notificacaoId]
+    );
+    await enviarEmail(f.email, "📚 Alerta BibliONtec", `<p>${mensagem}</p>`);
+  }
 }
+
 // ============================================================================
 // ⚙️ Função de verificação automática (chamada manual ou pelo cron)
 // ============================================================================
-
 async function gerarNotificacoesAutomaticas() {
   const [configs] = await pool.query("SELECT * FROM configuracoes_notificacao");
   const [emprestimos] = await pool.query(`
@@ -3936,28 +3970,45 @@ async function gerarNotificacoesAutomaticas() {
   const hoje = dayjs();
 
   for (const emp of emprestimos) {
+    // pula empréstimos sem data de devolução
+    if (!emp.data_devolucao_prevista) continue;
+
+    // encontra configuração da instituição
     const config = configs.find(c => c.FK_instituicao_id === emp.FK_instituicao_id);
-    const diasAntes = config?.dias_antes_vencimento || 2;
+    if (!config) {
+      console.warn(`⚠️ Nenhuma configuração encontrada para instituição ${emp.FK_instituicao_id}`);
+      continue;
+    }
+
+    const diasAntes = config.dias_antes_vencimento || 2;
     const dataPrevista = dayjs(emp.data_devolucao_prevista);
     const diff = dataPrevista.diff(hoje, "day");
 
-    // 📆 Lembrete antes do vencimento
-    if (diff === diasAntes && config?.lembrete_vencimento) {
-      await enviarNotificacaoUsuario(emp, `Lembrete: o livro deve ser devolvido em ${diasAntes} dia(s)!`, "lembrete");
-    }
-
-    // ⏰ Livros atrasados
-    if (diff < 0 && config?.notificacao_atraso) {
-      const [biblios] = await pool.query(
-        "SELECT * FROM funcionario WHERE FK_funcao_id = 2 AND FK_instituicao_id = ?",
-        [emp.FK_instituicao_id]
-      );
-      for (const b of biblios) {
-        await enviarNotificacaoFuncionario(b, `📕 O usuário ${emp.nome} está com livro em atraso.`, "atraso");
+    try {
+      // 📆 Lembrete antes do vencimento
+      if (diff === diasAntes && config.lembrete_vencimento) {
+        await enviarNotificacaoUsuario(
+          emp,
+          `Lembrete: o livro deve ser devolvido em ${diasAntes} dia(s)!`,
+          "lembrete"
+        );
       }
+
+      // ⏰ Livros atrasados
+      if (diff < 0 && config.notificacao_atraso) {
+        await enviarNotificacaoFuncionario(
+          { FK_instituicao_id: emp.FK_instituicao_id },
+          `📕 O usuário ${emp.nome} está com livro em atraso.`,
+          "atraso"
+        );
+      }
+
+    } catch (erroInterno) {
+      console.error("❌ Erro ao gerar notificação para empréstimo:", erroInterno);
     }
   }
 }
+
 
 // ============================================================================
 // ⏰ Agendamento automático diário às 8h
@@ -4014,7 +4065,8 @@ app.get("/notificacoes/funcionario/:id", async (req, res) => {
 });
 
 // Rota manual para gerar notificações (teste)
-app.post("/notificacoes/gerar", async (req, res) => {
+app.get("/notificacoes/gerar", async (req, res) => {
+
   try {
     await gerarNotificacoesAutomaticas();
     res.json({ mensagem: "✅ Notificações automáticas geradas com sucesso!" });
@@ -4027,29 +4079,422 @@ app.post("/notificacoes/gerar", async (req, res) => {
 // ============================================================================
 // 🔄 Quando um empréstimo é criado → notificação imediata ao usuário
 // ============================================================================
+app.post('/emprestimos', autenticarToken, async (req, res) => {
+  const { usuarioId, livros } = req.body;
 
-app.post("/emprestimo", async (req, res) => {
+  if (!usuarioId || !Array.isArray(livros) || livros.length === 0) {
+    return res.status(400).json({ error: "Dados inválidos. Informe usuário e ao menos um livro." });
+  }
+
+  const instituicaoId = req.user?.FK_instituicao_id || null;
+
   try {
-    const { FK_usuario_id, FK_livro_id, data_devolucao_prevista, FK_instituicao_id } = req.body;
+    // 🧭 1. Busca duração padrão
+    const [config] = await pool.query(
+      "SELECT duracao_padrao_emprestimo FROM configuracoes_gerais WHERE FK_instituicao_id = ?",
+      [instituicaoId]
+    );
+    const dias = config[0]?.duracao_padrao_emprestimo || 7;
 
-    // Insere o empréstimo
+    // 🧭 2. Define datas
+    const hoje = new Date();
+    const devolucaoPrevista = new Date();
+    devolucaoPrevista.setDate(hoje.getDate() + dias);
+
+    // 🧭 3. Cria empréstimo
+    const [result] = await pool.query(
+      "INSERT INTO emprestimo (data_emprestimo, data_devolucao_prevista, FK_usuario_id, FK_instituicao_id) VALUES (?, ?, ?, ?)",
+      [hoje, devolucaoPrevista, usuarioId, instituicaoId]
+    );
+    const emprestimoId = result.insertId;
+
+    // 🧭 4. Registra livros e histórico
+    for (const livroId of livros) {
+      await pool.query("INSERT INTO emprestimo_livro (FK_emprestimo_id, FK_livro_id) VALUES (?, ?)", [emprestimoId, livroId]);
+      await pool.query("UPDATE livro SET disponivel = 0 WHERE id = ?", [livroId]);
+    }
+
+    const [historicoRes] = await pool.query(
+      "INSERT INTO historico (data_leitura, FK_instituicao_id) VALUES (?, ?)",
+      [hoje, instituicaoId]
+    );
+    const historicoId = historicoRes.insertId;
+
     await pool.query(
-      "INSERT INTO emprestimo (FK_usuario_id, FK_livro_id, data_emprestimo, data_devolucao_prevista, FK_instituicao_id) VALUES (?, ?, NOW(), ?, ?)",
-      [FK_usuario_id, FK_livro_id, data_devolucao_prevista, FK_instituicao_id]
+      "INSERT INTO historico_usuario (FK_usuario_id, FK_historico_id) VALUES (?, ?)",
+      [usuarioId, historicoId]
     );
 
-    // Busca dados do usuário
-    const [usuarios] = await pool.query("SELECT * FROM usuario WHERE id = ?", [FK_usuario_id]);
+    for (const livroId of livros) {
+      await pool.query(
+        "INSERT INTO historico_livro (FK_historico_id, FK_livro_id) VALUES (?, ?)",
+        [historicoId, livroId]
+      );
+    }
+
+    // 🧭 5. Busca o usuário completo
+    const [usuarios] = await pool.query("SELECT * FROM usuario WHERE id = ?", [usuarioId]);
     const usuario = usuarios[0];
 
-    // Cria notificação imediata
-    const msg = `📘 Empréstimo realizado com sucesso! O prazo para devolução é ${dayjs(data_devolucao_prevista).format("DD/MM/YYYY")}.`;
+    // 🧭 6. Envia notificação
+    const msg = `📘 Empréstimo realizado com sucesso! O prazo para devolução é ${dayjs(devolucaoPrevista).format("DD/MM/YYYY")}.`;
     await enviarNotificacaoUsuario(usuario, msg, "emprestimo");
 
-    res.status(200).json({ mensagem: "✅ Empréstimo registrado e notificação enviada!" });
+    console.log("✅ Notificação enviada ao usuário:", usuario.nome);
+
+    // 🧭 7. Resposta final
+    res.status(201).json({
+      message: "Empréstimo registrado com sucesso, histórico atualizado e notificação enviada!",
+      emprestimoId,
+      historicoId
+    });
+
   } catch (err) {
-    console.error("Erro ao registrar empréstimo:", err);
+    console.error("❌ Erro ao registrar empréstimo:", err);
     res.status(500).json({ error: "Erro ao registrar empréstimo" });
+  }
+});
+// ======= RELATÓRIOS: utilitário de período =======
+function periodoParaDatas(period) {
+  const hoje = new Date();
+  let inicio;
+  if (period === 'week' || period === 'ultima_semana') {
+    inicio = new Date();
+    inicio.setDate(hoje.getDate() - 7);
+  } else if (period === 'month' || period === 'ultimo_mes') {
+    inicio = new Date();
+    inicio.setMonth(hoje.getMonth() - 1);
+  } else if (period === 'year' || period === 'ano') {
+    inicio = new Date();
+    inicio.setFullYear(hoje.getFullYear() - 1);
+  } else {
+    inicio = new Date(0); // tudo
+  }
+  // formata YYYY-MM-DD
+  const fmt = d => d.toISOString().slice(0, 10);
+  return { inicio: fmt(inicio), fim: fmt(hoje) };
+}
+
+// ======= /relatorios/atrasos =======
+// Retorna empréstimos com atraso + info de usuário, livro, dias e multa calculada
+app.get('/relatorios/atrasos', autenticarToken, async (req, res) => {
+  try {
+    const period = req.query.period || 'all';
+    const { inicio, fim } = periodoParaDatas(period);
+
+    // pega multa padrão (configurações_gerais)
+    const [cfgRows] = await pool.query("SELECT multa_por_atraso FROM configuracoes_gerais WHERE FK_instituicao_id = ? LIMIT 1", [req.user.FK_instituicao_id]);
+    const multaPorDia = cfgRows[0]?.multa_por_atraso ? parseFloat(cfgRows[0].multa_por_atraso) : 0.0;
+
+    const sql = `
+      SELECT e.id AS emprestimo_id, e.data_emprestimo, e.data_devolucao_prevista, e.data_real_devolucao,
+             u.id AS usuario_id, u.nome AS usuario_nome, u.email, u.telefone, 
+             l.id AS livro_id, l.titulo AS livro_titulo, l.isbn
+      FROM emprestimo e
+      JOIN emprestimo_livro el ON el.FK_emprestimo_id = e.id
+      JOIN livro l ON l.id = el.FK_livro_id
+      JOIN usuario u ON u.id = e.FK_usuario_id
+      WHERE e.data_real_devolucao IS NULL
+        AND e.data_devolucao_prevista < CURDATE()
+        AND e.FK_instituicao_id = ?
+        AND e.data_emprestimo BETWEEN ? AND ?
+      ORDER BY e.data_devolucao_prevista ASC
+    `;
+    const [rows] = await pool.query(sql, [req.user.FK_instituicao_id, inicio, fim]);
+
+    const resultado = rows.map(r => {
+      const prev = new Date(r.data_devolucao_prevista);
+      const hoje = new Date();
+      const diasAtraso = Math.floor((hoje - prev) / (1000 * 60 * 60 * 24));
+      const multa = (diasAtraso > 0) ? (diasAtraso * multaPorDia).toFixed(2) : "0.00";
+      return {
+        emprestimo_id: r.emprestimo_id,
+        usuario: { id: r.usuario_id, nome: r.usuario_nome, email: r.email, telefone: r.telefone },
+        livro: { id: r.livro_id, titulo: r.livro_titulo, isbn: r.isbn },
+        data_devolucao_prevista: r.data_devolucao_prevista,
+        dias_atraso: diasAtraso,
+        multa: multa
+      };
+    });
+
+    res.json(resultado);
+
+  } catch (err) {
+    console.error("Erro /relatorios/atrasos:", err);
+    res.status(500).json({ error: "Erro ao montar relatório de atrasos" });
+  }
+});
+
+// ======= /relatorios/emprestimos/stats =======
+// Retorna contagem por mês (útil para gráfico de empréstimos e devoluções)
+app.get('/relatorios/emprestimos/stats', autenticarToken, async (req, res) => {
+  try {
+    const period = req.query.period || 'year';
+    const { inicio, fim } = periodoParaDatas(period);
+
+    // empréstimos por mês
+    const sql = `
+      SELECT DATE_FORMAT(data_emprestimo, '%Y-%m') AS mes, COUNT(*) AS total
+      FROM emprestimo
+      WHERE FK_instituicao_id = ? AND data_emprestimo BETWEEN ? AND ?
+      GROUP BY mes
+      ORDER BY mes ASC
+    `;
+    const [emprestimos] = await pool.query(sql, [req.user.FK_instituicao_id, inicio, fim]);
+
+    // devoluções por mês (data_real_devolucao not null)
+    const sql2 = `
+      SELECT DATE_FORMAT(data_real_devolucao, '%Y-%m') AS mes, COUNT(*) AS total
+      FROM emprestimo
+      WHERE FK_instituicao_id = ? AND data_real_devolucao BETWEEN ? AND ?
+      GROUP BY mes
+      ORDER BY mes ASC
+    `;
+    const [devolucoes] = await pool.query(sql2, [req.user.FK_instituicao_id, inicio, fim]);
+
+    res.json({ emprestimos, devolucoes });
+  } catch (err) {
+    console.error("Erro /relatorios/emprestimos/stats:", err);
+    res.status(500).json({ error: "Erro ao montar estatísticas de empréstimos" });
+  }
+});
+
+// ======= /relatorios/populares =======
+// livros mais emprestados (usa emprestimo_livro)
+app.get('/relatorios/populares', autenticarToken, async (req, res) => {
+  try {
+    const period = req.query.period || 'all';
+    const limit = parseInt(req.query.limit) || 10;
+    const { inicio, fim } = periodoParaDatas(period);
+
+    const sql = `
+      SELECT l.id, l.titulo, COUNT(*) AS total_emprestimos
+      FROM emprestimo_livro el
+      JOIN emprestimo e ON e.id = el.FK_emprestimo_id
+      JOIN livro l ON l.id = el.FK_livro_id
+      WHERE e.FK_instituicao_id = ? AND e.data_emprestimo BETWEEN ? AND ?
+      GROUP BY l.id, l.titulo
+      ORDER BY total_emprestimos DESC
+      LIMIT ?
+    `;
+    const [rows] = await pool.query(sql, [req.user.FK_instituicao_id, inicio, fim, limit]);
+    res.json(rows);
+  } catch (err) {
+    console.error("Erro /relatorios/populares:", err);
+    res.status(500).json({ error: "Erro ao buscar populares" });
+  }
+});
+
+// ======= /relatorios/usuarios-ativos =======
+
+// Retorna total de empréstimos agrupado por tipo de usuário (Aluno, Professor, Funcionário)
+app.get('/relatorios/usuarios-ativos', autenticarToken, async (req, res) => {
+  try {
+    const sql = `
+      SELECT tu.tipo AS tipo_usuario, COUNT(e.id) AS total_emprestimos
+      FROM usuario u
+      LEFT JOIN emprestimo e ON e.FK_usuario_id = u.id
+      LEFT JOIN tipo_usuario tu ON tu.id = u.FK_tipo_usuario_id
+      WHERE u.FK_instituicao_id = ?
+      GROUP BY tu.tipo
+    `;
+    const [rows] = await pool.query(sql, [req.user.FK_instituicao_id]);
+    res.json(rows);
+  } catch (err) {
+    console.error("Erro /relatorios/usuarios-ativos:", err);
+    res.status(500).json({ error: "Erro ao montar relatório de usuários" });
+  }
+});
+
+
+// ======= /relatorios/export/pdf =======
+// ======= /relatorios/export/pdf =======
+app.post('/relatorios/export/pdf', autenticarToken, async (req, res) => {
+  try {
+    const { imgEmp, imgUser, period = 'all' } = req.body;
+    const { inicio, fim } = periodoParaDatas(period);
+  
+
+    // multa padrão
+    const [cfgRows] = await pool.query(
+      "SELECT multa_por_atraso FROM configuracoes_gerais WHERE FK_instituicao_id = ? LIMIT 1",
+      [req.user.FK_instituicao_id]
+    );
+    const multaPorDia = cfgRows[0]?.multa_por_atraso ? parseFloat(cfgRows[0].multa_por_atraso) : 0.0;
+
+    // cria PDF em memória
+    const doc = new PDFDocument({ size: 'A4', margin: 40 });
+    const chunks = [];
+    doc.on('data', chunk => chunks.push(chunk));
+    doc.on('end', () => {
+      const pdfBuffer = Buffer.concat(chunks);
+      if (!res.headersSent) {
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=relatorio_completo_${period}.pdf`);
+        res.send(pdfBuffer);
+      }
+    });
+
+    // ========= Cabeçalho e logo =========
+    const logoPath = path.join(__dirname, 'public', 'img', 'logo_bibliontec.png');
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 220, 30, { width: 150 });
+      doc.moveDown(4);
+    }
+
+    doc.fontSize(18).text('Relatório Completo — BibliONtec', { align: 'center' });
+    doc.moveDown(1);
+    doc.fontSize(12).text(`Período: ${inicio} até ${fim}`);
+    doc.moveDown(1);
+
+    // ========= GRÁFICO DE EMPRÉSTIMOS =========
+    if (imgEmp && imgEmp.startsWith('data:image/png')) {
+      try {
+        const empImg = Buffer.from(imgEmp.split(',')[1], 'base64');
+        doc.fontSize(14).text('Gráfico de Empréstimos', { underline: true });
+        doc.moveDown(0.4);
+        doc.image(empImg, { fit: [480, 250], align: 'center' });
+        doc.moveDown(1);
+      } catch (e) {
+        doc.fontSize(10).fillColor('red').text('Erro ao adicionar gráfico de empréstimos.');
+      }
+    }
+
+    // ========= GRÁFICO DE USUÁRIOS =========
+    if (imgUser && imgUser.startsWith('data:image/png')) {
+      try {
+        const userImg = Buffer.from(imgUser.split(',')[1], 'base64');
+        doc.fontSize(14).fillColor('black').text('Gráfico de Usuários', { underline: true });
+        doc.moveDown(0.4);
+        doc.image(userImg, { fit: [480, 250], align: 'center' });
+        doc.moveDown(1);
+      } catch (e) {
+        doc.fontSize(10).fillColor('red').text('Erro ao adicionar gráfico de usuários.');
+      }
+    }
+
+    // ========= TABELA DE ATRASOS =========
+    doc.addPage();
+    doc.fontSize(14).fillColor('black').text('Atrasos', { underline: true });
+    doc.moveDown(0.5);
+
+    const [atrasosRows] = await pool.query(`
+      SELECT u.nome AS usuario_nome, l.titulo AS livro_titulo, e.data_devolucao_prevista
+      FROM emprestimo e
+      JOIN emprestimo_livro el ON el.FK_emprestimo_id = e.id
+      JOIN livro l ON l.id = el.FK_livro_id
+      JOIN usuario u ON u.id = e.FK_usuario_id
+      WHERE e.data_real_devolucao IS NULL
+        AND e.data_devolucao_prevista < CURDATE()
+        AND e.FK_instituicao_id = ?
+    `, [req.user.FK_instituicao_id]);
+
+    if (atrasosRows.length === 0) {
+      doc.fontSize(11).text('Nenhum atraso registrado neste período.');
+    } else {
+      atrasosRows.forEach((a, i) => {
+        const dias = Math.floor((new Date() - new Date(a.data_devolucao_prevista)) / (1000 * 60 * 60 * 24));
+        const multa = (dias > 0) ? (dias * multaPorDia).toFixed(2) : "0.00";
+        doc.fontSize(11).text(`${i + 1}. ${a.usuario_nome} — ${a.livro_titulo} — ${dias} dias — multa: R$${multa}`);
+      });
+    }
+
+    // Finaliza o PDF corretamente
+    doc.end();
+  } catch (err) {
+    console.error("🚨 Erro /relatorios/export/pdf:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+});
+
+
+// ======= /notificacao/contatar =======
+// ======= /notificacao/contatar =======
+app.post('/notificacao/contatar', autenticarToken, async (req, res) => {
+  try {
+    const { email, assunto, mensagem } = req.body;
+    if (!email) return res.status(400).json({ error: "E-mail não informado" });
+
+    const nodemailer = require("nodemailer");
+
+    // Usa SMTP_USER/SMTP_PASS se não houver EMAIL_USER/EMAIL_PASS
+    const user = process.env.EMAIL_USER || process.env.SMTP_USER;
+    const pass = process.env.EMAIL_PASS || process.env.SMTP_PASS;
+    const host = process.env.EMAIL_HOST || "smtp.hostinger.com";
+    const port = Number(process.env.EMAIL_PORT) || 465;
+    const secure = process.env.EMAIL_SECURE === "true" || true;
+
+    if (!user || !pass) {
+      return res.status(500).json({ error: "Credenciais de e-mail não configuradas no .env" });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+      logger: true,
+      debug: true
+    });
+
+    await transporter.verify();
+
+    const info = await transporter.sendMail({
+      from: `"BibliONtec - Notificações" <${user}>`,
+      to: email,
+      subject: assunto || "Aviso - BibliONtec",
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2>📚 Notificação - BibliONtec</h2>
+          <p>${mensagem}</p>
+          <p style="font-size:12px;color:#777;">BibliONtec © ${new Date().getFullYear()}</p>
+        </div>
+      `,
+    });
+
+    console.log("📨 E-mail enviado com sucesso:", info.messageId);
+    res.json({ ok: true, enviado: info.messageId });
+  } catch (err) {
+    console.error("🚨 Erro /notificacao/contatar:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.get('/reservas/pendentes', autenticarToken, async (req, res) => {
+  try {
+    const sql = `
+      SELECT COUNT(*) AS total
+      FROM reserva
+      WHERE FK_instituicao_id = ?
+    `;
+    const [[{ total }]] = await pool.query(sql, [req.user.FK_instituicao_id]);
+    res.json([{ total }]);
+  } catch (err) {
+    console.error("Erro /reservas/pendentes:", err.message);
+    res.status(500).json({ error: "Erro ao buscar reservas" });
+  }
+});
+
+// ======= /notificacao/enviar-usuario =======
+app.post('/notificacao/enviar-usuario', autenticarToken, async (req, res) => {
+  try {
+    const { usuarioId, mensagem, tipo } = req.body;
+    if (!usuarioId || !mensagem) {
+      return res.status(400).json({ error: "Dados incompletos" });
+    }
+
+    // Se tiver tabela de notificações, você pode salvar no banco:
+    // await pool.query("INSERT INTO notificacao (FK_usuario_id, mensagem, tipo, data_envio) VALUES (?, ?, ?, NOW())", [usuarioId, mensagem, tipo]);
+
+    console.log(`📨 Notificação interna enviada para usuário ${usuarioId}: ${mensagem}`);
+    res.json({ ok: true, mensagem: "Notificação registrada com sucesso" });
+  } catch (err) {
+    console.error("Erro /notificacao/enviar-usuario:", err.message);
+    res.status(500).json({ error: "Erro ao enviar notificação" });
   }
 });
 

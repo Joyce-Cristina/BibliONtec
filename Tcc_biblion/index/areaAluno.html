@@ -11,52 +11,91 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<style>
+  <style>
     .menu-perfil.show {
-  display: flex;
-}
+      display: flex;
+    }
+
     .perfil-dropdown {
-  position: relative;
-  display: inline-block;
+      position: relative;
+      display: inline-block;
+    }
+
+    .avatar-navbar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      object-fit: cover;
+    }
+
+    .menu-perfil {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      /* Distância abaixo do avatar */
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      min-width: 180px;
+      z-index: 1000;
+      flex-direction: column;
+    }
+
+    .menu-perfil a {
+      padding: 10px 15px;
+      text-decoration: none;
+      display: block;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .menu-perfil a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .menu-perfil hr.menu-divider {
+      margin: 5px 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+   #cardsNotificacoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 20px;
 }
 
-.avatar-navbar {
-  width: 40px;
-  height: 40px;
+.notification-card {
+  flex: 1 1 300px; /* cada card ocupa ~300px */
+  max-width: 320px;
+  background-color: #c8a46d;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  padding: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.notification-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.notification-card img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+.foto-perfil {
+  width: 400px;
+  height: 400px;
   border-radius: 50%;
-  cursor: pointer;
   object-fit: cover;
-}
-
-.menu-perfil {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 50px; /* Distância abaixo do avatar */
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  min-width: 180px;
-  z-index: 1000;
-  flex-direction: column;
-}
-
-.menu-perfil a {
-  padding: 10px 15px;
-  text-decoration: none;
-  display: block;
-  color: #333;
-  font-weight: 500;
-}
-
-.menu-perfil a:hover {
-  background-color: #f0f0f0;
-}
-.menu-perfil hr.menu-divider {
-  margin: 5px 0;
-  border: none;
-  border-top: 1px solid #ccc;
+  border: 2px solid #ccc;
 }
 
 
@@ -67,46 +106,56 @@
 
   <!--Navbar-->
   <nav class="navbar-custom">
-  <div class="navbar-left">
-    <a href="./index.html">
-      <img src="../img/logoreta.png" alt="Logo" class="logo-navbar">
-    </a>
-  </div>
-
-  <div class="navbar-center">
-    <div class="search-box">
-      <input type="text" placeholder="Pesquisar...">
-      <i class="bi bi-search"></i>
+    <div class="navbar-left">
+      <a href="./index.html">
+        <img src="../img/logoreta.png" alt="Logo" class="logo-navbar">
+      </a>
     </div>
 
-    <ul class="menu-navbar">
-      <li><a href="./homepageAluno.html">Página inicial</a></li>
-      <li><a href="./indicacoes.html">Indicações</a></li>
-      <li><a href="./lista.html">Lista de desejo</a></li>
-      <li><a href="./areaAluno.html" class="active">Área do aluno</a></li>
-      <li><a href="./meusLivros.html">Meus livros</a></li>
-      <li><a href="./eventos.html">Eventos</a></li>
-      <li><a href="./biblioteca.html">Biblioteca</a></li>
-    </ul>
-  </div>
+    <div class="navbar-center">
+      <div class="search-box">
+        <input type="text" placeholder="Pesquisar...">
+        <i class="bi bi-search"></i>
+      </div>
 
- <div class="navbar-right">
-    <a href="./areaAluno.html#notificacoes" class="icon-btn">
-      <i class="bi bi-bell"></i>
-    </a>
-   <div class="perfil-dropdown">
-    <img src="" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+      <ul class="menu-navbar">
+        <li><a href="./homepageAluno.html">Página inicial</a></li>
+        <li><a href="./indicacoes.html">Indicações</a></li>
+        <li><a href="./lista.html">Lista de desejo</a></li>
+        <li><a href="./areaAluno.html" class="active">Área do aluno</a></li>
+        <li><a href="./meusLivros.html">Meus livros</a></li>
+        <li><a href="./eventos.html">Eventos</a></li>
+        <li><a href="./biblioteca.html">Biblioteca</a></li>
+      </ul>
+    </div>
 
-  <div class="menu-perfil" id="menuPerfil">
-    <a href="#"> Perguntas frequentes</a>
-      <hr class="menu-divider">
-    <a href="#"> Entre em contato</a>
-      <hr class="menu-divider">
-    <a href="index.html" onclick="logout()"> Logout</a>
-  </div>
-</div>
-  </div>
-</nav>
+    <div class="navbar-right">
+      <div class="dropdown">
+        <a href="#" class="icon-btn dropdown-toggle" id="notificacaoDropdown" data-bs-toggle="dropdown"
+          aria-expanded="false">
+          <i class="bi bi-bell"></i>
+          <span id="notificacaoBadge"
+            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+            style="display:none;"></span>
+        </a>
+        <ul id="listaNotificacoes" class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacaoDropdown">
+          <li class="dropdown-item text-muted">Carregando notificações...</li>
+        </ul>
+      </div>
+
+      <div class="perfil-dropdown">
+        <img src="" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário" />
+
+        <div class="menu-perfil" id="menuPerfil">
+          <a href="#"> Perguntas frequentes</a>
+          <hr class="menu-divider">
+          <a href="#"> Entre em contato</a>
+          <hr class="menu-divider">
+          <a href="index.html" onclick="logout()"> Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
 
 
   <!--Header-->
@@ -134,148 +183,91 @@
             </div>
           </div>
         </section>
-        
+
 
       </div>
     </section>
     <br><br>
-<!--Perfil-->
-<section class="page-section mb-0" id="about" style="background-color: #775e47;">
-  <div class="container">
-    <div class="divider-custom divider-light">
-      <div class="divider-custom-line"></div>
-      <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-      <div class="divider-custom-line"></div>
-    </div>
+    <!--Perfil-->
+    <section class="page-section mb-0" id="about" style="background-color: #775e47;">
+      <div class="container">
+        <div class="divider-custom divider-light">
+          <div class="divider-custom-line"></div>
+          <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+          <div class="divider-custom-line"></div>
+        </div>
 
-    <div class="row">
-      <!-- Foto -->
-      <img src="" 
-id="avatarPerfilPagina" 
-class="avatar-navbar"
-style="width: 500px; height: 500px; border-radius: 50%; object-fit: cover; border: 10px solid #C2A878;">
+        <div class="row">
+          <!-- Foto -->
+        <img id="fotoUsuario" src="./img/user-default.png" alt="Foto do usuário" class="foto-perfil">
 
+            
 
 
-      <!-- Formulário -->
-      <div class="col-lg-6">
-        <h2 class="form-title">Área do Aluno</h2>
-        <form class="form-limpo">
 
-          <label for="fname">Nome:</label>
-          <input type="text" id="fname" name="fname" disabled>
+          <!-- Formulário -->
+          <div class="col-lg-6">
+            <h2 class="form-title">Área do Aluno</h2>
+            <form class="form-limpo">
 
-          <label for="email">E-mail:</label>
-          <input type="text" id="email" name="email" disabled>
+              <label for="fname">Nome:</label>
+              <input type="text" id="fname" name="fname" disabled>
 
-          <label for="phone">Telefone:</label>
-          <input type="text" id="phone" name="phone">
+              <label for="email">E-mail:</label>
+              <input type="text" id="email" name="email" disabled>
 
-          <div class="double-group">
-            <div class="input-with-label">
-              <label for="curso">Curso:</label>
-              <input type="text" id="curso" name="curso" disabled>
-            </div>
+              <label for="phone">Telefone:</label>
+              <input type="text" id="phone" name="phone">
 
-            <div class="input-with-label">
-              <label for="serie">Série:</label>
-              <input type="text" id="serie" name="serie" disabled>
-            </div>
+              <div class="double-group">
+                <div class="input-with-label">
+                  <label for="curso">Curso:</label>
+                  <input type="text" id="curso" name="curso" disabled>
+                </div>
+
+                <div class="input-with-label">
+                  <label for="serie">Série:</label>
+                  <input type="text" id="serie" name="serie" disabled>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="senha">Senha</label>
+                <div class="input-group shadow-sm">
+                  <input type="password" id="senha" class="form-control" autocomplete="current-password" />
+                  <span class="input-group-text" onclick="toggleSenha()" style="cursor: pointer;">
+                    <i class="bi bi-eye-slash" id="toggleSenha"></i>
+                  </span>
+                </div>
+                <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
+              </div>
+
+              <!-- Botão Editar -->
+              <div class="mt-3">
+                <button id="btnEditar" class="btn-editar" type="button">Editar</button>
+
+              </div>
+
+            </form>
           </div>
-
-          <div class="col-md-6">
-            <label for="senha">Senha</label>
-            <div class="input-group shadow-sm">
-              <input type="password" id="senha" class="form-control" autocomplete="current-password" />
-              <span class="input-group-text" onclick="toggleSenha()" style="cursor: pointer;">
-                <i class="bi bi-eye-slash" id="toggleSenha"></i>
-              </span>
-            </div>
-            <div id="avisoSenha" style="color: red; font-size: 0.9em; margin-top: 4px; display: none;"></div>
-          </div>
-
-          <!-- Botão Editar -->
-          <div class="mt-3">
-            <button id="btnEditar" class="btn-editar" type="button">Editar</button>
-
-          </div>
-
-        </form>
+        </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
 
     <br><br><br><br>
     <!-- Container centralizador -->
-    <div class="centraliza-container" id="notificacoes">
-      <!-- Container de notificações -->
-      <div class="notifications-container ">
-        <h2 class="text-center mb-4">Notificações</h2>
-
-        <!-- Card 1 -->
-        <div class="card-livro mb-2 notification-card">
-          <div class="row g-0">
-            <div class="col-md-4">
-              <img src="../img/biba.png" class="card-img" />
-            </div>
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">Card title</h5>
-                <p class="card-text">
-                  Este é um card com um texto de notificação um pouco mais longo.
-                </p>
-                <p class="card-text">
-                  <small class="text-muted">Última atualização há 3 minutos</small>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="card-livro mb-3 notification-card">
-          <div class="row g-0">
-            <div class="col-md-4">
-              <img src="../img/biba.png" class="card-img" />
-            </div>
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">Outra notificação</h5>
-                <p class="card-text">
-                  Texto de apoio ou mensagem enviada pelo sistema.
-                </p>
-                <p class="card-text">
-                  <small class="text-muted">Última atualização há 1 hora</small>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="card-livro mb-3 notification-card">
-          <div class="row g-0">
-            <div class="col-md-4">
-              <img src="../img/biba.png" class="card-img" />
-            </div>
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">Atualização de dados</h5>
-                <p class="card-text">
-                  Lembre-se de atualizar suas informações na área do aluno.
-                </p>
-                <p class="card-text">
-                  <small class="text-muted">Atualizado ontem</small>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
+    
+     <!-- Container centralizador -->
+<div class="centraliza-container" id="notificacoes">
+  <div class="notifications-container text-center">
+    <h2 class="text-center mb-4">Notificações</h2>
+    <div id="cardsNotificacoes" >
+      <p class="text-muted">Carregando notificações...</p>
     </div>
+  </div>
+</div>
+
 
     <br><br><br><br>
 
@@ -313,31 +305,39 @@ style="width: 500px; height: 500px; border-radius: 50%; object-fit: cover; borde
     </footer>
 
     <script>
-      document.addEventListener("DOMContentLoaded", async () => {  
-  const token = localStorage.getItem("token");
-  if (!token) return;
+document.addEventListener("DOMContentLoaded", () => {
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const funcionario = JSON.parse(localStorage.getItem("funcionario"));
 
-  try {
-    const response = await fetch(`${apiBase()}/usuarioLogado`, {
-      headers: { "Authorization": "Bearer " + token }
-    });
+  // Determina quem está logado
+  const user = usuario || funcionario;
 
-    const dados = await response.json();
+  if (!user) {
+    console.warn("Nenhum usuário logado encontrado no localStorage.");
+    return;
+  }
 
-    const foto = dados.foto
-      ? `${apiBase()}/uploads/${dados.foto}`
-      : `${apiBase()}/uploads/padrao.jpg`;
+  // Verifica se há imagem
+  const fotoEl = document.getElementById("fotoUsuario");
+  if (fotoEl) {
+    // Se o usuário tiver uma foto cadastrada
+    if (user.foto && user.foto.trim() !== "") {
+      fotoEl.src = `${apiBase()}/uploads/${user.foto}`;
+    } else {
+      // Caso não tenha foto, exibe imagem padrão
+      fotoEl.src = "./img/user-default.png";
+    }
 
-    // 👇 Aqui é a correção principal:
-    document.getElementById("avatarPerfil").src = foto;         // Navbar
-    document.getElementById("avatarPerfilPagina").src = foto;   // Área do aluno
-
-  } catch (err) {
-    console.error("Erro ao carregar foto do usuário", err);
+    fotoEl.alt = user.nome || "Usuário logado";
   }
 });
-      </script>
-      
+
+
+
+
+
+    </script>
+
 
     <script>
       function aplicarEspacoNavbar() {
@@ -348,10 +348,64 @@ style="width: 500px; height: 500px; border-radius: 50%; object-fit: cover; borde
       }
       window.addEventListener('load', aplicarEspacoNavbar);
       window.addEventListener('resize', aplicarEspacoNavbar);
-      
+     async function carregarCardsNotificacoes() {
+  const usuario = JSON.parse(localStorage.getItem("usuario")) || JSON.parse(localStorage.getItem("funcionario"));
+  if (!usuario) return;
+
+  const tipo = localStorage.getItem("funcionario") ? "funcionario" : "usuario";
+
+  try {
+    const res = await fetch(`${apiBase()}/notificacoes/${tipo}/${usuario.id}`);
+    const notificacoes = await res.json();
+
+    const container = document.getElementById("cardsNotificacoes");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    if (notificacoes.length === 0) {
+      container.innerHTML = `<p class="text-muted">Sem notificações no momento.</p>`;
+      return;
+    }
+
+    notificacoes.forEach(n => {
+      const card = document.createElement("div");
+    
+
+      card.innerHTML = `
+        <div class="card-livro notification-card shadow-sm" style="background-color:#c8a46d; border:none;">
+          <div class="row g-0">
+            <div class="col-md-4">
+              <img src="../img/logoquadrada.jpeg" class="card-img" style="border-radius:8px 0 0 8px;" />
+            </div>
+            <div class="col-md-8 d-flex align-items-center">
+              <div class="card-body">
+                <h5 class="card-title">${n.tipo.toUpperCase()}</h5>
+                <p class="card-text">${n.mensagem}</p>
+                <p class="card-text"><small class="text-muted">${n.data_envio}</small></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error("Erro ao carregar cards de notificações:", err);
+  }
+}
+
+// Atualiza os cards sempre junto com o sininho
+document.addEventListener("DOMContentLoaded", () => {
+  carregarCardsNotificacoes();
+  setInterval(carregarCardsNotificacoes, 60000); // atualiza a cada minuto
+});
+
     </script>
-    
-    
+
+
 
 
 
@@ -364,9 +418,10 @@ style="width: 500px; height: 500px; border-radius: 50%; object-fit: cover; borde
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"></script>
-      <script src="../java/script.js"></script>
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-      <script src="../../acessibilidade.js"></script>
+    <script src="../java/script.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../../acessibilidade.js"></script>
+    <script src="../java/notificacao.js"></script>
 </body>
 
 </html>

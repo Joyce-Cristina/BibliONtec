@@ -66,15 +66,15 @@
         .dropdown-menu {
             background-color: #691400;
         }
+.dropdown-item {
+      background-color: #691400;
+       color: #f8f8f8;
+    }
 
-        .dropdown-item {
-            background-color: #691400;
-        }
-
-        .dropdown-item:hover {
-            background-color: #a82010;
-            color: white;
-        }
+    .dropdown-item:hover {
+      background-color: #a82010;
+      color: #000000;
+    }
 
         .dropdown-item.active {
             background-color: #4d0f03 !important;
@@ -997,12 +997,20 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
       <form class="d-flex">
         <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-          <li class="nav-item">
-            <a class="nav-link" href="#" style="color: white;">
-              <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
-            </a>
-          </li>
-        </ul>
+            <a class="nav-link dropdown-toggle" href="#" id="notificacaoDropdown" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false" style="color: white; position: relative;">
+                <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+                <span id="notificacaoBadge"
+                  class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                  style="display:none;"></span>
+              </a>
+              <ul id="listaNotificacoes" class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacaoDropdown">
+                <li class="dropdown-item text-muted">Carregando notificações...</li>
+              </ul>
+            </li>
+       
+
+          </ul>
         <ul class="navbar-nav mb-2 mb-lg-0 me-3">
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
@@ -1345,14 +1353,14 @@
       <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
     </div>
   </div>
-
+  <script src="../java/notificacao.js"></script>
         <script src="../java/script.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="../../acessibilidade.js"></script>
         <script src="../java/instituicao.js"></script>
         <script src="../java/regrasGerais.js"></script>
         <script src="../java/permissao.js"></script>
-        <script src="../java/notificacao.js"></script>
+        <script src="../java/configNotificacao.js"></script>
         <script>
             function openTab(evt, tabId) {
                 const allTabs = document.querySelectorAll('.tab-content');
