@@ -3600,169 +3600,144 @@ const sqlFilePath = path.join(__dirname, "..", "uploads", "restore.sql");
 
 
 
-// === ROTA: Restaurar Backup ===
-app.post("/backup/restaurar", autenticarToken, multerRestore.single("arquivo"), async (req, res) => {
+// ==================== BACKUP E RESTAURAÇÃO ====================
+const BACKUP_DIR = path.join(__dirname, "..", "backups");
+if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
+
+// === Gerar backup manual ===
+app.get("/backup", autenticarToken, async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "Nenhum arquivo enviado." });
+    const nome = `backup_${Date.now()}.sql`;
+    const caminho = path.join(BACKUP_DIR, nome);
+
+    const { stdout, stderr } = await execPromise(
+      `mysqldump -u${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} > "${caminho}"`
+    );
+
+    const zipPath = caminho.replace(".sql", ".zip");
+    const zip = new AdmZip();
+    zip.addLocalFile(caminho);
+    zip.writeZip(zipPath);
+    fs.unlinkSync(caminho);
+
+    const stats = fs.statSync(zipPath);
+    const tamanho = (stats.size / (1024 * 1024)).toFixed(2) + " MB";
+
+    await pool.query(`
+      INSERT INTO backup (tipo, caminho_arquivo, tamanho, status)
+      VALUES ('manual', ?, ?, 'concluido')
+    `, [path.basename(zipPath), tamanho]);
+
+    registrarLog("Backup manual", `Backup criado: ${zipPath}`, req, "info");
+
+    res.download(zipPath);
+  } catch (err) {
+    console.error("Erro ao gerar backup:", err);
+    await pool.query(`INSERT INTO backup (tipo, status, mensagem) VALUES ('manual', 'falhou', ?)`, [err.message]);
+    registrarLog("Erro ao gerar backup", err.message, req, "error");
+    res.status(500).json({ error: "Erro ao gerar backup." });
+  }
+});
+// Multer exclusivo para backups (aceita .zip)
+const storageBackup = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, "..", "backups")),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+
+const uploadBackup = multer({
+  storage: storageBackup,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === "application/zip" || file.originalname.endsWith(".zip")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Apenas arquivos ZIP são permitidos para restauração de backup."));
     }
+  }
+});
 
-    const zipPath = req.file.path;
-    const zip = new AdmZip(zipPath);
-    const extractDir = path.join(__dirname, "restore_temp");
+// === Restaurar backup (.zip) ===
+app.post("/backup/restaurar", autenticarToken, uploadBackup.single("arquivo"), async (req, res) => {
+  try {
+    const arquivo = req.file;
+    if (!arquivo) return res.status(400).json({ error: "Nenhum arquivo enviado." });
 
-    // Garante que a pasta temporária existe
-    if (!fs.existsSync(extractDir)) fs.mkdirSync(extractDir);
+    const zip = new AdmZip(arquivo.path);
+    const tempDir = path.join(__dirname, "..", "backups", "temp_restore");
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
-    // Extrai o ZIP
-    zip.extractAllTo(extractDir, true);
+    zip.extractAllTo(tempDir, true);
+    const sqlFile = fs.readdirSync(tempDir).find(f => f.endsWith(".sql"));
+    if (!sqlFile) return res.status(400).json({ error: "Arquivo SQL não encontrado no ZIP." });
 
-    // Busca o arquivo .sql dentro do ZIP
-    const sqlFile = fs.readdirSync(extractDir).find(f => f.endsWith(".sql"));
-    if (!sqlFile) {
-      return res.status(400).json({ error: "Arquivo .sql não encontrado no backup." });
-    }
+    const sqlPath = path.join(tempDir, sqlFile);
+    await execPromise(`mysql -u${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} < "${sqlPath}"`);
 
-    const sqlFilePath = path.join(extractDir, sqlFile);
-
-    exec(`mysql -u ${DB_USER} ${DB_PASS ? `-p${DB_PASS}` : ""} ${DB_NAME} < "${sqlFilePath}"`, (error) => {
-      if (error) {
-        console.error("Erro ao restaurar:", error);
-        return res.status(500).json({ error: "Falha ao restaurar o banco." });
-      }
-
-      console.log("✅ Banco restaurado com sucesso!");
-      res.json({ message: "✅ Banco restaurado com sucesso!" });
-    });
-
+    registrarLog("Restauração de backup", `Backup restaurado de ${arquivo.filename}`, req, "info");
+    res.json({ message: "Backup restaurado com sucesso!" });
   } catch (err) {
     console.error("Erro ao restaurar backup:", err);
-    res.status(500).json({ error: "Falha ao restaurar backup." });
+    registrarLog("Erro ao restaurar backup", err.message, req, "error");
+    res.status(500).json({ error: "Erro ao restaurar backup." });
   }
 });
 
 
-// === ROTA: Histórico de Backups ===
+// === Listar histórico de backups ===
 app.get("/backup/historico", autenticarToken, async (req, res) => {
   try {
-    const [rows] = await pool.query(`
-      SELECT id, tipo, caminho_arquivo, data_criacao, status, tamanho
-      FROM backup
-      ORDER BY data_criacao DESC
-    `);
-
-    console.log("📦 BACKUPS ENVIADOS:", rows); // <-- ADICIONE ESTA LINHA
-
+    const [rows] = await pool.query(`SELECT * FROM backup ORDER BY data_criacao DESC`);
     res.json(rows);
   } catch (err) {
-    console.error("Erro ao carregar histórico de backups:", err);
-    res.status(500).json({ error: "Erro ao listar histórico" });
-  }
-
-
-});
-
-
-
-// === BACKUP AUTOMÁTICO AGENDADO ===
-cron.schedule("* * * * *", async () => {
-  try {
-    const [configs] = await pool.query("SELECT * FROM backup_config");
-    for (const cfg of configs) {
-      const agora = new Date();
-      const horaAtual = agora.toTimeString().slice(0, 5);
-
-      if (horaAtual === cfg.hora) {
-        console.log(`⏰ Executando backup automático para instituição ${cfg.FK_instituicao_id}`);
-
-        const nomeArquivo = `backup_auto_${Date.now()}.sql`;
-        const caminho = `./backups/${nomeArquivo}`;
-
-        const comando = `mysqldump -u ${DB_USER} ${DB_PASS ? `-p${DB_PASS}` : ""} ${DB_NAME} > ${caminho}`;
-        exec(comando, async (error) => {
-          if (error) {
-            console.error("Erro no backup automático:", error);
-            await pool.query(
-              "INSERT INTO backup (tipo, caminho_arquivo, status, mensagem) VALUES ('automatico', ?, 'falhou', ?)",
-              [nomeArquivo, error.message]
-            );
-          } else {
-            const stats = fs.statSync(caminho);
-            const tamanho = (stats.size / (1024 * 1024)).toFixed(2) + " MB";
-            await pool.query(
-              "INSERT INTO backup (tipo, caminho_arquivo, status, tamanho) VALUES ('automatico', ?, 'concluido', ?)",
-              [nomeArquivo, tamanho]
-            );
-            console.log(`✅ Backup automático concluído: ${nomeArquivo}`);
-          }
-        });
-      }
-    }
-  } catch (err) {
-    console.error("Erro ao executar backup automático:", err);
+    console.error("Erro ao listar backups:", err);
+    res.status(500).json({ error: "Erro ao listar backups." });
   }
 });
-// === ROTA: Configurar Backup Automático ===
+
+// === Configurar backup automático ===
 app.post("/backup/configurar", autenticarToken, async (req, res) => {
+  const { hora, dias_retencao, compressao } = req.body;
+  const inst = req.user.FK_instituicao_id || 1;
   try {
-    const { hora, dias_retencao, compressao } = req.body;
-
-    if (!hora) {
-      return res.status(400).json({ error: "Hora do backup é obrigatória." });
-    }
-
-    // ID da instituição do usuário logado (padrão 1 se não tiver no token)
-    const instituicaoId = req.user?.FK_instituicao_id || 1;
-
     await pool.query(`
       INSERT INTO backup_config (FK_instituicao_id, hora, dias_retencao, compressao)
       VALUES (?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE 
-        hora = VALUES(hora),
-        dias_retencao = VALUES(dias_retencao),
-        compressao = VALUES(compressao),
-        updated_at = CURRENT_TIMESTAMP
-    `, [
-      instituicaoId,
-      hora,
-      dias_retencao || 30,
-      compressao ? 1 : 0
-    ]);
+      ON DUPLICATE KEY UPDATE hora = VALUES(hora), dias_retencao = VALUES(dias_retencao), compressao = VALUES(compressao)
+    `, [inst, hora, dias_retencao, compressao ? 1 : 0]);
 
-    console.log(`⚙️ Backup automático configurado: ${hora}, ${dias_retencao} dias, compressão=${compressao}`);
-
-    res.json({ message: "✅ Configuração salva com sucesso!" });
+    res.json({ message: "Configuração salva com sucesso." });
   } catch (err) {
-    console.error("Erro ao salvar configuração de backup:", err);
-    res.status(500).json({ error: "Erro ao salvar configuração de backup." });
+    console.error("Erro ao salvar configuração:", err);
+    res.status(500).json({ error: "Erro ao salvar configuração." });
   }
 });
-// === ROTA: Obter Configuração Atual de Backup ===
+
 app.get("/backup/configurar", autenticarToken, async (req, res) => {
+  const inst = req.user.FK_instituicao_id || 1;
   try {
-    const instituicaoId = req.user?.FK_instituicao_id || 1;
-
-    const [config] = await pool.query(
-      "SELECT hora, dias_retencao, compressao FROM backup_config WHERE FK_instituicao_id = ? LIMIT 1",
-      [instituicaoId]
-    );
-
-    const [ultimoBackup] = await pool.query(`
-      SELECT data_criacao, tipo, status
-      FROM backup
-      ORDER BY data_criacao DESC
-      LIMIT 1
-    `);
-
-    res.json({
-      configuracao: config[0] || null,
-      ultimo_backup: ultimoBackup[0] || null
-    });
+    const [cfg] = await pool.query("SELECT * FROM backup_config WHERE FK_instituicao_id = ?", [inst]);
+    const [ultimo] = await pool.query("SELECT * FROM backup ORDER BY data_criacao DESC LIMIT 1");
+    res.json({ configuracao: cfg[0], ultimo_backup: ultimo[0] });
   } catch (err) {
-    console.error("Erro ao buscar configuração de backup:", err);
-    res.status(500).json({ error: "Erro ao buscar configuração de backup." });
+    res.status(500).json({ error: "Erro ao carregar configuração." });
   }
 });
+
+// === Tarefa automática (cron) ===
+cron.schedule("0 * * * *", async () => { // verifica a cada hora
+  try {
+    const [rows] = await pool.query("SELECT * FROM backup_config");
+    for (const cfg of rows) {
+      const horaAtual = dayjs().format("HH:mm");
+      if (horaAtual === cfg.hora) {
+        console.log("⏰ Executando backup automático...");
+        await execPromise(`mysqldump -u${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} > "${BACKUP_DIR}/auto_${Date.now()}.sql"`);
+      }
+    }
+  } catch (err) {
+    console.error("Erro no cron de backup:", err);
+  }
+});
+
 
 // ==================== VISUALIZAR LOGS (JSON PADRONIZADO E PAGINADO) ====================
 app.get("/logs", autenticarToken, (req, res) => {
@@ -4033,11 +4008,18 @@ app.get("/notificacoes/usuario/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await pool.query(`
-      SELECT n.id, n.mensagem, n.tipo, DATE_FORMAT(n.data_envio, '%d/%m/%Y') AS data_envio
-      FROM notificacao n
-      JOIN usuario_notificacao un ON n.id = un.FK_notificacao_id
-      WHERE un.FK_usuario_id = ?
-      ORDER BY n.data_envio DESC
+  SELECT 
+  n.id, 
+  n.mensagem, 
+  n.tipo, 
+  DATE_FORMAT(n.data_envio, '%d/%m/%Y') AS data_envio,
+  n.lida
+FROM notificacao n
+JOIN usuario_notificacao un 
+  ON n.id = un.FK_notificacao_id
+WHERE un.FK_usuario_id = ?
+ORDER BY n.data_envio DESC
+
     `, [id]);
     res.json(rows);
   } catch (err) {
@@ -4051,11 +4033,18 @@ app.get("/notificacoes/funcionario/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await pool.query(`
-      SELECT n.id, n.mensagem, n.tipo, DATE_FORMAT(n.data_envio, '%d/%m/%Y') AS data_envio
-      FROM notificacao n
-      JOIN funcionario_notificacao fn ON n.id = fn.FK_notificacao_id
-      WHERE fn.FK_funcionario_id = ?
-      ORDER BY n.data_envio DESC
+    SELECT 
+  n.id, 
+  n.mensagem, 
+  n.tipo, 
+  DATE_FORMAT(n.data_envio, '%d/%m/%Y') AS data_envio,
+  n.lida
+FROM notificacao n
+JOIN funcionario_notificacao fn 
+  ON n.id = fn.FK_notificacao_id
+WHERE fn.FK_funcionario_id = ?
+ORDER BY n.data_envio DESC
+
     `, [id]);
     res.json(rows);
   } catch (err) {
@@ -4497,6 +4486,46 @@ app.post('/notificacao/enviar-usuario', autenticarToken, async (req, res) => {
     res.status(500).json({ error: "Erro ao enviar notificação" });
   }
 });
+// ==================== MARCAR NOTIFICAÇÕES COMO LIDAS ====================
+// ===============================
+// 📬 Marcar notificações como lidas
+// ===============================
+app.put("/notificacoes/marcarLidas/:tipo/:id", async (req, res) => {
+  const { tipo, id } = req.params;
+
+  try {
+    if (tipo === "usuario") {
+      await pool.query(`
+        UPDATE notificacao 
+        SET lida = 1
+        WHERE id IN (
+          SELECT FK_notificacao_id 
+          FROM usuario_notificacao 
+          WHERE FK_usuario_id = ?
+        )
+      `, [id]);
+    } else if (tipo === "funcionario") {
+      await pool.query(`
+        UPDATE notificacao 
+        SET lida = 1
+        WHERE id IN (
+          SELECT FK_notificacao_id 
+          FROM funcionario_notificacao 
+          WHERE FK_funcionario_id = ?
+        )
+      `, [id]);
+    } else {
+      return res.status(400).json({ error: "Tipo inválido." });
+    }
+
+    res.json({ message: "Notificações marcadas como lidas com sucesso." });
+  } catch (err) {
+    console.error("Erro ao marcar notificações como lidas:", err);
+    res.status(500).json({ error: "Erro ao marcar notificações como lidas" });
+  }
+});
+
+
 
 // ✅ Agora o app.listen() pode ficar no final
 const PORT = process.env.PORT || 3000;

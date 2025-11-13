@@ -14,7 +14,9 @@ const tipo = localStorage.getItem("funcionario") ? "funcionario" : "usuario";
 
   try {
     const res = await fetch(`${apiBase()}/notificacoes/${tipo}/${usuario.id}`);
-    const notificacoes = await res.json();
+const todasNotificacoes = await res.json();
+const notificacoes = todasNotificacoes.filter(n => !n.lida); // mostra só não lidas
+
     console.log("👤 Usuário carregado:", usuario, "Tipo detectado:", tipo);
 
     console.log("📬 Retorno da API:", notificacoes);
@@ -78,10 +80,25 @@ const tipo = localStorage.getItem("funcionario") ? "funcionario" : "usuario";
   }
   
 }
-
-// Garante que só execute após o HTML estar pronto
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🟢 DOM carregado, buscando notificações...");
   carregarNotificacoes();
   setInterval(carregarNotificacoes, 60000);
+
+  document.querySelector(".dropdown-toggle")?.addEventListener("click", async () => {
+    const usuario = JSON.parse(localStorage.getItem("usuario")) || JSON.parse(localStorage.getItem("funcionario"));
+    if (!usuario) return;
+    const tipo = localStorage.getItem("funcionario") ? "funcionario" : "usuario";
+
+    try {
+      await fetch(`${apiBase()}/notificacoes/marcarLidas/${tipo}/${usuario.id}`, { method: "PUT" });
+      const badge = document.getElementById("notificacaoBadge");
+      if (badge) badge.style.display = "none";
+
+      // 🔁 Recarrega notificações para atualizar visualmente todas as páginas
+      setTimeout(() => carregarNotificacoes(), 300);
+    } catch (err) {
+      console.error("Erro ao marcar notificações como lidas:", err);
+    }
+  });
 });
