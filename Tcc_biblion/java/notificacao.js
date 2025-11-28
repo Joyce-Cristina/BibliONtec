@@ -9,13 +9,13 @@ async function carregarNotificacoes() {
   const usuario = JSON.parse(localStorage.getItem("usuario")) || JSON.parse(localStorage.getItem("funcionario"));
   if (!usuario) return;
 
-const tipo = localStorage.getItem("funcionario") ? "funcionario" : "usuario";
+  const tipo = localStorage.getItem("funcionario") ? "funcionario" : "usuario";
 
 
   try {
     const res = await fetch(`${apiBase()}/notificacoes/${tipo}/${usuario.id}`);
-const todasNotificacoes = await res.json();
-const notificacoes = todasNotificacoes.filter(n => !n.lida); // mostra só não lidas
+    const todasNotificacoes = await res.json();
+    const notificacoes = todasNotificacoes.filter(n => !n.lida); // mostra só não lidas
 
     console.log("👤 Usuário carregado:", usuario, "Tipo detectado:", tipo);
 
@@ -40,12 +40,15 @@ const notificacoes = todasNotificacoes.filter(n => !n.lida); // mostra só não 
     notificacoes.slice(0, 8).forEach(n => {
       const li = document.createElement("li");
       li.className = "dropdown-item small";
+      li.setAttribute("data-id", n.id);
+      li.style.cursor = "pointer";
       li.innerHTML = `<b>${n.tipo.toUpperCase()}</b>: ${n.mensagem} <br><small>${n.data_envio}</small>`;
+
       lista.appendChild(li);
     });
 
     if (!window.__notificacaoCount || notificacoes.length > window.__notificacaoCount) {
-      if (som) som.play().catch(() => {});
+      if (som) som.play().catch(() => { });
     }
     window.__notificacaoCount = notificacoes.length;
 
@@ -78,27 +81,32 @@ const notificacoes = todasNotificacoes.filter(n => !n.lida); // mostra só não 
   } catch (err) {
     console.error("Erro ao carregar notificações:", err);
   }
-  
+
 }
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🟢 DOM carregado, buscando notificações...");
   carregarNotificacoes();
   setInterval(carregarNotificacoes, 60000);
 
-  document.querySelector(".dropdown-toggle")?.addEventListener("click", async () => {
+  document.getElementById("listaNotificacoes")?.addEventListener("click", async (e) => {
+    const li = e.target.closest("li[data-id]");
+    if (!li) return;
+
+    const notifId = li.getAttribute("data-id");
+
     const usuario = JSON.parse(localStorage.getItem("usuario")) || JSON.parse(localStorage.getItem("funcionario"));
-    if (!usuario) return;
     const tipo = localStorage.getItem("funcionario") ? "funcionario" : "usuario";
 
     try {
-      await fetch(`${apiBase()}/notificacoes/marcarLidas/${tipo}/${usuario.id}`, { method: "PUT" });
-      const badge = document.getElementById("notificacaoBadge");
-      if (badge) badge.style.display = "none";
+      await fetch(`${apiBase()}/notificacoes/marcarUma/${tipo}/${usuario.id}/${notifId}`, {
+        method: "PUT"
+      });
 
-      // 🔁 Recarrega notificações para atualizar visualmente todas as páginas
-      setTimeout(() => carregarNotificacoes(), 300);
+      li.remove(); // remove do menu
+      carregarNotificacoes(); // atualiza
     } catch (err) {
-      console.error("Erro ao marcar notificações como lidas:", err);
+      console.error("Erro ao marcar notificação como lida:", err);
     }
   });
+
 });

@@ -11,7 +11,9 @@ const PDFDocument = require('pdfkit');
 const bwipjs = require('bwip-js');
 const bcrypt = require('bcrypt');
 const xss = require("xss");
-const { exec } = require('child_process');
+const { exec, spawn } = require("child_process");
+const archiver = require("archiver");
+const mysqldump = require("mysqldump");
 const cron = require("node-cron");
 const cookieParser = require('cookie-parser');
 const AdmZip = require("adm-zip");
@@ -53,7 +55,41 @@ const ETIQUETA_H_PT = mmToPt(ETIQUETA_H_MM);
 
 const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
 
+// ===== GARANTE QUE A PASTA DE LOGS EXISTE =====
+const logsDir = path.join(__dirname, "logs");
 
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+  console.log("📁 Pasta /logs criada automaticamente.");
+}
+
+
+// ==================== BACKUP E RESTAURAÇÃO ==================== //
+const BACKUP_DIR = process.env.BACKUP_DIR || path.join(__dirname, "backups");
+const BACKUP_INTERVAL = Number(process.env.BACKUP_INTERVAL || 3600000); // 1 hora
+const DB_NAME = process.env.MYSQL_DATABASE;
+
+
+/* =============================
+   💾 Criar diretório se não existir
+============================= */
+if (!fs.existsSync(BACKUP_DIR)) {
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  console.log("📁 Pasta de backups criada em:", BACKUP_DIR);
+}
+// Caminhos corretos
+const MYSQLDUMP = "E:\\xampp\\mysql\\bin\\mysqldump.exe";
+const MYSQL = "E:\\xampp\\mysql\\bin\\mysql.exe";
+const UPLOADS_DIR = path.join(__dirname, "..", "uploads");
+// cria se não existir
+if (!fs.existsSync(BACKUP_DIR)) {
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+}
+
+
+console.log("📂 UPLOADS_DIR definido como:", UPLOADS_DIR);
+console.log("📂 Pasta existe?", fs.existsSync(UPLOADS_DIR));
+// ==================== CONEXÃO COM BANCO DE DADOS ==================== //
 const pool = mysqlRaw.createPool({
   host: process.env.DB_HOST || "127.0.0.1",
   user: process.env.DB_USER || "root",
@@ -182,48 +218,46 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ===== 4. Logs =====
-app.use(morgan('combined'));
 
+
+// =============== LOGGER UNIFICADO ===============
 const logger = winston.createLogger({
-  level: 'info',
+  level: "info",
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.json()
   ),
   transports: [
-    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'logs/combined.log' }),
-    new winston.transports.Console({ format: winston.format.simple() })
+    new winston.transports.File({
+      filename: path.join(logsDir, "error.log"),
+      level: "error"
+    }),
+    new winston.transports.File({
+      filename: path.join(logsDir, "combined.log")
+    }),
+    new winston.transports.Console()
   ]
 });
 
-// ==================== FUNÇÃO PADRÃO DE LOG ====================
+// =============== FUNÇÃO PADRÃO DE LOG ===============
 function registrarLog(acao, mensagem, req, tipo = "info") {
   const usuario = req.user ? req.user.nome || `Usuário #${req.user.id}` : "Sistema";
-  const email = req.user ? req.user.email || "sem email" : "sistema@local";
-  const instituicao = req.user ? req.user.FK_instituicao_id || "desconhecida" : "sem instituição";
 
   logger.log({
-    level: tipo,
-    message: `${acao} - ${mensagem}`,
+    level: tipo,       // info, warn, error
+    tipo: tipo,        // info, warn, error
+    titulo: acao,      // Título mostrado no front
+    mensagem: mensagem,
+    usuario: usuario,
+    timestamp: new Date().toISOString(), // <-- O NOME CORRETO
     meta: {
-      usuario,
-      email,
-      instituicao,
+      email: req.user?.email || null,
       rota: req.originalUrl,
       metodo: req.method
     }
   });
 }
 
-app.use(expressWinston.logger({
-  winstonInstance: logger,
-  meta: true,
-  msg: "HTTP {{req.method}} {{req.url}} {{res.statusCode}} - {{res.responseTime}}ms",
-  expressFormat: false,
-  colorize: false
-}));
 
 // ===== 5. Servir uploads e páginas =====
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
@@ -287,7 +321,8 @@ const upload = multer({
     if (allowedMimeTypes.includes(file.mimetype)) cb(null, true);
     else cb(new Error('Apenas arquivos de imagem JPEG, PNG, JPG e WEBP são permitidos.'));
   }
-});
+
+}); const uploadBackup = multer({ dest: path.join(__dirname, "..", "uploads/backups_temp") });
 // ================= FILTRO DE PALAVRÕES =================
 async function filtrarComentario(texto) {
   try {
@@ -376,8 +411,182 @@ function gerarSenhaSegura() {
   return Math.random().toString(36).slice(-8); // gera senha aleatória de 8 caracteres
 }
 
+// ==================== VISUALIZAR LOGS (JSON PADRONIZADO E PAGINADO) ====================
+// =============== ROTA /LOGS ===============
+// ==================== VISUALIZAR LOGS (JSON PADRONIZADO E PAGINADO) ====================
+app.get("/logs", autenticarToken, (req, res) => {
+  try {
+    const logPath = path.join(__dirname, "logs", "combined.log");
 
+    if (!fs.existsSync(logPath)) {
+      return res.json({ total: 0, logs: [] });
+    }
 
+    const linhas = fs.readFileSync(logPath, "utf8")
+      .trim()
+      .split("\n")
+      .slice(-1000)
+      .reverse();
+
+    const todosLogs = linhas.map(linha => {
+      try {
+        const log = JSON.parse(linha);
+
+        return {
+          data: log.timestamp,
+          titulo: log.titulo || "Evento",
+          mensagem: log.mensagem || "",
+          usuario: log.usuario || "Sistema",
+          tipo: log.tipo || "Info"
+        };
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 30;
+    const start = (page - 1) * limit;
+
+    return res.json({
+      total: todosLogs.length,
+      logs: todosLogs.slice(start, start + limit)
+    });
+
+  } catch (err) {
+    console.error("Erro ao ler logs:", err);
+    registrarLog("Erro interno", err.message, req, "error");
+    return res.status(500).json({ error: "Erro ao ler logs" });
+  }
+});
+// ==================== EXPORTAR LOGS EM PDF ====================
+app.get("/logs/export/pdf", autenticarToken, (req, res) => {
+  try {
+    const logPath = path.join(__dirname, "logs", "combined.log");
+    if (!fs.existsSync(logPath)) {
+      return res.status(404).send("Nenhum log encontrado");
+    }
+
+    const linhas = fs.readFileSync(logPath, "utf8")
+      .trim()
+      .split("\n")
+      .slice(-1000)
+      .reverse();
+
+    const logs = linhas.map(l => {
+      try {
+        const log = JSON.parse(l);
+        return {
+          data: log.timestamp ? new Date(log.timestamp).toLocaleString("pt-BR") : "-",
+          tipo: log.tipo || "INFO",
+          titulo: log.titulo || "Evento do sistema",
+          mensagem: log.mensagem || "-",
+          usuario: log.usuario || "Sistema"
+        };
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "attachment; filename=logs_sistema.pdf");
+
+    const doc = new PDFDocument({
+      margin: 50,
+      size: "A4"
+    });
+
+    doc.pipe(res);
+
+    // ==================== CABEÇALHO PROFISSIONAL ====================
+    const headerHeight = 90;
+
+    // Faixa superior
+    doc.rect(0, 0, doc.page.width, headerHeight)
+      .fill("#8B1E1E");
+
+    // Logo (à esquerda)
+    try {
+      doc.image(path.join(__dirname, "..", "img", "logoquadrada.jpeg"), 40, 15, {
+        width: 60
+      });
+    } catch { }
+
+    // Título (à direita)
+    doc.fillColor("#FFFFFF")
+      .font("Helvetica-Bold")
+      .fontSize(22)
+      .text("Relatório de Logs do Sistema", 120, 30, {
+        align: "left"
+      });
+
+    doc.moveDown(2);
+    doc.fillColor("#000000");
+
+    // Distância após o cabeçalho
+    doc.y = headerHeight + 20;
+
+    // ==================== CONTEÚDO ====================
+    logs.forEach(log => {
+
+      if (doc.y > 720) doc.addPage();
+
+      // Data + Usuário
+      doc.fontSize(10)
+        .fillColor("#444")
+        .text(`${log.data}  |  Usuário: ${log.usuario}`);
+
+      // Título
+      doc.moveDown(0.2);
+      doc.fontSize(13)
+        .font("Helvetica-Bold")
+        .fillColor("#000")
+        .text(`${log.titulo} (${log.tipo.toUpperCase()})`);
+
+      // Mensagem
+      doc.moveDown(0.2);
+      doc.fontSize(10)
+        .font("Helvetica")
+        .fillColor("#000")
+        .text(log.mensagem, { width: 500 });
+
+      doc.moveDown(0.8);
+
+      // Linha separadora elegante
+      doc.strokeColor("#CCCCCC")
+        .lineWidth(1)
+        .moveTo(50, doc.y)
+        .lineTo(550, doc.y)
+        .stroke();
+
+      doc.moveDown(0.7);
+    });
+
+    // ==================== RODAPÉ PROFISSIONAL ====================
+    const footer = () => {
+      const bottom = 780;
+
+      doc.fontSize(9)
+        .fillColor("#666")
+        .text("Equipe BibliONtec • tccbiblioteca023@gmail.com • @bibliotec",
+          50, bottom, { align: "center" });
+
+      doc.fontSize(8)
+        .fillColor("#AAA")
+        .text(`Página ${doc.page.number}`, 50, bottom + 15, { align: "center" });
+    };
+
+    footer();
+    doc.on("pageAdded", footer);
+
+    doc.end();
+
+  } catch (err) {
+    console.error("Erro ao exportar PDF:", err);
+    registrarLog("Erro interno ao gerar PDF", err.message, req, "error");
+    res.status(500).send("Erro ao gerar PDF");
+  }
+});
 
 // ==================== CADASTRO ALUNO/PROF ====================
 
@@ -445,9 +654,11 @@ app.post('/cadastrarUsuario', autenticarToken, upload.single('foto'), (req, res)
         });
       })
       .catch(err => {
-        registrarLog("Erro ao gerar hash", `Erro ao gerar senha de ${email}`, req, "error");
+        registrarLog("Erro interno", error.message, req, "error");
+
         console.error('Erro ao gerar hash da senha:', err);
         return res.status(500).json({ error: 'Erro ao processar senha.' });
+
       });
   });
 });
@@ -487,12 +698,8 @@ app.get('/api/buscar-cdd/:isbn', autenticarToken, async (req, res) => {
     res.json({ cdd });
   } catch (erro) {
     console.error('Erro ao buscar CDD:', erro);
-    registrarLog(
-      "Erro ao buscar CDD",
-      `Erro ao buscar CDD para ISBN ${isbn}.`,
-      req,
-      "error"
-    );
+    registrarLog("Erro interno", error.message, req, "error");
+
     res.status(500).json({ error: 'Erro ao buscar CDD' });
   }
 });
@@ -558,12 +765,8 @@ app.get('/etiquetas/:id', autenticarToken, async (req, res) => {
     );
   } catch (err) {
     console.error('Erro ao gerar etiqueta:', err);
-    registrarLog(
-      "Erro ao gerar etiqueta",
-      `Erro ao gerar etiqueta do livro ID ${req.params.id}.`,
-      req,
-      "error"
-    );
+    registrarLog("Erro interno", error.message, req, "error");
+
     return res.status(500).json({ error: 'Erro ao gerar etiqueta' });
   }
 });
@@ -588,12 +791,8 @@ app.post('/etiquetas/multiple', autenticarToken, async (req, res) => {
     }
 
     if (!livros.length) {
-      registrarLog(
-        "Geração de etiquetas múltiplas",
-        `Falha — IDs fornecidos (${ids.join(", ")}) não encontrados.`,
-        req,
-        "warn"
-      );
+      registrarLog("Erro interno", error.message, req, "error");
+
       return res.status(404).json({ error: 'Nenhum livro encontrado' });
     }
 
@@ -669,12 +868,8 @@ app.post('/etiquetas/multiple', autenticarToken, async (req, res) => {
 
   } catch (err) {
     console.error('Erro ao gerar etiquetas múltiplas:', err);
-    registrarLog(
-      "Erro ao gerar etiquetas múltiplas",
-      `Erro interno ao gerar etiquetas para IDs: ${ids.join(", ")}.`,
-      req,
-      "error"
-    );
+    registrarLog("Erro interno", error.message, req, "error");
+
     return res.status(500).json({ error: 'Erro ao gerar etiquetas' });
   }
 });
@@ -737,12 +932,8 @@ app.post('/reservas', autenticarToken, (req, res) => {
       queryCallback('INSERT INTO reserva_livro (FK_reserva_id, FK_livro_id) VALUES (?, ?)', [reservaId, livroId], (err3) => {
         if (err3) {
           console.error('Erro ao inserir reserva_livro:', err3);
-          registrarLog(
-            "Criação de reserva",
-            `Erro ao vincular livro ${livroId} à reserva ${reservaId}: ${err3.message}`,
-            req,
-            "error"
-          );
+          registrarLog("Erro interno", error.message, req, "error");
+
           return res.status(500).json({ error: 'Erro ao vincular livro à reserva' });
         }
 
@@ -762,12 +953,8 @@ app.post('/reservas', autenticarToken, (req, res) => {
           queryCallback('INSERT INTO historico (data_leitura, FK_instituicao_id) VALUES (NOW(), ?)', [instituicaoId], (err5, histRes) => {
             if (err5) {
               console.error('Erro ao inserir historico:', err5);
-              registrarLog(
-                "Criação de reserva",
-                `Erro ao criar histórico da reserva ${reservaId}: ${err5.message}`,
-                req,
-                "error"
-              );
+              registrarLog("Erro interno", error.message, req, "error");
+
               return res.status(500).json({ error: 'Erro ao criar histórico' });
             }
 
@@ -828,12 +1015,8 @@ app.post('/indicacoes/multiplas', autenticarToken, (req, res) => {
   queryCallback(sql, [usuarioId, indicacaoId, cursoId, serie], (err, result) => {
     if (err) {
       console.error("Erro ao salvar indicação:", err);
-      registrarLog(
-        "Criação de indicação",
-        `Erro ao salvar indicação do usuário ${usuarioId} para a indicação ${indicacaoId}: ${err.message}`,
-        req,
-        "error"
-      );
+      registrarLog("Erro interno", error.message, req, "error");
+
       return res.status(500).json({ error: "Erro ao salvar indicação." });
     }
 
@@ -1383,135 +1566,6 @@ app.get('/indicacoes-professor/:usuarioId', autenticarToken, (req, res) => {
     }
   );
 });
-//================= LOGIN DE USUÁRIO E FUNCIONÁRIO (seguro + validado) =================
-app.post(
-  '/login',
-  loginLimiter,
-  body('email').isEmail().normalizeEmail(),
-  body('senha').isString().isLength({ min: 6 }),
-  handleValidationErrors,
-  async (req, res) => {
-    const { email, senha } = req.body;
-
-    try {
-      registrarLog("Tentativa de login", `Tentativa de login com o e-mail ${email}`, req, "info");
-
-      // --- Login de usuário ---
-      const [users] = await pool.query(`
-        SELECT id, nome, FK_tipo_usuario_id, foto, FK_instituicao_id, senha, curso_id, serie
-        FROM usuario
-        WHERE email = ?
-        LIMIT 1
-      `, [email]);
-
-      if (users.length > 0) {
-        const usuario = users[0];
-        const match = await bcrypt.compare(senha, usuario.senha);
-
-        if (!match) {
-          registrarLog("Login falhou", `Senha incorreta para o e-mail ${email}`, req, "warn");
-          return res.status(401).json({ error: "Email ou senha inválidos" });
-        }
-
-        await pool.query(`UPDATE usuario SET ultimo_login = NOW() WHERE id = ?`, [usuario.id]);
-
-        const token = jwt.sign({
-          id: usuario.id,
-          nome: usuario.nome,
-          email,
-          tipo_usuario_id: usuario.FK_tipo_usuario_id,
-          FK_instituicao_id: usuario.FK_instituicao_id,
-          curso_id: usuario.curso_id,
-          serie: usuario.serie
-        }, SECRET, { expiresIn: '8h' });
-
-        registrarLog(
-          "Login bem-sucedido (usuário)",
-          `Usuário ${usuario.nome} (ID ${usuario.id}) efetuou login com sucesso.`,
-          req,
-          "info"
-        );
-
-        return res.status(200).json({
-          message: 'Login usuário bem-sucedido',
-          token,
-          usuario: {
-            id: usuario.id,
-            nome: usuario.nome,
-            tipo_usuario_id: usuario.FK_tipo_usuario_id,
-            FK_instituicao_id: usuario.FK_instituicao_id,
-            curso_id: usuario.curso_id,
-            serie: usuario.serie,
-            foto: usuario.foto || 'padrao.png'
-          }
-        });
-      }
-
-      // --- Login de funcionário ---
-      const [funcionarios] = await pool.query(`
-        SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto,
-               f.FK_funcao_id AS funcao_id,
-               f.FK_instituicao_id, fn.funcao AS funcao_nome
-        FROM funcionario f
-        LEFT JOIN funcao fn ON f.FK_funcao_id = fn.id
-        WHERE f.email = ?
-        LIMIT 1
-      `, [email]);
-
-      if (funcionarios.length === 0) {
-        registrarLog("Login falhou", `E-mail ${email} não encontrado no sistema.`, req, "warn");
-        return res.status(401).json({ error: "Email ou senha inválidos" });
-      }
-
-      const funcionario = funcionarios[0];
-      const matchFunc = await bcrypt.compare(senha, funcionario.senha);
-
-      if (!matchFunc) {
-        registrarLog("Login falhou (funcionário)", `Senha incorreta para o e-mail ${email}`, req, "warn");
-        return res.status(401).json({ error: "Email ou senha inválidos" });
-      }
-
-      await pool.query(`UPDATE funcionario SET ultimo_login = NOW() WHERE id = ?`, [funcionario.id]);
-
-      const token = jwt.sign({
-        id: funcionario.id,
-        nome: funcionario.nome,
-        email,
-        role: "funcionario",
-        funcao: funcionario.funcao_id,
-        FK_instituicao_id: funcionario.FK_instituicao_id,
-      }, SECRET, { expiresIn: '8h' });
-
-      registrarLog(
-        "Login bem-sucedido (funcionário)",
-        `Funcionário ${funcionario.nome} (ID ${funcionario.id}) efetuou login com sucesso.`,
-        req,
-        "info"
-      );
-
-      return res.status(200).json({
-        message: "Login funcionário bem-sucedido",
-        token,
-        funcionario: {
-          id: funcionario.id,
-          nome: funcionario.nome,
-          email: funcionario.email,
-          telefone: funcionario.telefone,
-          funcao_id: funcionario.funcao_id,
-          FK_instituicao_id: funcionario.FK_instituicao_id,
-          funcao_nome: funcionario.funcao_nome,
-          foto: funcionario.foto || "padrao.png"
-        }
-      });
-
-    } catch (err) {
-      console.error("🔥 Erro detalhado no login:", err);
-      registrarLog("Erro interno no login", `Erro inesperado ao processar login (${email}): ${err.message}`, req, "error");
-      return res.status(500).json({ error: "Erro no servidor", detalhe: err.message });
-    }
-  }
-);
-
 // ================= ROTAS DE FUNCIONARIO =================
 
 // ==================== CADASTRO FUNCIONÁRIO ====================
@@ -1764,46 +1818,66 @@ app.delete('/api/funcionarios/:id', autenticarToken, (req, res) => {
 
     const usuarioIds = usuarios.map(u => u.id);
 
-    const deletarFuncionario = () => {
-      queryCallback('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
+    // =============================
+    // 🔥 1 — Remover notificações
+    // =============================
+    queryCallback(
+      'DELETE FROM funcionario_notificacao WHERE FK_funcionario_id = ?',
+      [id],
+      (err) => {
         if (err) {
-          registrarLog("Erro ao excluir funcionário", `Erro ao excluir funcionário ID ${id}: ${err.message}`, req, "error");
-          return res.status(500).json({ error: 'Erro ao excluir funcionário' });
+          registrarLog("Erro ao excluir notificações", `Erro ao deletar notificações do funcionário ${id}: ${err.message}`, req, "error");
+          return res.status(500).json({ error: 'Erro ao deletar funcionário_notificacao' });
         }
 
-        if (result.affectedRows === 0) {
-          registrarLog("Funcionário não encontrado", `Tentativa de exclusão de funcionário inexistente (ID ${id}).`, req, "warn");
-          return res.status(404).json({ error: 'Funcionário não encontrado' });
-        }
+        const deletarFuncionario = () => {
+          // =============================
+          // 🔥 3 — Finalmente excluir funcionário
+          // =============================
+          queryCallback('DELETE FROM funcionario WHERE id = ?', [id], (err, result) => {
+            if (err) {
+              registrarLog("Erro ao excluir funcionário", `Erro ao excluir funcionário ID ${id}: ${err.message}`, req, "error");
+              return res.status(500).json({ error: 'Erro ao excluir funcionário' });
+            }
 
-        registrarLog("Exclusão concluída", `${req.user?.nome || 'Usuário'} excluiu o funcionário ID ${id} com sucesso.`, req, "info");
-        res.status(200).json({ message: 'Funcionário excluído com sucesso' });
-      });
-    };
+            if (result.affectedRows === 0) {
+              registrarLog("Funcionário não encontrado", `Tentativa de exclusão de funcionário inexistente (ID ${id}).`, req, "warn");
+              return res.status(404).json({ error: 'Funcionário não encontrado' });
+            }
 
-    if (usuarioIds.length > 0) {
-      // Usuários vinculados — remover dependências primeiro
-      queryCallback('DELETE FROM usuario_curso WHERE FK_usuario_id IN (?)', [usuarioIds], (err) => {
-        if (err) {
-          registrarLog("Erro ao excluir dependências", `Erro ao remover usuario_curso de usuários vinculados ao funcionário ${id}: ${err.message}`, req, "error");
-          return res.status(500).json({ error: 'Erro ao deletar usuario_curso' });
-        }
+            registrarLog("Exclusão concluída", `${req.user?.nome || 'Usuário'} excluiu o funcionário ID ${id} com sucesso.`, req, "info");
+            res.status(200).json({ message: 'Funcionário excluído com sucesso' });
+          });
+        };
 
-        queryCallback('DELETE FROM usuario WHERE id IN (?)', [usuarioIds], (err) => {
-          if (err) {
-            registrarLog("Erro ao excluir usuários vinculados", `Erro ao excluir usuários vinculados ao funcionário ${id}: ${err.message}`, req, "error");
-            return res.status(500).json({ error: 'Erro ao deletar usuários' });
-          }
+        // =============================
+        // 🔥 2 — Se tem usuários vinculados, remover dependências
+        // =============================
+        if (usuarioIds.length > 0) {
+          queryCallback('DELETE FROM usuario_curso WHERE FK_usuario_id IN (?)', [usuarioIds], (err) => {
+            if (err) {
+              registrarLog("Erro ao excluir dependências", `Erro ao remover usuario_curso de usuários vinculados ao funcionário ${id}: ${err.message}`, req, "error");
+              return res.status(500).json({ error: 'Erro ao deletar usuario_curso' });
+            }
 
+            queryCallback('DELETE FROM usuario WHERE id IN (?)', [usuarioIds], (err) => {
+              if (err) {
+                registrarLog("Erro ao excluir usuários vinculados", `Erro ao excluir usuários vinculados ao funcionário ${id}: ${err.message}`, req, "error");
+                return res.status(500).json({ error: 'Erro ao deletar usuários' });
+              }
+
+              deletarFuncionario();
+            });
+          });
+        } else {
+          // Sem usuários vinculados
           deletarFuncionario();
-        });
-      });
-    } else {
-      // Sem usuários vinculados
-      deletarFuncionario();
-    }
+        }
+      }
+    );
   });
 });
+
 
 
 // ==================== LISTAR FUNÇÕES DE FUNCIONÁRIOS ====================
@@ -1967,51 +2041,49 @@ app.put('/api/funcionarios/:id', autenticarToken, upload.single("foto"), (req, r
 
 
 // ================= ROTAS DE USUÁRIO =================
-
-
-// ================= LISTAR TODOS USUÁRIOS DA MESMA INSTITUIÇÃO =================
-app.get('/api/usuarios', autenticarToken, (req, res) => {
-  registrarLog(
-    "Listagem de usuários iniciada",
-    `${req.user?.nome || 'Usuário'} iniciou a listagem de todos os usuários da instituição ${req.user.FK_instituicao_id}.`,
-    req,
-    "info"
-  );
-
+// ==================== LISTAR TODOS OS USUÁRIOS (COM CURSO + STATUS) ====================
+app.get("/api/usuarios", autenticarToken, (req, res) => {
   const sql = `
-    SELECT u.id, u.nome, u.email, u.telefone, u.foto, u.senha,
-           tu.tipo AS tipo,
-           u.FK_tipo_usuario_id,
-           c.curso AS nome_curso,
-           u.serie
-    FROM usuario u
-    LEFT JOIN tipo_usuario tu ON u.FK_tipo_usuario_id = tu.id
-    LEFT JOIN curso c ON u.curso_id = c.id
-    WHERE u.FK_instituicao_id = ?
-  `;
+        SELECT 
+            u.id,
+            u.nome,
+            u.email,
+            u.telefone,
+            u.foto,
+            u.ultimo_login,
+            u.FK_tipo_usuario_id,
+            tp.tipo AS tipo,
 
-  queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
+            u.curso_id,
+            c.curso AS nome_curso,
+
+            (
+                SELECT COUNT(*) 
+                FROM emprestimo e 
+                WHERE e.FK_usuario_id = u.id
+            ) AS qtd_emprestimos,
+
+            CASE
+                WHEN u.ultimo_login IS NULL THEN 'Inativo'
+                WHEN DATEDIFF(NOW(), u.ultimo_login) > 15 THEN 'Inativo'
+                ELSE 'Ativo'
+            END AS status
+
+        FROM usuario u
+        LEFT JOIN tipo_usuario tp ON tp.id = u.FK_tipo_usuario_id
+        LEFT JOIN curso c ON c.id = u.curso_id
+        ORDER BY u.nome ASC
+    `;
+
+  queryCallback(sql, [], (err, results) => {
     if (err) {
       console.error("Erro ao buscar usuários:", err);
-      registrarLog(
-        "Erro na listagem de usuários",
-        `Falha ao listar usuários da instituição ${req.user.FK_instituicao_id}: ${err.message}`,
-        req,
-        "error"
-      );
-      return res.status(500).json({ error: "Erro ao buscar usuários" });
+      return res.status(500).json({ error: "Erro no servidor" });
     }
-
-    registrarLog(
-      "Listagem de usuários concluída",
-      `${req.user?.nome || 'Usuário'} listou ${results.length} usuários da instituição ${req.user.FK_instituicao_id}.`,
-      req,
-      "info"
-    );
-
     res.json(results);
   });
 });
+
 
 
 // ================= BUSCAR USUÁRIO PELO ID =================
@@ -2312,6 +2384,128 @@ app.get("/tipos-usuario", autenticarToken, (req, res) => {
     res.json(results);
   });
 });
+//================= LOGIN DE USUÁRIO E FUNCIONÁRIO (seguro + validado) =================
+app.post(
+  '/login',
+  loginLimiter,
+  body('email').isEmail().normalizeEmail(),
+  body('senha').isString().isLength({ min: 6 }),
+  handleValidationErrors,
+  async (req, res) => {
+    const { email, senha } = req.body;
+
+    try {
+      registrarLog("Tentativa de login", `Tentativa de login com o e-mail ${email}`, req, "info");
+
+      // --- Login de usuário ---
+      const [users] = await pool.query(`
+        SELECT id, nome, FK_tipo_usuario_id, foto, FK_instituicao_id, senha, curso_id, serie
+        FROM usuario
+        WHERE email = ?
+        LIMIT 1
+      `, [email]);
+
+      if (users.length > 0) {
+        const usuario = users[0];
+        const match = await bcrypt.compare(senha, usuario.senha);
+
+        if (!match) {
+          registrarLog("Login falhou", `Senha incorreta para o e-mail ${email}`, req, "warn");
+          return res.status(401).json({ error: "Email ou senha inválidos" });
+        }
+
+        await pool.query(`UPDATE usuario SET ultimo_login = NOW() WHERE id = ?`, [usuario.id]);
+
+        const token = jwt.sign({
+          id: usuario.id,
+          nome: usuario.nome,
+          email,
+          tipo_usuario_id: usuario.FK_tipo_usuario_id,
+          FK_instituicao_id: usuario.FK_instituicao_id,
+          curso_id: usuario.curso_id,
+          serie: usuario.serie
+        }, SECRET, { expiresIn: '8h' });
+
+        registrarLog("Login realizado", `Usuário ${usuario.nome} fez login`, req, "info");
+
+
+        return res.status(200).json({
+          message: 'Login usuário bem-sucedido',
+          token,
+          usuario: {
+            id: usuario.id,
+            nome: usuario.nome,
+            tipo_usuario_id: usuario.FK_tipo_usuario_id,
+            FK_instituicao_id: usuario.FK_instituicao_id,
+            curso_id: usuario.curso_id,
+            serie: usuario.serie,
+            foto: usuario.foto || 'padrao.png'
+          }
+        });
+      }
+
+      // --- Login de funcionário ---
+      const [funcionarios] = await pool.query(`
+        SELECT f.id, f.nome, f.email, f.senha, f.telefone, f.foto,
+               f.FK_funcao_id AS funcao_id,
+               f.FK_instituicao_id, fn.funcao AS funcao_nome
+        FROM funcionario f
+        LEFT JOIN funcao fn ON f.FK_funcao_id = fn.id
+        WHERE f.email = ?
+        LIMIT 1
+      `, [email]);
+
+      if (funcionarios.length === 0) {
+        registrarLog("Login falhou", `E-mail ${email} não encontrado no sistema.`, req, "warn");
+        return res.status(401).json({ error: "Email ou senha inválidos" });
+      }
+
+      const funcionario = funcionarios[0];
+      const matchFunc = await bcrypt.compare(senha, funcionario.senha);
+
+      if (!matchFunc) {
+        registrarLog("Login falhou (funcionário)", `Senha incorreta para o e-mail ${email}`, req, "warn");
+        return res.status(401).json({ error: "Email ou senha inválidos" });
+      }
+
+      await pool.query(`UPDATE funcionario SET ultimo_login = NOW() WHERE id = ?`, [funcionario.id]);
+
+      const token = jwt.sign({
+        id: funcionario.id,
+        nome: funcionario.nome,
+        email,
+        role: "funcionario",
+        funcao: funcionario.funcao_id,
+        FK_instituicao_id: funcionario.FK_instituicao_id,
+      }, SECRET, { expiresIn: '8h' });
+
+      registrarLog("Login realizado", `Funcionário ${funcionario.nome} fez login`, req, "info");
+
+
+
+      return res.status(200).json({
+        message: "Login funcionário bem-sucedido",
+        token,
+        funcionario: {
+          id: funcionario.id,
+          nome: funcionario.nome,
+          email: funcionario.email,
+          telefone: funcionario.telefone,
+          funcao_id: funcionario.funcao_id,
+          FK_instituicao_id: funcionario.FK_instituicao_id,
+          funcao_nome: funcionario.funcao_nome,
+          foto: funcionario.foto || "padrao.png"
+        }
+      });
+
+    } catch (err) {
+      console.error("🔥 Erro detalhado no login:", err);
+      registrarLog("Falha no login", "Credenciais inválidas", req, "warn");
+
+      return res.status(500).json({ error: "Erro no servidor", detalhe: err.message });
+    }
+  }
+);
 
 
 // ================= ROTAS DE LISTA DE DESEJOS =================
@@ -2547,8 +2741,9 @@ SELECT
   l.local_publicacao,
   l.data_publicacao,
   l.FK_genero_id,
-  l.FK_editora_id,              
-  l.FK_autor_id,                
+  l.FK_editora_id,
+  l.FK_autor_id,
+  l.disponivel,                  -- 👈 ADICIONADO AQUI !!!
   g.genero,
   e.editora,
   f.nome AS funcionario_cadastrou,
@@ -2561,19 +2756,18 @@ LEFT JOIN autor a ON l.FK_autor_id = a.id
 GROUP BY l.id;
 `;
 
-
-  queryCallback(sql, [req.user.FK_instituicao_id], (err, results) => {
+  queryCallback(sql, [], (err, results) => {
     if (err) return res.status(500).json({ error: 'Erro ao buscar livros do acervo' });
 
-    // garante que venha o campo "disponibilidade"
     const out = results.map(l => ({
       ...l,
-      disponibilidade: l.disponivel == 1 ? "disponivel" : "indisponivel"
+      disponivel: l.disponivel == 1   // devolve true/false corretamente
     }));
 
     res.json(out);
   });
 });
+
 
 // ======================= BUSCA DE LIVROS POR TÍTULO =======================
 app.get('/acervo/livros/busca/:termo', autenticarToken, (req, res) => {
@@ -3335,7 +3529,8 @@ app.get("/emprestimo/livros", autenticarToken, (req, res) => {
       u.nome AS usuario
     FROM livro l
     LEFT JOIN editora ed ON ed.id = l.FK_editora_id
-    LEFT JOIN emprestimo_livro el ON el.FK_livro_id = l.id
+    LEFT JOIN emprestimo_livro el ON el.FK_livro_id = l.id AND el.FK_emprestimo_id IS NOT NULL
+
     LEFT JOIN emprestimo e 
            ON e.id = el.FK_emprestimo_id 
           AND e.data_real_devolucao IS NULL
@@ -3359,7 +3554,8 @@ app.get("/emprestimo/livros", autenticarToken, (req, res) => {
       localizacao: l.localizacao,
       autor: l.autores || null,
       editora: l.editora || null,
-      disponibilidade: l.disponivel == 1 ? "disponivel" : "indisponivel",
+      disponivel: l.disponivel == 1,
+
       emprestimo_id: l.emprestimo_id || null,
       data_emprestimo: l.data_emprestimo || null,
       data_devolucao_prevista: l.data_devolucao_prevista || null,
@@ -3369,67 +3565,6 @@ app.get("/emprestimo/livros", autenticarToken, (req, res) => {
     res.json(out);
   });
 });
-
-/*app.post('/emprestimos', autenticarToken, async (req, res) => {
-  const { usuarioId, livros } = req.body;
-
-  if (!usuarioId || !Array.isArray(livros) || livros.length === 0) {
-    return res.status(400).json({ error: "Dados inválidos. Informe usuário e ao menos um livro." });
-  }
-
-  const instituicaoId = req.user?.FK_instituicao_id || null;
-
-  try {
-    const [config] = await pool.query(
-      "SELECT duracao_padrao_emprestimo FROM configuracoes_gerais WHERE FK_instituicao_id = ?",
-      [instituicaoId]
-    );
-    const dias = config[0]?.duracao_padrao_emprestimo || 7;
-
-    const hoje = new Date();
-    const devolucaoPrevista = new Date();
-    devolucaoPrevista.setDate(hoje.getDate() + dias);
-
-    const [result] = await pool.query(
-      "INSERT INTO emprestimo (data_emprestimo, data_devolucao_prevista, FK_usuario_id, FK_instituicao_id) VALUES (?, ?, ?, ?)",
-      [hoje, devolucaoPrevista, usuarioId, instituicaoId]
-    );
-    const emprestimoId = result.insertId;
-
-    for (const livroId of livros) {
-      await pool.query("INSERT INTO emprestimo_livro (FK_emprestimo_id, FK_livro_id) VALUES (?, ?)", [emprestimoId, livroId]);
-      await pool.query("UPDATE livro SET disponivel = 0 WHERE id = ?", [livroId]);
-    }
-
-    const [historicoRes] = await pool.query(
-      "INSERT INTO historico (data_leitura, FK_instituicao_id) VALUES (?, ?)",
-      [hoje, instituicaoId]
-    );
-    const historicoId = historicoRes.insertId;
-
-    await pool.query(
-      "INSERT INTO historico_usuario (FK_usuario_id, FK_historico_id) VALUES (?, ?)",
-      [usuarioId, historicoId]
-    );
-
-    for (const livroId of livros) {
-      await pool.query(
-        "INSERT INTO historico_livro (FK_historico_id, FK_livro_id) VALUES (?, ?)",
-        [historicoId, livroId]
-      );
-    }
-
-    res.status(201).json({
-      message: "Empréstimo registrado com sucesso e histórico atualizado!",
-      emprestimoId,
-      historicoId
-    });
-
-  } catch (err) {
-    console.error("Erro ao registrar empréstimo:", err);
-    res.status(500).json({ error: "Erro ao registrar empréstimo" });
-  }
-});*/
 
 app.get('/emprestimos/:usuarioId/historico', autenticarToken, async (req, res) => {
   const { usuarioId } = req.params;
@@ -3441,7 +3576,8 @@ app.get('/emprestimos/:usuarioId/historico', autenticarToken, async (req, res) =
       JOIN historico_usuario hu ON hu.FK_historico_id = h.id
       JOIN historico_livro hl ON hl.FK_historico_id = h.id
       JOIN livro l ON l.id = hl.FK_livro_id
-      LEFT JOIN emprestimo_livro el ON el.FK_livro_id = l.id
+      LEFT JOIN emprestimo_livro el ON el.FK_livro_id = l.id AND el.FK_emprestimo_id IS NOT NULL
+
       LEFT JOIN emprestimo e ON e.id = el.FK_emprestimo_id
       WHERE hu.FK_usuario_id = ?
       ORDER BY h.data_leitura DESC
@@ -3487,13 +3623,14 @@ app.get('/historico/:usuarioId', (req, res) => {
     ORDER BY data_leitura DESC
   `;
 
-  queryCallback(sql, [usuarioId, usuarioId], (err, results) => {
-    if (err) {
-      console.error('Erro ao buscar histórico:', err);
-      return res.status(500).json({ error: 'Erro ao buscar histórico.' });
-    }
-    res.json(results);
-  });
+  queryCallback(sql, [usuarioId,
+    Id], (err, results) => {
+      if (err) {
+        console.error('Erro ao buscar histórico:', err);
+        return res.status(500).json({ error: 'Erro ao buscar histórico.' });
+      }
+      res.json(results);
+    });
 });
 
 // ===== Rota: Devolver livro =====
@@ -3525,343 +3662,297 @@ app.post('/emprestimos/:id/devolver', autenticarToken, (req, res) => {
     });
   });
 });
+function autenticarTokenDownload(req, res, next) {
+  const token = req.query.token || req.headers.authorization?.split(" ")[1];
 
-// ==================== BACKUP E RESTAURAÇÃO ==================== //
-const archiver = require("archiver");
+  if (!token) return res.status(401).json({ error: "Token não enviado." });
 
-// Cria a pasta de backups se não existir
-const pastaBackups = path.join(__dirname, "..", "backups");
-if (!fs.existsSync(pastaBackups)) {
-  fs.mkdirSync(pastaBackups, { recursive: true });
-}
-function validarToken(token) {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET || "segredo");
-  } catch (err) {
-    return null;
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = payload;
+    next();
+  } catch (e) {
+    return res.status(401).json({ error: "Token inválido." });
   }
 }
-// === ROTA: Fazer Backup Manual (gera ZIP e envia download) ===
-// ROTA: Fazer Backup Manual (gera ZIP e envia download direto)
 
-// ROTA DE BACKUP E DOWNLOAD DIRETO
-
-
-// ROTA: Fazer Backup Manual e download direto
-app.get("/backup", async (req, res) => {
-  const token = req.query.token;
-  if (!token) return res.status(401).json({ error: "Token não fornecido" });
-
-  const usuario = validarToken(token);
-  if (!usuario) return res.status(401).json({ error: "Token inválido" });
-
+// ========================== BACKUP MANUAL STREAM — DOWNLOAD IMEDIATO ==========================
+app.get("/backup", autenticarTokenDownload, async (req, res) => {
   try {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const dumpPath = path.join(pastaBackups, `dump-${timestamp}.sql`);
-    const zipPath = path.join(pastaBackups, `backup-${timestamp}.zip`);
+    const inst = req.user.FK_instituicao_id;
+    const nome = `manual_${inst}_${Date.now()}.zip`;
+    const caminhoZip = path.join(BACKUP_DIR, nome);
 
-    // Gerar dump MySQL
-    const caminhoDumpExe = `"D:\\Nova pasta\\mysql\\bin\\mysqldump.exe"`;
-    const comandoDump = `${caminhoDumpExe} -u${process.env.DB_USER || "root"} ${process.env.DB_PASSWORD ? `-p${process.env.DB_PASSWORD}` : ""} ${process.env.DB_NAME || "bibliontec"} > "${dumpPath}"`;
-    console.log("🧱 Executando comando:", comandoDump);
-    await execPromise(comandoDump);
+    // 📌 Configura headers para download imediato
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", `attachment; filename="${nome}"`);
 
-    // Criar ZIP
-    const output = fs.createWriteStream(zipPath);
     const archive = archiver("zip", { zlib: { level: 9 } });
-    archive.pipe(output);
-    archive.file(dumpPath, { name: path.basename(dumpPath) });
+    archive.pipe(res);
 
-    // Adiciona uploads, se houver
-    const pastaUploads = path.join(__dirname, "..", "uploads");
-    if (fs.existsSync(pastaUploads)) archive.directory(pastaUploads, "uploads");
+    // 👉 ARQUIVO INICIAL PARA O DOWNLOAD COMEÇAR
+    archive.append("Iniciando backup...\n", { name: "info.txt" });
 
-    await new Promise((resolve, reject) => {
-      output.on("close", resolve);
-      archive.on("error", reject);
-      archive.finalize();
-    });
+    // 👉 mysqldump
+    const args = [
+      `-u${process.env.DB_USER}`,
+      `--password=${process.env.DB_PASSWORD}`,
+      process.env.DB_NAME
+    ];
 
-    fs.unlinkSync(dumpPath);
+    const dump = spawn(MYSQLDUMP, args, { shell: false });
+    archive.append(dump.stdout, { name: "backup.sql" });
 
-    // Envia download direto
-    res.download(zipPath, path.basename(zipPath), (err) => {
-      if (err) console.error("Erro ao enviar ZIP:", err);
-      else fs.unlinkSync(zipPath); // remove ZIP após download
-    });
-
-  } catch (err) {
-    console.error("❌ Erro ao gerar backup:", err);
-    res.status(500).json({ error: "Falha ao gerar backup: " + err.message });
-  }
-});
-const multerRestore = multer({ dest: path.join(__dirname, "..", "uploads") });
-const sqlFilePath = path.join(__dirname, "..", "uploads", "restore.sql");
-
-
-
-// ==================== BACKUP E RESTAURAÇÃO ====================
-const BACKUP_DIR = path.join(__dirname, "..", "backups");
-if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true });
-
-// === Gerar backup manual ===
-app.get("/backup", autenticarToken, async (req, res) => {
-  try {
-    const nome = `backup_${Date.now()}.sql`;
-    const caminho = path.join(BACKUP_DIR, nome);
-
-    const { stdout, stderr } = await execPromise(
-      `mysqldump -u${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} > "${caminho}"`
-    );
-
-    const zipPath = caminho.replace(".sql", ".zip");
-    const zip = new AdmZip();
-    zip.addLocalFile(caminho);
-    zip.writeZip(zipPath);
-    fs.unlinkSync(caminho);
-
-    const stats = fs.statSync(zipPath);
-    const tamanho = (stats.size / (1024 * 1024)).toFixed(2) + " MB";
-
-    await pool.query(`
-      INSERT INTO backup (tipo, caminho_arquivo, tamanho, status)
-      VALUES ('manual', ?, ?, 'concluido')
-    `, [path.basename(zipPath), tamanho]);
-
-    registrarLog("Backup manual", `Backup criado: ${zipPath}`, req, "info");
-
-    res.download(zipPath);
-  } catch (err) {
-    console.error("Erro ao gerar backup:", err);
-    await pool.query(`INSERT INTO backup (tipo, status, mensagem) VALUES ('manual', 'falhou', ?)`, [err.message]);
-    registrarLog("Erro ao gerar backup", err.message, req, "error");
-    res.status(500).json({ error: "Erro ao gerar backup." });
-  }
-});
-// Multer exclusivo para backups (aceita .zip)
-const storageBackup = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, "..", "backups")),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-
-const uploadBackup = multer({
-  storage: storageBackup,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === "application/zip" || file.originalname.endsWith(".zip")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Apenas arquivos ZIP são permitidos para restauração de backup."));
+    // 👉 adiciona uploads
+    if (fs.existsSync(UPLOADS_DIR)) {
+      archive.directory(UPLOADS_DIR, "uploads");
     }
+
+    dump.on("close", async (code) => {
+      if (code !== 0) {
+        console.error("mysqldump falhou");
+        archive.abort();
+        return res.end();
+      }
+
+      await archive.finalize();
+
+      // 📌 Espera o response terminar para pegar tamanho
+      res.on("finish", async () => {
+        const stats = fs.existsSync(caminhoZip)
+          ? fs.statSync(caminhoZip)
+          : { size: 0 };
+
+        const size = (stats.size / 1024 / 1024).toFixed(2) + " MB";
+
+        await pool.query(
+          `INSERT INTO backup (tipo, caminho_arquivo, tamanho, status, data_criacao, FK_instituicao_id)
+                    VALUES ('manual', ?, ?, 'concluido', NOW(), ?)`,
+          [nome, size, inst]
+        );
+      });
+    });
+
+  } catch (err) {
+    console.error("Erro no backup manual:", err);
+    res.status(500).send("Erro ao gerar backup");
   }
 });
 
-// === Restaurar backup (.zip) ===
+
+
+// ======================= RESTAURAR BACKUP =======================
 app.post("/backup/restaurar", autenticarToken, uploadBackup.single("arquivo"), async (req, res) => {
   try {
-    const arquivo = req.file;
-    if (!arquivo) return res.status(400).json({ error: "Nenhum arquivo enviado." });
+    if (!req.file) return res.status(400).json({ error: "Envie um arquivo ZIP." });
 
-    const zip = new AdmZip(arquivo.path);
-    const tempDir = path.join(__dirname, "..", "backups", "temp_restore");
-    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
-
+    const zip = new AdmZip(req.file.path);
+    const tempDir = path.join(__dirname, "temp_restore", Date.now().toString());
+    fs.mkdirSync(tempDir, { recursive: true });
     zip.extractAllTo(tempDir, true);
-    const sqlFile = fs.readdirSync(tempDir).find(f => f.endsWith(".sql"));
-    if (!sqlFile) return res.status(400).json({ error: "Arquivo SQL não encontrado no ZIP." });
 
-    const sqlPath = path.join(tempDir, sqlFile);
-    await execPromise(`mysql -u${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} < "${sqlPath}"`);
+    const sql = fs.readdirSync(tempDir).find(f => f.endsWith(".sql"));
+    const sqlPath = path.join(tempDir, sql);
 
-    registrarLog("Restauração de backup", `Backup restaurado de ${arquivo.filename}`, req, "info");
-    res.json({ message: "Backup restaurado com sucesso!" });
+    const user = process.env.DB_USER;
+    const pass = process.env.DB_PASSWORD;
+    const db = process.env.DB_NAME;
+
+    const args = [`-u${user}`];
+    if (pass && pass.trim() !== "") args.push(`-p${pass}`);
+    args.push(db);
+
+    const mysql = spawn(MYSQL, args, { shell: false });
+    const rs = fs.createReadStream(sqlPath);
+
+    rs.pipe(mysql.stdin);
+
+    mysql.on("close", async code => {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+      fs.unlinkSync(req.file.path);
+      if (code === 0) {
+        res.json({ message: "Backup restaurado com sucesso!" });
+      } else {
+        res.status(500).json({ error: "Falha ao restaurar backup." });
+      }
+    });
+
   } catch (err) {
-    console.error("Erro ao restaurar backup:", err);
-    registrarLog("Erro ao restaurar backup", err.message, req, "error");
+    console.error("Erro restauração:", err);
     res.status(500).json({ error: "Erro ao restaurar backup." });
   }
 });
+//
+function gerarDumpSQL(caminhoSQL) {
+  return new Promise((resolve, reject) => {
+    const user = process.env.DB_USER;
+    const pass = process.env.DB_PASSWORD;
+    const db = process.env.DB_NAME;
 
+    const args = [`-u${user}`];
+    if (pass && pass.trim() !== "") args.push(`-p${pass}`);
+    args.push(db);
 
-// === Listar histórico de backups ===
-app.get("/backup/historico", autenticarToken, async (req, res) => {
+    console.log("📦 mysqldump iniciado:", MYSQLDUMP, args);
+
+    const dump = spawn(MYSQLDUMP, args, { shell: false });
+    const ws = fs.createWriteStream(caminhoSQL);
+
+    dump.stdout.pipe(ws);
+
+    dump.stderr.on("data", data => {
+      console.error("mysqldump ERRO:", data.toString());
+    });
+
+    dump.on("close", code => {
+      if (code === 0) {
+        console.log("✔ mysqldump finalizado");
+        resolve();
+      } else {
+        reject(new Error(`mysqldump saiu com código ${code}`));
+      }
+    });
+
+    dump.on("error", err => reject(err));
+  });
+}
+let ultimoBackup = {};  // guarda últimos horários por instituição
+
+// ======================= CRON — BACKUP AUTOMÁTICO =======================
+cron.schedule("0 * * * * *", async () => {
+
   try {
-    const [rows] = await pool.query(`SELECT * FROM backup ORDER BY data_criacao DESC`);
-    res.json(rows);
+    const horaAtual = dayjs().format("HH:mm");
+    const [configs] = await pool.query("SELECT * FROM backup_config");
+
+    for (const cfg of configs) {
+      // se já rodou nesse minuto, não roda de novo
+      if (ultimoBackup[cfg.FK_instituicao_id] === horaAtual) {
+        continue;
+      }
+
+      // se a hora bateu, roda o backup
+      if (cfg.hora === horaAtual) {
+        ultimoBackup[cfg.FK_instituicao_id] = horaAtual;
+      } else {
+        continue;
+      }
+
+
+      const inst = cfg.FK_instituicao_id;
+      const nome = `auto_${inst}_${Date.now()}.zip`;
+      const caminhoZip = path.join(BACKUP_DIR, nome);
+
+      console.log(`⏰ Iniciando backup automático inst ${inst}`);
+
+      const archive = archiver("zip", { zlib: { level: 9 } });
+      const output = fs.createWriteStream(caminhoZip);
+      archive.pipe(output);
+
+      // dump SQL
+      const args = [
+        `-u${process.env.DB_USER}`,
+        `--password=${process.env.DB_PASSWORD}`,
+        process.env.DB_NAME
+      ];
+
+      const dump = spawn(MYSQLDUMP, args);
+      archive.append(dump.stdout, { name: "backup.sql" });
+
+      // uploads
+      if (fs.existsSync(UPLOADS_DIR)) {
+        archive.directory(UPLOADS_DIR, "uploads");
+      }
+
+      dump.on("close", async () => {
+        await archive.finalize();
+      });
+
+      output.on("close", async () => {
+        const size = (fs.statSync(caminhoZip).size / 1024 / 1024).toFixed(2) + " MB";
+
+        await pool.query(
+          `INSERT INTO backup (tipo, caminho_arquivo, tamanho, status, data_criacao, FK_instituicao_id)
+                     VALUES ('automático', ?, ?, 'concluido', NOW(), ?)`,
+          [nome, size, inst]
+        );
+
+        await notificarBackupAutomatico(inst, caminhoZip);
+      });
+    }
+
   } catch (err) {
-    console.error("Erro ao listar backups:", err);
-    res.status(500).json({ error: "Erro ao listar backups." });
+    console.error("[CRON BACKUP ERRO]", err);
   }
 });
+// ======================= NOTIFICAR BACKUP AUTOMÁTICO =======================
+async function notificarBackupAutomatico(instituicaoId, caminhoZip) {
+  try {
+    const mensagem = `📦 Backup automático concluído com sucesso! Arquivo: ${path.basename(caminhoZip)}`;
 
-// === Configurar backup automático ===
+    // Busca TODOS os bibliotecários da instituição
+    const [funcs] = await pool.query(
+      "SELECT id, email FROM funcionario WHERE FK_instituicao_id = ? AND FK_funcao_id = 1",
+      [instituicaoId]
+    );
+
+    if (funcs.length === 0) {
+      console.log("Nenhum bibliotecário encontrado para notificar.");
+      return;
+    }
+
+    const [result] = await pool.query(
+      "INSERT INTO notificacao (mensagem, tipo, data_envio, FK_instituicao_id) VALUES (?, 'backup', NOW(), ?)",
+      [mensagem, instituicaoId]
+    );
+
+    const notifId = result.insertId;
+
+    for (const f of funcs) {
+      await pool.query(
+        "INSERT INTO funcionario_notificacao (FK_funcionario_id, FK_notificacao_id) VALUES (?, ?)",
+        [f.id, notifId]
+      );
+
+      await enviarEmail(f.email, "📦 Backup Automático", `<p>${mensagem}</p>`);
+    }
+
+    console.log("🔔 Notificações de backup enviadas.");
+
+  } catch (err) {
+    console.error("Erro em notificarBackupAutomatico:", err);
+  }
+}
+
+
+// ======================= HISTÓRICO =======================
+app.get("/backup/historico", autenticarToken, async (req, res) => {
+  const [rows] = await pool.query("SELECT * FROM backup ORDER BY data_criacao DESC");
+  res.json(rows);
+});
+
+// ======================= CONFIGURAÇÃO =======================
 app.post("/backup/configurar", autenticarToken, async (req, res) => {
   const { hora, dias_retencao, compressao } = req.body;
-  const inst = req.user.FK_instituicao_id || 1;
-  try {
-    await pool.query(`
-      INSERT INTO backup_config (FK_instituicao_id, hora, dias_retencao, compressao)
-      VALUES (?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE hora = VALUES(hora), dias_retencao = VALUES(dias_retencao), compressao = VALUES(compressao)
-    `, [inst, hora, dias_retencao, compressao ? 1 : 0]);
+  const inst = req.user.FK_instituicao_id;
 
-    res.json({ message: "Configuração salva com sucesso." });
-  } catch (err) {
-    console.error("Erro ao salvar configuração:", err);
-    res.status(500).json({ error: "Erro ao salvar configuração." });
-  }
+  await pool.query(`
+        INSERT INTO backup_config (FK_instituicao_id, hora, dias_retencao, compressao)
+        VALUES (?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE hora = VALUES(hora), dias_retencao = VALUES(dias_retencao), compressao = VALUES(compressao)
+    `, [inst, hora, dias_retencao, compressao]);
+
+  res.json({ message: "Configuração salva." });
 });
 
 app.get("/backup/configurar", autenticarToken, async (req, res) => {
-  const inst = req.user.FK_instituicao_id || 1;
-  try {
-    const [cfg] = await pool.query("SELECT * FROM backup_config WHERE FK_instituicao_id = ?", [inst]);
-    const [ultimo] = await pool.query("SELECT * FROM backup ORDER BY data_criacao DESC LIMIT 1");
-    res.json({ configuracao: cfg[0], ultimo_backup: ultimo[0] });
-  } catch (err) {
-    res.status(500).json({ error: "Erro ao carregar configuração." });
-  }
-});
-
-// === Tarefa automática (cron) ===
-cron.schedule("0 * * * *", async () => { // verifica a cada hora
-  try {
-    const [rows] = await pool.query("SELECT * FROM backup_config");
-    for (const cfg of rows) {
-      const horaAtual = dayjs().format("HH:mm");
-      if (horaAtual === cfg.hora) {
-        console.log("⏰ Executando backup automático...");
-        await execPromise(`mysqldump -u${process.env.DB_USER} -p${process.env.DB_PASSWORD} ${process.env.DB_NAME} > "${BACKUP_DIR}/auto_${Date.now()}.sql"`);
-      }
-    }
-  } catch (err) {
-    console.error("Erro no cron de backup:", err);
-  }
+  const inst = req.user.FK_instituicao_id;
+  const [cfg] = await pool.query("SELECT * FROM backup_config WHERE FK_instituicao_id = ?", [inst]);
+  const [ultimo] = await pool.query("SELECT * FROM backup ORDER BY data_criacao DESC LIMIT 1");
+  res.json({ configuracao: cfg[0], ultimo_backup: ultimo[0] });
 });
 
 
-// ==================== VISUALIZAR LOGS (JSON PADRONIZADO E PAGINADO) ====================
-app.get("/logs", autenticarToken, (req, res) => {
-  try {
-    const logPath = path.join(__dirname, "logs", "combined.log");
-    if (!fs.existsSync(logPath)) {
-      return res.json({ total: 0, logs: [] });
-    }
-
-    // Lê o arquivo de logs
-    const linhas = fs.readFileSync(logPath, "utf8")
-      .trim()
-      .split("\n")
-      .slice(-1000) // lê só os 1000 últimos registros (evita travamento)
-      .reverse();
-
-
-    const todosLogs = linhas.map(linha => {
-      try {
-        const log = JSON.parse(linha);
-        let icone, badge;
-
-        if (log.tipo === "erro") {
-          icone = "bi-x-circle text-danger";
-          badge = "bg-danger";
-        } else if (log.tipo === "aviso" || log.tipo === "atenção") {
-          icone = "bi-exclamation-triangle text-warning";
-          badge = "bg-warning text-dark";
-        } else {
-          icone = "bi-check-circle text-success";
-          badge = "bg-success";
-        }
-
-        return {
-          data: log.timestamp,
-          titulo: log.titulo || "Evento do sistema",
-          mensagem: log.mensagem || "",
-          usuario: log.usuario || "Sistema",
-          tipo: (log.tipo || "sucesso").charAt(0).toUpperCase() + (log.tipo || "sucesso").slice(1),
-          icone,
-          badge
-        };
-      } catch {
-        return null;
-      }
-    }).filter(Boolean);
-
-    // 🔁 Paginação
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 30;
-    const start = (page - 1) * limit;
-    const end = start + limit;
-
-    const logsPaginados = todosLogs.slice(start, end);
-
-    res.json({
-      total: todosLogs.length,
-      logs: logsPaginados
-    });
-
-  } catch (err) {
-    console.error("Erro ao ler logs:", err);
-    res.status(500).json({ error: "Erro ao carregar logs" });
-  }
-});
-
-
-// ==================== EXPORTAR LOGS EM PDF ====================
-app.get("/logs/export/pdf", autenticarToken, (req, res) => {
-  try {
-    const logPath = path.join(__dirname, "logs", "combined.log");
-    if (!fs.existsSync(logPath)) {
-      return res.status(404).send("Nenhum log encontrado");
-    }
-
-    const linhas = fs.readFileSync(logPath, "utf8").trim().split("\n").slice(-1000).reverse();
-    const logs = linhas.map(l => {
-      try {
-        const log = JSON.parse(l);
-        return {
-          data: new Date(log.timestamp).toLocaleString("pt-BR"),
-          tipo: log.tipo || "sucesso",
-          titulo: log.titulo || "Evento do sistema",
-          mensagem: log.mensagem || "",
-          usuario: log.usuario || "Sistema"
-        };
-      } catch {
-        return null;
-      }
-    }).filter(Boolean);
-
-    // 📄 Configuração do PDF
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "attachment; filename=logs_sistema.pdf");
-
-    const doc = new PDFDocument({ margin: 40, size: "A4" });
-    doc.pipe(res);
-
-    // Título
-    doc.fontSize(18).text("Relatório de Logs do Sistema", { align: "center" });
-    doc.moveDown(1);
-
-    logs.forEach((log, i) => {
-      doc
-        .fontSize(12)
-        .text(`🕒 ${log.data}`, { continued: true })
-        .text(`   👤 ${log.usuario}`)
-        .moveDown(0.3)
-        .font("Helvetica-Bold")
-        .text(`${log.titulo} (${log.tipo.toUpperCase()})`)
-        .font("Helvetica")
-        .text(log.mensagem || "-", { align: "justify" })
-        .moveDown(0.8);
-
-      if (i < logs.length - 1) doc.moveDown(0.3).moveTo(40, doc.y).lineTo(550, doc.y).stroke();
-    });
-
-    doc.end();
-
-  } catch (err) {
-    console.error("Erro ao exportar PDF:", err);
-    res.status(500).send("Erro ao gerar PDF");
-  }
-});
 // ============================================================================
 // 🔔 Funções principais de notificação
 // ============================================================================
@@ -4250,125 +4341,96 @@ app.get('/relatorios/emprestimos/stats', autenticarToken, async (req, res) => {
 
 // ======= /relatorios/populares =======
 // livros mais emprestados (usa emprestimo_livro)
-app.get('/relatorios/populares', autenticarToken, async (req, res) => {
-  try {
-    const period = req.query.period || 'all';
-    const limit = parseInt(req.query.limit) || 10;
-    const { inicio, fim } = periodoParaDatas(period);
-
-    const sql = `
-      SELECT l.id, l.titulo, COUNT(*) AS total_emprestimos
-      FROM emprestimo_livro el
-      JOIN emprestimo e ON e.id = el.FK_emprestimo_id
-      JOIN livro l ON l.id = el.FK_livro_id
-      WHERE e.FK_instituicao_id = ? AND e.data_emprestimo BETWEEN ? AND ?
-      GROUP BY l.id, l.titulo
-      ORDER BY total_emprestimos DESC
-      LIMIT ?
-    `;
-    const [rows] = await pool.query(sql, [req.user.FK_instituicao_id, inicio, fim, limit]);
-    res.json(rows);
-  } catch (err) {
-    console.error("Erro /relatorios/populares:", err);
-    res.status(500).json({ error: "Erro ao buscar populares" });
-  }
-});
-
-// ======= /relatorios/usuarios-ativos =======
-
-// Retorna total de empréstimos agrupado por tipo de usuário (Aluno, Professor, Funcionário)
-app.get('/relatorios/usuarios-ativos', autenticarToken, async (req, res) => {
-  try {
-    const sql = `
-      SELECT tu.tipo AS tipo_usuario, COUNT(e.id) AS total_emprestimos
-      FROM usuario u
-      LEFT JOIN emprestimo e ON e.FK_usuario_id = u.id
-      LEFT JOIN tipo_usuario tu ON tu.id = u.FK_tipo_usuario_id
-      WHERE u.FK_instituicao_id = ?
-      GROUP BY tu.tipo
-    `;
-    const [rows] = await pool.query(sql, [req.user.FK_instituicao_id]);
-    res.json(rows);
-  } catch (err) {
-    console.error("Erro /relatorios/usuarios-ativos:", err);
-    res.status(500).json({ error: "Erro ao montar relatório de usuários" });
-  }
-});
-
-
-// ======= /relatorios/export/pdf =======
-// ======= /relatorios/export/pdf =======
 app.post('/relatorios/export/pdf', autenticarToken, async (req, res) => {
   try {
     const { imgEmp, imgUser, period = 'all' } = req.body;
-    const { inicio, fim } = periodoParaDatas(period);
-  
+    let { inicio, fim } = periodoParaDatas(period); // pode retornar strings ou undefined
 
-    // multa padrão
+    // ================= MULTA POR DIA =================
     const [cfgRows] = await pool.query(
       "SELECT multa_por_atraso FROM configuracoes_gerais WHERE FK_instituicao_id = ? LIMIT 1",
       [req.user.FK_instituicao_id]
     );
-    const multaPorDia = cfgRows[0]?.multa_por_atraso ? parseFloat(cfgRows[0].multa_por_atraso) : 0.0;
+    const multaPorDia = cfgRows[0]?.multa_por_atraso ? parseFloat(cfgRows[0].multa_por_atraso) : 0;
 
-    // cria PDF em memória
+    // ======= Normaliza/valida inicio/fim; se inválido => usa 01/01 do ano atual até hoje =======
+    const isInvalidDate = (d) => {
+      try {
+        if (!d) return true;
+        const dt = new Date(d);
+        return isNaN(dt.getTime()) || dt.getFullYear() === 1970;
+      } catch {
+        return true;
+      }
+    };
+
+    if (period === 'all' || isInvalidDate(inicio) || isInvalidDate(fim)) {
+      const now = new Date();
+      const anoAtual = now.getFullYear();
+      // inicio = 1º de janeiro do ano atual (YYYY-MM-DD)
+      const inicioFixed = new Date(anoAtual, 0, 1);
+      inicio = inicioFixed.toISOString().slice(0, 10);
+      // fim = hoje (YYYY-MM-DD)
+      fim = new Date().toISOString().slice(0, 10);
+    }
+
+    // formata para pt-BR para cabeçalho
+    const fmt = (s) => {
+      try { return new Date(s).toLocaleDateString('pt-BR'); } catch { return String(s); }
+    };
+    const periodoTexto = `${fmt(inicio)} até ${fmt(fim)}`;
+
+    // ================= CRIA PDF =================
     const doc = new PDFDocument({ size: 'A4', margin: 40 });
     const chunks = [];
-    doc.on('data', chunk => chunks.push(chunk));
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=relatorio_completo_${period}.pdf`);
+
+    doc.on('data', (c) => chunks.push(c));
     doc.on('end', () => {
       const pdfBuffer = Buffer.concat(chunks);
-      if (!res.headersSent) {
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=relatorio_completo_${period}.pdf`);
-        res.send(pdfBuffer);
-      }
+      if (!res.headersSent) res.send(pdfBuffer);
     });
 
-    // ========= Cabeçalho e logo =========
+    // ======= Cabeçalho e título =======
     const logoPath = path.join(__dirname, 'public', 'img', 'logo_bibliontec.png');
-    if (fs.existsSync(logoPath)) {
-      doc.image(logoPath, 220, 30, { width: 150 });
-      doc.moveDown(4);
-    }
+    try { if (fs.existsSync(logoPath)) doc.image(logoPath, 40, 20, { width: 60 }); } catch (e) {}
+    doc.fontSize(18).font('Helvetica-Bold').text('Relatório Completo — BibliONtec', { align: 'center' });
+    doc.moveDown(0.2);
+    doc.fontSize(10).font('Helvetica').text(`Período: ${periodoTexto}`, { align: 'center' });
+    doc.moveDown(1.0);
 
-    doc.fontSize(18).text('Relatório Completo — BibliONtec', { align: 'center' });
-    doc.moveDown(1);
-    doc.fontSize(12).text(`Período: ${inicio} até ${fim}`);
-    doc.moveDown(1);
-
-    // ========= GRÁFICO DE EMPRÉSTIMOS =========
-    if (imgEmp && imgEmp.startsWith('data:image/png')) {
+    // ======= Gráficos =======
+    if (imgEmp && imgEmp.startsWith('data:image')) {
       try {
-        const empImg = Buffer.from(imgEmp.split(',')[1], 'base64');
-        doc.fontSize(14).text('Gráfico de Empréstimos', { underline: true });
-        doc.moveDown(0.4);
-        doc.image(empImg, { fit: [480, 250], align: 'center' });
-        doc.moveDown(1);
+        const empBuf = Buffer.from(imgEmp.split(',')[1], 'base64');
+        doc.fontSize(12).font('Helvetica-Bold').text('Gráfico de Empréstimos', { underline: true });
+        doc.moveDown(0.3);
+        doc.image(empBuf, { fit: [480, 230], align: 'center' });
+        doc.moveDown(0.8);
       } catch (e) {
-        doc.fontSize(10).fillColor('red').text('Erro ao adicionar gráfico de empréstimos.');
+        doc.fillColor('red').text('Erro ao inserir gráfico de empréstimos.');
+        doc.fillColor('black');
       }
     }
 
-    // ========= GRÁFICO DE USUÁRIOS =========
-    if (imgUser && imgUser.startsWith('data:image/png')) {
+    if (imgUser && imgUser.startsWith('data:image')) {
       try {
-        const userImg = Buffer.from(imgUser.split(',')[1], 'base64');
-        doc.fontSize(14).fillColor('black').text('Gráfico de Usuários', { underline: true });
-        doc.moveDown(0.4);
-        doc.image(userImg, { fit: [480, 250], align: 'center' });
-        doc.moveDown(1);
+        const userBuf = Buffer.from(imgUser.split(',')[1], 'base64');
+        doc.fontSize(12).font('Helvetica-Bold').text('Gráfico de Usuários', { underline: true });
+        doc.moveDown(0.3);
+        doc.image(userBuf, { fit: [300, 300], align: 'center' });
+        doc.moveDown(0.8);
       } catch (e) {
-        doc.fontSize(10).fillColor('red').text('Erro ao adicionar gráfico de usuários.');
+        doc.fillColor('red').text('Erro ao inserir gráfico de usuários.');
+        doc.fillColor('black');
       }
     }
 
-    // ========= TABELA DE ATRASOS =========
-    doc.addPage();
-    doc.fontSize(14).fillColor('black').text('Atrasos', { underline: true });
-    doc.moveDown(0.5);
-
+    // ======= Busca atrasos no período (usa data_emprestimo) =======
     const [atrasosRows] = await pool.query(`
-      SELECT u.nome AS usuario_nome, l.titulo AS livro_titulo, e.data_devolucao_prevista
+      SELECT u.nome AS usuario_nome, l.titulo AS livro_titulo, e.data_devolucao_prevista, e.data_emprestimo
       FROM emprestimo e
       JOIN emprestimo_livro el ON el.FK_emprestimo_id = e.id
       JOIN livro l ON l.id = el.FK_livro_id
@@ -4376,27 +4438,86 @@ app.post('/relatorios/export/pdf', autenticarToken, async (req, res) => {
       WHERE e.data_real_devolucao IS NULL
         AND e.data_devolucao_prevista < CURDATE()
         AND e.FK_instituicao_id = ?
-    `, [req.user.FK_instituicao_id]);
+        AND DATE(e.data_emprestimo) BETWEEN ? AND ?
+      ORDER BY e.data_devolucao_prevista ASC
+    `, [req.user.FK_instituicao_id, inicio, fim]);
+
+    // ======= Tabela de atrasos =======
+    doc.addPage();
+    doc.fontSize(14).font('Helvetica-Bold').text('Atrasos', { underline: true });
+    doc.moveDown(0.6);
+
+    const tableTop = doc.y;
+    const startX = 50;
+    const colWidths = { num: 30, usuario: 160, livro: 170, dataPrevista: 80, dias: 50, multa: 70 };
+
+    // cabeçalho da tabela
+    doc.fontSize(10).font('Helvetica-Bold');
+    doc.text('#', startX, tableTop);
+    doc.text('Usuário', startX + colWidths.num, tableTop);
+    doc.text('Livro', startX + colWidths.num + colWidths.usuario, tableTop);
+    doc.text('Data prevista', startX + colWidths.num + colWidths.usuario + colWidths.livro, tableTop);
+    doc.text('Dias', startX + colWidths.num + colWidths.usuario + colWidths.livro + colWidths.dataPrevista, tableTop);
+    doc.text('Multa', startX + colWidths.num + colWidths.usuario + colWidths.livro + colWidths.dataPrevista + colWidths.dias, tableTop);
+    doc.moveDown(0.6);
+    doc.font('Helvetica').fontSize(10);
+
+    let y = doc.y;
+    const lineHeight = 14;
 
     if (atrasosRows.length === 0) {
-      doc.fontSize(11).text('Nenhum atraso registrado neste período.');
+      doc.text('Nenhum atraso registrado no período selecionado.', startX, y);
     } else {
       atrasosRows.forEach((a, i) => {
-        const dias = Math.floor((new Date() - new Date(a.data_devolucao_prevista)) / (1000 * 60 * 60 * 24));
-        const multa = (dias > 0) ? (dias * multaPorDia).toFixed(2) : "0.00";
-        doc.fontSize(11).text(`${i + 1}. ${a.usuario_nome} — ${a.livro_titulo} — ${dias} dias — multa: R$${multa}`);
+        if (y > doc.page.height - 100) {
+          doc.addPage();
+          y = 60;
+          doc.font('Helvetica-Bold').fontSize(10);
+          doc.text('#', startX, y);
+          doc.text('Usuário', startX + colWidths.num, y);
+          doc.text('Livro', startX + colWidths.num + colWidths.usuario, y);
+          doc.text('Data prevista', startX + colWidths.num + colWidths.usuario + colWidths.livro, y);
+          doc.text('Dias', startX + colWidths.num + colWidths.usuario + colWidths.livro + colWidths.dataPrevista, y);
+          doc.text('Multa', startX + colWidths.num + colWidths.usuario + colWidths.livro + colWidths.dataPrevista + colWidths.dias, y);
+          doc.moveDown(0.6);
+          y = doc.y;
+          doc.font('Helvetica').fontSize(10);
+        }
+
+        const dataPrev = new Date(a.data_devolucao_prevista);
+        const dias = Math.floor((new Date() - dataPrev) / (1000 * 60 * 60 * 24));
+        const multa = dias > 0 ? (dias * multaPorDia).toFixed(2) : "0.00";
+
+        doc.text(String(i + 1), startX, y);
+        doc.text(a.usuario_nome, startX + colWidths.num, y, { width: colWidths.usuario });
+        doc.text(a.livro_titulo, startX + colWidths.num + colWidths.usuario, y, { width: colWidths.livro });
+        doc.text(dataPrev.toLocaleDateString('pt-BR'), startX + colWidths.num + colWidths.usuario + colWidths.livro, y);
+        doc.text(String(dias), startX + colWidths.num + colWidths.usuario + colWidths.livro + colWidths.dataPrevista, y);
+        doc.text(`R$ ${multa}`, startX + colWidths.num + colWidths.usuario + colWidths.livro + colWidths.dataPrevista + colWidths.dias, y);
+
+        y += lineHeight;
       });
     }
 
-    // Finaliza o PDF corretamente
+    // ======= Rodapé =======
+    const footer = () => {
+      const bottom = doc.page.height - 40;
+      doc.fontSize(9).fillColor("#666").text("Equipe BibliONtec • tccbiblioteca023@gmail.com", 50, bottom, { align: "center" });
+      doc.fontSize(8).fillColor("#AAA").text(`Página ${doc.page.number}`, 50, bottom + 12, { align: "center" });
+    };
+    footer();
+    doc.on('pageAdded', footer);
+
+    // finaliza apenas 1 vez
     doc.end();
+
   } catch (err) {
-    console.error("🚨 Erro /relatorios/export/pdf:", err);
-    if (!res.headersSent) {
-      res.status(500).json({ error: err.message });
-    }
+    console.error("Erro ao gerar relatório PDF:", err);
+    if (!res.headersSent) res.status(500).json({ error: "Erro ao gerar relatório PDF" });
   }
 });
+
+
 
 
 // ======= /notificacao/contatar =======
@@ -4490,41 +4611,104 @@ app.post('/notificacao/enviar-usuario', autenticarToken, async (req, res) => {
 // ===============================
 // 📬 Marcar notificações como lidas
 // ===============================
-app.put("/notificacoes/marcarLidas/:tipo/:id", async (req, res) => {
-  const { tipo, id } = req.params;
+app.put("/notificacoes/marcarUma/:tipo/:usuarioId/:notifId", async (req, res) => {
+  const { tipo, usuarioId, notifId } = req.params;
 
   try {
-    if (tipo === "usuario") {
-      await pool.query(`
-        UPDATE notificacao 
-        SET lida = 1
-        WHERE id IN (
-          SELECT FK_notificacao_id 
-          FROM usuario_notificacao 
-          WHERE FK_usuario_id = ?
-        )
-      `, [id]);
-    } else if (tipo === "funcionario") {
-      await pool.query(`
-        UPDATE notificacao 
-        SET lida = 1
-        WHERE id IN (
-          SELECT FK_notificacao_id 
-          FROM funcionario_notificacao 
-          WHERE FK_funcionario_id = ?
-        )
-      `, [id]);
-    } else {
-      return res.status(400).json({ error: "Tipo inválido." });
-    }
+    await pool.query(
+      `UPDATE notificacao SET lida = 1 WHERE id = ?`,
+      [notifId]
+    );
 
-    res.json({ message: "Notificações marcadas como lidas com sucesso." });
+    res.json({ message: "Notificação marcada como lida." });
   } catch (err) {
-    console.error("Erro ao marcar notificações como lidas:", err);
-    res.status(500).json({ error: "Erro ao marcar notificações como lidas" });
+    console.error("Erro ao marcar notificação como lida:", err);
+    res.status(500).json({ error: "Erro ao marcar notificação como lida." });
   }
 });
 
+app.get('/meus-livros', autenticarToken, (req, res) => {
+  const usuarioId = req.user.id;
+
+  const sql = `
+        SELECT DISTINCT
+            l.id,
+            l.titulo,
+            l.sinopse,
+            l.capa,
+            GROUP_CONCAT(DISTINCT a.nome SEPARATOR ', ') AS autores,
+            DATE_FORMAT(e.data_emprestimo, '%d/%m/%Y') AS data_emprestimo,
+            DATE_FORMAT(e.data_devolucao_prevista, '%d/%m/%Y') AS data_devolucao_prevista,
+            e.extensoes
+        FROM emprestimo e
+        JOIN emprestimo_livro el ON el.FK_emprestimo_id = e.id
+        JOIN livro l ON l.id = el.FK_livro_id
+        LEFT JOIN livro_autor la ON la.FK_livro_id = l.id
+        LEFT JOIN autor a ON a.id = la.FK_autor_id
+        WHERE e.FK_usuario_id = ?
+          AND e.data_real_devolucao IS NULL
+        GROUP BY l.id;
+    `;
+
+  queryCallback(sql, [usuarioId], (err, rows) => {
+    if (err) {
+      console.error("Erro ao buscar meus livros:", err);
+      return res.status(500).json({ error: "Erro interno" });
+    }
+
+    res.json(rows);
+  });
+});
+app.post("/estender", autenticarToken, (req, res) => {
+  const { livroId } = req.body;
+  const usuarioId = req.user.id;
+  const instituicaoId = req.user.FK_instituicao_id; // importante!
+
+  const sql = `
+        SELECT e.id, e.extensoes, e.data_devolucao_prevista, l.titulo
+        FROM emprestimo e
+        JOIN emprestimo_livro el ON el.FK_emprestimo_id = e.id
+        JOIN livro l ON l.id = el.FK_livro_id
+        WHERE el.FK_livro_id = ? 
+          AND e.FK_usuario_id = ?
+          AND e.data_real_devolucao IS NULL
+    `;
+
+  queryCallback(sql, [livroId, usuarioId], (err, rows) => {
+    if (err || rows.length === 0)
+      return res.status(400).json({ error: "Empréstimo não encontrado" });
+
+    const emprestimo = rows[0];
+
+    // limite de extensões
+    if (emprestimo.extensoes >= 2) {
+      return res.status(400).json({ error: "Limite de extensões atingido" });
+    }
+
+    // atualizar
+    const update = `
+            UPDATE emprestimo 
+            SET extensoes = extensoes + 1,
+                data_devolucao_prevista = DATE_ADD(data_devolucao_prevista, INTERVAL 7 DAY)
+            WHERE id = ?
+        `;
+
+    queryCallback(update, [emprestimo.id], () => {
+
+      // 🔔 ENVIAR NOTIFICAÇÃO PARA BIBLIOTECÁRIO
+      const msg = `O livro "${emprestimo.titulo}" foi estendido. Novo prazo: ${emprestimo.data_devolucao_prevista}`;
+
+      const sqlNotif = `
+                INSERT INTO notificacao (instituicao_id, mensagem)
+                VALUES (?, ?)
+            `;
+
+      queryCallback(sqlNotif, [instituicaoId, msg], () => {
+        res.json({ ok: true, message: "Prazo estendido por +7 dias!" });
+      });
+    });
+  });
+});
 
 
 // ✅ Agora o app.listen() pode ficar no final

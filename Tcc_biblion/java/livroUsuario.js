@@ -4,6 +4,8 @@ function apiBase() {
   }
   return "https://bibliontec.onrender.com"; // backend hospedado
 }
+let todosLivros = [];
+let livrosFiltrados = [];
 
 // ===================== CARREGAR TODOS OS LIVROS =====================
 async function carregarLivros() {
@@ -189,7 +191,117 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   if (document.getElementById("gridLivrosBiblioteca")) {
     carregarLivros().then(livros => {
-      renderizarLivros("gridLivrosBiblioteca", livros);
-    });
+    todosLivros = livros;
+    livrosFiltrados = livros;
+    preencherFiltros(livros);
+    renderizarLivros("gridLivrosBiblioteca", livrosFiltrados);
+});
+
+  
   }
+});
+// ======================= FILTROS E PESQUISA =======================
+
+// aplica a filtragem no array de livros já carregados
+function filtrarLivros(livros, termoBusca, autor, editora, categoria) {
+    termoBusca = termoBusca.toLowerCase();
+
+    return livros.filter(livro => {
+        const matchBusca =
+            livro.titulo.toLowerCase().includes(termoBusca) ||
+            (livro.autores && livro.autores.toLowerCase().includes(termoBusca));
+
+        const matchAutor = autor ? livro.autores === autor : true;
+        const matchEditora = editora ? livro.editora === editora : true;
+        const matchCategoria = categoria ? livro.genero === categoria : true;
+
+        return matchBusca && matchAutor && matchEditora && matchCategoria;
+    });
+}
+
+// cria dinamicamente o comportamento igual ao bibliotecário
+function iniciarFiltros(livros) {
+    const inputBusca = document.getElementById("inputBusca");
+    const filtroAutor = document.getElementById("filtroAutor");
+    const filtroEditora = document.getElementById("filtroEditora");
+    const filtroCategoria = document.getElementById("filtroCategoria");
+
+    function atualizar() {
+        const filtrados = filtrarLivros(
+            livros,
+            inputBusca.value,
+            filtroAutor.value,
+            filtroEditora.value,
+            filtroCategoria.value
+        );
+        renderizarLivros("gridLivrosBiblioteca", filtrados);
+    }
+
+    inputBusca.addEventListener("input", atualizar);
+    filtroAutor.addEventListener("change", atualizar);
+    filtroEditora.addEventListener("change", atualizar);
+    filtroCategoria.addEventListener("change", atualizar);
+}
+
+// Chamar após carregarLivros()
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("gridLivrosBiblioteca")) {
+        carregarLivros().then(livros => {
+            renderizarLivros("gridLivrosBiblioteca", livros);
+            iniciarFiltros(livros); // ativa filtro e pesquisa
+        });
+    }
+});
+function preencherFiltros(livros) {
+    const autores = new Set();
+    const editoras = new Set();
+    const categorias = new Set();
+
+    livros.forEach(l => {
+        if (l.autores) autores.add(l.autores);
+        if (l.editora) editoras.add(l.editora);
+        if (l.genero) categorias.add(l.genero);
+    });
+
+    const addOptions = (selectId, valores) => {
+        const sel = document.getElementById(selectId);
+        valores.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v;
+            sel.appendChild(opt);
+        });
+    };
+
+    addOptions("filtroAutor", autores);
+    addOptions("filtroEditora", editoras);
+    addOptions("filtroCategoria", categorias);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("gridLivrosBiblioteca")) {
+        carregarLivros().then(livros => {
+            renderizarLivros("gridLivrosBiblioteca", livros);
+            preencherFiltros(livros);
+            iniciarFiltros(livros);
+        });
+    }
+});
+function aplicarFiltro(tipo, valor) {
+    livrosFiltrados = todosLivros.filter(l => {
+        return String(l[tipo]).toLowerCase().includes(valor.toLowerCase());
+    });
+
+    renderizarLivros("gridLivrosBiblioteca", livrosFiltrados);
+}
+document.getElementById("pesquisaLivros").addEventListener("input", (e) => {
+    const texto = e.target.value.toLowerCase();
+
+    const resultado = livrosFiltrados.filter(l =>
+        l.titulo.toLowerCase().includes(texto) ||
+        l.autores?.toLowerCase().includes(texto) ||
+        l.genero?.toLowerCase().includes(texto)
+    );
+
+    renderizarLivros("gridLivrosBiblioteca", resultado);
 });

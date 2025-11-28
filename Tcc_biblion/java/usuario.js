@@ -23,34 +23,32 @@ async function carregarUsuarios() {
 
     if (!res.ok) throw new Error("Erro HTTP " + res.status);
 
+    // 1️⃣ Aqui você ESQUECEU — isso carrega os usuários do banco
     todosOsUsuarios = await res.json();
-// Ajusta o status (ativo/inativo)
-todosOsUsuarios = todosOsUsuarios.map((u) => {
-  const ativoFlag = u.ativo === 1; // flag do banco (0/1)
-  const ultimoLogin = u.ultimo_login ? new Date(u.ultimo_login) : null;
-  const agora = new Date();
 
-  // calcula dias desde o último login (se existir)
-  const diasSemLogin = ultimoLogin
-    ? Math.floor((agora - ultimoLogin) / (1000 * 60 * 60 * 24))
-    : Infinity;
+    // 2️⃣ Agora sim podemos transformar o status corretamente
+    todosOsUsuarios = todosOsUsuarios.map((u) => {
+      const ultimoLogin = u.ultimo_login ? new Date(u.ultimo_login) : null;
+      const agora = new Date();
 
-  // Regra: só é "Ativo" se:
-  //  - u.ativo === 1 (flag do banco) AND
-  //  - existe ultimo_login AND
-  //  - diasSemLogin <= 15
-  const status =
-    ativoFlag && ultimoLogin && diasSemLogin <= 15 ? "Ativo" : "Inativo";
+      const diasSemLogin = ultimoLogin
+        ? Math.floor((agora - ultimoLogin) / (1000 * 60 * 60 * 24))
+        : Infinity;
 
-  return { ...u, status };
-});
+      // mesma regra dos funcionários
+      const status = ultimoLogin && diasSemLogin < 15 ? "Ativo" : "Inativo";
+
+      return { ...u, status };
+    });
 
     exibirUsuarios(todosOsUsuarios);
-    atualizarContadores();
+    atualizarContadores(todosOsUsuarios);
+
   } catch (err) {
     console.error("Erro ao carregar usuários:", err);
   }
 }
+
 // ------------------ EXIBIR USUÁRIOS EM CARDS ------------------
 function exibirUsuariosCards(usuarios) {
   const container = document.getElementById('lista-usuarios');
@@ -229,35 +227,110 @@ function excluirUsuario(id) {
       .catch((err) => console.error("Erro ao excluir usuário:", err));
   }
 }
+// ==================== EXIBIR USUÁRIOS (AUTO — tabela ou cards) ====================
+function exibirUsuarios(lista) {
 
-// ------------------ CONTADORES ------------------
-function atualizarContadores() {
+    // Se existir lista em formato de cards
+    if (document.getElementById("lista-usuarios")) {
+        exibirUsuariosCards(lista);
+        return;
+    }
+
+    // Caso contrário, use a tabela
+    if (document.getElementById("tbody-usuarios")) {
+        exibirUsuariosTabela(lista);
+        return;
+    }
+
+    console.warn("Nenhum container encontrado para exibir usuários.");
+}
+
+// ------------------ FUNÇÃO PRINCIPAL DE FILTRAGEM ------------------
+function filtrarUsuarios() {
+    let lista = [...todosOsUsuarios];
+
+    // 🔎 Busca
+    const termo = document.getElementById("busca")?.value.toLowerCase() || "";
+    if (termo !== "") {
+        lista = lista.filter(u =>
+            u.nome.toLowerCase().includes(termo) ||
+            u.email.toLowerCase().includes(termo)
+        );
+    }
+
+    // ✔ Filtro de status
+    const statusFiltro = document.getElementById("filtro-status")?.value || "todos";
+    if (statusFiltro !== "todos") {
+        lista = lista.filter(u => u.status === statusFiltro);
+    }
+
+    // 🔤 Ordem Alfabética
+    const ordenar = document.getElementById("organizeAlphabetically")?.checked;
+    if (ordenar) {
+        lista.sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+
+    exibirUsuarios(lista);
+    atualizarContadores();
+}
+
+// ------------------ EVENTOS DOS FILTROS ------------------
+document.getElementById("busca")?.addEventListener("input", filtrarUsuarios);
+document.getElementById("filtro-status")?.addEventListener("change", filtrarUsuarios);
+document.getElementById("organizeAlphabetically")?.addEventListener("change", filtrarUsuarios);
+
+// ------------------ CONTADORES AJUSTADOS (ACEITA LISTA OPCIONAL) ------------------
+function atualizarContadores(lista = null) {
+  // usa lista passada ou o array global
+  const items = Array.isArray(lista) ? lista :
+                (Array.isArray(todosOsUsuarios) ? todosOsUsuarios : []);
+
+  // tenta obter os elementos (se não existirem, apenas ignora em vez de lançar)
   const totalEl = document.getElementById("total-usuarios");
   const ativosEl = document.getElementById("ativos-usuarios");
   const inativosEl = document.getElementById("inativos-usuarios");
 
-  if (!totalEl || !ativosEl || !inativosEl) return;
+  const total = items.length;
+  const ativos = items.filter(u => u.status === "Ativo").length;
+  const inativos = items.filter(u => u.status === "Inativo").length;
 
-  const total = todosOsUsuarios.length;
-  const ativos = todosOsUsuarios.filter((u) => u.status === "Ativo").length;
-  const inativos = todosOsUsuarios.filter((u) => u.status === "Inativo").length;
-
-  totalEl.textContent = total;
-  ativosEl.textContent = ativos;
-  inativosEl.textContent = inativos;
+  if (totalEl) totalEl.textContent = total;
+  if (ativosEl) ativosEl.textContent = ativos;
+  if (inativosEl) inativosEl.textContent = inativos;
 }
 
-function exibirUsuarios(usuarios) {
-  // página com cards?
-  if (document.getElementById('lista-usuarios')) {
-    exibirUsuariosCards(usuarios);
-    return;
-  }
-  // página com tabela?
-  if (document.getElementById('tbody-usuarios')) {
-    exibirUsuariosTabela(usuarios);
-    return;
-  }
-  // nenhum elemento reconhecido: apenas log para debug
-  console.warn('Nenhum container de usuários encontrado (lista-usuarios ou tbody-usuarios).');
-}
+// ----------------------- FILTRO POR CURSO (suporta "Professores") -----------------------
+document.querySelectorAll("#filtro-turma .dropdown-item")?.forEach(item => {
+  item.addEventListener("click", () => {
+    const raw = item.getAttribute("data-turma") || item.textContent || "";
+    const cursoSelecionado = raw.trim().toLowerCase();
+    let lista = Array.isArray(todosOsUsuarios) ? [...todosOsUsuarios] : [];
+
+    if (cursoSelecionado === "todos") {
+      exibirUsuarios(lista);
+      atualizarContadores(lista);
+      document.getElementById("filtro-turma-btn").textContent = item.textContent;
+      return;
+    }
+
+    // Caso especial: Professores
+    if (cursoSelecionado === "professores" || cursoSelecionado === "professor" || cursoSelecionado === "prof") {
+      lista = lista.filter(u => {
+        const tipo = (u.tipo || u.FK_tipo_usuario_id || "").toString().toLowerCase();
+        // aceita tanto "Professor" quanto FK_tipo_usuario_id === 2
+        return tipo.includes("prof") || tipo === "2" || Number(tipo) === 2;
+      });
+    } else {
+      // filtro normal por nome_curso (caso-insensível)
+      lista = lista.filter(u => {
+        const nomeCurso = (u.nome_curso || "").toString().toLowerCase();
+        return nomeCurso.includes(cursoSelecionado);
+      });
+    }
+
+    exibirUsuarios(lista);
+    atualizarContadores(lista);
+    document.getElementById("filtro-turma-btn").textContent = item.textContent;
+  });
+});
+

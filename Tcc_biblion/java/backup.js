@@ -1,94 +1,143 @@
 function apiBase() {
-  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-    return "http://localhost:3000";
-  }
-  return "https://bibliontec.onrender.com";
+  return (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:3000"
+    : "https://bibliontec.onrender.com";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ backup.js carregado e DOM pronto");
-
-  // === BLOQUEIA QUALQUER FORM SUBMIT AUTOMÁTICO ===
-  document.querySelectorAll("#backup form").forEach(form => {
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      console.log("🚫 Submit global bloqueado dentro da aba Backup.");
-      return false;
-    });
-  });
-
-  // === BACKUP MANUAL ===
-  const btnBackupManual = document.getElementById("btnBackupManual");
-  if (btnBackupManual) {
-    btnBackupManual.addEventListener("click", () => {
-      const token = localStorage.getItem("token");
-      if (!token) return alert("Você precisa estar logado para fazer backup!");
-      window.open(`${apiBase()}/backup?token=${token}`, "_blank");
-    });
+// Mensagens temporárias na interface
+function showTempMessage(msg, type = "info", timeout = 4000) {
+  let el = document.getElementById("backupResult");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "backupResult";
+    const container = document.querySelector(".section-box") || document.body;
+    container.prepend(el);
   }
+
+  el.textContent = msg;
+  el.className = `backup-msg backup-${type}`;
+
+  // Remover DEPOIS do timeout
+  if (timeout) {
+    setTimeout(() => {
+      if (el) el.remove();  // 🔥 remove o quadrado azul
+    }, timeout);
+  }
+}
+
+// =================
+document.addEventListener("DOMContentLoaded", () => {
+const btnBackupManual = document.getElementById("btnBackupManual");
+
+if (btnBackupManual) {
+    btnBackupManual.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert("Você precisa estar logado para fazer backup!");
+            return;
+        }
+
+        showTempMessage("Iniciando download...", "info", 3000);
+
+        // DOWNLOAD IMEDIATO (SEM fetch, SEM blob)
+        const link = document.createElement("a");
+        link.href = `${apiBase()}/backup?token=${token}`;
+        link.download = `backup-${Date.now()}.zip`;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+}
+
+
 
   // === RESTAURAR BACKUP ===
   const btnRestaurar = document.getElementById("btnRestaurar");
-  if (btnRestaurar) {
-    btnRestaurar.addEventListener("click", async (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      console.log("🔥 Botão restaurar clicado!");
 
-      // Cria seletor de arquivo
+  if (!btnRestaurar) {
+    console.warn("btnRestaurar não encontrado no DOM");
+  } else {
+
+    btnRestaurar.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+
+      // Criar input controlado dinamicamente
       const input = document.createElement("input");
       input.type = "file";
       input.accept = ".zip";
-      input.style.display = "none";
+      input.style.position = "fixed";
+      input.style.left = "-9999px";
       document.body.appendChild(input);
-      input.click();
 
-      // Quando arquivo for selecionado
-      input.onchange = async () => {
-        const arquivo = input.files[0];
-        if (!arquivo) return;
+      input.addEventListener("change", async (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
 
-        const formData = new FormData();
-        formData.append("arquivo", arquivo);
+        if (!input.files || !input.files[0]) {
+          input.remove();
+          return;
+        }
 
-        const token = localStorage.getItem("token");
-        console.log("⏳ Enviando backup.zip...");
+        const file = input.files[0];
+        showTempMessage("Enviando backup para restauração...", "info", 10000);
 
         try {
+          const token = localStorage.getItem("token") || "";
+          const fd = new FormData();
+          fd.append("arquivo", file);
+
+          btnRestaurar.disabled = true;
+
           const res = await fetch(`${apiBase()}/backup/restaurar`, {
             method: "POST",
-            headers: { "Authorization": "Bearer " + token },
-            body: formData
+            headers: {
+              "Authorization": "Bearer " + token
+            },
+            body: fd,
           });
 
-          const text = await res.text();
-          console.log("📦 Resposta servidor:", text);
+          const rawText = await res.text();
+          console.log("Resposta do servidor (restaurar):", rawText);
 
           try {
-            const data = JSON.parse(text);
-            alert(data.message || data.error || "Resposta inesperada.");
+            const json = JSON.parse(rawText);
+            if (res.ok) {
+              alert(json.message || "Backup restaurado com sucesso!");
+              showTempMessage("Restauração concluída.", "success");
+            } else {
+              alert(json.error || JSON.stringify(json));
+              showTempMessage("Erro na restauração — veja console.", "error");
+            }
           } catch {
-            alert(text);
+            // Não era JSON
+            if (res.ok) {
+              alert(rawText || "Backup restaurado com sucesso!");
+              showTempMessage("Restauração concluída.", "success");
+            } else {
+              alert(rawText || "Erro ao restaurar backup.");
+              showTempMessage("Erro na restauração — veja console.", "error");
+            }
           }
+
         } catch (err) {
-          console.error("❌ Erro geral ao restaurar:", err);
-          alert("Erro de rede ao restaurar backup.");
+          console.error("Erro ao enviar/restaurar backup:", err);
+          alert("Erro de rede — veja console.");
+          showTempMessage("Erro de rede ao restaurar.", "error");
+        } finally {
+          btnRestaurar.disabled = false;
+          input.remove();
         }
-      };
+      });
+
+      input.click();
     });
-  } else {
-    console.warn("⚠️ Botão 'btnRestaurar' não encontrado no DOM!");
   }
 
-  // === SEGURANÇA EXTRA: BLOQUEIA RELOAD MANUAL ===
-  window.addEventListener("beforeunload", (e) => {
-    if (window._restaurandoBackup) {
-      e.preventDefault();
-      e.returnValue = "";
-      return "";
-    }
-  });
 
 
   // ========================== HISTÓRICO DE BACKUPS ==========================
@@ -102,7 +151,22 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Authorization": "Bearer " + token }
       });
 
-      const backups = await res.json();
+      if (!res.ok) {
+        let txt = await res.text().catch(() => null);
+        console.error("Erro ao carregar histórico:", txt || res.statusText);
+        showTempMessage("Erro ao carregar histórico.", "error");
+        return;
+      }
+
+      let backups;
+      try {
+        backups = await res.json();
+      } catch (e) {
+        console.error("Não foi possível parsear histórico (não JSON)", e);
+        showTempMessage("Resposta inválida do servidor.", "error");
+        return;
+      }
+
       console.log("📜 Backups recebidos:", backups);
 
       if (tabela) {
@@ -126,6 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.error("Erro ao carregar histórico de backups:", err);
+      showTempMessage("Erro ao carregar histórico.", "error");
     }
   }
 
@@ -154,6 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const compressao = compressaoAtiva.checked;
 
       try {
+        btnSalvarConfig.disabled = true;
         const res = await fetch(`${apiBase()}/backup/configurar`, {
           method: "POST",
           headers: {
@@ -163,12 +229,23 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify({ hora, dias_retencao, compressao })
         });
 
-        const data = await res.json();
-        alert(data.message || data.error || "Erro desconhecido ao salvar configuração.");
+        let data;
+        try {
+          data = await res.json();
+        } catch (e) {
+          const txt = await res.text().catch(() => null);
+          console.error("Resposta inválida ao salvar config:", txt);
+          alert("Erro ao salvar configuração.");
+          return;
+        }
+
+        alert(data.message || data.error || "Configuração processada.");
         await carregarConfigBackup();
       } catch (err) {
         console.error("Erro ao salvar configuração:", err);
         alert("Erro ao salvar configuração de backup automático.");
+      } finally {
+        btnSalvarConfig.disabled = false;
       }
     });
   }
@@ -182,7 +259,24 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Authorization": "Bearer " + token }
       });
 
-      const data = await res.json();
+      if (!res.ok) {
+        let txt = await res.text().catch(() => null);
+        console.error("Erro ao carregar config:", txt || res.statusText);
+        statusBackup.className = "alert alert-danger mt-3";
+        statusBackup.innerHTML = `<i class="bi bi-x-circle"></i> Erro ao carregar informações de backup.`;
+        return;
+      }
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        console.error("Resposta não-JSON:", e);
+        statusBackup.className = "alert alert-danger mt-3";
+        statusBackup.innerHTML = `<i class="bi bi-x-circle"></i> Resposta inválida ao carregar configuração.`;
+        return;
+      }
+
       console.log("📦 Configuração recebida:", data);
 
       if (data.configuracao) {
@@ -220,6 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ========================== Inicializações ==========================
   window.baixarBackup = (arquivo) => {
+    if (!arquivo) return alert("Arquivo inválido");
     window.open(`${apiBase()}/backups/${arquivo}`, "_blank");
   };
 

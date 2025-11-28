@@ -324,3 +324,54 @@ function gerarSenhaAutomatica() {
   for (let i = 0; i < 8; i++) senha += chars.charAt(Math.floor(Math.random() * chars.length));
   return senha;
 }
+// ==================== FILTROS E BUSCA ====================
+
+// 🔍 Campo de busca
+const campoBusca = document.getElementById("buscar-usuario");
+if (campoBusca) {
+    campoBusca.addEventListener("input", aplicarFiltros);
+}
+
+// 🟩⬜ Filtro de status
+const filtroStatus = document.getElementById("filtro-status");
+if (filtroStatus) {
+    filtroStatus.addEventListener("change", aplicarFiltros);
+}
+
+// 🔤 Ordenar por ordem alfabética
+const checkOrdem = document.getElementById("ordenar-alfabetica");
+if (checkOrdem) {
+    checkOrdem.addEventListener("change", aplicarFiltros);
+}
+
+// -------------------- FUNÇÃO PRINCIPAL DE FILTRAGEM --------------------
+function aplicarFiltros() {
+    let lista = [...todosOsFuncionarios];
+
+    // 🔍 FILTRO DE BUSCA
+    const termo = campoBusca ? campoBusca.value.toLowerCase() : "";
+    if (termo.trim() !== "") {
+        lista = lista.filter(f =>
+            f.nome.toLowerCase().includes(termo) ||
+            (f.email && f.email.toLowerCase().includes(termo))
+        );
+    }
+
+    // 🟩⬜ FILTRO DE STATUS
+    const statusSelecionado = filtroStatus ? filtroStatus.value : "Todos";
+    if (statusSelecionado !== "Todos") {
+        lista = lista.filter(f => f.status === statusSelecionado);
+    }
+
+    // 🔤 ORDENAR
+    if (checkOrdem && checkOrdem.checked) {
+        lista.sort((a, b) => a.nome.localeCompare(b.nome));
+    }
+
+    // Renderiza corretamente para Tabela ou Cards
+    if (document.getElementById("lista-funcionarios")) {
+        exibirFuncionariosCards(lista);
+    } else {
+        exibirFuncionarios(lista);
+    }
+}

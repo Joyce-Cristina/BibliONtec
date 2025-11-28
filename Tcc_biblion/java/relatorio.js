@@ -145,15 +145,48 @@ async function carregarPopulares() {
     });
   } catch (err) { console.error(err); }
 }
+// ======================= EXPORTAR RELATÓRIO COMPLETO EM PDF =======================
 
-// exportar relatório completo em PDF (com gráficos)
 async function exportarPdf(period = 'all') {
   const empCanvas = document.getElementById('graficoEmprestimos');
   const userCanvas = document.getElementById('graficoUsuarios');
 
   // força PNG (compatível com PDFKit)
-  const imgEmp = empCanvas ? empCanvas.toDataURL('image/png') : null;
-  const imgUser = userCanvas ? userCanvas.toDataURL('image/png') : null;
+  function canvasToPdfPng(canvas) {
+
+    if (!canvas) return null;
+
+    // ⛔ impede erro de imagem com tamanho 0
+    if (canvas.width === 0 || canvas.height === 0) {
+      console.warn("⚠ Canvas ainda não renderizou. Abortando captura...");
+      return null;
+    }
+
+    const tmp = document.createElement('canvas');
+    tmp.width = canvas.width;
+    tmp.height = canvas.height;
+    const ctx = tmp.getContext('2d');
+
+    // fundo branco → PDFKit NÃO aceita transparência
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, tmp.width, tmp.height);
+
+    ctx.drawImage(canvas, 0, 0);
+    return tmp.toDataURL('image/png');
+  }
+
+  let imgEmp = canvasToPdfPng(empCanvas);
+  let imgUser = canvasToPdfPng(userCanvas);
+
+  // ⛔ segurança — só exporta se os gráficos existirem
+  if (!imgEmp) {
+    alert("O gráfico de empréstimos ainda não carregou! Aguarde aparecer e tente novamente.");
+    return;
+  }
+  if (!imgUser) {
+    alert("O gráfico de usuários ainda não carregou! Aguarde aparecer e tente novamente.");
+    return;
+  }
 
   try {
     const resp = await fetch(`${apiBase()}/relatorios/export/pdf`, {
@@ -172,13 +205,16 @@ async function exportarPdf(period = 'all') {
     link.download = `relatorio_completo_${period}.pdf`;
     link.click();
     URL.revokeObjectURL(link.href);
+
   } catch (err) {
     console.error(err);
     alert('Erro ao exportar PDF');
   }
 }
 
-// carregar resumo estatístico
+
+// ======================= CARREGAR RESUMO =======================
+
 async function carregarResumo() {
   try {
     const emprestimos = await fetchJson(`${apiBase()}/relatorios/emprestimos/stats?period=year`);
@@ -187,34 +223,58 @@ async function carregarResumo() {
     const reservas = await fetchJson(`${apiBase()}/reservas/pendentes`);
 
     document.querySelector('.card:nth-child(1) .info span').textContent = usuarios.length;
+
     document.querySelector('.card:nth-child(2) .info span').textContent =
       emprestimos.emprestimos.reduce((s, e) => s + e.total, 0);
-    document.querySelector('.card:nth-child(3) .info span').textContent = reservas[0]?.total || 0;
-    document.querySelector('.card:nth-child(4) .info span').textContent = atrasos.length;
+
+    document.querySelector('.card:nth-child(3) .info span').textContent =
+      reservas[0]?.total || 0;
+
+    document.querySelector('.card:nth-child(4) .info span').textContent =
+      atrasos.length;
+
   } catch (err) {
     console.error("Erro ao carregar resumo:", err);
   }
 }
 
 
-// inicialização
+
+// ======================= INICIALIZAÇÃO =======================
+
 document.addEventListener('DOMContentLoaded', () => {
+
+  // desabilita botão até gráficos renderizarem
+  const btn = document.querySelector('.btn-new-user');
+  btn.disabled = true;
+
   carregarAtrasos('all');
   carregarGraficoEmprestimos('year');
   carregarGraficoUsuarios();
   carregarPopulares();
-carregarResumo();
+  carregarResumo();
+
+  // reabilita botão após garantir renderização (300ms é suficiente)
+  setTimeout(() => {
+    btn.disabled = false;
+  }, 300);
 
   // ligar select de período
   document.querySelector('#status').addEventListener('change', (e) => {
     const val = e.target.value;
-    const map = { 'Esta semana':'week', 'Última semana':'week', 'Último mês':'month', 'Ano inteiro':'year' };
+    const map = {
+      'Esta semana': 'week',
+      'Última semana': 'week',
+      'Último mês': 'month',
+      'Ano inteiro': 'year'
+    };
     const period = map[val] || 'all';
+
     carregarAtrasos(period);
     carregarGraficoEmprestimos(period);
     carregarPopulares(period);
   });
 
   // botão exportar PDF
-  document.querySelector('.btn-new-user').addEventListener('click', () => exportarPdf('all'));
+  btn.addEventListener('click', () => exportarPdf('all'));
 });
