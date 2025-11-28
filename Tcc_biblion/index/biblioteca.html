@@ -16,123 +16,160 @@
   <link rel="stylesheet" href="../css/style.css" />
   <style>
     .menu-perfil.show {
-  display: flex;
-}
+      display: flex;
+    }
+
     .perfil-dropdown {
-  position: relative;
-  display: inline-block;
+      position: relative;
+      display: inline-block;
+    }
+
+    .avatar-navbar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      object-fit: cover;
+    }
+
+    .menu-perfil {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      /* Distância abaixo do avatar */
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      min-width: 180px;
+      z-index: 1000;
+      flex-direction: column;
+    }
+
+    .menu-perfil a {
+      padding: 10px 15px;
+      text-decoration: none;
+      display: block;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .menu-perfil a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .menu-perfil hr.menu-divider {
+      margin: 5px 0;
+      border: none;
+      border-top: 1px solid #ccc;
+    }
+
+    /* ===== Estilo geral dos cards ===== */
+    .card,
+    .card-livro,
+    .grid-cards .card,
+    .card-container .card,
+    .notifications-container .notification-card {
+      width: 320px;
+      /* largura padronizada igual ao acervo */
+      min-height: 360px;
+      /* altura mínima */
+      max-height: 420px;
+      /* altura máxima */
+      background-color: #d6c9b4;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+    }
+
+    /* ===== Imagem do card ===== */
+    .card .card-img-top {
+      height: 160px;
+      /* altura da imagem */
+      object-fit: cover;
+      /* mantém proporção e preenche */
+      border-radius: 10px 10px 0 0;
+    }
+
+    /* ===== Corpo do card ===== */
+    .card .card-body {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .card .card-body h5 {
+      font-size: 16px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    /* ===== Footer do card ===== */
+    .card .card-footer {
+      text-align: center;
+      padding: 10px;
+      margin-top: auto;
+    }
+
+    .card .card-footer button {
+      width: 100%;
+      padding: 6px 0;
+      border-radius: 5px;
+    }
+
+    /* Botões */
+    .btn-success {
+      background-color: #28a745;
+      border: none;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      border: none;
+      color: #fff;
+    }
+
+    /* ===== Responsividade ===== */
+    @media (max-width: 768px) {
+      .card {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+    .filtro-select {
+    max-width: 160px;
+    padding: 8px 12px;
+    border: 2px solid #c5a86e;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-.avatar-navbar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  object-fit: cover;
+.filtro-select:hover {
+    background-color: #f8f3e8;
 }
 
-.menu-perfil {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 50px; /* Distância abaixo do avatar */
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  min-width: 180px;
-  z-index: 1000;
-  flex-direction: column;
+.select-wrapper {
+    position: relative;
 }
 
-.menu-perfil a {
-  padding: 10px 15px;
-  text-decoration: none;
-  display: block;
-  color: #333;
-  font-weight: 500;
+.select-wrapper::after {
+    content: "⌄";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 14px;
+    color: #c5a86e;
 }
-
-.menu-perfil a:hover {
-  background-color: #f0f0f0;
-}
-.menu-perfil hr.menu-divider {
-  margin: 5px 0;
-  border: none;
-  border-top: 1px solid #ccc;
-}
-
-/* ===== Estilo geral dos cards ===== */
-.card,
-.card-livro,
-.grid-cards .card,
-.card-container .card,
-.notifications-container .notification-card {
-  width: 320px;          /* largura padronizada igual ao acervo */
-  min-height: 360px;     /* altura mínima */
-  max-height: 420px;     /* altura máxima */
-  background-color: #d6c9b4;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
-}
-
-/* ===== Imagem do card ===== */
-.card .card-img-top {
-  height: 160px;         /* altura da imagem */
-  object-fit: cover;     /* mantém proporção e preenche */
-  border-radius: 10px 10px 0 0;
-}
-
-/* ===== Corpo do card ===== */
-.card .card-body {
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  overflow: hidden;
-}
-
-.card .card-body h5 {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 0;
-}
-
-/* ===== Footer do card ===== */
-.card .card-footer {
-  text-align: center;
-  padding: 10px;
-  margin-top: auto;
-}
-
-.card .card-footer button {
-  width: 100%;
-  padding: 6px 0;
-  border-radius: 5px;
-}
-
-/* Botões */
-.btn-success {
-  background-color: #28a745;
-  border: none;
-  color: #fff;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  border: none;
-  color: #fff;
-}
-
-/* ===== Responsividade ===== */
-@media (max-width: 768px) {
-  .card {
-    width: 100%;
-    max-width: 100%;
-  }
-}
-
 
   </style>
 </head>
@@ -148,117 +185,99 @@
     </div>
 
     <div class="navbar-center">
-      <div class="search-box">
-        <input type="text" placeholder="Pesquisar...">
-        <i class="bi bi-search"></i>
+     <div class="navbar-center">
+  <div class="search-box">
+    <input type="text" id="inputBusca" placeholder="Pesquisar...">
+    <i class="bi bi-search"></i>
+  </div>
       </div>
 
       <ul class="menu-navbar">
         <li><a href="./homepageAluno.html">Página inicial</a></li>
-        <li><a href="./indicacoes.html" >Indicações</a></li>
+        <li><a href="./indicacoes.html">Indicações</a></li>
         <li><a href="./lista.html">Lista de desejo</a></li>
         <li><a href="./areaAluno.html">Área do aluno</a></li>
         <li><a href="./meusLivros.html">Meus livros</a></li>
         <li><a href="./eventos.html">Eventos</a></li>
-        <li><a href="./biblioteca.html"class="active">Biblioteca</a></li>
+        <li><a href="./biblioteca.html" class="active">Biblioteca</a></li>
       </ul>
     </div>
 
-   <div class="navbar-right">
-      <a class="nav-link dropdown-toggle" href="#" id="notificacaoDropdown" role="button"
-                data-bs-toggle="dropdown" aria-expanded="false" style="color: white; position: relative;">
-                <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
-                <span id="notificacaoBadge"
-                  class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
-                  style="display:none;"></span>
-              </a>
-              <ul id="listaNotificacoes" class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacaoDropdown">
-                <li class="dropdown-item text-muted">Carregando notificações...</li>
-              </ul>
-            </li>
-       
+    <div class="navbar-right">
+      <a class="nav-link dropdown-toggle" href="#" id="notificacaoDropdown" role="button" data-bs-toggle="dropdown"
+        aria-expanded="false" style="color: white; position: relative;">
+        <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+        <span id="notificacaoBadge"
+          class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+          style="display:none;"></span>
+      </a>
+      <ul id="listaNotificacoes" class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacaoDropdown">
+        <li class="dropdown-item text-muted">Carregando notificações...</li>
+      </ul>
+      </li>
 
-          </ul>
-   <div class="perfil-dropdown">
-<img src="https://bibliontec.onrender.com/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar" alt="Avatar do Usuário">
 
-  <div class="menu-perfil" id="menuPerfil">
-    <a href="#"> Perguntas frequentes</a>
-      <hr class="menu-divider">
-    <a href="#"> Entre em contato</a>
-      <hr class="menu-divider">
-    <a href="index.html" onclick="logout()"> Logout</a>
-  </div>
-</div>
-  </div>
-</nav>
+      </ul>
+      <div class="perfil-dropdown">
+        <img src="https://bibliontec.onrender.com/uploads/padrao.jpg" id="avatarPerfil" class="avatar-navbar"
+          alt="Avatar do Usuário">
 
- <br><br>
+        <div class="menu-perfil" id="menuPerfil">
+        <a href="./perguntas.html" class="dropdown-item">Perguntas Frequentes</a>
+          <hr class="menu-divider">
+          <a href="./areaAluno.html"> Meu perfil </a>
+          <hr class="menu-divider">
+          <a href="index.html" onclick="logout()"> Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <br><br>
 
   <section class="page-section mb-0" id="about" style="background-color: #ffffff; padding: 10px 0;">
-  <div class="container text-center">
-    
-    <!-- Linhas decorativas e título -->
-    <div style="border-top: 3px solid #ccb182; width: 90%; margin: 0 auto 20px auto;"></div>
-    
-    <h1 style="font-family: 'Georgia', serif; color: #000000; font-size: 48px; margin: 20px 0;">
-      Livros disponíveis na biblioteca
-    </h1>
-    
-    <div style="border-bottom: 3px solid #c5a86e; width: 90%; margin: 0 auto;"></div>
+    <div class="container text-center">
 
-  </div>
-</section>
+      <!-- Linhas decorativas e título -->
+      <div style="border-top: 3px solid #ccb182; width: 90%; margin: 0 auto 20px auto;"></div>
 
-  <!-- Filtros -->
-  <div class="container my-4">
-    <div class="d-flex justify-content-end gap-3 flex-wrap">
-      <div class="dropdown">
-        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Autor
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Link 1</a></li>
-          <li><a class="dropdown-item" href="#">Link 2</a></li>
-          <li><a class="dropdown-item" href="#">Link 3</a></li>
-        </ul>
-      </div>
+      <h1 style="font-family: 'Georgia', serif; color: #000000; font-size: 48px; margin: 20px 0;">
+        Livros disponíveis na biblioteca
+      </h1>
 
-      <div class="dropdown">
-        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Editora
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Link 1</a></li>
-          <li><a class="dropdown-item" href="#">Link 2</a></li>
-          <li><a class="dropdown-item" href="#">Link 3</a></li>
-        </ul>
-      </div>
+      <div style="border-bottom: 3px solid #c5a86e; width: 90%; margin: 0 auto;"></div>
 
-      <div class="dropdown">
-        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Categoria
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Link 1</a></li>
-          <li><a class="dropdown-item" href="#">Link 2</a></li>
-          <li><a class="dropdown-item" href="#">Link 3</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-
-  <section class="indicacoes">
-    <h2 class="titulo-indicacoes">BIBLIOTECA</h2>
-    <div id="gridLivrosBiblioteca" class="grid-cards"></div>
-      <!-- Exemplo de cards (pode ser gerado via JS também) -->
-      
-  
-      
     </div>
   </section>
-  
+
+<!-- FILTROS -->
+<div class="container my-4">
+  <div class="d-flex justify-content-end gap-3 flex-wrap">
+
+    <!-- AUTOR -->
+    <select id="filtroAutor" class="form-select" style="max-width:150px;">
+      <option value="">Autor</option>
+    </select>
+
+    <!-- EDITORA -->
+    <select id="filtroEditora" class="form-select" style="max-width:150px;">
+      <option value="">Editora</option>
+    </select>
+
+    <!-- CATEGORIA -->
+    <select id="filtroCategoria" class="form-select" style="max-width:150px;">
+      <option value="">Categoria</option>
+    </select>
+
+  </div>
+</div>
+
+<!-- GRID DE CARDS -->
+<section class="indicacoes">
+  <h2 class="titulo-indicacoes">BIBLIOTECA</h2>
+  <div id="gridLivrosBiblioteca" class="grid-cards"></div>
+</section>
+
 
 
 
@@ -277,13 +296,13 @@
         </ul>
       </div>
 
-        <div>
-          <h5>Contatos</h5>
-          <ul class="list-unstyled">
-            <li><strong>E-mail:</strong> tccbiblioteca023@gmail.com</li>
-            <li><strong>Instagram:</strong> @bibliONtec</li>
-          </ul>
-        </div>
+      <div>
+        <h5>Contatos</h5>
+        <ul class="list-unstyled">
+          <li><strong>E-mail:</strong> tccbiblioteca023@gmail.com</li>
+          <li><strong>Instagram:</strong> @bibliONtec</li>
+        </ul>
+      </div>
 
       <div class="text-start" style="max-width: 200px;">
         <h5>Sobre</h5>
@@ -294,13 +313,13 @@
 
   <body class="biblioteca-page">
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="../java/livroUsuario.js"></script>
-   <script src="../java/script.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<script src="../../acessibilidade.js"></script>
-  <script src="../java/notificacao.js"></script>
-</body>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../java/livroUsuario.js"></script>
+    <script src="../java/script.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="../../acessibilidade.js"></script>
+    <script src="../java/notificacao.js"></script>
+  </body>
 
 </html>

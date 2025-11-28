@@ -74,11 +74,12 @@
 
     .dropdown-item {
       background-color: #691400;
+       color: #f8f8f8;
     }
 
     .dropdown-item:hover {
       background-color: #a82010;
-      color: white;
+      color: #000000;
     }
 
     .dropdown-item.active {
@@ -174,7 +175,7 @@
 
 
 
-    
+
     /* Avatar flutuante */
     .avatar-container {
       position: fixed;
@@ -531,7 +532,7 @@
       font-family: Arial, sans-serif;
     }
 
-    
+
 
     /* Responsividade da Sidebar */
     @media (max-width: 768px) {
@@ -1048,224 +1049,297 @@
     #configTabsContent .tab-pane.active {
       display: block;
     }
+
     /* Quando não há notificações */
-/* ===========================================================
+    /* ===========================================================
    🌟 ESTILO DAS CONFIGURAÇÕES DE NOTIFICAÇÃO (PÁGINA INTERNA)
    =========================================================== */
-.notification-settings {
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 40px;
-  background-color: #fff;
-  border-radius: 8px;
-  border: 2px solid #c8aa78;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
-}
+    .notification-settings {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 8px;
+      border: 2px solid #c8aa78;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      font-family: Arial, sans-serif;
+    }
 
-.notification-settings .form-container {
-  width: 100%;
-}
+    .notification-settings .form-container {
+      width: 100%;
+    }
 
-.notification-settings .header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 30px;
-}
+    .notification-settings .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
 
-.notification-settings .icon {
-  color: #007bff;
-  font-size: 30px;
-  margin-right: 10px;
-}
+    .notification-settings .icon {
+      color: #007bff;
+      font-size: 30px;
+      margin-right: 10px;
+    }
 
-.notification-settings h2 {
-  font-size: 24px;
-  color: #333;
-  font-weight: bold;
-}
+    .notification-settings h2 {
+      font-size: 24px;
+      color: #333;
+      font-weight: bold;
+    }
 
-.notification-settings .form-group {
-  margin-bottom: 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    .notification-settings .form-group {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-.notification-settings .form-group label {
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 5px;
-  font-weight: bold;
-  flex: 1;
-}
+    .notification-settings .form-group label {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 5px;
+      font-weight: bold;
+      flex: 1;
+    }
 
-.notification-settings .form-group p {
-  font-size: 14px;
-  color: #777;
-  margin-top: 10px;
-}
+    .notification-settings .form-group p {
+      font-size: 14px;
+      color: #777;
+      margin-top: 10px;
+    }
 
-.notification-settings .switch-container {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
+    .notification-settings .switch-container {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
 
-.notification-settings .form-group input[type="number"] {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  background-color: #f7f7f7;
-  width: 100px;
-}
+    .notification-settings .form-group input[type="number"] {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      background-color: #f7f7f7;
+      width: 100px;
+    }
 
-.notification-settings .form-group input[type="number"]:focus {
-  border-color: #007bff;
-  outline: none;
-}
+    .notification-settings .form-group input[type="number"]:focus {
+      border-color: #007bff;
+      outline: none;
+    }
 
-.notification-settings .form-group .input-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+    .notification-settings .form-group .input-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-.notification-settings .switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 28px;
-}
+    .notification-settings .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 28px;
+    }
 
-.notification-settings .switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
+    .notification-settings .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
 
-.notification-settings .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 34px;
-}
+    .notification-settings .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
+    }
 
-.notification-settings .slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-}
+    .notification-settings .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
+    }
 
-.notification-settings input:checked + .slider {
-  background-color: #007bff;
-}
+    .notification-settings input:checked+.slider {
+      background-color: #007bff;
+    }
 
-.notification-settings input:checked + .slider:before {
-  transform: translateX(22px);
-}
+    .notification-settings input:checked+.slider:before {
+      transform: translateX(22px);
+    }
 
-.notification-settings .form-group.dias {
-  flex-direction: column;
-  align-items: flex-start;
-}
+    .notification-settings .form-group.dias {
+      flex-direction: column;
+      align-items: flex-start;
+    }
 
-.notification-settings .form-group.dias .switch-container {
-  margin-top: 10px;
-  justify-content: flex-start;
-}
+    .notification-settings .form-group.dias .switch-container {
+      margin-top: 10px;
+      justify-content: flex-start;
+    }
 
-/* ===========================================================
+    /* ===========================================================
    🔔 ESTILO DO SINO E DROPDOWN DE NOTIFICAÇÕES
    =========================================================== */
 
-/* Caixa principal do dropdown do sino */
-.dropdown-menu.notificacao-dropdown {
-  background-color: #fff8ef !important; /* bege claro */
-  border: 1px solid #c8aa78; /* dourado */
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  min-width: 260px;
-  padding: 8px;
-}
+    /* Caixa principal do dropdown do sino */
+    .dropdown-menu.notificacao-dropdown {
+      background-color: #fff8ef !important;
+      /* bege claro */
+      border: 1px solid #c8aa78;
+      /* dourado */
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      min-width: 260px;
+      padding: 8px;
+    }
 
-/* Itens da lista */
-.dropdown-menu.notificacao-dropdown .dropdown-item {
-  color: #3d1f00;
-  font-weight: 500;
-  border-radius: 6px;
-  transition: background-color 0.3s;
-}
+    /* Itens da lista */
+    .dropdown-menu.notificacao-dropdown .dropdown-item {
+      color: #3d1f00;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: background-color 0.3s;
+    }
 
-.dropdown-menu.notificacao-dropdown .dropdown-item:hover {
-  background-color: #f0e0c6;
-}
+    .dropdown-menu.notificacao-dropdown .dropdown-item:hover {
+      background-color: #f0e0c6;
+    }
 
-/* Quando não há notificações (modo simples) */
-.notification-empty {
-  background-color: #ca5a5a; /* vermelho suave */
-  color: #5a0000;
-  text-align: center;
-  border-radius: 8px;
-  font-weight: 500;
-  padding: 8px;
-  border: 1px solid #b04545;
-}
+    /* Quando não há notificações (modo simples) */
+    .notification-empty {
+      background-color: #ca5a5a;
+      /* vermelho suave */
+      color: #5a0000;
+      text-align: center;
+      border-radius: 8px;
+      font-weight: 500;
+      padding: 8px;
+      border: 1px solid #b04545;
+    }
 
-/* ===========================================================
+    /* ===========================================================
    💬 BALÃO DE NOTIFICAÇÃO (POPOVER OU TOOLTIP)
    =========================================================== */
-.notification-tooltip {
-  background-color: #fff; /* fundo branco */
-  color: #5a0000; /* texto vinho escuro */
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    .notification-tooltip {
+      background-color: #fff;
+      /* fundo branco */
+      color: #5a0000;
+      /* texto vinho escuro */
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Tooltip quando não há notificações */
+    .notification-tooltip.empty {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* Ícone do sino */
+    .nav-link i.bi-bell {
+      color: white;
+      position: relative;
+    }
+
+    /* Bolinha vermelha no sino */
+    .nav-link i.bi-bell::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+      display: none;
+    }
+
+    /* Mostrar bolinha quando houver novas notificações */
+    .nav-link.has-notification i.bi-bell::after {
+      display: block;
+    }
+
+    /* ======== BADGES DE LOGS ======== */
+
+    /* SUCESSO */
+    .badge.bg-success {
+      background-color: #28a745 !important;
+      color: #fff !important;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* AVISO */
+    .badge.bg-warning {
+      background-color: #ffc107 !important;
+      color: #000 !important;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* ERRO */
+    .badge.bg-danger {
+      background-color: #dc3545 !important;
+      color: #fff !important;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* ======== ÍCONES ======== */
+
+    .bi-x-circle.text-danger {
+      color: #dc3545 !important;
+      font-weight: bold;
+    }
+
+    .bi-exclamation-triangle.text-warning {
+      color: #ff9800 !important;
+      font-weight: bold;
+    }
+
+    .bi-check-circle.text-success {
+      color: #28a745 !important;
+      font-weight: bold;
+    }
+    #btnExportLogs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;               /* Espaço entre o ícone e o texto */
+    
+    padding: 8px 14px;
+    font-size: 15px;
+    font-weight: 600;
+
+    white-space: nowrap;    /* Impede o texto de quebrar */
+    line-height: 1;         /* Mantém alinhado verticalmente */
 }
 
-/* Tooltip quando não há notificações */
-.notification-tooltip.empty {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-/* Ícone do sino */
-.nav-link i.bi-bell {
-  color: white;
-  position: relative;
-}
-
-/* Bolinha vermelha no sino */
-.nav-link i.bi-bell::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 10px;
-  height: 10px;
-  background-color: red;
-  border-radius: 50%;
-  display: none;
-}
-
-/* Mostrar bolinha quando houver novas notificações */
-.nav-link.has-notification i.bi-bell::after {
-  display: block;
+#btnExportLogs i {
+    font-size: 18px;        /* Ajusta o tamanho do ícone */
+    margin-top: 1px;        /* Corrige alinhamento fino */
 }
 
   </style>
@@ -1276,30 +1350,31 @@
 
 <body>
 
-  <nav class="navbar navbar-expand-lg navbar-dark">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container-fluid d-flex align-items-center" style="gap: 0;">
-      <a class="navbar-brand" href="./homepageAdm2.html">
+      <a class="navbar-brand" href="./homepageProf.html">
         <img src="../img/logoreta.png" alt="Logo" style="height: 50px; width: auto;">
       </a>
-      <button class="navbar-toggler" type="button" id="sidebarToggle">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
         <form class="d-flex">
           <ul class="navbar-nav mb-2 mb-lg-0 me-3">
-            <li class="nav-item dropdown">
-              <a class="nav-link position-relative" href="#" id="notificacaoDropdown" role="button"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
-                <span id="notificacaoBadge"
-                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  style="display:none;">!</span>
-              </a>
-              <ul id="listaNotificacoes" class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacaoDropdown"
-                style="width: 250px; max-height: 300px; overflow-y:auto;"></ul>
+            <a class="nav-link dropdown-toggle" href="#" id="notificacaoDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false" style="color: white; position: relative;">
+              <i class="bi bi-bell" style="font-size: 1.4rem;"></i>
+              <span id="notificacaoBadge"
+                class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                style="display:none;"></span>
+            </a>
+            <ul id="listaNotificacoes" class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacaoDropdown">
+              <li class="dropdown-item text-muted">Carregando notificações...</li>
+            </ul>
             </li>
+
 
           </ul>
           <ul class="navbar-nav mb-2 mb-lg-0 me-3">
@@ -1308,7 +1383,7 @@
                 aria-expanded="false" style="color: white;">
                 Atualizações
               </a>
-              <ul class="dropdown-menu notificacao-dropdown" aria-labelledby="navbarDropdown">
+              <ul class="dropdown-menu dropdown-menu-end notificacao-dropdown" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="#">Foi adicionado um <br>elemento novo <br> no sistema</a></li>
                 <li>
                   <hr class="dropdown-divider">
@@ -1339,26 +1414,22 @@
   <div class="main-container-custom">
     <div class="p-4 rounded-3 shadow custom-card">
       <h2 class="text-center-custom">Manutenção do sistema</h2>
-      <div class="d-flex justify-content-center">
-
-      </div>
-
+      <div class="d-flex justify-content-center"></div>
     </div>
     <br><br>
 
-    <!-- Abas -->
+    <!-- Abas (botões) -->
     <div class="tab-container">
-      <button class="tab-button active" onclick="openTab(event, 'backup')">Backup e restauração</button>
+      <button class="tab-button active" onclick="openTab(event, 'backupTab')">Backup e restauração</button>
       <button class="tab-button" onclick="openTab(event, 'logs')">Logs do sistema</button>
     </div>
 
-
-
-    <!-- Conteúdo das Abas -->
+    <!-- ================= TAB-CONTENT: Aqui as abas ficam juntas ================= -->
     <div class="tab-content mt-3" id="configTabsContent">
 
-      <!-- Seção: Backup -->
-      <div id="backup" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
+      <!-- Seção: Backup (ABA CORRETA) -->
+
+      <div id="backupTab" class="tab-pane fade show active" role="tabpanel" aria-labelledby="backup-tab">
         <div class="d-flex flex-wrap gap-3">
 
           <!-- Seção: Backup do banco -->
@@ -1371,28 +1442,29 @@
                 <span id="ultimoBackup" class="backup-value">Nenhum ainda</span>
               </div>
               <div class="backup-item-verifica">
-                <i class="bi bi-check-circle-fill"></i>
                 <span id="statusBackup">Backup automático diário ativo</span>
               </div>
             </div>
 
             <div class="mb-4 d-flex gap-2">
-              <button id="btnBackupManual" class="btn btn-save w-50 d-flex justify-content-center align-items-center">
-                <i class="bi bi-hdd-stack"></i> Backup manual
+              <button id="btnBackupManual" type="button"
+                class="btn btn-save w-50 d-flex justify-content-center align-items-center">
+
+                <i class="bi bi-hdd-stack"></i>&nbsp; Backup manual
               </button>
               <div id="backupResult" class="mt-2"></div>
 
-              <button id="btnRestaurar" type="button" class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
-                <i class="bi bi-upload" style="font-size: 18px;"></i> Restaurar backup
+              <button id="btnRestaurar" type="button"
+                class="btn btn-comum w-50 d-flex justify-content-center align-items-center">
+                <i class="bi bi-upload" style="font-size: 18px;"></i>&nbsp; Restaurar backup
               </button>
             </div>
           </div>
 
           <!-- Seção: Configuração de backup -->
-          <!-- Seção: Configuração de backup -->
           <div class="section-box" style="flex: 1 1 48%;">
             <div class="section-header">
-              <i class="bi bi-gear"></i> Configuração de backup
+              <i class="bi bi-gear"></i>&nbsp; Configuração de backup
             </div>
 
             <div class="config-section p-3 mb-4">
@@ -1433,7 +1505,7 @@
 
             <!-- Botão principal -->
             <button id="btnSalvarConfig" class="btn btn-comum w-100 d-flex justify-content-center align-items-center">
-              <i class="bi bi-save" style="font-size: 18px;"></i> Configurar backup
+              <i class="bi bi-save" style="font-size: 18px;"></i>&nbsp; Configurar backup
             </button>
 
           </div>
@@ -1441,7 +1513,7 @@
           <!-- Seção: Histórico -->
           <div class="section-box history-section" style="flex: 1 1 100%; max-width: 100%;">
             <div class="section-header">
-              <i class="bi bi-clock-history"></i> Histórico de backups
+              <i class="bi bi-clock-history"></i>&nbsp; Histórico de backups
             </div>
             <div class="table-responsive">
               <table id="tabelaBackup" class="table table-striped table-bordered">
@@ -1464,43 +1536,40 @@
 
         </div>
       </div>
-    </div>
 
-    <!-- Aba: Logs -->
-    <div id="logs" class="tab-pane fade" role="tabpanel" aria-labelledby="logs-tab">
-      <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8 mx-auto">
-          <div class="section-box">
-            <div class="section-header">
-              <span><strong>Logs do sistema</strong></span>
-              <div class="ms-auto d-flex gap-2">
-                <select style="min-width: 100px;" class="form-select status-select">
-                  <option>Todos</option>
-                  <option>Sucesso</option>
-                  <option>Atenção</option>
-                  <option>Erro</option>
-                </select>
-                <button class="btn btn-save">
-                  <i class="bi bi-download"></i> Exportar
-                </button>
+      <!-- Aba: Logs (AGORA DENTRO DO MESMO tab-content) -->
+      <div id="logs" class="tab-pane fade" role="tabpanel" aria-labelledby="logs-tab">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-10 col-lg-8 mx-auto">
+            <div class="section-box">
+              <div class="section-header">
+                <span><strong>Logs do sistema</strong></span>
+                <div class="ms-auto d-flex gap-2">
+                  <select style="min-width: 100px;" class="form-select status-select">
+                    <option value="Todos">Todos</option>
+                    <option value="Sucesso">Sucesso</option>
+                    <option value="Atenção">Atenção</option>
+                    <option value="Erro">Erro</option>
+                  </select>
+
+                  <button id="btnExportLogs" class="btn btn-save">
+                    <i class="bi bi-download"></i>&nbsp; Exportar
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <!-- Lista de logs -->
-            <div id="logs-list">
-
-
+              <!-- Lista de logs -->
+              <div id="logs-list">
+                <!-- O conteúdo será preenchido via JS -->
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
+    </div> <!-- fim tab-content -->
 
-
-
-
-  </div>
+  </div> <!-- fim main-container -->
 
 
 
@@ -1519,7 +1588,7 @@
     <div class="menu-perfil" id="menuPerfil">
       <a href="./areaAdm2.html" class="dropdown-item">Meu Perfil</a>
       <hr class="menu-divider">
-      <a href="#" class="dropdown-item">Perguntas Frequentes</a>
+     <a href="./perguntas.html" class="dropdown-item">Perguntas Frequentes</a>
       <hr class="menu-divider">
       <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
     </div>
@@ -1546,27 +1615,33 @@
   <!--Arrumou as abas para que elas apareçam apenas quando clicar no botão-->
   <script>
     function openTab(evt, tabId) {
-      // desativa todas as abas
+      // Esconde todas as abas
       document.querySelectorAll('#configTabsContent .tab-pane')
-        .forEach(pane => pane.classList.remove('active', 'show'));
+        .forEach(pane => {
+          pane.classList.remove('active');
+          pane.classList.remove('show');
+        });
 
-      // desmarca todos os botões
+      // Remove estilos dos botões
       document.querySelectorAll('.tab-container .tab-button')
         .forEach(btn => btn.classList.remove('active'));
 
-      // ativa a aba clicada
+      // Ativa a aba clicada
       const pane = document.getElementById(tabId);
       if (pane) {
-        pane.classList.add('active', 'show');
-
-        // 🧩 carrega logs apenas quando clicar na aba de logs
-        if (tabId === 'logs') {
-          carregarLogs();
-        }
+        pane.classList.add('active');
+        pane.classList.add('show');
       }
 
+      // Marca o botão clicado
       evt.currentTarget.classList.add('active');
+
+      // Carrega logs somente ao abrir a aba de logs
+      if (tabId === 'logs') {
+        carregarLogs();
+      }
     }
+
 
   </script>
 
@@ -1624,10 +1699,11 @@
   </script>
   </div>
 
+  <script src="../java/backup.js"></script>
+  <script src="../java/script.js"></script>
+  <script src="../java/logs.js"></script>
+  <script src="../../acessibilidade.js"></script>
+  <script src="../java/notificacao.js"></script>
 </body>
-<script src="../java/backup.js"></script>
-<script src="../java/script.js"></script>
-<script src="../java/logs.js"></script>
-<script src="../../acessibilidade.js"></script>
-<script src="../java/notificacao.js"></script>
+
 </html>

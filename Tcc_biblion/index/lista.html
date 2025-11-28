@@ -77,7 +77,8 @@
 
     <div class="navbar-center">
       <div class="search-box">
-        <input type="text" placeholder="Pesquisar...">
+       <input type="text" id="pesquisaLivros" placeholder="Pesquisar...">
+
         <i class="bi bi-search"></i>
       </div>
 
@@ -158,43 +159,27 @@
     </div>
   </section>
 
-  <!-- Filtros -->
-  <div class="container my-4">
-    <div class="d-flex justify-content-end gap-3 flex-wrap">
-      <div class="dropdown">
-        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Autor
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Link 1</a></li>
-          <li><a class="dropdown-item" href="#">Link 2</a></li>
-          <li><a class="dropdown-item" href="#">Link 3</a></li>
-        </ul>
-      </div>
+<!-- FILTROS DA BIBLIOTECA -->
+<div class="container my-4">
+  <div class="d-flex justify-content-end gap-3 flex-wrap">
 
-      <div class="dropdown">
-        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Editora
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Link 1</a></li>
-          <li><a class="dropdown-item" href="#">Link 2</a></li>
-          <li><a class="dropdown-item" href="#">Link 3</a></li>
-        </ul>
-      </div>
+    <div id="gridListaDesejo" class="grid-cards"></div>
 
-      <div class="dropdown">
-        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Categoria
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Link 1</a></li>
-          <li><a class="dropdown-item" href="#">Link 2</a></li>
-          <li><a class="dropdown-item" href="#">Link 3</a></li>
-        </ul>
-      </div>
-    </div>
+
+    <select id="filtroAutor" class="form-select" style="max-width:150px;">
+      <option value="">Autor</option>
+    </select>
+
+    <select id="filtroEditora" class="form-select" style="max-width:150px;">
+      <option value="">Editora</option>
+    </select>
+
+    <select id="filtroCategoria" class="form-select" style="max-width:150px;">
+      <option value="">Categoria</option>
+    </select>
+
   </div>
+</div>
 
 
   <section class="indicacoes">

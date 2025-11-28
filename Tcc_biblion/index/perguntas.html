@@ -498,6 +498,59 @@ body {
 }
   </style>
 </head>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const avatarImg = document.getElementById("avatarPerfil");
+    const linkPerfil = document.querySelector("#menuPerfil a"); // primeiro link: Meu Perfil
+
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+    const funcionario = JSON.parse(localStorage.getItem("funcionario") || "null");
+
+    // FOTO PADRÃO
+    let foto = "https://bibliontec.onrender.com/uploads/padrao.jpg";
+
+    // -------------------------
+    // 📌 ALUNO / PROFESSOR
+    // -------------------------
+    if (usuario) {
+        if (usuario.foto) {
+            foto = `https://bibliontec.onrender.com/uploads/${usuario.foto}`;
+        }
+
+        if (usuario.tipo_usuario_id === 1) {
+            // ALUNO
+            linkPerfil.href = "./perfilAluno.html";
+        } else if (usuario.tipo_usuario_id === 2) {
+            // PROFESSOR
+            linkPerfil.href = "./perfilProf.html";
+        }
+    }
+
+    // -------------------------
+    // 📌 FUNCIONÁRIO (ADM/BIBLIO/CIRC/CATAL)
+    // -------------------------
+    if (funcionario) {
+        if (funcionario.foto) {
+            foto = `https://bibliontec.onrender.com/uploads/${funcionario.foto}`;
+        }
+
+        // ADMINISTRADOR
+        if (funcionario.funcao_id === 1) {
+            linkPerfil.href = "./areaAdm.html";
+        }
+        // BIBLIOTECÁRIO / CIRC / CATA
+        else if ([2, 3, 4].includes(funcionario.funcao_id)) {
+            linkPerfil.href = "./areaBiblio.html";
+        }
+    }
+
+    // Atualizar foto
+    avatarImg.src = foto;
+
+});
+</script>
+
 <body class="pergun">
 
 <!-- Navbar -->
@@ -550,7 +603,6 @@ body {
         </div>
 
   <!-- DASHBOARDS CORRIGIDOS -->
-
 <!-- Administrador -->
 <div class="tab-pane fade show active" id="adm" role="tabpanel">
   <div class="dashboard-section">
@@ -567,19 +619,49 @@ Enquanto o bibliotecário gerencia o acervo e os empréstimos, o administrador s
     </div>
 
     <button class="dashboard-button">
-      Gestão de Bibliotecários
-      <i class="bi bi-chevron-right"></i>
-    </button>
-    <div class="dashboard-dropdown">
-      Explicação sobre como gerenciar bibliotecários dentro do sistema.
-    </div>
-
-    <button class="dashboard-button">
       Configurações do Sistema
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Área para ajustar preferências, permissões e parâmetros globais do sistema.
+      A área de Configurações do Sistema do BibliONtec reúne todos os parâmetros essenciais para o funcionamento geral da plataforma. Ela está organizada em quatro abas principais — Prazos e regras, Permissões, Dados institucionais e Notificações — permitindo ao administrador ajustar facilmente as políticas e características da instituição.<br>
+<br>
+Na aba Prazos e regras, é possível definir padrões importantes, como a duração do empréstimo, o número máximo de renovações, o limite de empréstimos por usuário e o tempo para retirada de reservas. Também é possível configurar a multa por atraso, garantindo clareza nas normas aplicadas aos leitores.<br>
+<br>
+Em Permissões, o sistema permite personalizar regras específicas para cada tipo de usuário: alunos, professores e funcionários. Nesta seção, o administrador define quantos livros cada categoria pode emprestar, por quantos dias, além de ativar ou desativar permissões de reserva e renovação, tudo através de controles simples e diretos.<br>
+<br>
+A aba Dados institucionais centraliza informações da biblioteca ou instituição, como nome, e-mail, horário de funcionamento, telefone e endereço. Também é possível selecionar o tipo de instituição (escola, biblioteca pública, livraria etc.) e informar o website, garantindo que os dados exibidos no sistema estejam sempre atualizados.<br>
+<br>
+Por fim, em Notificações, o administrador escolhe como os usuários serão avisados sobre prazos e alterações. É possível ativar lembretes por e-mail ou SMS, definir com quantos dias de antecedência os avisos serão enviados e habilitar notificações automáticas para livros em atraso ou reservas disponíveis.<br>
+<br>
+Todos os ajustes podem ser aplicados de forma rápida pelo botão Salvar alterações, assegurando que o sistema opere exatamente de acordo com as políticas da instituição.<br>
+    </div>
+    <button class="dashboard-button">
+      Gestão de Bibliotecários
+      <i class="bi bi-chevron-right"></i>
+    </button>
+    <div class="dashboard-dropdown">
+      Logo ao acessar a página, o administrador encontra uma barra de pesquisa que possibilita localizar rapidamente qualquer funcionário pelo nome, agilizando o processo de consulta em listas extensas. Também está disponível a opção de organizar os resultados em ordem alfabética, facilitando a navegação e tornando a visualização mais intuitiva.<br>
+<br>
+A interface apresenta ainda três indicadores principais: total de funcionários cadastrados, quantidade de perfis ativos e quantidade de perfis inativos. Esses dados fornecem uma visão geral imediata da situação da equipe, auxiliando na análise e no controle administrativo. Ao lado, o administrador pode filtrar os funcionários com base no status desejado, exibindo apenas aqueles que estão ativos ou inativos.<br>
+<br>
+Abaixo dos indicadores, os funcionários são exibidos em uma tabela completa que reúne foto, nome, função, e-mail, telefone, status e ações disponíveis. Cada linha oferece uma visão clara e objetiva do perfil do colaborador dentro da instituição.<br>
+<br>
+No botão Editar, o administrador tem acesso ao formulário completo do funcionário, podendo atualizar nome, e-mail, telefone, foto e função, garantindo que todas as informações permaneçam atualizadas e corretas. Já o botão Excluir permite remover um perfil do sistema quando necessário, mantendo a base de dados limpa e organizada.<br>
+    </div>
+    <button class="dashboard-button">
+      Gestão de Usuários
+      <i class="bi bi-chevron-right"></i>
+    </button>
+    <div class="dashboard-dropdown">
+      Essa área reúne as principais informações de cada usuário e permite acompanhar seu status, atualizar dados e realizar ações administrativas de forma simples e organizada.<br>
+<br>
+No topo da página, o sistema apresenta uma barra de pesquisa que possibilita localizar rapidamente qualquer usuário pelo nome, facilitando a consulta em listas extensas. Também está disponível a opção de organizar os resultados alfabeticamente, garantindo uma navegação mais prática e estruturada. À direita, o filtro de status permite exibir apenas usuários ativos ou inativos, oferecendo uma visualização mais direcionada sempre que necessário.<br>
+<br>
+Logo abaixo, três indicadores fornecem um panorama geral da base de usuários: total cadastrados, ativos e inativos. Esses dados auxiliam o bibliotecário na análise da participação dos usuários no sistema e permitem avaliar de forma clara o nível de utilização da plataforma.<br>
+<br>
+Todos os usuários são exibidos em uma tabela completa, que apresenta foto, nome, tipo de perfil (aluno ou professor), e-mail institucional, telefone, status e ações disponíveis. Essa visualização centralizada facilita a conferência dos dados e agiliza o atendimento ao público da biblioteca.<br>
+<br>
+No botão Editar, o bibliotecário pode atualizar informações importantes do perfil, como nome, e-mail, telefone, foto e tipo de usuário, garantindo que todos os dados permaneçam corretos e alinhados às necessidades da instituição. Já o botão Excluir permite remover cadastros que não são mais utilizados, mantendo a base organizada e atualizada.<br>
     </div>
 
     <button class="dashboard-button">
@@ -587,16 +669,16 @@ Enquanto o bibliotecário gerencia o acervo e os empréstimos, o administrador s
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Dicas sobre manutenção, backup e atualizações do sistema.
+      A área de Logs do sistema do BibliONtec foi desenvolvida para permitir que o bibliotecário acompanhe todas as ações registradas pela plataforma de forma simples e organizada. Essa seção garante maior transparência e segurança, facilitando o monitoramento de eventos importantes.<br>
+<br>
+Logo no topo, é possível alternar entre as abas Backup e restauração e Logs do sistema, oferecendo acesso rápido às principais funções de manutenção. Ao lado direito da tela, um filtro permite selecionar o tipo de log que se deseja visualizar — como eventos gerais ou apenas determinados registros — tornando a consulta mais precisa. Há também um botão de Exportar, que possibilita gerar um arquivo com todo o histórico disponível, ideal para auditorias ou armazenamento externo.<br>
+<br>
+Cada registro é apresentado em cartões individuais, exibindo informações essenciais: nome do evento, status (como “Sucesso”), data e horário da ocorrência, além da identificação da origem, geralmente o próprio sistema. Essa estrutura facilita a leitura e torna a verificação de atividades uma tarefa rápida.<br>
+<br>
+Esse módulo foi projetado para oferecer ao bibliotecário um controle confiável sobre o funcionamento da plataforma, permitindo acompanhar ações internas, confirmar operações realizadas e identificar possíveis falhas com eficiência.<br>
     </div>
 
-    <button class="dashboard-button">
-      Gestão de Usuários
-      <i class="bi bi-chevron-right"></i>
-    </button>
-    <div class="dashboard-dropdown">
-      Instruções para cadastrar, editar e remover usuários.
-    </div>
+    
   </div>
 </div>
 
@@ -610,74 +692,99 @@ Enquanto o bibliotecário gerencia o acervo e os empréstimos, o administrador s
       <i class="bi bi-chevron-right"></i>
       </button>
       <div class="dashboard-dropdown">
-      🔹 Etapas do processo:<br>
+      Ao acessar essa função, o sistema exibe um formulário que reúne as informações básicas do usuário, como nome, e-mail institucional, senha e número de telefone, além de campos específicos para curso e série, quando aplicáveis. O bibliotecário deve preencher cada campo seguindo as orientações apresentadas na interface, assegurando que os dados estejam corretos e adequados ao perfil que será criado.<br>
 <br>
-1° Ao clicar em “Usuário”, o sistema exibe um formulário padrão com os seguintes campos iniciais:<br>
+O sistema permite a seleção do tipo de usuário, diferenciando entre alunos e professores, o que determina a exibição ou ocultação de campos adicionais de acordo com o perfil escolhido. Também é possível anexar uma foto ao cadastro, selecionada diretamente do computador, o que facilita a identificação do usuário dentro da plataforma. Após o preenchimento das informações e definição do perfil, o bibliotecário conclui o cadastro, permitindo que o usuário acesse o sistema com as permissões correspondentes à sua função. Esse processo garante organização, segurança e clareza no gerenciamento dos usuários que utilizam o BibliONtec.<br>
 <br>
-  🔹 Nome completo, E-mail institucional, Telefone, Senha e Foto.<br>
-<br>
-2° O bibliotecário deve definir o tipo de usuário por meio de uma caixa de seleção (checkbox):<br>
-<br>
-🔹 Se marcar “Aluno” → são exibidos os campos adicionais:<br>
-<br>
-Série e Curso.<br>
-<br>
-🔹 Se marcar “Professor” → os campos “Série” e “Curso” desaparecem, pois não se aplicam a esse tipo de usuário.<br>
-<br>
-3° Após o preenchimento, o bibliotecário confirma o cadastro.<br>
-<br>
-4° O sistema gera automaticamente um login com o e-mail institucional e uma senha temporária, que o usuário poderá alterar no primeiro acesso.<br>
-  </div>  
+ O asterisco serve para indicar campos obrigatórios ( * ).
+    </div>  
     <button class="dashboard-button">
       Cadastro de eventos
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+ Ao acessar a função, o sistema exibe um formulário contendo campos destinados ao nome do evento, local, 
+horário, descrição, patrocínios, data e imagem ilustrativa. O bibliotecário deve preencher cada campo de 
+texto seguindo as orientações apresentadas na interface, garantindo que todas as informações necessárias 
+para a identificação e divulgação do evento estejam completas e corretas.<br>
+<br>
+ Além dos campos textuais, o sistema também disponibiliza a opção de selecionar uma foto representativa, 
+que pode ser carregada diretamente do computador e visualizada na prévia exibida ao lado do formulário. 
+Após concluir o preenchimento, o bibliotecário confirma o cadastro e o evento é automaticamente registrado na 
+plataforma, ficando disponível para futuras consultas, edições e relatórios internos. Dessa forma, o 
+sistema assegura que as atividades institucionais sejam organizadas de maneira prática, padronizada e 
+integrada ao restante dos módulos do BibliONtec.<br>
+<br>
+ O asterisco serve para indicar campos obrigatórios ( * ).
+    </div>
     <button class="dashboard-button">
       Cadastro de funcionários
       <i class="bi bi-chevron-right"></i>
     </button>
+    <div class="dashboard-dropdown">
+      Ao acessar essa função, o sistema apresenta um formulário contendo campos destinados às informações básicas do funcionário, incluindo nome, e-mail institucional, senha, telefone e função desempenhada. O bibliotecário deve preencher cada campo de acordo com as orientações exibidas na interface, assegurando que todos os dados cadastrados sejam precisos e adequados ao perfil do usuário que será inserido na plataforma.<br>
+<br>
+Além das informações textuais, o sistema disponibiliza a opção de adicionar uma foto ao perfil do funcionário, permitindo que o bibliotecário selecione um arquivo diretamente do computador e visualize a imagem antes de concluir o cadastro. Após o preenchimento completo, o bibliotecário confirma o registro e o sistema insere automaticamente o novo funcionário na base de dados, habilitando seu acesso de acordo com a função selecionada.
+Temos as funções de Administrador, Bibliotecário, circulação e catalogação. Esse processo garante organização, padronização e controle sobre os usuários que atuam na gestão do BibliONtec, fortalecendo a segurança e a eficiência no uso da plataforma.<br>
+<br>
+ O asterisco serve para indicar campos obrigatórios ( * ).
+    </div>
 
     <button class="dashboard-button">
       Cadastro de Livros
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Acesso:
-
-<label> principal → Aba “Cadastro” → Selecionar opção “Livro”</label><br>
+      Ao acessar essa função, o sistema apresenta um formulário completo contendo campos destinados aos dados bibliográficos essenciais para catalogação, como título, autor, edição, ISBN, data de publicação, editora, gênero, assunto discutido, CDD, número de páginas, local de publicação, quantidade disponível e demais informações complementares. O bibliotecário deve preencher cada campo de acordo com as orientações exibidas na interface, garantindo a padronização e a precisão das informações registradas.<br>
 <br>
-- Etapas do processo:<br>
+O sistema também permite o envio da capa do livro, possibilitando que o bibliotecário selecione uma imagem armazenada no computador para compor a ficha do título. Após inserir o ISBN, o sistema pode preencher automaticamente alguns campos, otimizando o processo de catalogação. Quando todos os dados estiverem completos, o bibliotecário confirma o cadastro e o livro passa a integrar o acervo do BibliONtec, tornando-se acessível para consultas, empréstimos e gerenciamento geral. Esse procedimento garante organização e confiabilidade na administração dos materiais disponíveis na biblioteca.<br>
 <br>
-1° Ao acessar a aba “Cadastro”, o bibliotecário seleciona “Livro”.<br>
-<br>
-2° O sistema exibe um formulário com todos os campos necessários para o registro:<br>
-
-  🔹 Título, Autor(es), Código do autor, Edição, Editora, Local de publicação, Data de publicação, Número de páginas, Assunto, Linguagem da catalogação, Classificação (CDD), Área de conhecimento, ISBN, Sinopse, Capa e Disponibilidade.<br>
-<br>
-3° O sistema possui uma função automatizada de preenchimento via ISBN:<br>
-
-  🔹 Ao digitar o número do ISBN e clicar em “Buscar informações”, o sistema faz a busca automática dos dados do livro (como título, autor, editora e capa).<br>
-  🔹 Caso algumas informações não sejam encontradas, os campos permanecem em branco para que o bibliotecário complete manualmente.<br>
-<br>
-4° Após o cadastro, o sistema gera automaticamente uma etiqueta contendo:<br>
-
-  🔹 Código CDD, Código do autor, Área de conhecimento e Código de barras.<br>
-<br>
-5° O bibliotecário pode baixar ou imprimir a etiqueta imediatamente após o registro.<br>
+O asterisco serve para indicar campos obrigatórios ( * ).    
     </div>
     <button class="dashboard-button">
-      Controle de usuários (alunos, professores e funcionários)
+      Gerenciamento de usuários (alunos, professores e funcionários)
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Explicação sobre controle de prazos, multas e notificações aos usuários.
+      Essa área permite ao bibliotecário acessar rapidamente informações essenciais, localizar usuários específicos e executar ações de gerenciamento, garantindo controle e organização sobre todos os perfis ativos.<br>
+<br>
+Ao acessar a página, o sistema apresenta inicialmente uma barra de pesquisa posicionada na parte superior, permitindo buscar usuários pelo nome. O bibliotecário pode inserir o termo desejado, e o sistema retorna automaticamente apenas os usuários correspondentes, agilizando a identificação de um perfil específico dentro de uma lista extensa. A página também oferece a opção de ordenar os resultados em ordem alfabética, recurso que contribui para uma navegação mais clara e estruturada.<br>
+<br>
+Além disso, o bibliotecário pode utilizar o filtro lateral para selecionar usuários por categoria, como curso ou função, exibindo apenas aqueles pertencentes ao grupo escolhido. Esse filtro torna a gestão mais eficiente, principalmente em instituições com grande quantidade de alunos, funcionários e professores.<br>
+<br>
+Cada usuário é exibido em um cartão individual que apresenta sua foto, nome, tipo de perfil, e-mail institucional e telefone. Essas informações fornecem ao bibliotecário uma visão rápida e completa do cadastro, permitindo conferir dados pessoais sem necessidade de abrir telas adicionais. Logo abaixo, há dois botões principais: Editar, que abre o formulário para atualizar ou corrigir informações do usuário; e Excluir, utilizado para remover o perfil do sistema quando necessário.<br>
+<br>
+Essa estrutura foi planejada para assegurar que a administração de usuários seja simples, organizada e intuitiva. A combinação entre busca, filtros, cartões informativos e ações diretas garante ao bibliotecário um controle eficiente dos perfis cadastrados, mantendo o sistema atualizado e alinhado às necessidades da instituição.<br>
+    </div>
+    <button class="dashboard-button">
+      Gerenciamento de acervo
+      <i class="bi bi-chevron-right"></i>
+    </button>
+    <div class="dashboard-dropdown">
+      Essa área cumpre um papel fundamental na administração do acervo, concentrando de forma clara e estruturada todas as informações bibliográficas registradas durante o processo de catalogação.<br>
+<br>
+Na parte superior da página encontra-se o campo de pesquisa destinado à localização rápida de um título específico. O bibliotecário pode digitar o nome do livro, parte do título ou outra palavra-chave para que o sistema filtre automaticamente as obras relacionadas ao termo inserido.<br>
+<br>
+Ao lado superior direito, o sistema oferece a funcionalidade de importar livros por meio de um arquivo Excel. Esse recurso foi criado para agilizar a inclusão de grandes quantidades de registros, permitindo que o bibliotecário carregue planilhas previamente estruturadas contendo dados bibliográficos completos. Após o envio do arquivo, o sistema processa as informações e adiciona os títulos ao acervo.<br>
+<br>
+Os filtros permitem refinar a visualização dos livros por autor, editora ou gênero, exibindo somente os títulos relacionados ao filtro selecionado.<br>
+<br>
+Cada livro é apresentado em um cartão individual contendo capa, título, autor, editora, ISBN, responsável pelo cadastro e descrição curta, exibida parcialmente para manter a página organizada.<br>
+
+Os cartões de cada obra oferecem três ações principais: excluir o registro, editar as informações da obra ou imprimir a etiqueta correspondente para organização física.<br>
+<br>
+A página de Acervo foi desenvolvida para oferecer ao bibliotecário uma visualização clara e completa de todos os livros cadastrados, facilitando o controle da coleção disponível, a atualização das informações, a organização física da biblioteca e a verificação de dados utilizados nos processos de empréstimo, devolução e reserva. Essa área garante precisão, padronização e eficiência no gerenciamento contínuo dos materiais que compõem o acervo.<br>
     </div>
     <button class="dashboard-button">
       Empréstimos e Devoluções
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Como registrar empréstimos, renovações e devoluções no sistema.
+      A funcionalidade de gerenciamento de exemplares do BibliONtec reúne em uma única interface os processos de empréstimo, renovação e devolução, permitindo ao bibliotecário acompanhar facilmente a situação de cada livro. Após pesquisar o título desejado, o sistema exibe imediatamente o status do exemplar, indicando se está disponível ou já emprestado. Quando o livro está indisponível, uma mensagem de alerta é apresentada para evitar tentativas de registro incorreto.<br>
+<br>
+Nessas situações, o sistema mostra também um cartão detalhado com todas as informações do empréstimo atual, incluindo nome do livro, usuário que está com o exemplar, status, datas de empréstimo e devolução e posição na fila de espera. Esse cartão oferece os botões Renovar, utilizado para estender o prazo de devolução quando permitido pela instituição, e Devolver, que registra a entrega do exemplar e atualiza automaticamente sua disponibilidade no acervo.<br>
+<br>
+Esse fluxo organizado garante clareza e precisão nas operações diárias da biblioteca. A combinação entre busca rápida, exibição do status do livro e ações diretas mantém o controle eficiente do acervo, reduzindo erros e assegurando que cada movimentação — empréstimo, renovação ou devolução — seja registrada de forma simples e segura.<br>
     </div>
     <button class="dashboard-button">
       Etiquetas
@@ -691,8 +798,47 @@ Série e Curso.<br>
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Explicação sobre controle de prazos, multas e notificações aos usuários.
-    </div>
+      Relatórios e Estatísticas:<br>
+A área de Relatórios e Estatísticas do BibliONtec foi desenvolvida para oferecer ao bibliotecário uma visão completa e organizada de todas as informações relacionadas aos usuários, livros e movimentações do acervo. Essa página reúne indicadores essenciais para acompanhamento da rotina da biblioteca, permitindo decisões rápidas, controle preciso e análise contínua do funcionamento do sistema.<br>
+<br>
+Exportação de Relatórios:<br>
+Ao lado da página, há a opção de exportar os dados apresentados para PDF. O bibliotecário pode selecionar o período desejado — como “esta semana”, “este mês” ou intervalos personalizados — e gerar um documento completo com todos os indicadores visíveis. Essa funcionalidade é essencial para prestação de contas, arquivamento institucional ou acompanhamento da evolução da biblioteca ao longo do tempo.<br>
+<br>
+Indicadores Gerais:<br>
+Logo abaixo, quatro cartões exibem os números atualizados de:<br>
+<br>
+ - Usuários ativos, empréstimos realizados, reservas pendentes e atrasos registrados.<br>
+<br>
+Esses indicadores fornecem, de imediato, um panorama da situação atual da biblioteca, permitindo que o bibliotecário identifique rapidamente cenários que demandam atenção, como um aumento de reservas ou acúmulo de devoluções atrasadas.<br>
+<br>
+--------
+<br>
+Relatório de Atrasos:<br>
+O primeiro conjunto de informações está dedicado ao controle de atrasos. Essa seção lista, em formato tabular, todos os usuários que excederam o prazo de devolução dos livros emprestados. Para cada registro, o sistema apresenta:<br>
+<br>
+ - Nome do usuário; livro em atraso; quantidade de dias de atraso e Valor da multa acumulada, calculada automaticamente com base nas regras definidas pela instituição.<br>
+<br>
+ Ações disponíveis para a multa: <br>
+As ações incluem botões para notificar o usuário — enviando-lhe um aviso sobre o atraso — ou contatar, caso seja necessário estabelecer comunicação direta.<br>
+Essa tabela garante que o bibliotecário tenha pleno controle das pendências, evitando perdas no acervo e incentivando a devolução pontual dos materiais.<br>
+<br>
+Relatório de Empréstimos por Mês:<br>
+Ao selecionar a aba “Empréstimos”, o sistema apresenta um gráfico ilustrativo que demonstra o volume de empréstimos e devoluções ao longo dos meses. Esse recurso permite identificar padrões de uso, períodos de maior procura e momentos em que a movimentação do acervo diminui.<br>
+O gráfico é gerado automaticamente com base nas transações registradas, oferecendo ao bibliotecário uma ferramenta visual para análise estratégica, especialmente útil para planejamento de campanhas de incentivo à leitura, aquisição de novos títulos ou organização do acervo.<br>
+<br>
+Ranking dos Livros Mais Populares:<br>
+Na aba “Mais populares”, o sistema exibe uma lista ordenada de acordo com os livros mais emprestados. Cada item apresenta:<br>
+<br>
+ - A posição no ranking, o título do livro e a quantidade de empréstimos registrados;<br>
+<br>
+Esse relatório permite ao bibliotecário identificar as obras mais buscadas pelos usuários, auxiliando na tomada de decisões relacionadas à reposição de exemplares, aquisição de novas edições ou planejamento de recomendações literárias dentro da comunidade escolar.<br>
+<br>
+Relatório de Usuários Mais Ativos
+<br>
+Na aba “Usuários”, o sistema apresenta um gráfico que mostra a distribuição de atividade entre os perfis cadastrados, como alunos e professores. A representação gráfica demonstra quais grupos fazem maior uso do sistema, permitindo ao bibliotecário:<br>
+<br>
+- Identificar perfis que utilizam a biblioteca com mais frequência, avaliar se ações de incentivo precisam ser direcionadas a determinados grupos, compreender melhor o comportamento dos usuários em relação ao empréstimo de livros e essa visualização contribui diretamente para o planejamento de ações e melhorias no atendimento.<br>
+</div>
   </div>
 </div>
 
@@ -705,28 +851,39 @@ Série e Curso.<br>
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Como renovar um livro emprestado e evitar multas.
+      Ao lado do botão de reserva, está o botão “Adicionar na lista de desejos”, acompanhado de um ícone de coração.<br>
+Clicando nele, o título é imediatamente incluído na lista pessoal do usuário, permitindo que ele salve o livro para acompanhar sua disponibilidade. Esse recurso é especialmente útil caso o livro esteja esgotado no momento ou se o usuário estiver apenas organizando leituras de interesse.<br>
     </div>
     <button class="dashboard-button">
       Como realizar empréstimos
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Instruções passo a passo para solicitar livros e acompanhar o histórico.
+     Quando o usuário encontra um livro de interesse, ele pode reservá-lo diretamente pelo site. Após realizar a reserva, basta ir até a biblioteca da escola para retirar a obra presencialmente.<br>
+
+Caso o livro já esteja emprestado por outra pessoa, o sistema permite que o usuário também faça a reserva normalmente. Assim que a obra for devolvida à biblioteca, o sistema envia uma notificação automática, informando que o livro está disponível novamente para retirada.
+
+Essa dinâmica assegura um controle organizado do acervo, evita filas ou disputas por livros populares e proporciona ao usuário uma experiência prática e tranquila ao acessar os materiais da biblioteca.<br>
     </div>
     <button class="dashboard-button">
       Consultar o acervo de livros
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Como pesquisar livros disponíveis na biblioteca digital ou física.
+      Consulta de Acervo:<br>
+Na página inicial do BiblIONtec, o usuário tem acesso direto ao acervo da biblioteca de sua escola. É possível visualizar rapidamente os livros indicados pelos professores ou simplesmente rolar a página para baixo para conferir todos os títulos cadastrados no sistema.<br>
+Esse mesmo recurso de consulta também está disponível nas páginas “Indicações” e “Biblioteca”, permitindo que o usuário explore o acervo a partir de diferentes seções do site.<br>
+<br>
+Barra de Pesquisa:<br>
+Na parte superior do site, há uma barra de pesquisa que possibilita procurar livros de maneira rápida e prática. O usuário pode digitar o nome do livro, autor ou palavras relacionadas, otimizando a busca dentro do acervo disponível.<br>
     </div>
     <button class="dashboard-button">
       Renovar livros
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Como renovar um livro emprestado e evitar multas.
+      Para realizar a reserva, o usuário deve clicar no botão “Reserve o livro agora”.<br>
+Ao selecionar essa opção, o sistema registra a solicitação e vincula a reserva diretamente ao perfil do usuário. Assim, o livro passa a constar como reservado, impedindo que outros usuários o peguem enquanto a reserva estiver ativa.<br>
     </div>
   </div>
 </div>
@@ -737,32 +894,28 @@ Série e Curso.<br>
     <div class="dashboard-title">Professor</div>
 
     <button class="dashboard-button">
-      Alteração de dados
-      <i class="bi bi-chevron-right"></i>
-    </button>
-    <div class="dashboard-dropdown">
-      Como acessar relatórios de uso da biblioteca e estatísticas de turmas.
-    </div>
-    <button class="dashboard-button">
       Indicar livros para as turmas
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Guia para solicitar livros e materiais de apoio ao ensino.
-    </div>
-    <button class="dashboard-button">
-      Visualização das notificações
-      <i class="bi bi-chevron-right"></i>
-    </button>
-    <div class="dashboard-dropdown">
-      Como acessar relatórios de uso da biblioteca e estatísticas de turmas.
+      Para realizar a indicação de livros, o professor acessa a área “Indicar Livros”, onde todos os títulos disponíveis no acervo são exibidos. Ao selecionar um livro, ele é direcionado para a página de detalhes — como a mostrada na imagem.<br>
+<br>
+Nessa tela, o professor visualiza todas as informações do livro escolhido, organizadas de forma simples e direta. À esquerda, aparece a capa do livro, facilitando a identificação visual da obra. À direita, são apresentados o título, o autor (quando informado) e uma descrição resumida do conteúdo do livro, permitindo que o professor confirme se é a obra correta antes de prosseguir.<br>
+<br>
+Abaixo da descrição, um selo de status informa se o livro está Disponível ou não. Esse indicador é importante, pois ajuda o professor a saber se a obra pode ser recomendada naquele momento.<br>
+<br>
+Após revisar as informações, o professor pode clicar no botão “Indicar”, localizado na parte inferior da página. É esse botão que efetivamente registra a indicação do livro para os alunos ou para o sistema designado pela plataforma.<br>
     </div>
     <button class="dashboard-button">
       Visualizar do acervo de livros
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Explicação sobre como reservar obras e acompanhar disponibilidade.
+      Logo no topo, a página apresenta um campo de busca, onde o professor pode digitar o nome do livro desejado para filtrar os resultados de forma imediata.
+<br>
+Abaixo da busca, três filtros adicionais — Editora, Autor e Categoria — permitem refinar a pesquisa conforme as características do acervo. Cada filtro apresenta um menu suspenso, possibilitando localizar livros com mais precisão, seja para estudos, recomendações ou planejamento de aulas.<br>
+<br>
+Os livros cadastrados são exibidos em cartões organizados visualmente, contendo a capa, o título e o status de disponibilidade. Livros marcados como “Indisponível” indicam que já estão emprestados ou reservados no momento, ajudando o professor a identificar rapidamente quais obras estão acessíveis para consulta.<br>
     </div>
     
     <button class="dashboard-button">
@@ -770,11 +923,49 @@ Série e Curso.<br>
       <i class="bi bi-chevron-right"></i>
     </button>
     <div class="dashboard-dropdown">
-      Como acessar relatórios de uso da biblioteca e estatísticas de turmas.
+      A seção de Comentários permite que alunos interajam diretamente na página do livro, compartilhando opiniões, dúvidas ou impressões sobre a obra. Para chegar até os comentários precisa ir na aba "indicar livros" e depois escolher um livro você será direcionado para ver os detalhes do livro e os comentários. Essa área aparece logo abaixo das opções de reserva e lista de desejos, facilitando a continuidade da navegação.<br>
+<br>
+No topo da seção, cada comentário é exibido em um cartão individual, contendo a foto do autor do comentário, seu nome, a mensagem enviada e a data da publicação. Essa organização torna a leitura clara e mantém um registro visível das interações realizadas.<br>
+<br>
+Abaixo dos comentários já publicados, há um campo destinado à inserção de novas mensagens. O usuário pode escrever livremente seu texto no espaço indicado e, ao finalizar, basta clicar no botão “Enviar comentário” para que sua contribuição seja adicionada à lista.<br>
     </div>
     
   </div>
 </div>
+<br><br><br><br>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+      <div class="container d-flex justify-content-between align-items-start">
+
+        <div>
+          <h5>Desenvolvedores</h5>
+          <ul class="list-unstyled">
+            <li><strong>Ana Laura</strong> – pesquisadora</li>
+            <li><strong>Camila</strong> – designer</li>
+            <li><strong>Guilherme P.</strong> – pesquisador</li>
+            <li><strong>Joyce</strong> – líder do projeto</li>
+            <li><strong>Juan</strong> – designer</li>
+            <li><strong>Vinicius R.</strong> – programador</li>
+          </ul>
+        </div>
+
+        <div>
+          <h5>Contatos</h5>
+          <ul class="list-unstyled">
+            <li><strong>E-mail:</strong> tccbiblioteca023@gmail.com</li>
+            <li><strong>Instagram:</strong> @bibliONtec</li>
+          </ul>
+        </div>
+
+        <div class="text-start" style="max-width: 200px;">
+          <h5>Sobre</h5>
+          <p class="mb-0">Site para gestão de biblioteca e interação com usuários.</p>
+        </div>
+
+
+      </div>
+    </footer>
 
 <script>
 function openTab(evt, tabName) {
@@ -824,9 +1015,72 @@ dashboardButtons.forEach(btn => {
 });
 </script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // 🔹 Tenta carregar aluno/professor
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+    // 🔹 Tenta carregar funcionário
+    const funcionario = JSON.parse(localStorage.getItem("funcionario") || "null");
+
+    let abaPermitida = null;
+
+    // ------------------------------
+    // 📌 ALUNO / PROFESSOR
+    // ------------------------------
+    if (usuario) {
+        if (usuario.tipo_usuario_id === 1) {
+            abaPermitida = "usu";   // aluno
+        } else if (usuario.tipo_usuario_id === 2) {
+            abaPermitida = "prof";  // professor
+        }
+    }
+
+    // ------------------------------
+    // 📌 FUNCIONÁRIO
+    // ------------------------------
+    if (funcionario) {
+        if (funcionario.funcao_id === 1) {
+            abaPermitida = "adm";       // Administrador
+        } else if ([2,3,4].includes(funcionario.funcao_id)) {
+            abaPermitida = "biblio";    // Bibliotecário, Circulação, Catalogação
+        }
+    }
+
+    if (!abaPermitida) return; // nada encontrado → não remover nada
+
+    // Lista completa das abas
+    const todasAbas = ["adm","biblio","usu","prof"];
+
+    // REMOVE botões e abas dos outros tipos
+    todasAbas.forEach(tipo => {
+        if (tipo !== abaPermitida) {
+
+            // Remove botão pela palavra visível
+            const botao = [...document.querySelectorAll(".tab-button")]
+                .find(b => b.innerText.trim().toLowerCase().includes(
+                    tipo === "adm" ? "admin" :
+                    tipo === "bibliotecario" ? "bibliotecario" :
+                    tipo === "usu" ? "usuário" :
+                    "prof"
+                ));
+
+            if (botao) botao.remove();
+
+            // Remove conteúdo da aba
+            const aba = document.getElementById(tipo);
+            if (aba) aba.remove();
+        }
+    });
+
+    // Ativa a aba correta
+    const abaUser = document.getElementById(abaPermitida);
+    if (abaUser) abaUser.classList.add("active-tab");
+
+});
+</script>
 
 
-  
 
  <!-- Botão de acessibilidade -->
   <div style="position: fixed; bottom: 20px; right: 20px; z-index: 999;">
@@ -843,12 +1097,13 @@ dashboardButtons.forEach(btn => {
     <a href="./areaAdm.html" class="dropdown-item">Meu Perfil</a>
     <hr class="menu-divider">
     <a href="#" class="dropdown-item">Perguntas Frequentes</a>
-    <hr class="menu-divider">
-   <!-- <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>-->
+     <hr class="menu-divider">
+      <a href="./index.html" class="dropdown-item" onclick="logout()">Sair</a>
+    </div>
   </div>
 </div>
-<!--<script src="../java/script.js"></script>
--->
+<script src="../java/script.js"></script>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 <script src="../../acessibilidade.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
